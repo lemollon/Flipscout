@@ -212,6 +212,28 @@ price, url, item_id}]` + a `name` (see `sources.py`); the engine comps and ranks
 Facebook / OfferUp / Mercari have no API (that's what manual capture is for);
 Craigslist blocks cloud servers — so those stay manual.
 
+## Always-on alerts (deals come to you)
+
+Set a **watchlist** once; a scheduler scans it every hour and pushes only the *new*
+deals (best $/hour first) to your phone — you never open the app to hunt.
+
+It runs free on **GitHub Actions** (`.github/workflows/watch.yml`) — no server to
+host. One-time setup, repo **Settings → Secrets and variables → Actions**:
+
+| Secret | What |
+|---|---|
+| `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET` | your eBay app keys |
+| `FLIPSCOUT_WATCHLIST` | your searches, comma/newline separated |
+| `FLIPSCOUT_ALERT_WEBHOOK` | a **Discord or Slack** incoming-webhook URL (easiest) |
+
+Tune with optional repo **Variables** (`FLIPSCOUT_MIN_PROFIT`, `FLIPSCOUT_MIN_ROI`,
+`FLIPSCOUT_SOURCES`, `FLIPSCOUT_TOP`, `FLIPSCOUT_LOCAL`, `FLIPSCOUT_ZIP`). The
+workflow persists a seen-cache so you're not re-alerted on the same item. Test it
+locally first with `flipscout watch --dry`.
+
+> Prefer email? Set `FLIPSCOUT_SMTP_HOST/PORT/USER/PASS` + `FLIPSCOUT_ALERT_TO`.
+> (Render's cron is a paid add-on, which is why the default scheduler is Actions.)
+
 ## Where the money is (goldmine categories)
 
 There's no secret hot-items list — viral items get swarmed and the margin dies.
@@ -324,7 +346,8 @@ other cell blank for "unknown". See `sample_items.csv`. Blank `observed_price`
 | `item`      | score one candidate (`--ebay` for live sold data) |
 | `csv`       | score a spreadsheet of candidates, best first |
 | `maxpay`    | highest price to pay for a given eBay sold price |
-| `scan`      | arbitrage scan — find underpriced eBay listings, ranked by profit (needs eBay keys) |
+| `scan`      | arbitrage scan — find underpriced listings, ranked by $/hour (needs eBay keys) |
+| `watch`     | run your watchlist once and alert on new deals (the always-on job) |
 | `remember`  | save a comp to your personal price book |
 | `goldmines` | print the margin-ranked buy-box cheat-sheet |
 

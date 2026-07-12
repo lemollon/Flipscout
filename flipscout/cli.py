@@ -90,6 +90,24 @@ def cmd_maxpay(args) -> int:
     return 0 if m.max_price > 0 else 2
 
 
+def cmd_watch(args) -> int:
+    """Run the watchlist once and alert on new deals (the always-on job, one shot)."""
+    from .watch import load_config, run_watch
+    from .notify import notify
+
+    def dry(text):
+        print(text)
+        return []
+
+    cfg = load_config()
+    if args.queries:
+        cfg["queries"] = args.queries
+    res = run_watch(cfg, notifier=dry if args.dry else notify)
+    print(f"\n{res['new']} new / {res['scanned']} scanned"
+          + (f", sent via {res['sent']}" if res["sent"] else ""))
+    return 0
+
+
 def cmd_goldmines(args) -> int:
     """Print the starter buy-box cheat-sheet."""
     print(format_goldmines())
@@ -197,6 +215,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("goldmines", help="print the goldmine-category buy-box cheat-sheet") \
        .set_defaults(func=cmd_goldmines)
+
+    pw = sub.add_parser("watch", help="run your watchlist once and alert on new deals")
+    pw.add_argument("queries", nargs="*", help="override the FLIPSCOUT_WATCHLIST searches")
+    pw.add_argument("--dry", action="store_true", help="print the digest, don't send alerts")
+    pw.set_defaults(func=cmd_watch)
 
     ps = sub.add_parser("scan", parents=[common],
                         help="arbitrage scan: find underpriced eBay listings (needs eBay keys)")

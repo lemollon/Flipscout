@@ -1,0 +1,53 @@
+# Always-on deal watcher — free hourly scheduler.
+#
+# Runs your watchlist, alerts on NEW deals only, pushes them to your Discord/Slack
+# webhook (or email). Nothing to host — GitHub runs it for you.
+#
+# Setup (once): repo Settings → Secrets and variables → Actions → add:
+#   EBAY_CLIENT_ID, EBAY_CLIENT_SECRET   (your eBay app keys)
+#   FLIPSCOUT_WATCHLIST                  (your searches, comma- or newline-separated)
+#   FLIPSCOUT_ALERT_WEBHOOK              (a Discord or Slack incoming-webhook URL)
+# Optional Variables (Settings → Variables): FLIPSCOUT_SOURCES, FLIPSCOUT_MIN_PROFIT,
+#   FLIPSCOUT_MIN_ROI, FLIPSCOUT_TOP, FLIPSCOUT_LOCAL, FLIPSCOUT_ZIP.
+
+name: Flipscout deal watch
+
+on:
+  schedule:
+    - cron: "17 * * * *"        # hourly at :17 (off the top-of-hour rush)
+  workflow_dispatch: {}          # lets you run it on demand from the Actions tab
+
+concurrency:                     # don't overlap runs
+  group: flipscout-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      # Persist the seen-cache across runs so you're not re-alerted on the same item.
+      - uses: actions/cache@v4
+        with:
+          path: flipscout_seen.json
+          key: flipscout-seen-${{ github.run_id }}
+          restore-keys: flipscout-seen-
+      - name: Scan and alert
+        run: python -m flipscout.watch
+        env:
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+          EBAY_ENV: production
+          FLIPSCOUT_WATCHLIST: ${{ secrets.FLIPSCOUT_WATCHLIST }}
+          FLIPSCOUT_ALERT_WEBHOOK: ${{ secrets.FLIPSCOUT_ALERT_WEBHOOK }}
+          FLIPSCOUT_SOURCES: ${{ vars.FLIPSCOUT_SOURCES || 'ebay' }}
+          FLIPSCOUT_MIN_PROFIT: ${{ vars.FLIPSCOUT_MIN_PROFIT || '20' }}
+          FLIPSCOUT_MIN_ROI: ${{ vars.FLIPSCOUT_MIN_ROI || '0.6' }}
+          FLIPSCOUT_TOP: ${{ vars.FLIPSCOUT_TOP || '10' }}
+          FLIPSCOUT_LOCAL: ${{ vars.FLIPSCOUT_LOCAL || '' }}
+          FLIPSCOUT_ZIP: ${{ vars.FLIPSCOUT_ZIP || '' }}
+          FLIPSCOUT_STATE_FILE: flipscout_seen.json
