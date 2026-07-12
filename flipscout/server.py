@@ -22,6 +22,7 @@ With no eBay keys set, the app still serves and works fully in estimate mode; on
 
 from __future__ import annotations
 
+import dataclasses
 import os
 from pathlib import Path
 from typing import Optional
@@ -103,6 +104,24 @@ def create_app() -> "FastAPI":
             "low": comp.low,
             "high": comp.high,
         }
+
+    @app.get("/api/deals")
+    def deals(q: str = Query(..., min_length=1, description="comma-separated searches"),
+              min_profit: float = 15.0, min_roi: float = 0.5):
+        if not ebay_configured() and _provider is None:
+            raise HTTPException(status_code=503, detail=(
+                "Live eBay lookups aren't set up. Set EBAY_CLIENT_ID and "
+                "EBAY_CLIENT_SECRET to scan for deals."))
+        from .analyzer import Thresholds
+        from .scanner import scan
+        queries = [s.strip() for s in q.split(",") if s.strip()]
+        try:
+            hits = scan(queries, get_provider(),
+                        thresholds=Thresholds(min_profit=min_profit, min_roi=min_roi),
+                        limit_per_query=10)
+        except Exception as e:
+            raise HTTPException(status_code=502, detail=f"Scan failed: {e}")
+        return {"deals": [dataclasses.asdict(h) for h in hits[:50]]}
 
     @app.post("/api/scan")
     async def scan(image: UploadFile = File(...)):

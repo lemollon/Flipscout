@@ -116,6 +116,27 @@ def parse_browse(body: dict) -> tuple[Optional[int], list[float]]:
     return (int(total) if total is not None else None), asks
 
 
+def parse_browse_items(body: dict) -> list[dict]:
+    """[{title, price, url, item_id}] from a Browse item_summary/search response —
+    the individual active listings, for the arbitrage scanner."""
+    out: list[dict] = []
+    for it in body.get("itemSummaries", []) or []:
+        price = (it.get("price") or {}).get("value")
+        if price is None:
+            continue
+        try:
+            price = float(price)
+        except (TypeError, ValueError):
+            continue
+        out.append({
+            "title": it.get("title") or "",
+            "price": price,
+            "url": it.get("itemWebUrl") or it.get("itemHref") or "",
+            "item_id": it.get("itemId") or "",
+        })
+    return out
+
+
 def parse_insights(body: dict) -> tuple[Optional[int], list[float]]:
     """(sold_count, sold_prices) from a Marketplace Insights item_sales/search response."""
     total = body.get("total")
@@ -166,6 +187,18 @@ class EbayApiComps:
         )
         resp.raise_for_status()
         return parse_browse(resp.json())
+
+    def active_listings(self, query: str, limit: int = 50) -> list[dict]:
+        """The active listings for a query — [{title, price, url, item_id}].
+        Used by the arbitrage scanner to find underpriced ones."""
+        resp = self.session.get(
+            f"{self.cfg.host}/buy/browse/v1/item_summary/search",
+            headers=self._auth_header(),
+            params={"q": query, "limit": limit},
+            timeout=_TIMEOUT,
+        )
+        resp.raise_for_status()
+        return parse_browse_items(resp.json())
 
     def _insights(self, query: str, limit: int = 50) -> tuple[Optional[int], list[float]]:
         """Sold data. Returns (None, []) if the API isn't available to this app

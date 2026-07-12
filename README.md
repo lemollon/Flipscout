@@ -172,6 +172,25 @@ Or score a whole spreadsheet you built while sourcing:
 python -m flipscout.cli csv flipscout/sample_items.csv
 ```
 
+## Find deals (arbitrage scanner)
+
+The hands-off "deals come to me" engine. Give it searches; it pulls the current
+active listings, compares each to the sold median, and ranks the ones priced low
+enough to flip after fees — no browsing, no typing. Runs on live eBay data (needs
+the API keys).
+
+```bash
+flipscout scan "dewalt dcd771" "sansui receiver" --links
+#  $113.10  ROI 189%  buy $ 60.00 → sell $200.00  DeWalt DCD771 (underpriced)
+```
+
+In the web app it's the **Find deals** tab (calls `GET /api/deals?q=a,b,c`). Today
+it scans **eBay itself** (buy an underpriced / mistitled / ending-soon listing,
+resell at the going rate) because eBay's API makes that 100% allowed. The pipeline
+(`scanner.py`: active listings → comp → rank) is source-agnostic — a Craigslist-RSS
+or liquidation-feed source drops in by implementing `active_listings(query)` +
+`lookup(query)`.
+
 ## Where the money is (goldmine categories)
 
 There's no secret hot-items list — viral items get swarmed and the margin dies.
@@ -284,8 +303,9 @@ other cell blank for "unknown". See `sample_items.csv`. Blank `observed_price`
 | `item`      | score one candidate (`--ebay` for live sold data) |
 | `csv`       | score a spreadsheet of candidates, best first |
 | `maxpay`    | highest price to pay for a given eBay sold price |
+| `scan`      | arbitrage scan — find underpriced eBay listings, ranked by profit (needs eBay keys) |
 | `remember`  | save a comp to your personal price book |
-| `goldmines` | print the goldmine-category buy-box cheat-sheet |
+| `goldmines` | print the margin-ranked buy-box cheat-sheet |
 
 ## Layout
 

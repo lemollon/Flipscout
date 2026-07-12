@@ -180,6 +180,7 @@
   <div class="seg" role="tablist" aria-label="Mode">
     <button id="tab-score" role="tab" aria-selected="true" aria-controls="view-score">Should I buy?</button>
     <button id="tab-max" role="tab" aria-selected="false" aria-controls="view-max">Max price</button>
+    <button id="tab-deals" role="tab" aria-selected="false" aria-controls="view-deals">Find deals</button>
   </div>
 
   <!-- ============ SCORE ============ -->
@@ -281,6 +282,21 @@
       </div>
     </div>
     <div class="card" id="m-result"></div>
+  </section>
+
+  <!-- ============ FIND DEALS (arbitrage scanner) ============ -->
+  <section id="view-deals" role="tabpanel" aria-labelledby="tab-deals" class="hide">
+    <div class="card">
+      <div class="field">
+        <label for="d-q">Searches <span class="hint">— comma-separated, e.g. dewalt dcd771, canon powershot</span></label>
+        <input type="text" id="d-q" placeholder="dewalt dcd771, sansui receiver" autocomplete="off">
+      </div>
+      <div class="row">
+        <button class="btn primary" id="d-go" type="button">Scan for deals</button>
+      </div>
+      <div class="look-status" id="d-status"></div>
+    </div>
+    <div id="d-result"></div>
   </section>
 
   <!-- ============ DESKTOP CAPTURE ============ -->
@@ -480,15 +496,51 @@ $("#s-clear").addEventListener("click", ()=>{
 $("#s-name").addEventListener("change", e=>bookLookup(e.target.value));
 
 /* ---- tabs ---- */
+const TABS = ["score","max","deals"];
 function selectTab(which){
-  const score = which==="score";
-  $("#tab-score").setAttribute("aria-selected", score);
-  $("#tab-max").setAttribute("aria-selected", !score);
-  $("#view-score").classList.toggle("hide", !score);
-  $("#view-max").classList.toggle("hide", score);
+  TABS.forEach(t=>{
+    $("#tab-"+t).setAttribute("aria-selected", t===which);
+    $("#view-"+t).classList.toggle("hide", t!==which);
+  });
 }
-$("#tab-score").addEventListener("click", ()=>selectTab("score"));
-$("#tab-max").addEventListener("click", ()=>selectTab("max"));
+TABS.forEach(t=> $("#tab-"+t).addEventListener("click", ()=>selectTab(t)));
+
+/* ---- find deals (arbitrage scanner via /api/deals) ---- */
+async function findDeals(){
+  const q = $("#d-q").value.trim();
+  const box = $("#d-result"), st = $("#d-status"), btn = $("#d-go");
+  if(!q){ st.className="look-status err"; st.textContent="Enter at least one search."; return; }
+  btn.setAttribute("aria-busy","true"); box.innerHTML="";
+  st.className="look-status"; st.textContent="Scanning eBay for underpriced listings…";
+  try{
+    const base = (SET.apiBase||"").replace(/\/+$/,"");
+    const url = base + "/api/deals?q=" + encodeURIComponent(q)
+      + "&min_profit=" + SET.minProfit + "&min_roi=" + SET.minRoi;
+    const r = await fetch(url, {headers:{Accept:"application/json"}});
+    if(r.status===503){ const d=await r.json().catch(()=>({})); throw new Error(d.detail || "Deal scanning needs the eBay API set up on the server."); }
+    if(!r.ok){ throw new Error("Scan failed ("+r.status+")."); }
+    const deals = (await r.json()).deals || [];
+    if(!deals.length){ st.className="look-status"; st.textContent="No deals found — nothing priced below its sold value by your bar."; return; }
+    st.className="look-status ok"; st.textContent = `${deals.length} deal(s), best profit first:`;
+    box.innerHTML = deals.map(d=>{
+      const st2 = STYLE.BUY;
+      const link = d.url ? `<a href="${d.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">view →</a>` : "";
+      return `<div class="result" style="--line:${st2.line};--tint:${st2.bg};--fg:${st2.fg}">
+        <div class="head">
+          <div><div style="font-weight:650;font-size:.9rem">${(d.title||"").slice(0,60)}</div>
+            <div class="hint" style="font-size:.78rem">buy ${$money(d.buy_price)} → sell ${$money(d.sold_price)} · ${link}</div></div>
+          <div class="big"><span class="n">${$money(d.profit)}</span><span class="k">ROI ${$pct(d.roi)}</span></div>
+        </div></div>`;
+    }).join("");
+  }catch(err){
+    st.className="look-status err";
+    st.textContent = (err && err.name==="TypeError")
+      ? "Can't reach the Flipscout server. Deal scanning needs the hosted/local server running."
+      : (err.message || "Scan failed.");
+  }finally{ btn.removeAttribute("aria-busy"); }
+}
+$("#d-go").addEventListener("click", findDeals);
+$("#d-q").addEventListener("keydown", e=>{ if(e.key==="Enter") findDeals(); });
 
 /* ---- settings ---- */
 const SET_FIELDS = [["set-fvf","fvf",100],["set-order","perOrder",1],["set-promo","promoted",100],
@@ -670,21 +722,24 @@ function applyHash(){
 
 /* ---- goldmines ---- */
 const GOLD = [
-  {n:"Power tools", ship:"Ships easy", why:"Huge brand demand, compact, estate & retiree sellers dump them cheap. Best profit-per-effort there is.", learn:"DeWalt, Milwaukee, Makita, Snap-on, Festool, Bosch", watch:"Test it powers on; batteries/chargers add value — check they hold charge."},
-  {n:"Bulky items nobody wants to ship", ship:"Local pickup", why:"The purest Facebook edge: the shipping pain that scares off competition is exactly why it's cheap locally.", learn:"Solid-wood furniture, gym equipment, appliances, treadmills", watch:"Confirm you can transport it. Flip local or offer freight/pickup."},
-  {n:"Game consoles & retro", ship:"Ships easy", why:"Deep, constant demand with clear comps; retro and sealed appreciate.", learn:"Switch / PS5 / Xbox, SNES, N64, GameCube, sealed games", watch:"Test it; count controllers/cables; retro — check for corrosion."},
-  {n:"Tech / electronics", ship:"Ships easy", why:"High value, fast comps, always in demand.", learn:"MacBooks, iPads, iPhones, GPUs, AirPods, mechanical keyboards", watch:"Scam-prone: check for iCloud/activation lock & blacklisted IMEI. Verify it wipes before you pay."},
-  {n:"Vintage & branded clothing", ship:"Ships easy", why:"Seller sees ‘old clothes’; eBay sees brand and rarity. High margin, cheap to ship, stacks into volume.", learn:"Carhartt, Patagonia, Levi's, vintage band tees, brand sneakers", watch:"Authenticate (fakes everywhere); check flaws, sizing, measurements."},
-  {n:"LEGO, cards & collectibles", ship:"Ships easy", why:"Retired LEGO sets appreciate; steady collector demand.", learn:"Retired/sealed LEGO, sports & Pokémon cards, coins, comics", watch:"Completeness matters; sealed ≫ opened. Beware reprints/fakes."},
+  {n:"Vintage & branded clothing", band:"$3–5 → $40–80 · 60–120%", ship:"Ships easy", why:"Seller sees ‘old clothes’; eBay pays for the brand. Best margin-per-effort; cheap ship, stacks into volume.", learn:"Carhartt, Patagonia, Levi's, band tees, wool/cashmere, Y2K (Von Dutch, Juicy)", watch:"Authenticate (fakes everywhere); check flaws, sizing, measurements."},
+  {n:"Y2K digital cameras", band:"$10–20 → $40–120 · sells in days", ship:"Ships easy", why:"Gen-Z fad for early-2000s point-and-shoots; move fast, ship tiny.", learn:"Canon PowerShot, Nikon Coolpix, Sony Cyber-shot (~2005–2010)", watch:"Test it powers on + shoots; needs the right battery/SD — include them."},
+  {n:"Retro gaming (complete-in-box)", band:"cart $8 → CIB $40 · systems 3–5×", ship:"Ships easy", why:"CIB sells 5–10× a loose cart; deep steady demand, clear comps.", learn:"NES/SNES/N64/GameCube, sealed games, CIB titles, handhelds", watch:"Test it; count controllers/cables; retro — check for corrosion."},
+  {n:"Power tools", band:"$20–40 → $90–200 · high $/effort", ship:"Ships easy", why:"Huge brand demand, compact, estate & retiree sellers dump them cheap.", learn:"DeWalt, Milwaukee, Makita, Snap-on, Festool, Bosch", watch:"Test it powers on; batteries/chargers add value — check they hold charge."},
+  {n:"Vintage & pro audio", band:"$30 → $200+ · home-studio boom", ship:"Local / heavy", why:"Thrift-underpriced; content creators want the classic gear.", learn:"Pioneer/Marantz/Sansui receivers, mixers, studio mics, monitors", watch:"Heavy — factor shipping or flip local; test all channels/inputs."},
+  {n:"Small OEM parts & accessories", band:"$1–5 → $20–60 · tiny ship", ship:"Ships easy", why:"Buyer needs the EXACT part; low competition, featherweight shipping.", learn:"Proprietary cables, remotes, ink/toner, laptop parts, OEM auto parts (by part #)", watch:"Match the exact model/part number; note compatibility precisely."},
+  {n:"Jewelry, cards & collectibles", band:"lot → multiples · very high %", ship:"Ships easy", why:"Often priced as ‘costume’; sold by hallmark, silver weight, or singles.", learn:"Sterling by weight, costume jewelry, Pokémon/sports card lots, coins, LEGO minifigs", watch:"Verify hallmarks/authenticity; sealed ≫ opened; beware reprints/fakes."},
+  {n:"Bulky items nobody wants to ship", band:"local pickup · low % but big $", ship:"Local pickup", why:"The purest local edge: the shipping pain that scares off competition is exactly why it's cheap locally.", learn:"Solid-wood furniture, gym equipment, appliances, treadmills", watch:"Confirm you can transport it. Flip local or offer freight/pickup."},
 ];
-$("#gold-body").innerHTML = `<p style="font-size:.82rem;color:var(--muted);margin:.2em 0 0">Learn a few cold so you can judge on sight. Still check the sold comps every time.</p>` +
+$("#gold-body").innerHTML = `<p style="font-size:.82rem;color:var(--muted);margin:.2em 0 0">Ranked for margin. Rule: shipping &lt; 40% of the sale, aim for 25%+ net. Still check sold comps every time.</p>` +
   GOLD.map(g=>{
-    const local = g.ship==="Local pickup";
+    const local = g.ship.indexOf("Local")===0 || g.ship.indexOf("Local /")===0;
     const st = local ? "var(--maybe-line)" : "var(--buy-line)";
     const tint = local ? "var(--maybe-bg)" : "var(--buy-bg)";
     const fg = local ? "var(--maybe-fg)" : "var(--buy-fg)";
     return `<div class="mine" style="--line:${st};--tint:${tint};--fg:${fg}">
       <h4>${g.n} <span class="chip">${g.ship}</span></h4>
+      <p style="font-family:var(--mono);font-size:.8rem;color:var(--fg)">${g.band}</p>
       <p>${g.why}</p>
       <p class="learn"><b>Learn:</b> ${g.learn}</p>
       <p class="watch">${g.watch}</p>

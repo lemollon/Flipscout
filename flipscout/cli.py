@@ -96,6 +96,25 @@ def cmd_goldmines(args) -> int:
     return 0
 
 
+def cmd_scan(args) -> int:
+    """Arbitrage scan: find underpriced eBay listings for your searches."""
+    from .ebay_api import EbayApiComps  # needs creds + requests
+    from .scanner import scan
+    source = EbayApiComps()
+    hits = scan(args.queries, source, fees=_fee_model(args), thresholds=_thresholds(args),
+                buy_shipping=args.buy_ship, resell_shipping=args.ship_cost,
+                limit_per_query=args.per_query)
+    if not hits:
+        print("No arbitrage found (nothing priced below its sold value by your bar).")
+        return 0
+    print(f"{len(hits)} deal(s), best profit first:\n")
+    for h in hits:
+        print(h.summary())
+        if args.links and h.url:
+            print(f"             {h.url}")
+    return 0
+
+
 def cmd_remember(args) -> int:
     """Save a comp to your personal price book so this item is instant next time."""
     save_comp(args.memory, Comp(
@@ -172,6 +191,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("goldmines", help="print the goldmine-category buy-box cheat-sheet") \
        .set_defaults(func=cmd_goldmines)
+
+    ps = sub.add_parser("scan", parents=[common],
+                        help="arbitrage scan: find underpriced eBay listings (needs eBay keys)")
+    ps.add_argument("queries", nargs="+", help="one or more searches, e.g. \"dewalt drill\"")
+    ps.add_argument("--ship-cost", type=float, default=0.0, help="postage you'd pay to reship")
+    ps.add_argument("--buy-ship", type=float, default=0.0, help="postage added when you buy")
+    ps.add_argument("--per-query", type=int, default=None, help="cap hits shown per search")
+    ps.add_argument("--links", action="store_true", help="print the listing URL for each hit")
+    ps.set_defaults(func=cmd_scan)
 
     pr = sub.add_parser("remember", help="save a comp to your price book")
     pr.add_argument("title")
