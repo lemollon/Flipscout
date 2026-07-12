@@ -90,6 +90,24 @@ server. Live is additive, never required. `flipscout/server.py` exposes
 `GET /api/comps?q=...`; point the app at a remote server via **Fees & goals → eBay
 lookup server** if you host it elsewhere.
 
+## Deploy (one always-on URL for your phone)
+
+Hosting the server gives you a single `https://…onrender.com` link where the
+**screenshot scan** and **live eBay lookups** work from any device — no local
+setup, nothing to keep running. `render.yaml` is included:
+
+1. Get free keys: an **eBay** app (<https://developer.ebay.com/>) and an
+   **Anthropic API key** (<https://console.anthropic.com/>).
+2. In **Render** → **New +** → **Blueprint** → pick the **flipscout** repo.
+   Render reads `render.yaml` and asks for three secrets: `ANTHROPIC_API_KEY`,
+   `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET`. Paste them → **Apply**.
+3. Open the URL Render gives you (add it to your phone's home screen). The 📷
+   scan and eBay button now work — everything server-side is live.
+
+> Free plan sleeps after ~15 min idle (first request wakes it in ~30-50s). The
+> URL is public, so treat it as personal — anyone with the link can spend your
+> API quota. Ask me to add a simple access code if you want to lock it down.
+
 ## Install (CLI)
 
 ```bash

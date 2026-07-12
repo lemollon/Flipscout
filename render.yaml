@@ -1,0 +1,32 @@
+# Deploy Flipscout to Render as a web service.
+#
+# In the Render dashboard:  New +  →  Blueprint  →  pick the flipscout repo.
+# Render reads this file, then prompts for the three secret values below
+# (they're kept out of the repo). Click Apply and you get an https URL that
+# scans screenshots and does live eBay lookups — open it from your phone.
+#
+# Free plan note: the service sleeps after ~15 min idle; the first request
+# after that takes ~30-50s to wake. Fine for personal use.
+
+services:
+  - type: web
+    name: flipscout
+    runtime: python
+    plan: free
+    healthCheckPath: /api/health
+    buildCommand: "pip install -e '.[server,scan]'"
+    startCommand: "uvicorn flipscout.server:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      # Secrets — Render prompts for these on deploy; never stored in the repo.
+      - key: ANTHROPIC_API_KEY      # enables the 📷 screenshot scan (vision)
+        sync: false
+      - key: EBAY_CLIENT_ID         # enables live eBay sold-price lookups
+        sync: false
+      - key: EBAY_CLIENT_SECRET
+        sync: false
+      - key: EBAY_ENV
+        value: production
+      - key: FLIPSCOUT_CORS
+        value: "*"
