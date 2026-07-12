@@ -5,7 +5,22 @@ Anyone can find cheap stuff. The winners are the flips where the eBay sale price
 *minus fees and shipping*, comfortably beats what you paid — and that sell fast
 enough that your cash isn't stuck. This does that math for you in one line.
 
-## Install
+## Web app (phone + computer)
+
+`web/index.html` is a **self-contained** page — no server, no build, works
+**offline**. Open it directly in any browser (double-click the file, or on your
+phone: put it in iCloud/Drive and open it, then *Add to Home Screen*). It runs the
+exact same math as the CLI:
+
+- **Should I buy?** — type buy price + eBay sold price; get a live BUY / MAYBE /
+  SKIP / NEEDS-COMP verdict with profit, ROI, and sell-through.
+- **Max price** — the in-the-aisle question: the highest you can pay and still hit
+  your goal.
+- **Goldmine categories** cheat-sheet, tunable **fees & goals**, and a **price
+  book** that remembers your comps (saved in the browser, nothing leaves the
+  device).
+
+## Install (CLI)
 
 ```bash
 git clone https://github.com/lemollon/flipscout.git

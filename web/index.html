@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2563EB">
+<title>Flipscout — should I buy it?</title>
+<style>
+  :root{
+    --bg:#F4F6F9; --surface:#FFFFFF; --surface-2:#F0F3F7; --border:#DCE3EC;
+    --text:#0F172A; --muted:#586377; --accent:#2563EB; --accent-ink:#FFFFFF; --focus:#2563EB;
+    --buy-fg:#0B7A3B; --buy-bg:#DCFCE7; --buy-line:#16A34A;
+    --maybe-fg:#9A5B00; --maybe-bg:#FDF2C9; --maybe-line:#E0A106;
+    --skip-fg:#B42318; --skip-bg:#FDE4E1; --skip-line:#E5484D;
+    --neutral-fg:#475569; --neutral-bg:#EAEFF4; --neutral-line:#94A2B6;
+    --shadow:0 1px 2px rgba(15,23,42,.06), 0 8px 24px rgba(15,23,42,.05);
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0B0E13; --surface:#151A22; --surface-2:#1B222C; --border:#2A323E;
+      --text:#E7ECF3; --muted:#95A3B7; --accent:#5B8DEF; --accent-ink:#0B0E13; --focus:#5B8DEF;
+      --buy-fg:#4ADE80; --buy-bg:#0F2C1C; --buy-line:#22C55E;
+      --maybe-fg:#FBBF24; --maybe-bg:#2C2410; --maybe-line:#E0A106;
+      --skip-fg:#FB7185; --skip-bg:#301419; --skip-line:#E5484D;
+      --neutral-fg:#95A3B7; --neutral-bg:#1B222C; --neutral-line:#4A5768;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#F4F6F9; --surface:#FFFFFF; --surface-2:#F0F3F7; --border:#DCE3EC;
+    --text:#0F172A; --muted:#586377; --accent:#2563EB; --accent-ink:#FFFFFF; --focus:#2563EB;
+    --buy-fg:#0B7A3B; --buy-bg:#DCFCE7; --buy-line:#16A34A;
+    --maybe-fg:#9A5B00; --maybe-bg:#FDF2C9; --maybe-line:#E0A106;
+    --skip-fg:#B42318; --skip-bg:#FDE4E1; --skip-line:#E5484D;
+    --neutral-fg:#475569; --neutral-bg:#EAEFF4; --neutral-line:#94A2B6;
+    --shadow:0 1px 2px rgba(15,23,42,.06), 0 8px 24px rgba(15,23,42,.05);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0B0E13; --surface:#151A22; --surface-2:#1B222C; --border:#2A323E;
+    --text:#E7ECF3; --muted:#95A3B7; --accent:#5B8DEF; --accent-ink:#0B0E13; --focus:#5B8DEF;
+    --buy-fg:#4ADE80; --buy-bg:#0F2C1C; --buy-line:#22C55E;
+    --maybe-fg:#FBBF24; --maybe-bg:#2C2410; --maybe-line:#E0A106;
+    --skip-fg:#FB7185; --skip-bg:#301419; --skip-line:#E5484D;
+    --neutral-fg:#95A3B7; --neutral-bg:#1B222C; --neutral-line:#4A5768;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-family:var(--sans);
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap{max-width:560px; margin:0 auto; padding:16px 16px 48px}
+
+  header{display:flex; align-items:center; gap:10px; padding:8px 2px 18px}
+  .mark{display:flex; align-items:center; gap:9px}
+  .mark svg{display:block}
+  .mark b{font-size:1.15rem; font-weight:800; letter-spacing:-.02em}
+  .mark .dot{color:var(--accent)}
+  .tagline{margin-left:auto; font-size:.72rem; color:var(--muted); text-align:right; letter-spacing:.01em}
+
+  /* segmented control */
+  .seg{display:flex; background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:4px; gap:4px; margin-bottom:16px}
+  .seg button{flex:1; appearance:none; border:0; background:transparent; color:var(--muted);
+    font:inherit; font-weight:650; padding:9px 8px; border-radius:9px; cursor:pointer; transition:background .15s,color .15s}
+  .seg button[aria-selected="true"]{background:var(--surface); color:var(--text); box-shadow:var(--shadow)}
+
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:16px; margin-bottom:14px}
+
+  label{display:block; font-size:.78rem; font-weight:650; color:var(--muted); margin:0 0 5px; letter-spacing:.01em}
+  .hint{font-weight:500; color:var(--muted); opacity:.85}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .field{margin-bottom:12px}
+  .field:last-child{margin-bottom:0}
+  input[type=text], input[type=number]{
+    width:100%; font:inherit; color:var(--text); background:var(--surface-2);
+    border:1px solid var(--border); border-radius:10px; padding:11px 12px; -moz-appearance:textfield;
+  }
+  input.num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  input:focus-visible{outline:2px solid var(--focus); outline-offset:1px; border-color:transparent}
+  .money-in{position:relative}
+  .money-in::before{content:"$"; position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); font-family:var(--mono)}
+  .money-in input{padding-left:24px}
+
+  details.more{margin-top:12px; border-top:1px dashed var(--border); padding-top:12px}
+  details.more>summary{cursor:pointer; font-size:.8rem; font-weight:650; color:var(--accent); list-style:none}
+  details.more>summary::-webkit-details-marker{display:none}
+  details.more>summary::before{content:"＋ "; font-family:var(--mono)}
+  details.more[open]>summary::before{content:"－ "}
+  details.more>div{margin-top:12px}
+
+  .row{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
+  .btn{appearance:none; border:1px solid var(--border); background:var(--surface-2); color:var(--text);
+    font:inherit; font-weight:650; padding:10px 14px; border-radius:10px; cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:var(--accent); color:var(--accent-ink); border-color:transparent}
+  .btn:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+
+  /* verdict result */
+  .result{border-radius:14px; border:1px solid var(--border); overflow:hidden; margin-bottom:14px; box-shadow:var(--shadow)}
+  .result .head{display:flex; align-items:center; gap:12px; padding:16px; border-left:6px solid var(--line); background:var(--tint)}
+  .pill{font-weight:800; letter-spacing:.02em; font-size:1rem; padding:6px 12px; border-radius:999px; color:#fff; background:var(--line); white-space:nowrap}
+  .verdict-fg{color:var(--fg)}
+  .head .big{margin-left:auto; text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums}
+  .head .big .n{font-size:1.5rem; font-weight:800; letter-spacing:-.01em; display:block}
+  .head .big .k{font-size:.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); background:var(--surface)}
+  .stat{padding:12px 14px; border-top:1px solid var(--border)}
+  .stat+.stat{border-left:1px solid var(--border)}
+  .stat .k{font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)}
+  .stat .v{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:1.15rem; font-weight:700; margin-top:2px}
+  .notes{background:var(--surface); padding:2px 16px 14px}
+  .notes p{margin:8px 0 0; font-size:.85rem; color:var(--muted)}
+  .notes p::before{content:"• "; color:var(--line)}
+
+  /* max pay */
+  .ceiling{text-align:center; padding:22px 16px}
+  .ceiling .k{font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+  .ceiling .n{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:2.7rem; font-weight:800; letter-spacing:-.02em; margin:2px 0; line-height:1.05}
+  .ceiling .sub{font-size:.85rem; color:var(--muted)}
+  .ceiling.walk .n{color:var(--skip-line)}
+
+  .book-tag{display:inline-flex; align-items:center; gap:6px; font-size:.72rem; color:var(--accent); background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:3px 9px; margin-top:10px}
+
+  /* goldmines + settings */
+  .fold{background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); margin-bottom:14px; overflow:hidden}
+  .fold>summary{cursor:pointer; list-style:none; padding:14px 16px; font-weight:700; display:flex; align-items:center; gap:10px}
+  .fold>summary::-webkit-details-marker{display:none}
+  .fold>summary .chev{margin-left:auto; color:var(--muted); transition:transform .2s}
+  .fold[open]>summary .chev{transform:rotate(90deg)}
+  .fold .body{padding:0 16px 16px}
+  .mine{padding:12px 0; border-top:1px solid var(--border)}
+  .mine h4{margin:0 0 4px; font-size:.95rem; display:flex; align-items:center; gap:8px}
+  .chip{font-size:.62rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:2px 7px; border-radius:6px; color:var(--fg); background:var(--tint)}
+  .mine p{margin:4px 0; font-size:.83rem; color:var(--muted)}
+  .mine .learn{color:var(--text)}
+  .mine .watch::before{content:"⚠ "; }
+
+  .setgrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .setgrid label{margin-bottom:3px}
+  footer{color:var(--muted); font-size:.76rem; text-align:center; padding:10px 8px 0; line-height:1.5}
+  .hide{display:none !important}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="mark">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M3 11.5V4.8c0-1 .8-1.8 1.8-1.8h6.7c.5 0 .9.2 1.3.5l7.2 7.2c.7.7.7 1.8 0 2.5l-6.7 6.7c-.7.7-1.8.7-2.5 0L3.5 12.8c-.3-.4-.5-.8-.5-1.3Z" stroke="var(--accent)" stroke-width="1.7" stroke-linejoin="round"/>
+        <circle cx="7.7" cy="7.7" r="1.6" fill="var(--accent)"/>
+      </svg>
+      <b>Flip<span class="dot">scout</span></b>
+    </span>
+    <span class="tagline">buy local · sell on eBay<br>works offline</span>
+  </header>
+
+  <div class="seg" role="tablist" aria-label="Mode">
+    <button id="tab-score" role="tab" aria-selected="true" aria-controls="view-score">Should I buy?</button>
+    <button id="tab-max" role="tab" aria-selected="false" aria-controls="view-max">Max price</button>
+  </div>
+
+  <!-- ============ SCORE ============ -->
+  <section id="view-score" role="tabpanel" aria-labelledby="tab-score">
+    <div class="card">
+      <div class="field">
+        <label for="s-name">Item <span class="hint">— pulls your saved price if you've comped it before</span></label>
+        <input type="text" id="s-name" list="book-names" placeholder="e.g. DeWalt DCD771 drill" autocomplete="off">
+        <datalist id="book-names"></datalist>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label for="s-buy">What you'd pay</label>
+          <div class="money-in"><input class="num" type="number" id="s-buy" inputmode="decimal" min="0" step="1" placeholder="40"></div>
+        </div>
+        <div class="field">
+          <label for="s-sold">eBay sold price</label>
+          <div class="money-in"><input class="num" type="number" id="s-sold" inputmode="decimal" min="0" step="1" placeholder="95"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="s-ship">Shipping you'll pay <span class="hint">— 0 if local pickup</span></label>
+        <div class="money-in"><input class="num" type="number" id="s-ship" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+      </div>
+
+      <details class="more">
+        <summary>More detail (sell-through, buyer shipping, extras)</summary>
+        <div>
+          <div class="grid">
+            <div class="field">
+              <label for="s-soldc"># sold <span class="hint">(90d)</span></label>
+              <input class="num" type="number" id="s-soldc" inputmode="numeric" min="0" step="1" placeholder="—">
+            </div>
+            <div class="field">
+              <label for="s-activec"># active now</label>
+              <input class="num" type="number" id="s-activec" inputmode="numeric" min="0" step="1" placeholder="—">
+            </div>
+          </div>
+          <div class="grid">
+            <div class="field">
+              <label for="s-shipc">Shipping buyer pays</label>
+              <div class="money-in"><input class="num" type="number" id="s-shipc" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+            </div>
+            <div class="field">
+              <label for="s-extra">Extras (supplies, gas)</label>
+              <div class="money-in"><input class="num" type="number" id="s-extra" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <div class="row">
+        <button class="btn primary" id="s-save" type="button">Save to price book</button>
+        <button class="btn" id="s-clear" type="button">Clear</button>
+      </div>
+    </div>
+
+    <div id="s-result"></div>
+  </section>
+
+  <!-- ============ MAX PRICE ============ -->
+  <section id="view-max" role="tabpanel" aria-labelledby="tab-max" class="hide">
+    <div class="card">
+      <div class="field">
+        <label for="m-sold">eBay sold price <span class="hint">— what it sells for</span></label>
+        <div class="money-in"><input class="num" type="number" id="m-sold" inputmode="decimal" min="0" step="1" placeholder="250"></div>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label for="m-ship">Shipping you'll pay</label>
+          <div class="money-in"><input class="num" type="number" id="m-ship" inputmode="decimal" min="0" step="1" placeholder="12"></div>
+        </div>
+        <div class="field">
+          <label for="m-extra">Extras</label>
+          <div class="money-in"><input class="num" type="number" id="m-extra" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="m-result"></div>
+  </section>
+
+  <!-- ============ GOLDMINES ============ -->
+  <details class="fold" id="fold-gold">
+    <summary>Goldmine categories <span class="chev">›</span></summary>
+    <div class="body" id="gold-body"></div>
+  </details>
+
+  <!-- ============ SETTINGS ============ -->
+  <details class="fold">
+    <summary>Fees &amp; goals <span class="chev">›</span></summary>
+    <div class="body">
+      <p style="font-size:.82rem;color:var(--muted);margin:.2em 0 1em">Defaults are common US "most categories" numbers. Rates vary by category and change — tune to yours. Saved on this device.</p>
+      <div class="setgrid">
+        <div class="field"><label for="set-fvf">eBay fee %</label><input class="num" type="number" id="set-fvf" inputmode="decimal" step="0.05"></div>
+        <div class="field"><label for="set-order">Per-order $</label><input class="num" type="number" id="set-order" inputmode="decimal" step="0.05"></div>
+        <div class="field"><label for="set-promo">Promoted ad %</label><input class="num" type="number" id="set-promo" inputmode="decimal" step="0.5"></div>
+        <div class="field"><label for="set-intl">Intl fee %</label><input class="num" type="number" id="set-intl" inputmode="decimal" step="0.05"></div>
+        <div class="field"><label for="set-minp">Min profit $</label><input class="num" type="number" id="set-minp" inputmode="decimal" step="1"></div>
+        <div class="field"><label for="set-minroi">Min ROI %</label><input class="num" type="number" id="set-minroi" inputmode="decimal" step="5"></div>
+      </div>
+      <div class="row"><button class="btn" id="set-reset" type="button">Reset to defaults</button></div>
+    </div>
+  </details>
+
+  <footer>
+    A cheat-sheet is never a buy signal — the sold data on <em>that</em> item is.<br>
+    Fees are estimates; verify against your eBay fee page. Nothing is sent anywhere.
+  </footer>
+</div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const LS_SET = "flipscout.settings", LS_BOOK = "flipscout.book";
+
+const FACTORY = {
+  fvf:0.1325, perOrder:0.40, perOrderSmall:0.30, smallThreshold:10.0,
+  intl:0.0, promoted:0.0, taxPct:0.0,
+  minProfit:10, minRoi:0.50, goodProfit:20, goodRoi:1.00, minSellThrough:0.30,
+};
+let SET = load(LS_SET, {...FACTORY});
+let BOOK = load(LS_BOOK, {});
+
+function load(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v && typeof v==="object" ? {...d,...v} : d; }catch(e){ return d; } }
+function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+const num = el => { const v = parseFloat(el.value); return Number.isFinite(v) ? v : null; };
+const $money = n => (n<0?"-$":"$") + Math.abs(n).toFixed(2);
+const $pct = n => (n===Infinity ? "∞" : Math.round(n*100) + "%");
+
+/* ---- core math: identical to the Python (fees.py / analyzer.py) ---- */
+function netProceeds(sale, f, shipCost=0, shipCharged=0){
+  const orderTotal = sale + shipCharged + sale*f.taxPct;
+  const fvf = orderTotal * f.fvf;
+  const fixed = orderTotal <= f.smallThreshold ? f.perOrderSmall : f.perOrder;
+  const intl = orderTotal * f.intl;
+  const promoted = sale * f.promoted;
+  const totalFees = fvf + fixed + intl + promoted;
+  return { net: sale + shipCharged - totalFees - shipCost, totalFees };
+}
+function sellThrough(sc, ac){ if(sc==null||ac==null) return null; const d=sc+ac; return d===0?null:sc/d; }
+function decide(profit, roi, st, f){
+  const notes=[];
+  if(profit<=0){ notes.push("Loses money after fees and shipping."); return {v:"SKIP",notes}; }
+  if(profit<f.minProfit || roi<f.minRoi){ notes.push(`Below your bar — want ≥ ${$money(f.minProfit)} profit and ≥ ${$pct(f.minRoi)} ROI.`); return {v:"SKIP",notes}; }
+  const slow = st!=null && st<f.minSellThrough;
+  if(slow) notes.push(`Sells slowly (sell-through ${$pct(st)} &lt; ${$pct(f.minSellThrough)}). Your cash may sit a while.`);
+  if(profit>=f.goodProfit && roi>=f.goodRoi && !slow) return {v:"BUY",notes};
+  if(slow) return {v:"MAYBE",notes};
+  return {v:(profit>=f.minProfit && roi>=f.minRoi)?"BUY":"MAYBE", notes};
+}
+function analyze(o, f){
+  if(o.sold==null || !(o.sold>0)) return {verdict:"NEEDS_COMP"};
+  const np = netProceeds(o.sold, f, o.shipCost||0, o.shipCharged||0);
+  const totalCost = (o.buy||0) + (o.shipCost||0) + (o.extra||0);
+  const profit = np.net - (o.buy||0) - (o.extra||0);
+  const roi = totalCost>0 ? profit/totalCost : Infinity;
+  const st = sellThrough(o.soldCount, o.activeCount);
+  const d = decide(profit, roi, st, f);
+  return { verdict:d.v, notes:d.notes, profit, roi, sellThrough:st, sale:o.sold };
+}
+function maxPay(o, f){
+  const np = netProceeds(o.sold, f, o.shipCost||0, o.shipCharged||0);
+  const n = np.net, r = f.minRoi, extra = o.extra||0, ship = o.shipCost||0;
+  const capProfit = n - extra - f.minProfit;
+  const capRoi = (n - extra - r*(ship+extra))/(1+r);
+  let binding, maxPrice;
+  if(capProfit<=capRoi){ binding="profit"; maxPrice=capProfit; } else { binding="roi"; maxPrice=capRoi; }
+  maxPrice = Math.max(0, maxPrice);
+  if(maxPrice<=0) binding="none";
+  const total = maxPrice+ship+extra;
+  const profit = n - maxPrice - extra;
+  return { maxPrice, binding, profit, roi: total>0?profit/total:0 };
+}
+
+const STYLE = {
+  BUY:{fg:"var(--buy-fg)",bg:"var(--buy-bg)",line:"var(--buy-line)"},
+  MAYBE:{fg:"var(--maybe-fg)",bg:"var(--maybe-bg)",line:"var(--maybe-line)"},
+  SKIP:{fg:"var(--skip-fg)",bg:"var(--skip-bg)",line:"var(--skip-line)"},
+  NEEDS_COMP:{fg:"var(--neutral-fg)",bg:"var(--neutral-bg)",line:"var(--neutral-line)"},
+};
+const LABEL = {BUY:"BUY",MAYBE:"MAYBE",SKIP:"SKIP",NEEDS_COMP:"NEEDS A COMP"};
+
+/* ---- render: score ---- */
+function renderScore(){
+  const o = {
+    buy:num($("#s-buy")), sold:num($("#s-sold")), shipCost:num($("#s-ship")),
+    shipCharged:num($("#s-shipc")), extra:num($("#s-extra")),
+    soldCount:num($("#s-soldc")), activeCount:num($("#s-activec")),
+  };
+  const box = $("#s-result");
+  if(o.buy==null && o.sold==null){ box.innerHTML=""; return; }
+  const a = analyze(o, SET);
+  const st = STYLE[a.verdict];
+  if(a.verdict==="NEEDS_COMP"){
+    box.innerHTML = `<div class="result" style="--line:${st.line};--tint:${st.bg};--fg:${st.fg}">
+      <div class="head"><span class="pill">NEEDS A COMP</span>
+        <div class="big"><span class="k">next step</span></div></div>
+      <div class="notes"><p>Search this item on eBay, tick <b>Sold items</b>, take the median price, and put it in “eBay sold price”.</p></div>
+    </div>`;
+    return;
+  }
+  const stTxt = a.sellThrough==null ? "—" : $pct(a.sellThrough);
+  const notes = (a.notes||[]).map(n=>`<p>${n}</p>`).join("");
+  box.innerHTML = `<div class="result" style="--line:${st.line};--tint:${st.bg};--fg:${st.fg}">
+    <div class="head">
+      <span class="pill">${LABEL[a.verdict]}</span>
+      <div class="big"><span class="n">${$money(a.profit)}</span><span class="k">profit</span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">ROI</div><div class="v">${$pct(a.roi)}</div></div>
+      <div class="stat"><div class="k">Sell-through</div><div class="v">${stTxt}</div></div>
+      <div class="stat"><div class="k">Sells for</div><div class="v">${$money(a.sale)}</div></div>
+    </div>
+    ${notes?`<div class="notes">${notes}</div>`:""}
+  </div>`;
+}
+
+/* ---- render: max pay ---- */
+function renderMax(){
+  const sold = num($("#m-sold"));
+  const box = $("#m-result");
+  if(sold==null || sold<=0){ box.innerHTML = `<div class="ceiling"><div class="k">Max price</div><div class="n" style="color:var(--muted)">$—</div><div class="sub">Enter the eBay sold price above.</div></div>`; return; }
+  const m = maxPay({ sold, shipCost:num($("#m-ship")), extra:num($("#m-extra")) }, SET);
+  if(m.maxPrice<=0){
+    box.innerHTML = `<div class="ceiling walk"><div class="k">Verdict</div><div class="n">Walk away</div>
+      <div class="sub">Fees and shipping eat it — you can't hit your goal at any price.</div></div>`;
+    return;
+  }
+  box.innerHTML = `<div class="ceiling">
+    <div class="k">Pay no more than</div>
+    <div class="n">${$money(m.maxPrice)}</div>
+    <div class="sub">to net ~${$money(m.profit)} at ${$pct(m.roi)} ROI · limited by your ${m.binding==="roi"?"ROI":"profit"} goal</div>
+  </div>`;
+}
+
+/* ---- price book ---- */
+function refreshBookList(){
+  const dl = $("#book-names");
+  dl.innerHTML = Object.keys(BOOK).sort().map(k=>`<option value="${BOOK[k].name||k}">`).join("");
+}
+function bookLookup(name){
+  const rec = BOOK[(name||"").trim().toLowerCase()];
+  if(!rec) return;
+  if(!$("#s-sold").value && rec.sold!=null) $("#s-sold").value = rec.sold;
+  if(!$("#s-soldc").value && rec.soldCount!=null) $("#s-soldc").value = rec.soldCount;
+  if(!$("#s-activec").value && rec.activeCount!=null) $("#s-activec").value = rec.activeCount;
+  renderScore();
+}
+$("#s-save").addEventListener("click", ()=>{
+  const name = $("#s-name").value.trim();
+  const sold = num($("#s-sold"));
+  if(!name || sold==null){ alert("Enter an item name and its eBay sold price first."); return; }
+  BOOK[name.toLowerCase()] = { name, sold, soldCount:num($("#s-soldc")), activeCount:num($("#s-activec")) };
+  save(LS_BOOK, BOOK); refreshBookList();
+  const btn=$("#s-save"); btn.textContent="Saved ✓"; setTimeout(()=>btn.textContent="Save to price book",1200);
+});
+$("#s-clear").addEventListener("click", ()=>{
+  ["s-name","s-buy","s-sold","s-ship","s-shipc","s-extra","s-soldc","s-activec"].forEach(id=>$("#"+id).value="");
+  renderScore();
+});
+$("#s-name").addEventListener("change", e=>bookLookup(e.target.value));
+
+/* ---- tabs ---- */
+function selectTab(which){
+  const score = which==="score";
+  $("#tab-score").setAttribute("aria-selected", score);
+  $("#tab-max").setAttribute("aria-selected", !score);
+  $("#view-score").classList.toggle("hide", !score);
+  $("#view-max").classList.toggle("hide", score);
+}
+$("#tab-score").addEventListener("click", ()=>selectTab("score"));
+$("#tab-max").addEventListener("click", ()=>selectTab("max"));
+
+/* ---- settings ---- */
+const SET_FIELDS = [["set-fvf","fvf",100],["set-order","perOrder",1],["set-promo","promoted",100],
+  ["set-intl","intl",100],["set-minp","minProfit",1],["set-minroi","minRoi",100]];
+function fillSettings(){ SET_FIELDS.forEach(([id,key,mul])=> $("#"+id).value = +(SET[key]*mul).toFixed(mul===100?2:2) ); }
+function readSettings(){
+  SET_FIELDS.forEach(([id,key,mul])=>{ const v=parseFloat($("#"+id).value); if(Number.isFinite(v)) SET[key]=v/mul; });
+  save(LS_SET, SET); renderScore(); renderMax();
+}
+SET_FIELDS.forEach(([id])=> $("#"+id).addEventListener("input", readSettings));
+$("#set-reset").addEventListener("click", ()=>{ SET={...FACTORY}; save(LS_SET,SET); fillSettings(); renderScore(); renderMax(); });
+
+/* ---- goldmines ---- */
+const GOLD = [
+  {n:"Power tools", ship:"Ships easy", why:"Huge brand demand, compact, estate & retiree sellers dump them cheap. Best profit-per-effort there is.", learn:"DeWalt, Milwaukee, Makita, Snap-on, Festool, Bosch", watch:"Test it powers on; batteries/chargers add value — check they hold charge."},
+  {n:"Bulky items nobody wants to ship", ship:"Local pickup", why:"The purest Facebook edge: the shipping pain that scares off competition is exactly why it's cheap locally.", learn:"Solid-wood furniture, gym equipment, appliances, treadmills", watch:"Confirm you can transport it. Flip local or offer freight/pickup."},
+  {n:"Game consoles & retro", ship:"Ships easy", why:"Deep, constant demand with clear comps; retro and sealed appreciate.", learn:"Switch / PS5 / Xbox, SNES, N64, GameCube, sealed games", watch:"Test it; count controllers/cables; retro — check for corrosion."},
+  {n:"Tech / electronics", ship:"Ships easy", why:"High value, fast comps, always in demand.", learn:"MacBooks, iPads, iPhones, GPUs, AirPods, mechanical keyboards", watch:"Scam-prone: check for iCloud/activation lock & blacklisted IMEI. Verify it wipes before you pay."},
+  {n:"Vintage & branded clothing", ship:"Ships easy", why:"Seller sees ‘old clothes’; eBay sees brand and rarity. High margin, cheap to ship, stacks into volume.", learn:"Carhartt, Patagonia, Levi's, vintage band tees, brand sneakers", watch:"Authenticate (fakes everywhere); check flaws, sizing, measurements."},
+  {n:"LEGO, cards & collectibles", ship:"Ships easy", why:"Retired LEGO sets appreciate; steady collector demand.", learn:"Retired/sealed LEGO, sports & Pokémon cards, coins, comics", watch:"Completeness matters; sealed ≫ opened. Beware reprints/fakes."},
+];
+$("#gold-body").innerHTML = `<p style="font-size:.82rem;color:var(--muted);margin:.2em 0 0">Learn a few cold so you can judge on sight. Still check the sold comps every time.</p>` +
+  GOLD.map(g=>{
+    const local = g.ship==="Local pickup";
+    const st = local ? "var(--maybe-line)" : "var(--buy-line)";
+    const tint = local ? "var(--maybe-bg)" : "var(--buy-bg)";
+    const fg = local ? "var(--maybe-fg)" : "var(--buy-fg)";
+    return `<div class="mine" style="--line:${st};--tint:${tint};--fg:${fg}">
+      <h4>${g.n} <span class="chip">${g.ship}</span></h4>
+      <p>${g.why}</p>
+      <p class="learn"><b>Learn:</b> ${g.learn}</p>
+      <p class="watch">${g.watch}</p>
+    </div>`;
+  }).join("");
+
+/* ---- wire live recompute ---- */
+["s-buy","s-sold","s-ship","s-shipc","s-extra","s-soldc","s-activec"].forEach(id=> $("#"+id).addEventListener("input", renderScore));
+["m-sold","m-ship","m-extra"].forEach(id=> $("#"+id).addEventListener("input", renderMax));
+
+fillSettings(); refreshBookList(); renderScore(); renderMax();
+</script>
+</body>
+</html>
