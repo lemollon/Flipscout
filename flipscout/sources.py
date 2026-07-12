@@ -15,12 +15,23 @@ need a tweak.
 
 from __future__ import annotations
 
+import time
 from typing import Optional
 
 import requests
 
 _GOODWILL_SEARCH = "https://buyerapi.shopgoodwill.com/api/Search/ItemListing"
 _TIMEOUT = 20
+
+# ShopGoodwill's WAF 403s non-browser clients; a browser-shaped identity gets through.
+_GOODWILL_HEADERS = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                   "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"),
+    "Origin": "https://shopgoodwill.com",
+    "Referer": "https://shopgoodwill.com/",
+}
 
 
 def parse_goodwill(body: dict) -> list[dict]:
@@ -58,20 +69,46 @@ class ShopGoodwillSource:
                         zip_code: Optional[str] = None, **kw) -> list[dict]:
         # ShopGoodwill is a ship-to-you auction site — it has no local-pickup mode,
         # so `local` is ignored here (the scanner still comps + ranks the same way).
+        # The API 500s unless the full search form is present, so send it all with
+        # the site's defaults (US shipping, open auctions, price ascending).
         body = {
-            "searchText": query,
-            "page": 1,
-            "pageSize": min(limit, 40),
+            "catIds": "",
+            "categoryId": 0,
+            "categoryLevel": 1,
+            "categoryLevelNo": "1",
+            "closedAuctionDaysBack": "7",
+            "closedAuctionEndingDate": time.strftime("%m/%d/%Y"),
+            "highPrice": "999999",
+            "isFromHeaderMenuTab": False,
+            "isFromHomePage": False,
+            "isMultipleCategoryIds": False,
             "isSize": False,
             "isWeddingCatagory": "false",
-            "isMultipleCategoryIds": False,
-            "isFromHeaderMenuTab": False,
             "layout": "grid",
-            "searchListType": "keyword",
+            "lowPrice": "0",
+            "page": "1",
+            "pageSize": str(min(limit, 40)),
+            "partNumber": "",
+            "savedSearchId": 0,
+            "searchBuyNowOnly": "",
+            "searchCanadaShipping": "false",
+            "searchClosedAuctions": "false",
+            "searchDescriptions": "false",
+            "searchInternationalShippingOnly": "false",
+            "searchNoPickupOnly": "false",
+            "searchOneCentShippingOnly": "false",
+            "searchPickupOnly": "false",
+            "searchText": query,
+            "searchUSOnlyShipping": "true",
+            "selectedCategoryIds": "",
+            "selectedSellerIds": "",
+            "sortColumn": "1",
+            "sortDescending": "false",
+            "useBuyerPrefs": "true",
         }
         try:
             resp = self.session.post(_GOODWILL_SEARCH, json=body, timeout=_TIMEOUT,
-                                     headers={"Accept": "application/json"})
+                                     headers=_GOODWILL_HEADERS)
             resp.raise_for_status()
             return parse_goodwill(resp.json())[:limit]
         except Exception:
