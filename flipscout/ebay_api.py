@@ -164,6 +164,8 @@ class EbayApiComps:
     An observed_price passed in still wins (manual override), so you can mix modes.
     """
 
+    name = "ebay"
+
     def __init__(self, cfg: Optional[EbayConfig] = None,
                  session: Optional[requests.Session] = None):
         self.cfg = cfg or EbayConfig.from_env()

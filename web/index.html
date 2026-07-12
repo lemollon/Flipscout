@@ -291,10 +291,15 @@
         <label for="d-q">Searches <span class="hint">— comma-separated, e.g. dewalt dcd771, canon powershot</span></label>
         <input type="text" id="d-q" placeholder="dewalt dcd771, sansui receiver" autocomplete="off">
       </div>
+      <div class="field">
+        <label>Buy from</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;margin-right:16px;font-weight:500;color:var(--text)"><input type="checkbox" id="d-src-ebay" checked> eBay</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-weight:500;color:var(--text)"><input type="checkbox" id="d-src-goodwill"> ShopGoodwill</label>
+      </div>
       <div class="grid">
         <div class="field" style="margin-bottom:0">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-            <input type="checkbox" id="d-local"> Local pickup near me
+            <input type="checkbox" id="d-local"> Local pickup <span class="hint">(eBay only)</span>
           </label>
         </div>
         <div class="field" style="margin-bottom:0">
@@ -526,8 +531,12 @@ async function findDeals(){
   try{
     const base = (SET.apiBase||"").replace(/\/+$/,"");
     const local = $("#d-local").checked, zip = $("#d-zip").value.trim();
+    const srcs = [];
+    if($("#d-src-ebay").checked) srcs.push("ebay");
+    if($("#d-src-goodwill").checked) srcs.push("goodwill");
     const url = base + "/api/deals?q=" + encodeURIComponent(q)
       + "&min_profit=" + SET.minProfit + "&min_roi=" + SET.minRoi
+      + "&sources=" + (srcs.join(",") || "ebay")
       + (local ? "&local=true" : "") + (zip ? "&zip=" + encodeURIComponent(zip) : "");
     const r = await fetch(url, {headers:{Accept:"application/json"}});
     if(r.status===503){ const d=await r.json().catch(()=>({})); throw new Error(d.detail || "Deal scanning needs the eBay API set up on the server."); }
@@ -540,7 +549,7 @@ async function findDeals(){
       const link = d.url ? `<a href="${d.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">view →</a>` : "";
       return `<div class="result" style="--line:${s.line};--tint:${s.bg};--fg:${s.fg}">
         <div class="head">
-          <div><div style="font-weight:650;font-size:.9rem">${(d.title||"").slice(0,60)}</div>
+          <div><div style="font-weight:650;font-size:.9rem">${(d.title||"").slice(0,56)} <span class="chip">${d.source}</span></div>
             <div class="hint" style="font-size:.78rem">${$money(d.profit)} profit · ROI ${$pct(d.roi)} · buy ${$money(d.buy_price)} → sell ${$money(d.sold_price)} · ${link}</div></div>
           <div class="big"><span class="n">$${Math.round(d.per_hour)}</span><span class="k">per hour</span></div>
         </div></div>`;

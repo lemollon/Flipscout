@@ -100,8 +100,11 @@ def cmd_scan(args) -> int:
     """Arbitrage scan: find underpriced eBay listings for your searches."""
     from .ebay_api import EbayApiComps  # needs creds + requests
     from .scanner import scan
-    source = EbayApiComps()
-    hits = scan(args.queries, source, fees=_fee_model(args), thresholds=_thresholds(args),
+    from .sources import build_sources
+    ebay = EbayApiComps()
+    sources = build_sources(args.source.split(","), ebay)
+    hits = scan(args.queries, sources, comp_source=ebay,
+                fees=_fee_model(args), thresholds=_thresholds(args),
                 buy_shipping=args.buy_ship, resell_shipping=args.ship_cost,
                 local=args.local, zip_code=args.zip, effort_minutes=args.minutes,
                 limit_per_query=args.per_query)
@@ -112,7 +115,7 @@ def cmd_scan(args) -> int:
     kind = "local pickup" if args.local else "ships to you"
     print(f"{len(hits)} deal(s) ({kind}), best $/hour first:\n")
     for h in hits:
-        print(h.summary())
+        print(f"[{h.source:>8}] {h.summary()}")
         if args.links and h.url:
             print(f"             {h.url}")
     return 0
@@ -198,6 +201,8 @@ def build_parser() -> argparse.ArgumentParser:
     ps = sub.add_parser("scan", parents=[common],
                         help="arbitrage scan: find underpriced eBay listings (needs eBay keys)")
     ps.add_argument("queries", nargs="+", help="one or more searches, e.g. \"dewalt drill\"")
+    ps.add_argument("--source", default="ebay",
+                    help="comma list of buying sources: ebay, goodwill (default ebay)")
     ps.add_argument("--local", action="store_true", help="only local-pickup listings you can go grab")
     ps.add_argument("--zip", default=None, help="your ZIP, to center local results (with --local)")
     ps.add_argument("--minutes", type=int, default=None, help="handling time/flip for the $/hr rank")

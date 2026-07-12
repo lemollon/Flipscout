@@ -87,6 +87,45 @@ def test_scan_merges_and_ranks_across_queries():
     assert len(hits) == 2  # one hit per query
 
 
+# --- multi-source: buy anywhere, comp against eBay --------------------------
+
+def test_parse_goodwill():
+    from flipscout.sources import parse_goodwill
+    body = {"searchResults": {"items": [
+        {"title": "DeWalt drill", "currentPrice": 25.0, "itemId": 123},
+        {"title": "no price"},
+    ]}}
+    items = parse_goodwill(body)
+    assert len(items) == 1
+    assert items[0]["price"] == 25.0
+    assert items[0]["url"] == "https://shopgoodwill.com/item/123"
+
+
+class _NamedListingSource:
+    """A buying source that has NO comp of its own — priced against eBay."""
+    def __init__(self, name, listings): self.name = name; self._l = listings
+    def active_listings(self, query, limit=50, **kw): return self._l
+
+
+def test_scan_cross_market_tags_source_and_comps_against_ebay():
+    ebay = _FakeSource(sold=200.0, listings=[])          # comp source (sell here)
+    goodwill = _NamedListingSource("goodwill", [{"title": "cheap drill", "price": 25.0, "url": "g1"}])
+    hits = scan(["drill"], [goodwill], comp_source=ebay,
+                thresholds=Thresholds(min_profit=15, min_roi=0.5))
+    assert len(hits) == 1
+    assert hits[0].source == "goodwill"          # tagged with where you BUY
+    assert hits[0].sold_price == 200.0           # comped against eBay
+    assert hits[0].buy_price == 25.0
+
+
+def test_goodwill_source_is_fail_soft(monkeypatch):
+    from flipscout.sources import ShopGoodwillSource
+    class _BadSession:
+        def post(self, *a, **k): raise RuntimeError("network down")
+    s = ShopGoodwillSource(session=_BadSession())
+    assert s.active_listings("anything") == []   # never raises
+
+
 # --- /api/deals endpoint ----------------------------------------------------
 
 pytest.importorskip("fastapi")

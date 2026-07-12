@@ -193,12 +193,24 @@ for the least labor*, not just raw profit (`--minutes` to tune your pace). In th
 web app it's the **Find deals** tab (`GET /api/deals?q=a,b,c&local=&zip=`), with a
 **"local pickup near me"** toggle.
 
-**Sources.** It scans **eBay** — both *shipped-to-you* arbitrage and *local-pickup
-near your ZIP* — because eBay's API is the one reliable, allowed feed. Facebook has
-no API (that's what manual capture is for) and Craigslist blocks cloud servers, so
-neither can *reliably* auto-populate an inventory. The pipeline (`scanner.py`:
-active listings → comp → rank by $/hr) is source-agnostic, so a permitted feed
-drops in later by implementing `active_listings(query)` + `lookup(query)`.
+**Sources — buy anywhere, comp against eBay.** The scanner separates *where you buy*
+from *where you sell*: it lists items from each buying source and prices every one
+against eBay sold data. Built in:
+
+- **`ebay`** — underpriced BINs / ending auctions, *shipped-to-you* or *local-pickup
+  near your ZIP*. Fully reliable (official API).
+- **`goodwill`** — ShopGoodwill.com national online auctions (thrift prices, ships to
+  you). Its buyer API is unofficial, so the adapter is **best-effort and fail-soft**
+  (errors return nothing rather than breaking the scan) — verify live once deployed.
+
+```bash
+flipscout scan "dewalt drill" "vintage receiver" --source ebay,goodwill --links
+```
+
+Adding a source is one small file: implement `active_listings(query) -> [{title,
+price, url, item_id}]` + a `name` (see `sources.py`); the engine comps and ranks it.
+Facebook / OfferUp / Mercari have no API (that's what manual capture is for);
+Craigslist blocks cloud servers — so those stay manual.
 
 ## Where the money is (goldmine categories)
 
