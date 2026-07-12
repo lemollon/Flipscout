@@ -82,6 +82,15 @@
   input.num{font-family:var(--mono); font-variant-numeric:tabular-nums}
   input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
   input:focus-visible{outline:2px solid var(--focus); outline-offset:1px; border-color:transparent}
+  textarea{width:100%; font:inherit; color:var(--text); background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:11px 12px; resize:vertical; min-height:64px}
+  textarea:focus-visible{outline:2px solid var(--focus); outline-offset:1px; border-color:transparent}
+  .capture{background:linear-gradient(0deg,var(--surface-2),var(--surface-2)); border:1px dashed var(--border); border-radius:12px; padding:12px; margin-bottom:14px}
+  .capture>summary{cursor:pointer; list-style:none; font-weight:700; font-size:.92rem; display:flex; align-items:center; gap:8px}
+  .capture>summary::-webkit-details-marker{display:none}
+  .capture>summary .chev{margin-left:auto; color:var(--muted); transition:transform .2s}
+  .capture[open]>summary .chev{transform:rotate(90deg)}
+  .capture .body{margin-top:10px}
+  .bmk{display:inline-block; text-decoration:none; margin:6px 0}
   .money-in{position:relative}
   .money-in::before{content:"$"; position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); font-family:var(--mono)}
   .money-in input{padding-left:24px}
@@ -174,6 +183,19 @@
 
   <!-- ============ SCORE ============ -->
   <section id="view-score" role="tabpanel" aria-labelledby="tab-score">
+    <details class="capture" id="cap" open>
+      <summary>Capture a listing <span class="chev">›</span></summary>
+      <div class="body">
+        <label for="cap-text">Paste the listing <span class="hint">— copy the title + price from the Facebook app</span></label>
+        <textarea id="cap-text" placeholder="e.g.  DeWalt 20V drill&#10;$60&#10;Used · Seattle, WA"></textarea>
+        <div class="row">
+          <button class="btn primary" id="cap-go" type="button">Capture &amp; score</button>
+          <button class="btn" id="cap-clear" type="button">Clear</button>
+        </div>
+        <div class="look-status" id="cap-status"></div>
+      </div>
+    </details>
+
     <div class="card">
       <div class="field">
         <label for="s-name">Item <span class="hint">— pulls your saved price if you've comped it before</span></label>
@@ -254,6 +276,16 @@
     </div>
     <div class="card" id="m-result"></div>
   </section>
+
+  <!-- ============ DESKTOP CAPTURE ============ -->
+  <details class="fold">
+    <summary>Desktop capture (bookmarklet) <span class="chev">›</span></summary>
+    <div class="body">
+      <p style="font-size:.85rem;color:var(--muted);margin:.2em 0 1em">Drag this to your bookmarks bar. On any Facebook Marketplace listing, click it — Flipscout opens with the item name and asking price already filled. You stay logged in and in control; it only reads the page you're already looking at.</p>
+      <p><a class="btn bmk" id="bmk" href="#">🏷️ Flipscout Capture</a></p>
+      <p class="hint" style="font-size:.78rem">On a phone, use <b>Capture a listing → Paste</b> instead — copy the listing in the Facebook app and paste it in.</p>
+    </div>
+  </details>
 
   <!-- ============ GOLDMINES ============ -->
   <details class="fold" id="fold-gold">
@@ -476,7 +508,7 @@ async function ebayLookup(query){
   if(!r.ok){ throw new Error("Lookup failed ("+r.status+")."); }
   return r.json();
 }
-$("#s-ebay").addEventListener("click", async ()=>{
+async function runLookup(){
   const q = $("#s-name").value.trim();
   const btn = $("#s-ebay"), status = $("#s-look");
   if(!q){ status.className="look-status err"; status.textContent="Type the item name first, then look it up."; return; }
@@ -502,7 +534,78 @@ $("#s-ebay").addEventListener("click", async ()=>{
       ? "Can't reach the Flipscout server. Run it (see README) or set its URL in Fees & goals."
       : (e.message || "Lookup failed.");
   }finally{ btn.removeAttribute("aria-busy"); }
-});
+}
+$("#s-ebay").addEventListener("click", runLookup);
+
+/* ---- capture: parse a pasted listing, deep-link, bookmarklet ---- */
+function cleanLine(line){
+  return line
+    .replace(/^\s*marketplace\s*[-–—:]\s*/i,"")                         // "Marketplace - "
+    .replace(/^\s*(used|new|free|like new|open box|refurbished)\s*[·:\-–—]\s*/i,"") // "Used · "
+    .replace(/\s*\|\s*facebook.*$/i,"")                                 // "| Facebook"
+    .trim();
+}
+function isNoise(line){
+  return !line
+    || /^https?:\/\//i.test(line) || /^www\./i.test(line)
+    || /^\$?\s?[\d,]+(\.\d{1,2})?$/.test(line)                          // pure price/number
+    || /^\d+\s*(mi|miles|km|k)\b/i.test(line)                           // distance
+    || /^(used|new|free|like new|open box|good|fair|refurbished)$/i.test(line)
+    || /^(message|save|share|send seller|see (more|less)|about this|details|listed|condition|location)\b/i.test(line);
+}
+function parseListing(text){
+  text = (text||"").trim();
+  if(!text) return {name:"", price:null};
+  const pm = text.match(/\$\s?([\d][\d,]*(?:\.\d{1,2})?)/);
+  const price = pm ? parseFloat(pm[1].replace(/,/g,"")) : null;
+  let name = "";
+  for(const raw of text.split(/\n+/)){
+    const line = cleanLine(raw);
+    if(isNoise(line)) continue;
+    name = line; break;
+  }
+  name = name.replace(/\s*·.*$/,"").slice(0,80).trim();                 // drop trailing " · location"
+  return {name, price};
+}
+function captureFromText(text){
+  const {name, price} = parseListing(text);
+  const st = $("#cap-status");
+  if(!name && price==null){
+    st.className="look-status err";
+    st.textContent="Couldn't find a title or price. Copy the listing text (including the $ price) and paste it here.";
+    return;
+  }
+  if(name) $("#s-name").value = name;
+  if(price!=null) $("#s-buy").value = price;
+  selectTab("score"); renderScore();
+  st.className="look-status ok";
+  st.textContent = `Captured: ${name||"(untitled)"}${price!=null?" · asking "+$money(price):""}. Getting a sold price…`;
+  if(name) runLookup();   // best-effort auto-comp (needs the server; harmless otherwise)
+}
+$("#cap-go").addEventListener("click", ()=>captureFromText($("#cap-text").value));
+$("#cap-clear").addEventListener("click", ()=>{ $("#cap-text").value=""; $("#cap-status").textContent=""; });
+
+/* deep-link: #name=..&buy=..&sold=..  (used by the bookmarklet & share hand-offs) */
+function applyHash(){
+  const raw = (location.hash.slice(1) || location.search.slice(1));
+  if(!raw) return;
+  const q = new URLSearchParams(raw);
+  const map = {name:"s-name",buy:"s-buy",sold:"s-sold",ship:"s-ship",shipc:"s-shipc",extra:"s-extra",soldc:"s-soldc",activec:"s-activec"};
+  let any=false;
+  for(const k in map){ if(q.has(k)){ $("#"+map[k]).value = q.get(k); any=true; } }
+  if(any){ selectTab("score"); renderScore(); if(q.get("name") && !q.get("sold")) runLookup(); }
+}
+
+/* build the bookmarklet, targeting wherever this app is currently served */
+(function(){
+  const appUrl = location.origin!=="null" ? location.origin+location.pathname : location.href.split("#")[0];
+  const code = "javascript:(function(){var t=(document.querySelector('meta[property=\\'og:title\\']')||{}).content||document.title||'';"
+    + "t=t.replace(/^Marketplace\\\\s*[-\\u2013\\u2014]\\\\s*/i,'').replace(/\\\\s*\\\\|\\\\s*Facebook.*$/i,'').trim();"
+    + "var m=(document.body.innerText||'').match(/\\\\$\\\\s?([\\\\d][\\\\d,]*(?:\\\\.\\\\d{1,2})?)/);"
+    + "var p=m?m[1].replace(/,/g,''):'';"
+    + "window.open("+JSON.stringify(appUrl)+"+'#name='+encodeURIComponent(t)+(p?'&buy='+p:''),'_blank');})();";
+  const el = $("#bmk"); if(el) el.setAttribute("href", code);
+})();
 
 /* ---- goldmines ---- */
 const GOLD = [
@@ -531,7 +634,8 @@ $("#gold-body").innerHTML = `<p style="font-size:.82rem;color:var(--muted);margi
 ["s-buy","s-sold","s-ship","s-shipc","s-extra","s-soldc","s-activec"].forEach(id=> $("#"+id).addEventListener("input", renderScore));
 ["m-sold","m-ship","m-extra"].forEach(id=> $("#"+id).addEventListener("input", renderMax));
 
-fillSettings(); refreshBookList(); renderScore(); renderMax();
+fillSettings(); refreshBookList(); renderScore(); renderMax(); applyHash();
+window.addEventListener("hashchange", applyHash);
 </script>
 </body>
 </html>

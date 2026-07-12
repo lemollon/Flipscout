@@ -20,6 +20,28 @@ exact same math as the CLI:
   book** that remembers your comps (saved in the browser, nothing leaves the
   device).
 
+### Capture — stop retyping listings
+
+The manual part of sourcing is retyping every item. Capture kills that while
+keeping you on the right side of Facebook's ToS: **you** browse, logged in and at
+human speed — Flipscout only reads the listing you already opened. Nothing crawls
+or auto-navigates Facebook.
+
+- **On your phone (Capture a listing → Paste):** in the Facebook app, copy the
+  listing text (title + price), open Flipscout, paste, tap **Capture & score**. It
+  pulls out the item name and asking price, and — if your lookup server is running
+  — auto-fetches the eBay sold price. One paste instead of a form.
+- **On a computer (bookmarklet):** drag **Fees &amp; goals → Desktop capture →
+  “Flipscout Capture”** to your bookmarks bar. On any Marketplace listing, click it
+  and Flipscout opens with the name and asking price filled.
+- **Deep links:** the app reads `#name=…&buy=…&sold=…` from the URL, so the
+  bookmarklet, a shared link, or a phone Shortcut can all hand off to it.
+
+> Facebook changes its page markup often, so the bookmarklet's auto-grab is
+> best-effort — if a field comes across blank, paste the listing instead. The
+> parser is deliberately forgiving (handles “Marketplace - …”, “Used · …”, price
+> with commas, etc.).
+
 ### Live sold-price lookups in the web app (optional)
 
 The **eBay ⤵** button next to the sold-price field looks the price up for you —
