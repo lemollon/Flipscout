@@ -85,6 +85,7 @@
   textarea{width:100%; font:inherit; color:var(--text); background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:11px 12px; resize:vertical; min-height:64px}
   textarea:focus-visible{outline:2px solid var(--focus); outline-offset:1px; border-color:transparent}
   .capture{background:linear-gradient(0deg,var(--surface-2),var(--surface-2)); border:1px dashed var(--border); border-radius:12px; padding:12px; margin-bottom:14px}
+  .capture.drag{border-color:var(--accent); border-style:solid; background:var(--surface)}
   .capture>summary{cursor:pointer; list-style:none; font-weight:700; font-size:.92rem; display:flex; align-items:center; gap:8px}
   .capture>summary::-webkit-details-marker{display:none}
   .capture>summary .chev{margin-left:auto; color:var(--muted); transition:transform .2s}
@@ -186,8 +187,9 @@
     <details class="capture" id="cap" open>
       <summary>Capture a listing <span class="chev">›</span></summary>
       <div class="body">
-        <div class="row" style="margin:0 0 10px">
+        <div class="row" style="margin:0 0 6px; align-items:center">
           <label for="cap-shot" class="btn primary" style="cursor:pointer">📷 Scan a screenshot</label>
+          <span class="hint" style="font-size:.78rem">or paste it (Ctrl/⌘+V) · or drag it in</span>
           <input type="file" id="cap-shot" accept="image/*" capture="environment" style="display:none">
         </div>
         <label for="cap-text">…or paste the listing <span class="hint">— copy title + price from the Facebook app</span></label>
@@ -589,15 +591,16 @@ function captureFromText(text){
 $("#cap-go").addEventListener("click", ()=>captureFromText($("#cap-text").value));
 $("#cap-clear").addEventListener("click", ()=>{ $("#cap-text").value=""; $("#cap-status").textContent=""; });
 
-/* screenshot -> fields, via the server's /api/scan (Claude vision or OCR) */
-$("#cap-shot").addEventListener("change", async (e)=>{
-  const file = e.target.files && e.target.files[0];
+/* screenshot -> fields, via the server's /api/scan (Claude vision or OCR).
+   Three ways in: the file button, a clipboard paste (desktop), or a drag-drop. */
+async function scanImageFile(file){
   if(!file) return;
+  if(!$("#cap").open) $("#cap").open = true;
   const st = $("#cap-status");
   st.className="look-status"; st.textContent="Reading the screenshot…";
   try{
     const base = (SET.apiBase||"").replace(/\/+$/,"");
-    const fd = new FormData(); fd.append("image", file);
+    const fd = new FormData(); fd.append("image", file, file.name||"screenshot.png");
     const r = await fetch(base + "/api/scan", {method:"POST", body:fd});
     if(r.status===503){ const d=await r.json().catch(()=>({})); throw new Error(d.detail || "Screenshot scanning isn't set up on the server."); }
     if(!r.ok){ throw new Error("Scan failed ("+r.status+")."); }
@@ -613,8 +616,35 @@ $("#cap-shot").addEventListener("change", async (e)=>{
     st.textContent = (err && err.name==="TypeError")
       ? "Can't reach the Flipscout server for screenshot scanning. Run it (see README), then try again."
       : (err.message || "Scan failed.");
-  }finally{ e.target.value=""; }
+  }
+}
+$("#cap-shot").addEventListener("change", async (e)=>{
+  await scanImageFile(e.target.files && e.target.files[0]);
+  e.target.value = "";
 });
+/* Desktop: paste a screenshot from the clipboard anywhere (Ctrl/⌘+V).
+   Only intercept when the clipboard actually holds an image — text paste
+   into the textarea still works normally. */
+document.addEventListener("paste", (e)=>{
+  const items = (e.clipboardData && e.clipboardData.items) || [];
+  for(const it of items){
+    if(it.type && it.type.indexOf("image") === 0){
+      const file = it.getAsFile();
+      if(file){ e.preventDefault(); scanImageFile(file); return; }
+    }
+  }
+});
+/* Desktop: drag a screenshot onto the capture card */
+(function(){
+  const box = $("#cap");
+  ["dragenter","dragover"].forEach(ev => box.addEventListener(ev, e=>{ e.preventDefault(); box.classList.add("drag"); }));
+  ["dragleave","dragend"].forEach(ev => box.addEventListener(ev, ()=> box.classList.remove("drag")));
+  box.addEventListener("drop", (e)=>{
+    e.preventDefault(); box.classList.remove("drag");
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(file && file.type.indexOf("image") === 0) scanImageFile(file);
+  });
+})();
 
 /* deep-link: #name=..&buy=..&sold=..  (used by the bookmarklet & share hand-offs) */
 function applyHash(){

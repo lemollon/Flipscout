@@ -35,9 +35,13 @@ or auto-navigates Facebook.
 - **On your phone (paste):** in the Facebook app, copy the listing text (title +
   price), open Flipscout, paste, tap **Capture & score**. Works fully offline for the
   parse; auto-fetches the eBay sold price if your lookup server is running.
-- **On a computer (bookmarklet):** drag **Fees &amp; goals → Desktop capture →
+- **On a computer — bookmarklet:** drag **Fees &amp; goals → Desktop capture →
   “Flipscout Capture”** to your bookmarks bar. On any Marketplace listing, click it
   and Flipscout opens with the name and asking price filled.
+- **On a computer — paste or drag a screenshot:** region-screenshot the listing
+  (Win: `Win+Shift+S`, Mac: `⌘+Ctrl+Shift+4`), then **paste it (`Ctrl/⌘+V`)**
+  anywhere in Flipscout, or **drag the image** onto the capture card. It reads the
+  title + price off the image and scores it. (Needs the server running.)
 - **Deep links:** the app reads `#name=…&buy=…&sold=…` from the URL, so the
   bookmarklet, a shared link, or a phone Shortcut can all hand off to it.
 
