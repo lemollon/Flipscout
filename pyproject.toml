@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flipscout"
+version = "0.1.0"
+description = "ToS-safe eBay sourcing profit analyzer — decide what to buy locally and flip on eBay."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Proprietary" }
+dependencies = [
+    "requests>=2.31",   # only needed for live eBay-API mode (flipscout.ebay_api)
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+flipscout = "flipscout.cli:main"
+
+[tool.setuptools]
+packages = ["flipscout"]
+
+[tool.setuptools.package-data]
+flipscout = ["sample_items.csv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

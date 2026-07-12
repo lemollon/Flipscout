@@ -1,0 +1,205 @@
+"""Command-line front end. Two modes:
+
+  Single item (quick check while you're standing in the store):
+    python -m flipscout.cli item "Nintendo Switch OLED" --buy 120 --sold 250 \
+        --ship-cost 12 --sold-count 800 --active-count 400
+
+  Batch (score a spreadsheet you built while sourcing):
+    python -m flipscout.cli csv flipscout/sample_items.csv
+
+Everything runs in estimate mode: you supply the eBay SOLD price (--sold), which
+you get for free from eBay's "Sold items" search filter. No API key, no scraping.
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+
+from .analyzer import Candidate, Thresholds, analyze, analyze_csv, max_pay
+from .categories import format_goldmines
+from .comps import Comp, load_memory, save_comp
+from .fees import CONSERVATIVE, FeeModel
+
+DEFAULT_MEMORY = "flipscout/comps_memory.json"
+
+
+def _fee_model(args) -> FeeModel:
+    if getattr(args, "conservative", False):
+        return CONSERVATIVE
+    return FeeModel(
+        final_value_pct=args.fvf,
+        promoted_pct=args.promoted,
+        international_pct=args.intl,
+    )
+
+
+def _thresholds(args) -> Thresholds:
+    return Thresholds(
+        min_profit=args.min_profit,
+        min_roi=args.min_roi,
+    )
+
+
+def _print_detail(a) -> None:
+    print(a.summary())
+    for n in a.notes:
+        print(f"             - {n}")
+
+
+def _provider(args):
+    """Pick a comps source: --ebay (live API) beats --memory (price book)."""
+    if getattr(args, "ebay", False):
+        from .ebay_api import EbayApiComps  # lazy: needs creds + requests
+        return EbayApiComps()
+    if getattr(args, "memory", None):
+        return load_memory(args.memory)
+    return None
+
+
+def cmd_item(args) -> int:
+    cand = Candidate(
+        title=args.title,
+        source_price=args.buy,
+        observed_price=args.sold,
+        shipping_cost=args.ship_cost,
+        shipping_charged=args.ship_charge,
+        extra_cost=args.extra,
+        sold_count=args.sold_count,
+        active_count=args.active_count,
+    )
+    a = analyze(cand, provider=_provider(args), fees=_fee_model(args),
+                thresholds=_thresholds(args))
+    _print_detail(a)
+    if a.verdict.value == "NEEDS_COMP":
+        return 2
+    return 0
+
+
+def cmd_maxpay(args) -> int:
+    """The fast, in-the-aisle question: what's the most I can pay?"""
+    m = max_pay(
+        sale_price=args.sold,
+        fees=_fee_model(args),
+        thresholds=_thresholds(args),
+        shipping_cost=args.ship_cost,
+        shipping_charged=args.ship_charge,
+        extra_cost=args.extra,
+    )
+    print(m.summary())
+    return 0 if m.max_price > 0 else 2
+
+
+def cmd_goldmines(args) -> int:
+    """Print the starter buy-box cheat-sheet."""
+    print(format_goldmines())
+    return 0
+
+
+def cmd_remember(args) -> int:
+    """Save a comp to your personal price book so this item is instant next time."""
+    save_comp(args.memory, Comp(
+        query=args.title,
+        sold_price=args.sold,
+        sold_count=args.sold_count,
+        active_count=args.active_count,
+        source="memory",
+    ))
+    print(f"Saved '{args.title}' @ ${args.sold:.2f} to {args.memory}")
+    return 0
+
+
+def cmd_csv(args) -> int:
+    results = analyze_csv(args.path, provider=_provider(args),
+                          fees=_fee_model(args), thresholds=_thresholds(args))
+    if not results:
+        print("No candidates found in CSV.")
+        return 1
+    buys = sum(1 for r in results if r.verdict.value == "BUY")
+    print(f"Scored {len(results)} candidates  |  {buys} BUY\n")
+    for a in results:
+        _print_detail(a)
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="flipscout",
+        description="eBay sourcing profit analyzer (estimate mode, ToS-safe).",
+    )
+    # Shared knobs.
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument("--fvf", type=float, default=0.1325,
+                        help="eBay final value fee fraction (default 0.1325)")
+    common.add_argument("--promoted", type=float, default=0.0,
+                        help="Promoted Listings ad rate fraction (default 0)")
+    common.add_argument("--intl", type=float, default=0.0,
+                        help="international fee fraction (default 0)")
+    common.add_argument("--conservative", action="store_true",
+                        help="use the stress-case fee model")
+    common.add_argument("--min-profit", type=float, default=10.0,
+                        help="minimum net profit to call it a BUY (default 10)")
+    common.add_argument("--min-roi", type=float, default=0.50,
+                        help="minimum ROI to call it a BUY (default 0.50)")
+
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    pi = sub.add_parser("item", parents=[common], help="analyze one item")
+    pi.add_argument("title")
+    pi.add_argument("--buy", type=float, required=True, help="local/source price you'd pay")
+    pi.add_argument("--sold", type=float, default=None,
+                    help="median eBay SOLD price (from the Sold items filter)")
+    pi.add_argument("--ship-cost", type=float, default=0.0, help="postage YOU pay")
+    pi.add_argument("--ship-charge", type=float, default=0.0, help="postage buyer pays you")
+    pi.add_argument("--extra", type=float, default=0.0, help="supplies/refurb/gas per item")
+    pi.add_argument("--sold-count", type=int, default=None, help="# sold in lookback")
+    pi.add_argument("--active-count", type=int, default=None, help="# active listings")
+    pi.add_argument("--memory", nargs="?", const=DEFAULT_MEMORY, default=None,
+                    help="price-book file to auto-fill sold prices (default "
+                         f"{DEFAULT_MEMORY} when flag given bare)")
+    pi.add_argument("--ebay", action="store_true",
+                    help="fetch sold price + counts live from the eBay API "
+                         "(needs EBAY_CLIENT_ID / EBAY_CLIENT_SECRET)")
+    pi.set_defaults(func=cmd_item)
+
+    pm = sub.add_parser("maxpay", parents=[common],
+                        help="highest price to pay for a given eBay sold price")
+    pm.add_argument("--sold", type=float, required=True, help="median eBay SOLD price")
+    pm.add_argument("--ship-cost", type=float, default=0.0, help="postage YOU pay")
+    pm.add_argument("--ship-charge", type=float, default=0.0, help="postage buyer pays you")
+    pm.add_argument("--extra", type=float, default=0.0, help="supplies/refurb/gas per item")
+    pm.set_defaults(func=cmd_maxpay)
+
+    sub.add_parser("goldmines", help="print the goldmine-category buy-box cheat-sheet") \
+       .set_defaults(func=cmd_goldmines)
+
+    pr = sub.add_parser("remember", help="save a comp to your price book")
+    pr.add_argument("title")
+    pr.add_argument("--sold", type=float, required=True, help="median eBay SOLD price")
+    pr.add_argument("--sold-count", type=int, default=None)
+    pr.add_argument("--active-count", type=int, default=None)
+    pr.add_argument("--memory", default=DEFAULT_MEMORY, help="price-book file")
+    pr.set_defaults(func=cmd_remember)
+
+    pc = sub.add_parser("csv", parents=[common], help="analyze a CSV of candidates")
+    pc.add_argument("path")
+    pc.add_argument("--memory", nargs="?", const=DEFAULT_MEMORY, default=None,
+                    help="price-book file to auto-fill missing sold prices")
+    pc.add_argument("--ebay", action="store_true",
+                    help="fetch sold prices live from the eBay API")
+    pc.set_defaults(func=cmd_csv)
+
+    return p
+
+
+def main(argv=None) -> int:
+    args = build_parser().parse_args(argv)
+    try:
+        return args.func(args)
+    except RuntimeError as e:  # e.g. missing eBay credentials
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

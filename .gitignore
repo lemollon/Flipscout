@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+
+# Your personal price book (local data, not code)
+comps_memory.json
+flipscout/comps_memory.json
+
+# Secrets / local env (eBay keys live here, never commit them)
+.env
