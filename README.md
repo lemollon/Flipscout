@@ -71,6 +71,19 @@ vision model when `ANTHROPIC_API_KEY` is set, else local Tesseract OCR (`pip ins
 ".[scan]"` + the `tesseract` binary). Without either, it returns a clear 503 and you
 just paste or type instead.
 
+**Uploading a photo from your phone.** The upload button works on mobile (it opens
+your photo library), but the scan runs on the server — so your phone has to reach a
+running Flipscout server. Easiest: run it on your computer bound to your network and
+open it from the phone on the same Wi-Fi:
+
+```bash
+uvicorn flipscout.server:app --host 0.0.0.0 --port 8000
+# then on your phone open  http://<your-computer-LAN-IP>:8000  (e.g. 192.168.1.20)
+```
+
+Opening the hosted **artifact** on your phone can't scan (artifacts block outbound
+calls) — there, paste the listing text or type the item + eBay sold price instead.
+
 Without the server (opening the file directly, or the hosted artifact), the app
 stays **fully usable in estimate mode** — the button just says it can't reach the
 server. Live is additive, never required. `flipscout/server.py` exposes
