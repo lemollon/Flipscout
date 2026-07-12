@@ -76,6 +76,26 @@ def test_active_listings_local_sets_filter_and_location_header():
     assert "zip=98101" in captured["headers"]["X-EBAY-C-ENDUSERCTX"]
 
 
+def test_velocity_on_hits_and_max_days_filter():
+    from flipscout.analyzer import est_days_to_sell
+    # 90 sold in 90d = 1/day; 30 active -> ~30 days to sell.
+    assert est_days_to_sell(90, 30) == pytest.approx(30.0)
+
+    class _Src(_FakeSource):
+        class _Comp:
+            def __init__(s, sold): s.sold_price = sold; s.source = "ebay"; s.sold_count = 90; s.active_count = 30
+            @property
+            def sell_through(s): return 90 / 120
+        def lookup(self, q, observed_price=None): return self._Comp(self._sold)
+
+    src = _Src(200.0, [{"title": "x", "price": 60.0, "url": "u"}])
+    hits = scan_query("q", src, thresholds=Thresholds(min_profit=15, min_roi=0.5))
+    assert hits[0].days_to_sell == pytest.approx(30.0)
+    assert hits[0].sell_through == pytest.approx(0.75)
+    # max_days below the estimate drops it entirely (too slow):
+    assert scan_query("q", src, max_days=14, thresholds=Thresholds(min_profit=15, min_roi=0.5)) == []
+
+
 def test_scan_no_sold_data_returns_empty():
     src = _FakeSource(sold=0, listings=[{"title": "x", "price": 10.0, "url": ""}])
     assert scan_query("x", src) == []

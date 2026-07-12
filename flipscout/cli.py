@@ -125,6 +125,7 @@ def cmd_scan(args) -> int:
                 fees=_fee_model(args), thresholds=_thresholds(args),
                 buy_shipping=args.buy_ship, resell_shipping=args.ship_cost,
                 local=args.local, zip_code=args.zip, effort_minutes=args.minutes,
+                max_days=args.max_days, min_sell_through=args.min_st,
                 limit_per_query=args.per_query)
     if not hits:
         where = "local-pickup listings" if args.local else "listings"
@@ -229,6 +230,10 @@ def build_parser() -> argparse.ArgumentParser:
     ps.add_argument("--local", action="store_true", help="only local-pickup listings you can go grab")
     ps.add_argument("--zip", default=None, help="your ZIP, to center local results (with --local)")
     ps.add_argument("--minutes", type=int, default=None, help="handling time/flip for the $/hr rank")
+    ps.add_argument("--max-days", type=float, default=None,
+                    help="drop items estimated to take longer than N days to sell")
+    ps.add_argument("--min-st", type=float, default=None,
+                    help="drop items below this sell-through, e.g. 0.4")
     ps.add_argument("--ship-cost", type=float, default=0.0, help="postage you'd pay to reship")
     ps.add_argument("--buy-ship", type=float, default=0.0, help="postage added when you buy")
     ps.add_argument("--per-query", type=int, default=None, help="cap hits shown per search")

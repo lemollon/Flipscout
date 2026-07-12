@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from typing import Optional, Protocol
 
 from .fees import FeeModel, net_proceeds
-from .analyzer import Thresholds
+from .analyzer import Thresholds, est_days_to_sell
 
 
 # Rough handling-time per flip, in minutes — buy, receive/inspect, list, pack, ship.
@@ -48,11 +48,14 @@ class ScanHit:
     per_hour: float         # profit ÷ your handling time — the money/labor number (#4)
     url: str
     source: str
+    sell_through: Optional[float] = None   # sold ÷ (sold + active) — liquidity
+    days_to_sell: Optional[float] = None   # rough days a fresh listing takes to sell
 
     def summary(self) -> str:
-        return (f"${self.per_hour:>6.0f}/hr  ${self.profit:>7.2f}  ROI {self.roi:>4.0%}  "
+        days = f"~{self.days_to_sell:>3.0f}d" if self.days_to_sell is not None else "  -"
+        return (f"${self.per_hour:>6.0f}/hr  {days}  ${self.profit:>7.2f}  ROI {self.roi:>4.0%}  "
                 f"buy ${self.buy_price:>7.2f} → sell ${self.sold_price:>7.2f}  "
-                f"{self.title[:40]}")
+                f"{self.title[:38]}")
 
 
 def scan_query(
@@ -66,16 +69,27 @@ def scan_query(
     zip_code: Optional[str] = None,
     effort_minutes: Optional[int] = None,
     comp_source: Optional[object] = None,
+    max_days: Optional[float] = None,
+    min_sell_through: Optional[float] = None,
 ) -> list[ScanHit]:
     """Scan one search on `listing_source` (where you BUY), comp it against
     `comp_source` (where you SELL — eBay; defaults to listing_source for the
     eBay→eBay case), and flag every listing cheap enough to flip. Ranked by
-    profit-per-hour (money for the least labor)."""
+    profit-per-hour. `max_days` / `min_sell_through` drop slow movers so you don't
+    sit on inventory."""
     comp_source = comp_source or listing_source
     comp = comp_source.lookup(query)
     sold = getattr(comp, "sold_price", None)
     if not sold or sold <= 0:
         return []  # no sold data -> nothing to arbitrage against
+
+    st = getattr(comp, "sell_through", None)
+    days = est_days_to_sell(getattr(comp, "sold_count", None), getattr(comp, "active_count", None))
+    # Velocity filters — skip the whole search if this item is a known slow mover.
+    if max_days is not None and days is not None and days > max_days:
+        return []
+    if min_sell_through is not None and st is not None and st < min_sell_through:
+        return []
 
     minutes = effort_minutes if effort_minutes is not None else (EFFORT_LOCAL if local else EFFORT_SHIPPED)
     where = getattr(listing_source, "name", getattr(comp, "source", "ebay"))
@@ -91,6 +105,7 @@ def scan_query(
                 sold_price=sold, profit=profit, roi=roi,
                 per_hour=profit * 60.0 / minutes,
                 url=it.get("url", ""), source=where,
+                sell_through=st, days_to_sell=days,
             ))
     hits.sort(key=lambda h: h.per_hour, reverse=True)
     return hits
@@ -108,11 +123,13 @@ def scan(
     effort_minutes: Optional[int] = None,
     limit_per_query: Optional[int] = None,
     comp_source: Optional[object] = None,
+    max_days: Optional[float] = None,
+    min_sell_through: Optional[float] = None,
 ) -> list[ScanHit]:
     """Scan several searches across one or more buying `sources` → a single merged
     inventory of deals, each tagged with where to buy, ranked by profit-per-hour.
     `comp_source` (eBay) prices resale for every source; defaults to the first
-    source that can price itself."""
+    source that can price itself. `max_days`/`min_sell_through` drop slow movers."""
     src_list = list(sources) if isinstance(sources, (list, tuple)) else [sources]
     if comp_source is None:
         comp_source = next((s for s in src_list if hasattr(s, "lookup")), src_list[0])
@@ -121,7 +138,8 @@ def scan(
         for q in queries:
             hits = scan_query(q, s, fees, thresholds, buy_shipping, resell_shipping,
                               local=local, zip_code=zip_code, effort_minutes=effort_minutes,
-                              comp_source=comp_source)
+                              comp_source=comp_source, max_days=max_days,
+                              min_sell_through=min_sell_through)
             if limit_per_query is not None:
                 hits = hits[:limit_per_query]
             all_hits.extend(hits)

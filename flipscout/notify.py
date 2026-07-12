@@ -24,7 +24,8 @@ def format_digest(hits, header: Optional[str] = None) -> str:
     n = len(hits)
     lines = [header or f"🏷️ Flipscout — {n} new deal{'s' if n != 1 else ''}", ""]
     for h in hits:
-        lines.append(f"${h.per_hour:.0f}/hr · ${h.profit:.0f} profit ({h.roi:.0%} ROI) [{h.source}]")
+        vel = f" · ~{h.days_to_sell:.0f}d to sell" if getattr(h, "days_to_sell", None) is not None else ""
+        lines.append(f"${h.per_hour:.0f}/hr · ${h.profit:.0f} profit ({h.roi:.0%} ROI){vel} [{h.source}]")
         lines.append(f"{h.title[:70]}")
         lines.append(f"buy ${h.buy_price:.0f} → sell ${h.sold_price:.0f}"
                      + (f"  ·  {h.url}" if h.url else ""))

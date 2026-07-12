@@ -109,7 +109,8 @@ def create_app() -> "FastAPI":
     def deals(q: str = Query(..., min_length=1, description="comma-separated searches"),
               min_profit: float = 15.0, min_roi: float = 0.5,
               local: bool = False, zip: Optional[str] = None,
-              minutes: Optional[int] = None, sources: str = "ebay"):
+              minutes: Optional[int] = None, sources: str = "ebay",
+              max_days: Optional[float] = None, min_sell_through: Optional[float] = None):
         if not ebay_configured() and _provider is None:
             raise HTTPException(status_code=503, detail=(
                 "Live eBay lookups aren't set up. Set EBAY_CLIENT_ID and "
@@ -124,6 +125,7 @@ def create_app() -> "FastAPI":
             hits = scan(queries, src_list, comp_source=ebay,
                         thresholds=Thresholds(min_profit=min_profit, min_roi=min_roi),
                         local=local, zip_code=zip, effort_minutes=minutes,
+                        max_days=max_days, min_sell_through=min_sell_through,
                         limit_per_query=10)
         except Exception as e:
             raise HTTPException(status_code=502, detail=f"Scan failed: {e}")

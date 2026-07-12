@@ -307,6 +307,10 @@
           <input type="text" id="d-zip" inputmode="numeric" placeholder="98101" autocomplete="off">
         </div>
       </div>
+      <div class="field">
+        <label for="d-days">Sells within <span class="hint">— hide slow movers (blank = any)</span></label>
+        <input class="num" type="number" id="d-days" inputmode="numeric" min="1" step="1" placeholder="30"> <span class="hint">days</span>
+      </div>
       <div class="row">
         <button class="btn primary" id="d-go" type="button">Scan for deals</button>
       </div>
@@ -534,10 +538,12 @@ async function findDeals(){
     const srcs = [];
     if($("#d-src-ebay").checked) srcs.push("ebay");
     if($("#d-src-goodwill").checked) srcs.push("goodwill");
+    const days = $("#d-days").value.trim();
     const url = base + "/api/deals?q=" + encodeURIComponent(q)
       + "&min_profit=" + SET.minProfit + "&min_roi=" + SET.minRoi
       + "&sources=" + (srcs.join(",") || "ebay")
-      + (local ? "&local=true" : "") + (zip ? "&zip=" + encodeURIComponent(zip) : "");
+      + (local ? "&local=true" : "") + (zip ? "&zip=" + encodeURIComponent(zip) : "")
+      + (days ? "&max_days=" + encodeURIComponent(days) : "");
     const r = await fetch(url, {headers:{Accept:"application/json"}});
     if(r.status===503){ const d=await r.json().catch(()=>({})); throw new Error(d.detail || "Deal scanning needs the eBay API set up on the server."); }
     if(!r.ok){ throw new Error("Scan failed ("+r.status+")."); }
@@ -550,7 +556,7 @@ async function findDeals(){
       return `<div class="result" style="--line:${s.line};--tint:${s.bg};--fg:${s.fg}">
         <div class="head">
           <div><div style="font-weight:650;font-size:.9rem">${(d.title||"").slice(0,56)} <span class="chip">${d.source}</span></div>
-            <div class="hint" style="font-size:.78rem">${$money(d.profit)} profit · ROI ${$pct(d.roi)} · buy ${$money(d.buy_price)} → sell ${$money(d.sold_price)} · ${link}</div></div>
+            <div class="hint" style="font-size:.78rem">${$money(d.profit)} profit · ROI ${$pct(d.roi)}${d.days_to_sell!=null?" · ~"+Math.round(d.days_to_sell)+"d to sell":""} · buy ${$money(d.buy_price)} → sell ${$money(d.sold_price)} · ${link}</div></div>
           <div class="big"><span class="n">$${Math.round(d.per_hour)}</span><span class="k">per hour</span></div>
         </div></div>`;
     }).join("");

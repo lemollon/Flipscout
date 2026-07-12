@@ -30,6 +30,19 @@ class Verdict(str, Enum):
     NEEDS_COMP = "NEEDS_COMP"  # no sold price yet — go look one up before deciding
 
 
+def est_days_to_sell(sold_count, active_count, window_days: int = 90):
+    """Rough days for a fresh listing to sell: the queue of active listings divided
+    by the recent sales rate (sold in `window_days`). High supply + low sales = slow.
+    An estimate (ignores your price/quality), but directionally honest. None if the
+    counts aren't both known or nothing has sold."""
+    if not sold_count or active_count is None:
+        return None
+    per_day = sold_count / window_days
+    if per_day <= 0:
+        return None
+    return active_count / per_day
+
+
 @dataclass(frozen=True)
 class Thresholds:
     """What separates a BUY from a MAYBE from a SKIP. All tunable."""
@@ -76,6 +89,7 @@ class DealAnalysis:
     margin: Optional[float]         # net_profit / sale_price
     sell_through: Optional[float]
     verdict: Verdict
+    days_to_sell: Optional[float] = None   # rough estimate; None if counts unknown
     notes: list[str] = field(default_factory=list)
 
     def summary(self) -> str:
@@ -84,9 +98,10 @@ class DealAnalysis:
             return (f"{self.verdict.value:>10}  {c.title[:40]:40}  "
                     f"paid ${c.source_price:>7.2f}  -> look up a sold comp on eBay")
         st = f"{self.sell_through:>4.0%}" if self.sell_through is not None else "  - "
+        days = f"~{self.days_to_sell:>3.0f}d" if self.days_to_sell is not None else "   - "
         return (f"{self.verdict.value:>10}  {c.title[:40]:40}  "
                 f"buy ${c.source_price:>7.2f}  sell ${self.sale_price:>7.2f}  "
-                f"profit ${self.net_profit:>7.2f}  ROI {self.roi:>5.0%}  ST {st}")
+                f"profit ${self.net_profit:>7.2f}  ROI {self.roi:>5.0%}  ST {st}  {days}")
 
 
 def analyze(
@@ -132,13 +147,17 @@ def analyze(
     roi = net_profit / total_cost if total_cost > 0 else float("inf")
     margin = net_profit / sale_price if sale_price > 0 else 0.0
     sell_through = comp.sell_through
+    days = est_days_to_sell(comp.sold_count, comp.active_count)
 
     verdict = _decide(net_profit, roi, sell_through, thresholds, notes)
+    if days is not None and days > 60 and verdict is Verdict.BUY:
+        verdict = Verdict.MAYBE
+        notes.append(f"Estimated ~{days:.0f} days to sell — you'd sit on it a while.")
 
     return DealAnalysis(
         candidate=candidate, comp=comp, sale_price=sale_price, total_cost=total_cost,
         total_fees=np_.total_fees, net_profit=net_profit, roi=roi, margin=margin,
-        sell_through=sell_through, verdict=verdict, notes=notes,
+        sell_through=sell_through, verdict=verdict, days_to_sell=days, notes=notes,
     )
 
 

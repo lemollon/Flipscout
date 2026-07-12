@@ -193,6 +193,12 @@ for the least labor*, not just raw profit (`--minutes` to tune your pace). In th
 web app it's the **Find deals** tab (`GET /api/deals?q=a,b,c&local=&zip=`), with a
 **"local pickup near me"** toggle.
 
+**Velocity — don't sit on inventory.** Every deal shows an estimated **days-to-sell**
+(≈ active listings × 90 ÷ items sold in 90 days) and sell-through. Filter slow
+movers out with `--max-days 30` / `--min-st 0.4` (web: the "sells within N days"
+box; watcher: `FLIPSCOUT_MAX_DAYS`). The single-item verdict also flags anything
+estimated over ~60 days and knocks a BUY down to MAYBE.
+
 **Sources — buy anywhere, comp against eBay.** The scanner separates *where you buy*
 from *where you sell*: it lists items from each buying source and prices every one
 against eBay sold data. Built in:

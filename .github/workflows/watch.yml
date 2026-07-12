@@ -47,6 +47,7 @@ jobs:
           FLIPSCOUT_SOURCES: ${{ vars.FLIPSCOUT_SOURCES || 'ebay' }}
           FLIPSCOUT_MIN_PROFIT: ${{ vars.FLIPSCOUT_MIN_PROFIT || '20' }}
           FLIPSCOUT_MIN_ROI: ${{ vars.FLIPSCOUT_MIN_ROI || '0.6' }}
+          FLIPSCOUT_MAX_DAYS: ${{ vars.FLIPSCOUT_MAX_DAYS || '' }}
           FLIPSCOUT_TOP: ${{ vars.FLIPSCOUT_TOP || '10' }}
           FLIPSCOUT_LOCAL: ${{ vars.FLIPSCOUT_LOCAL || '' }}
           FLIPSCOUT_ZIP: ${{ vars.FLIPSCOUT_ZIP || '' }}

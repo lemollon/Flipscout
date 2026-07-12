@@ -40,6 +40,7 @@ def load_config(env=None) -> dict:
         "local": env.get("FLIPSCOUT_LOCAL", "") in ("1", "true", "True"),
         "zip": env.get("FLIPSCOUT_ZIP") or None,
         "minutes": int(env["FLIPSCOUT_MINUTES"]) if env.get("FLIPSCOUT_MINUTES") else None,
+        "max_days": float(env["FLIPSCOUT_MAX_DAYS"]) if env.get("FLIPSCOUT_MAX_DAYS") else None,
         "top": int(env.get("FLIPSCOUT_TOP", "10")),
         "state_file": env.get("FLIPSCOUT_STATE_FILE", "flipscout_seen.json"),
     }
@@ -84,6 +85,7 @@ def run_watch(config: dict, ebay=None, notifier=notify) -> dict:
         config["queries"], sources, comp_source=ebay,
         thresholds=Thresholds(min_profit=config["min_profit"], min_roi=config["min_roi"]),
         local=config["local"], zip_code=config["zip"], effort_minutes=config["minutes"],
+        max_days=config["max_days"],
         limit_per_query=config["top"],
     )
 
