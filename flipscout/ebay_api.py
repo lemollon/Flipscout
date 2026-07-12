@@ -188,14 +188,20 @@ class EbayApiComps:
         resp.raise_for_status()
         return parse_browse(resp.json())
 
-    def active_listings(self, query: str, limit: int = 50) -> list[dict]:
+    def active_listings(self, query: str, limit: int = 50, local: bool = False,
+                        zip_code: Optional[str] = None, **kw) -> list[dict]:
         """The active listings for a query — [{title, price, url, item_id}].
-        Used by the arbitrage scanner to find underpriced ones."""
+        `local=True` restricts to seller-arranged local pickup; `zip_code` centers
+        it on you so pickup distance/availability is right."""
+        headers = dict(self._auth_header())
+        params = {"q": query, "limit": limit}
+        if local:
+            params["filter"] = "deliveryOptions:{SELLER_ARRANGED_LOCAL_PICKUP}"
+            if zip_code:
+                headers["X-EBAY-C-ENDUSERCTX"] = f"contextualLocation=country=US,zip={zip_code}"
         resp = self.session.get(
             f"{self.cfg.host}/buy/browse/v1/item_summary/search",
-            headers=self._auth_header(),
-            params={"q": query, "limit": limit},
-            timeout=_TIMEOUT,
+            headers=headers, params=params, timeout=_TIMEOUT,
         )
         resp.raise_for_status()
         return parse_browse_items(resp.json())

@@ -103,11 +103,14 @@ def cmd_scan(args) -> int:
     source = EbayApiComps()
     hits = scan(args.queries, source, fees=_fee_model(args), thresholds=_thresholds(args),
                 buy_shipping=args.buy_ship, resell_shipping=args.ship_cost,
+                local=args.local, zip_code=args.zip, effort_minutes=args.minutes,
                 limit_per_query=args.per_query)
     if not hits:
-        print("No arbitrage found (nothing priced below its sold value by your bar).")
+        where = "local-pickup listings" if args.local else "listings"
+        print(f"No arbitrage found ({where} priced below sold value by your bar).")
         return 0
-    print(f"{len(hits)} deal(s), best profit first:\n")
+    kind = "local pickup" if args.local else "ships to you"
+    print(f"{len(hits)} deal(s) ({kind}), best $/hour first:\n")
     for h in hits:
         print(h.summary())
         if args.links and h.url:
@@ -195,6 +198,9 @@ def build_parser() -> argparse.ArgumentParser:
     ps = sub.add_parser("scan", parents=[common],
                         help="arbitrage scan: find underpriced eBay listings (needs eBay keys)")
     ps.add_argument("queries", nargs="+", help="one or more searches, e.g. \"dewalt drill\"")
+    ps.add_argument("--local", action="store_true", help="only local-pickup listings you can go grab")
+    ps.add_argument("--zip", default=None, help="your ZIP, to center local results (with --local)")
+    ps.add_argument("--minutes", type=int, default=None, help="handling time/flip for the $/hr rank")
     ps.add_argument("--ship-cost", type=float, default=0.0, help="postage you'd pay to reship")
     ps.add_argument("--buy-ship", type=float, default=0.0, help="postage added when you buy")
     ps.add_argument("--per-query", type=int, default=None, help="cap hits shown per search")

@@ -180,16 +180,25 @@ enough to flip after fees — no browsing, no typing. Runs on live eBay data (ne
 the API keys).
 
 ```bash
+# ships to you (the widest pool):
 flipscout scan "dewalt dcd771" "sansui receiver" --links
-#  $113.10  ROI 189%  buy $ 60.00 → sell $200.00  DeWalt DCD771 (underpriced)
+#   $151/hr  $113.10  ROI 189%  buy $60.00 → sell $200.00  DeWalt DCD771 (underpriced)
+
+# local pickup near you (things you can go grab):
+flipscout scan "power tools" --local --zip 98101 --links
 ```
 
-In the web app it's the **Find deals** tab (calls `GET /api/deals?q=a,b,c`). Today
-it scans **eBay itself** (buy an underpriced / mistitled / ending-soon listing,
-resell at the going rate) because eBay's API makes that 100% allowed. The pipeline
-(`scanner.py`: active listings → comp → rank) is source-agnostic — a Craigslist-RSS
-or liquidation-feed source drops in by implementing `active_listings(query)` +
-`lookup(query)`.
+Ranked by **$/hour** — profit ÷ your handling time — so the feed optimizes *money
+for the least labor*, not just raw profit (`--minutes` to tune your pace). In the
+web app it's the **Find deals** tab (`GET /api/deals?q=a,b,c&local=&zip=`), with a
+**"local pickup near me"** toggle.
+
+**Sources.** It scans **eBay** — both *shipped-to-you* arbitrage and *local-pickup
+near your ZIP* — because eBay's API is the one reliable, allowed feed. Facebook has
+no API (that's what manual capture is for) and Craigslist blocks cloud servers, so
+neither can *reliably* auto-populate an inventory. The pipeline (`scanner.py`:
+active listings → comp → rank by $/hr) is source-agnostic, so a permitted feed
+drops in later by implementing `active_listings(query)` + `lookup(query)`.
 
 ## Where the money is (goldmine categories)
 

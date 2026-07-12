@@ -291,6 +291,17 @@
         <label for="d-q">Searches <span class="hint">— comma-separated, e.g. dewalt dcd771, canon powershot</span></label>
         <input type="text" id="d-q" placeholder="dewalt dcd771, sansui receiver" autocomplete="off">
       </div>
+      <div class="grid">
+        <div class="field" style="margin-bottom:0">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="d-local"> Local pickup near me
+          </label>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label for="d-zip">Your ZIP <span class="hint">(for local)</span></label>
+          <input type="text" id="d-zip" inputmode="numeric" placeholder="98101" autocomplete="off">
+        </div>
+      </div>
       <div class="row">
         <button class="btn primary" id="d-go" type="button">Scan for deals</button>
       </div>
@@ -514,22 +525,24 @@ async function findDeals(){
   st.className="look-status"; st.textContent="Scanning eBay for underpriced listings…";
   try{
     const base = (SET.apiBase||"").replace(/\/+$/,"");
+    const local = $("#d-local").checked, zip = $("#d-zip").value.trim();
     const url = base + "/api/deals?q=" + encodeURIComponent(q)
-      + "&min_profit=" + SET.minProfit + "&min_roi=" + SET.minRoi;
+      + "&min_profit=" + SET.minProfit + "&min_roi=" + SET.minRoi
+      + (local ? "&local=true" : "") + (zip ? "&zip=" + encodeURIComponent(zip) : "");
     const r = await fetch(url, {headers:{Accept:"application/json"}});
     if(r.status===503){ const d=await r.json().catch(()=>({})); throw new Error(d.detail || "Deal scanning needs the eBay API set up on the server."); }
     if(!r.ok){ throw new Error("Scan failed ("+r.status+")."); }
     const deals = (await r.json()).deals || [];
     if(!deals.length){ st.className="look-status"; st.textContent="No deals found — nothing priced below its sold value by your bar."; return; }
-    st.className="look-status ok"; st.textContent = `${deals.length} deal(s), best profit first:`;
+    st.className="look-status ok"; st.textContent = `${deals.length} ${local?"local ":""}deal(s), best $/hour first:`;
     box.innerHTML = deals.map(d=>{
-      const st2 = STYLE.BUY;
+      const s = STYLE.BUY;
       const link = d.url ? `<a href="${d.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">view →</a>` : "";
-      return `<div class="result" style="--line:${st2.line};--tint:${st2.bg};--fg:${st2.fg}">
+      return `<div class="result" style="--line:${s.line};--tint:${s.bg};--fg:${s.fg}">
         <div class="head">
           <div><div style="font-weight:650;font-size:.9rem">${(d.title||"").slice(0,60)}</div>
-            <div class="hint" style="font-size:.78rem">buy ${$money(d.buy_price)} → sell ${$money(d.sold_price)} · ${link}</div></div>
-          <div class="big"><span class="n">${$money(d.profit)}</span><span class="k">ROI ${$pct(d.roi)}</span></div>
+            <div class="hint" style="font-size:.78rem">${$money(d.profit)} profit · ROI ${$pct(d.roi)} · buy ${$money(d.buy_price)} → sell ${$money(d.sold_price)} · ${link}</div></div>
+          <div class="big"><span class="n">$${Math.round(d.per_hour)}</span><span class="k">per hour</span></div>
         </div></div>`;
     }).join("");
   }catch(err){
