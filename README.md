@@ -27,10 +27,14 @@ keeping you on the right side of Facebook's ToS: **you** browse, logged in and a
 human speed — Flipscout only reads the listing you already opened. Nothing crawls
 or auto-navigates Facebook.
 
-- **On your phone (Capture a listing → Paste):** in the Facebook app, copy the
-  listing text (title + price), open Flipscout, paste, tap **Capture & score**. It
-  pulls out the item name and asking price, and — if your lookup server is running
-  — auto-fetches the eBay sold price. One paste instead of a form.
+- **On your phone (screenshot):** tap **Capture a listing → 📷 Scan a screenshot**,
+  pick a screenshot of the listing, and it reads the title + asking price off the
+  image and scores it. The most natural phone capture — no text-selecting. Needs the
+  server running (see below); it uses a **vision model** (`ANTHROPIC_API_KEY`) or
+  **Tesseract OCR** as a free fallback.
+- **On your phone (paste):** in the Facebook app, copy the listing text (title +
+  price), open Flipscout, paste, tap **Capture & score**. Works fully offline for the
+  parse; auto-fetches the eBay sold price if your lookup server is running.
 - **On a computer (bookmarklet):** drag **Fees &amp; goals → Desktop capture →
   “Flipscout Capture”** to your bookmarks bar. On any Marketplace listing, click it
   and Flipscout opens with the name and asking price filled.
@@ -51,11 +55,17 @@ cross-origin browser calls (CORS). The server holds the secret and serves the ap
 from the same origin, so the page's request is same-origin and works.
 
 ```bash
-pip install -e ".[server]"
+pip install -e ".[server,scan]"          # scan adds screenshot support
 export EBAY_CLIENT_ID=...  EBAY_CLIENT_SECRET=...
+export ANTHROPIC_API_KEY=...             # for 📷 screenshot scanning (best quality)
 uvicorn flipscout.server:app --port 8000
-# open http://localhost:8000  →  the eBay button now fills sold price + counts
+# open http://localhost:8000  →  the eBay button + screenshot scan now work
 ```
+
+`GET /api/scan` reads a screenshot into `{name, price, condition}` — via a Claude
+vision model when `ANTHROPIC_API_KEY` is set, else local Tesseract OCR (`pip install
+".[scan]"` + the `tesseract` binary). Without either, it returns a clear 503 and you
+just paste or type instead.
 
 Without the server (opening the file directly, or the hosted artifact), the app
 stays **fully usable in estimate mode** — the button just says it can't reach the

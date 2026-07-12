@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import Optional
 
 try:
-    from fastapi import FastAPI, HTTPException, Query
+    from fastapi import FastAPI, File, HTTPException, Query, UploadFile
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.staticfiles import StaticFiles
 except ImportError as e:  # pragma: no cover
@@ -39,8 +39,9 @@ from .comps import Comp, CompsProvider
 
 _WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 
-# Test seam: set flipscout.server._provider to a fake CompsProvider to bypass eBay.
+# Test seams: set these to fakes to bypass eBay / the screenshot scanner.
 _provider: Optional[CompsProvider] = None
+_scanner = None
 
 
 def get_provider() -> CompsProvider:
@@ -54,6 +55,15 @@ def get_provider() -> CompsProvider:
 
 def ebay_configured() -> bool:
     return bool(os.environ.get("EBAY_CLIENT_ID") and os.environ.get("EBAY_CLIENT_SECRET"))
+
+
+def get_scanner():
+    """The screenshot extractor, built lazily. Raises RuntimeError if unconfigured."""
+    global _scanner
+    if _scanner is None:
+        from .scan import get_extractor  # lazy: needs anthropic or pytesseract
+        _scanner = get_extractor()
+    return _scanner
 
 
 def create_app() -> "FastAPI":
@@ -93,6 +103,20 @@ def create_app() -> "FastAPI":
             "low": comp.low,
             "high": comp.high,
         }
+
+    @app.post("/api/scan")
+    async def scan(image: UploadFile = File(...)):
+        data = await image.read()
+        if not data:
+            raise HTTPException(status_code=400, detail="No image received.")
+        try:
+            scanner = get_scanner()
+        except RuntimeError as e:  # not configured
+            raise HTTPException(status_code=503, detail=str(e))
+        try:
+            return scanner.extract(data, image.content_type or "image/png")
+        except Exception as e:
+            raise HTTPException(status_code=502, detail=f"Couldn't read the screenshot: {e}")
 
     # Serve the web app from the same origin (so its fetch to /api/* is same-origin).
     if _WEB_DIR.is_dir():

@@ -186,7 +186,11 @@
     <details class="capture" id="cap" open>
       <summary>Capture a listing <span class="chev">›</span></summary>
       <div class="body">
-        <label for="cap-text">Paste the listing <span class="hint">— copy the title + price from the Facebook app</span></label>
+        <div class="row" style="margin:0 0 10px">
+          <label for="cap-shot" class="btn primary" style="cursor:pointer">📷 Scan a screenshot</label>
+          <input type="file" id="cap-shot" accept="image/*" capture="environment" style="display:none">
+        </div>
+        <label for="cap-text">…or paste the listing <span class="hint">— copy title + price from the Facebook app</span></label>
         <textarea id="cap-text" placeholder="e.g.  DeWalt 20V drill&#10;$60&#10;Used · Seattle, WA"></textarea>
         <div class="row">
           <button class="btn primary" id="cap-go" type="button">Capture &amp; score</button>
@@ -584,6 +588,33 @@ function captureFromText(text){
 }
 $("#cap-go").addEventListener("click", ()=>captureFromText($("#cap-text").value));
 $("#cap-clear").addEventListener("click", ()=>{ $("#cap-text").value=""; $("#cap-status").textContent=""; });
+
+/* screenshot -> fields, via the server's /api/scan (Claude vision or OCR) */
+$("#cap-shot").addEventListener("change", async (e)=>{
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  const st = $("#cap-status");
+  st.className="look-status"; st.textContent="Reading the screenshot…";
+  try{
+    const base = (SET.apiBase||"").replace(/\/+$/,"");
+    const fd = new FormData(); fd.append("image", file);
+    const r = await fetch(base + "/api/scan", {method:"POST", body:fd});
+    if(r.status===503){ const d=await r.json().catch(()=>({})); throw new Error(d.detail || "Screenshot scanning isn't set up on the server."); }
+    if(!r.ok){ throw new Error("Scan failed ("+r.status+")."); }
+    const c = await r.json();
+    if(c.name) $("#s-name").value = c.name;
+    if(c.price!=null && c.price>0) $("#s-buy").value = c.price;
+    selectTab("score"); renderScore();
+    st.className="look-status ok";
+    st.textContent = `Scanned: ${c.name||"(no title)"}${c.price?" · asking "+$money(c.price):""}${c.condition?" · "+c.condition:""}. Getting a sold price…`;
+    if(c.name) runLookup();
+  }catch(err){
+    st.className="look-status err";
+    st.textContent = (err && err.name==="TypeError")
+      ? "Can't reach the Flipscout server for screenshot scanning. Run it (see README), then try again."
+      : (err.message || "Scan failed.");
+  }finally{ e.target.value=""; }
+});
 
 /* deep-link: #name=..&buy=..&sold=..  (used by the bookmarklet & share hand-offs) */
 function applyHash(){
