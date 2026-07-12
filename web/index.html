@@ -99,6 +99,13 @@
   .btn:active{transform:translateY(1px)}
   .btn.primary{background:var(--accent); color:var(--accent-ink); border-color:transparent}
   .btn:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  .lookup{display:flex; gap:8px; align-items:stretch}
+  .lookup .money-in{flex:1}
+  .btn.ebay{white-space:nowrap; font-weight:700; padding-inline:14px}
+  .btn.ebay[aria-busy="true"]{opacity:.6; pointer-events:none}
+  .look-status{font-size:.74rem; margin-top:6px; min-height:1.1em; color:var(--muted)}
+  .look-status.err{color:var(--skip-fg)}
+  .look-status.ok{color:var(--buy-fg)}
 
   /* verdict result */
   .result{border-radius:14px; border:1px solid var(--border); overflow:hidden; margin-bottom:14px; box-shadow:var(--shadow)}
@@ -180,7 +187,11 @@
         </div>
         <div class="field">
           <label for="s-sold">eBay sold price</label>
-          <div class="money-in"><input class="num" type="number" id="s-sold" inputmode="decimal" min="0" step="1" placeholder="95"></div>
+          <div class="lookup">
+            <div class="money-in"><input class="num" type="number" id="s-sold" inputmode="decimal" min="0" step="1" placeholder="95"></div>
+            <button class="btn ebay" id="s-ebay" type="button" title="Look up the sold price on eBay (needs the Flipscout server running)">eBay ⤵</button>
+          </div>
+          <div class="look-status" id="s-look"></div>
         </div>
       </div>
       <div class="field">
@@ -262,6 +273,10 @@
         <div class="field"><label for="set-intl">Intl fee %</label><input class="num" type="number" id="set-intl" inputmode="decimal" step="0.05"></div>
         <div class="field"><label for="set-minp">Min profit $</label><input class="num" type="number" id="set-minp" inputmode="decimal" step="1"></div>
         <div class="field"><label for="set-minroi">Min ROI %</label><input class="num" type="number" id="set-minroi" inputmode="decimal" step="5"></div>
+        <div class="field" style="grid-column:1/-1">
+          <label for="set-api">eBay lookup server <span class="hint">— optional; blank = same site this page is served from</span></label>
+          <input type="text" id="set-api" placeholder="http://localhost:8000" autocomplete="off">
+        </div>
       </div>
       <div class="row"><button class="btn" id="set-reset" type="button">Reset to defaults</button></div>
     </div>
@@ -282,6 +297,7 @@ const FACTORY = {
   fvf:0.1325, perOrder:0.40, perOrderSmall:0.30, smallThreshold:10.0,
   intl:0.0, promoted:0.0, taxPct:0.0,
   minProfit:10, minRoi:0.50, goodProfit:20, goodRoi:1.00, minSellThrough:0.30,
+  apiBase:"",
 };
 let SET = load(LS_SET, {...FACTORY});
 let BOOK = load(LS_BOOK, {});
@@ -439,13 +455,54 @@ $("#tab-max").addEventListener("click", ()=>selectTab("max"));
 /* ---- settings ---- */
 const SET_FIELDS = [["set-fvf","fvf",100],["set-order","perOrder",1],["set-promo","promoted",100],
   ["set-intl","intl",100],["set-minp","minProfit",1],["set-minroi","minRoi",100]];
-function fillSettings(){ SET_FIELDS.forEach(([id,key,mul])=> $("#"+id).value = +(SET[key]*mul).toFixed(mul===100?2:2) ); }
+function fillSettings(){
+  SET_FIELDS.forEach(([id,key,mul])=> $("#"+id).value = +(SET[key]*mul).toFixed(2) );
+  $("#set-api").value = SET.apiBase || "";
+}
 function readSettings(){
   SET_FIELDS.forEach(([id,key,mul])=>{ const v=parseFloat($("#"+id).value); if(Number.isFinite(v)) SET[key]=v/mul; });
+  SET.apiBase = $("#set-api").value.trim();
   save(LS_SET, SET); renderScore(); renderMax();
 }
 SET_FIELDS.forEach(([id])=> $("#"+id).addEventListener("input", readSettings));
+$("#set-api").addEventListener("input", readSettings);
 $("#set-reset").addEventListener("click", ()=>{ SET={...FACTORY}; save(LS_SET,SET); fillSettings(); renderScore(); renderMax(); });
+
+/* ---- live eBay lookup (needs the Flipscout server; see README) ---- */
+async function ebayLookup(query){
+  const base = (SET.apiBase||"").replace(/\/+$/,"");
+  const r = await fetch(base + "/api/comps?q=" + encodeURIComponent(query), {headers:{Accept:"application/json"}});
+  if(r.status===503){ const d=await r.json().catch(()=>({})); throw new Error(d.detail || "Live lookups aren't set up on the server."); }
+  if(!r.ok){ throw new Error("Lookup failed ("+r.status+")."); }
+  return r.json();
+}
+$("#s-ebay").addEventListener("click", async ()=>{
+  const q = $("#s-name").value.trim();
+  const btn = $("#s-ebay"), status = $("#s-look");
+  if(!q){ status.className="look-status err"; status.textContent="Type the item name first, then look it up."; return; }
+  btn.setAttribute("aria-busy","true"); status.className="look-status"; status.textContent="Looking up sold prices on eBay…";
+  try{
+    const c = await ebayLookup(q);
+    if(c.sold_count!=null) $("#s-soldc").value = c.sold_count;
+    if(c.active_count!=null) $("#s-activec").value = c.active_count;
+    if(c.sold_price!=null){
+      $("#s-sold").value = Math.round(c.sold_price*100)/100;
+      status.className="look-status ok";
+      status.textContent = `eBay: sold ~${$money(c.sold_price)}` + (c.sold_count!=null?` (${c.sold_count} sold`:"") + (c.active_count!=null?`, ${c.active_count} active)`:c.sold_count!=null?")":"");
+    } else {
+      status.className="look-status";
+      const active = c.active_count!=null ? `${c.active_count} active listings` : "listings";
+      status.innerHTML = `eBay shows ${active} but no <b>sold</b> data (Marketplace Insights not enabled) — enter the sold price by hand.`;
+    }
+    renderScore();
+  }catch(e){
+    status.className="look-status err";
+    const netFail = (e && e.name==="TypeError");
+    status.textContent = netFail
+      ? "Can't reach the Flipscout server. Run it (see README) or set its URL in Fees & goals."
+      : (e.message || "Lookup failed.");
+  }finally{ btn.removeAttribute("aria-busy"); }
+});
 
 /* ---- goldmines ---- */
 const GOLD = [

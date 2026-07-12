@@ -20,6 +20,27 @@ exact same math as the CLI:
   book** that remembers your comps (saved in the browser, nothing leaves the
   device).
 
+### Live sold-price lookups in the web app (optional)
+
+The **eBay ⤵** button next to the sold-price field looks the price up for you —
+but only when the little backend is running. Why a backend? A browser can't call
+eBay directly: it would expose your API secret in the page, and eBay blocks
+cross-origin browser calls (CORS). The server holds the secret and serves the app
+from the same origin, so the page's request is same-origin and works.
+
+```bash
+pip install -e ".[server]"
+export EBAY_CLIENT_ID=...  EBAY_CLIENT_SECRET=...
+uvicorn flipscout.server:app --port 8000
+# open http://localhost:8000  →  the eBay button now fills sold price + counts
+```
+
+Without the server (opening the file directly, or the hosted artifact), the app
+stays **fully usable in estimate mode** — the button just says it can't reach the
+server. Live is additive, never required. `flipscout/server.py` exposes
+`GET /api/comps?q=...`; point the app at a remote server via **Fees & goals → eBay
+lookup server** if you host it elsewhere.
+
 ## Install (CLI)
 
 ```bash
