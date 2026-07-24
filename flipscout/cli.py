@@ -153,6 +153,55 @@ def cmd_remember(args) -> int:
     return 0
 
 
+def cmd_comp(args) -> int:
+    """Real eBay SOLD comps via your own browser (no dev key — ours was rejected).
+
+    Two steps, because eBay serves the real page only to a genuine top-level
+    navigation: it WAF-challenges `requests` and even in-page fetch(). See
+    flipscout/ebay_ui.py for the measurements behind that.
+    """
+    from .ebay_ui import EXTRACT_JS, build_report, load_raw, sold_url
+
+    if not args.source:
+        print(f"1. Open this in your normal Chrome (logged in is fine, not required):\n")
+        print(f"   {sold_url(args.query)}\n")
+        print("2. Open DevTools (F12) -> Console, paste this, hit Enter.")
+        print("   It copies the results to your clipboard:")
+        print("   " + "-" * 56)
+        for line in EXTRACT_JS.strip().splitlines():
+            print("   " + line)
+        print("   " + "-" * 56)
+        print("\n3. Save the clipboard to a file and run:")
+        print(f'     flipscout comp "{args.query}" --from comps.json')
+        print("   (or pipe it:  clip contents | flipscout comp \"...\" --from -)")
+        return 0
+
+    if args.source == "-":
+        text = sys.stdin.read()
+    else:
+        with open(args.source, encoding="utf-8") as f:
+            text = f.read()
+
+    try:
+        raw = load_raw(text)
+    except ValueError as e:
+        print(f"error: couldn't parse that as JSON ({e}). Re-copy the console output.",
+              file=sys.stderr)
+        return 1
+
+    report = build_report(args.query, raw, fees=_fee_model(args),
+                          resell_shipping=args.ship_cost, require_sold=True)
+    print(report.render(target_profit=args.target))
+
+    if args.remember and report.headline:
+        save_comp(args.memory, Comp(
+            query=args.query, sold_price=report.headline,
+            sold_count=len(report.clean), source="ebay_ui",
+        ))
+        print(f"\nsaved to price book: {args.memory}")
+    return 0
+
+
 def cmd_csv(args) -> int:
     results = analyze_csv(args.path, provider=_provider(args),
                           fees=_fee_model(args), thresholds=_thresholds(args))
@@ -239,6 +288,22 @@ def build_parser() -> argparse.ArgumentParser:
     ps.add_argument("--per-query", type=int, default=None, help="cap hits shown per search")
     ps.add_argument("--links", action="store_true", help="print the listing URL for each hit")
     ps.set_defaults(func=cmd_scan)
+
+    pcomp = sub.add_parser(
+        "comp", parents=[common],
+        help="real eBay SOLD comps via your browser, segmented by condition")
+    pcomp.add_argument("query", help='what to comp, e.g. "donkey kong 64 nintendo 64"')
+    pcomp.add_argument("--from", dest="source", default=None,
+                       help="file with the pasted console JSON, or - for stdin. "
+                            "Omit to print the URL + console snippet first.")
+    pcomp.add_argument("--target", type=float, default=20.0,
+                       help="profit you want to clear, for the max-pay line (default 20)")
+    pcomp.add_argument("--ship-cost", type=float, default=0.0,
+                       help="postage YOU would pay to ship it to the buyer")
+    pcomp.add_argument("--remember", action="store_true",
+                       help="save the headline comp to your price book")
+    pcomp.add_argument("--memory", default=DEFAULT_MEMORY, help="price-book file")
+    pcomp.set_defaults(func=cmd_comp)
 
     pr = sub.add_parser("remember", help="save a comp to your price book")
     pr.add_argument("title")

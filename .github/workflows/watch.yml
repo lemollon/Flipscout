@@ -13,9 +13,23 @@
 name: Flipscout deal watch
 
 on:
-  schedule:
-    - cron: "17 * * * *"        # hourly at :17 (off the top-of-hour rush)
-  workflow_dispatch: {}          # lets you run it on demand from the Actions tab
+  # SCHEDULE DISABLED 2026-07-24. Two reasons, in order:
+  #
+  #  1. It was failing every run (~12 red runs/day) — the eBay developer account was
+  #     rejected, so EBAY_CLIENT_ID/SECRET were never set and watch.py raised at
+  #     import of EbayConfig.from_env().
+  #  2. More importantly, we measured the economics before re-arming it. eBay resale
+  #     carries $5.40-$14 of FIXED cost per flip (13.25% FVF + $0.40 + postage), so
+  #     anything reselling under ~$25 can't profit no matter how cheap the buy.
+  #     Live test: 496 Goodwill listings -> 0 deals cleared $20 profit + 60% ROI,
+  #     median -$14.71. Junk lots were worse (buy ~$20, they resell for ~$6).
+  #     Re-arming this would just deliver confident alerts on money-losing trades.
+  #
+  # To re-enable: uncomment the schedule AND raise the resale floor (an $80+ comp,
+  # not a category filter) — see `flipscout comp` for checking a real sold price.
+  # schedule:
+  #   - cron: "17 * * * *"        # hourly at :17 (off the top-of-hour rush)
+  workflow_dispatch: {}          # manual runs from the Actions tab still work
 
 concurrency:                     # don't overlap runs
   group: flipscout-watch
