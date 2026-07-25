@@ -216,6 +216,123 @@ MODELS: list[Model] = [
         note="Save battery is usually dead - it does not stop a sale but mention it.",
     ),
 
+    # === MY PICKS, chosen to exploit the CHANNEL rather than a fandom ==========
+    # HiBid aggregates estate, industrial and government surplus. So the best
+    # categories are professional tools that FLOOD those auctions, carry a model
+    # number in the title, and that eBay's hobbyist crowd doesn't camp on.
+    # Shared traits: effectively zero counterfeit risk on used pro gear, condition
+    # is binary (it reads or it doesn't), and buyers are tradespeople, not
+    # collectors, so prices are stable rather than hype-driven.
+
+    # --- Fluke test gear (measured 2026-07-25, used solds, n=60 overall) -------
+    # Best sample-to-value ratio in the whole book: $194.99 median across n=60.
+    Model(
+        key="fluke_87",
+        label="Fluke 87/87V multimeter",
+        comp=258.95, measured="2026-07-25", sample=5,
+        include=r"fluke\s*87",
+        exclude=r"\bprobe|leads only|holster|test lead|\bcase\b|fish|flounder|anchor",
+        outbound_shipping=9.00, category="test-gear", specificity=50,
+    ),
+    Model(
+        key="fluke_17x",
+        label="Fluke 175/177/179 multimeter",
+        comp=323.62, measured="2026-07-25", sample=2,
+        include=r"fluke\s*17[579]",
+        exclude=r"\bprobe|leads only|holster|test lead|fish|anchor",
+        outbound_shipping=9.00, category="test-gear", specificity=50,
+        note="n=2 - ESTIMATE, re-measure before leaning on it.",
+    ),
+    Model(
+        key="fluke_clamp",
+        label="Fluke 3xx clamp meter",
+        comp=144.99, measured="2026-07-25", sample=7,
+        include=r"fluke\s*3\d\d",
+        exclude=r"\bprobe|leads only|holster|test lead|fish|anchor",
+        outbound_shipping=9.00, category="test-gear", specificity=50,
+    ),
+    Model(
+        key="fluke_generic",
+        label="Fluke meter (unspecified model)",
+        comp=90.00, measured="2026-07-25", sample=60,
+        # A BRAND IS NOT A MODEL. "Fluke" is also a fish, a soft-plastic fishing
+        # lure, and part of a boat anchor. The first version of this catch-all
+        # quoted a $130.75 max bid on "Zoom Winged Fluke - Gizzard Shad" and on a
+        # galvanized anchor, so the title must ALSO name an instrument.
+        include=r"\bfluke\b.{0,40}(multimeter|multi meter|\bmeter\b|\bdmm\b|clamp|tester|"
+                r"calibrator|thermometer|scopemeter|true rms|insulation)|"
+                r"(multimeter|multi meter|\bmeter\b|\bdmm\b|clamp|tester|calibrator|"
+                r"thermometer|scopemeter).{0,40}\bfluke\b",
+        exclude=r"\bprobe|leads only|holster|test lead|fish|flounder|anchor|lure|"
+                r"spinner|shad|tackle|\brig\b|swimbait|\bcase\b|carrying case|meter case",
+        outbound_shipping=9.00, category="test-gear", specificity=45,
+        note="Unidentified Fluke: priced at a CONSERVATIVE $90 floor, not the $194.99 "
+             "multimeter median, because cheap models (101/106/107) sell $40-60. "
+             "Confirm the model before bidding near the max.",
+    ),
+
+    # --- Machinist metrology (measured 2026-07-25) ----------------------------
+    # Estate auctions are full of these. Note the inversion vs junk lots: tool
+    # SETS sell HIGHER ($146 median) than singles, because the buyer wants the set.
+    Model(
+        key="mitutoyo",
+        label="Mitutoyo micrometer/caliper/indicator",
+        comp=87.05, measured="2026-07-25", sample=44,
+        include=r"mitutoyo.{0,40}(micrometer|caliper|indicator|gage|gauge|height|depth|"
+                r"bore|dial|scale|protractor)|(micrometer|caliper|indicator|gage|gauge)"
+                r".{0,40}mitutoyo",
+        exclude=r"\bcase only\b|box only|anvil only|spindle only|\bstand only\b",
+        outbound_shipping=8.00, category="metrology", specificity=50,
+    ),
+    Model(
+        key="starrett",
+        label="Starrett precision tool",
+        comp=81.95, measured="2026-07-25", sample=43,
+        # Same rule as Fluke: Starrett also sells $5 hacksaw blades and tape
+        # measures, which the bare brand would have priced at $81.95.
+        include=r"starrett.{0,40}(micrometer|caliper|indicator|gage|gauge|square|level|"
+                r"protractor|dial|height|depth|precision|toolmaker|surface plate)|"
+                r"(micrometer|caliper|indicator|gage|gauge).{0,40}starrett",
+        exclude=r"\bcase only\b|box only|anvil only|spindle only|\bstand only\b|"
+                r"hacksaw|saw blade|bandsaw|band saw|tape measure|blade only|\bblades\b",
+        outbound_shipping=8.00, category="metrology", specificity=50,
+    ),
+    Model(
+        key="dial_indicator",
+        label="Dial / test indicator (brand-name)",
+        comp=122.50, measured="2026-07-25", sample=13,
+        # `.` not `[^.]` - real titles read "Starrett No. 25 Dial Indicator", and
+        # excluding periods made the brand and the noun unreachable from each other.
+        include=r"(starrett|mitutoyo|brown\s*&?\s*sharpe|interapid|federal).{0,40}indicator",
+        # Live catch: "Starrett No 25R Dial Indicator Contact Point Set" is a bag
+        # of ~$15 tips, not a $122 indicator. Accessories FOR the tool read almost
+        # identically to the tool.
+        exclude=r"\bcase only\b|box only|\bstand only\b|contact point|"
+                r"\btips?\s*(set|kit|assortment)|point set|\banvil\b|"
+                r"attachment only|back only|bezel|crystal only|holder only",
+        outbound_shipping=8.00, category="metrology", specificity=55,
+    ),
+
+    # --- Littmann stethoscopes (measured 2026-07-25) --------------------------
+    # Only the high end clears well: the generic Littmann median is $59.95 and
+    # leaves just $26.61 of room, so the cheap models are deliberately NOT here.
+    Model(
+        key="littmann_master_cardiology",
+        label="Littmann Master Cardiology",
+        comp=139.99, measured="2026-07-25", sample=4,
+        include=r"master\s*cardiology",
+        exclude=r"ear\s?tips?|diaphragm|tubing only|replacement part|name tag",
+        outbound_shipping=5.00, category="medical", specificity=50,
+    ),
+    Model(
+        key="littmann_cardiology_iv",
+        label="Littmann Cardiology IV",
+        comp=97.49, measured="2026-07-25", sample=5,
+        include=r"cardiology\s*(iv|4)\b",
+        exclude=r"ear\s?tips?|diaphragm|tubing only|replacement part|name tag",
+        outbound_shipping=5.00, category="medical", specificity=50,
+    ),
+
     Model(
         key="tinspire_cx",
         label="TI-Nspire CX",
@@ -295,4 +412,10 @@ def search_terms() -> list[str]:
         "pokemon gameboy", "pokemon game boy advance", "pokemon gba",
         "gameboy game lot", "game boy advance lot", "nintendo handheld lot",
         "pokemon game",
+        # test gear / metrology / medical - these live in estate, industrial and
+        # government surplus, which is exactly what HiBid aggregates
+        "fluke multimeter", "fluke meter", "fluke", "multimeter",
+        "mitutoyo", "starrett", "micrometer", "dial indicator", "machinist tools",
+        "machinist tool lot", "precision tools lot",
+        "littmann", "stethoscope",
     ]
