@@ -368,6 +368,86 @@ MODELS: list[Model] = [
         specificity=50,
     ),
 
+    # === Technical outerwear (measured 2026-07-25) ============================
+    # Designer, but deliberately the UNGLAMOROUS end. Goodwill buy-side census
+    # the same day shows why:
+    #     Louis Vuitton  $84.50  8.5 bids   22% zero-bid   <- crowded
+    #     Gucci          $53.00  5.0 bids   12% zero-bid   <- crowded
+    #     Patagonia       $9.99  0.0 bids   78% zero-bid   <- nobody bidding
+    #     North Face      $8.50  0.0 bids   80% zero-bid
+    # The famous names draw a crowd AND carry counterfeit risk I cannot resolve
+    # from a listing photo, so fashion handbags are deliberately NOT in the book.
+    # Technical outerwear is barely faked and the model name is printed on the tag.
+    #
+    # And the usual rule bites hardest here: a Beta AR shell sells for $325 while
+    # an unspecified "Arc'teryx jacket" sells for $70. The model IS the trade.
+    #
+    # SIZING is a real risk this book can't price: 55 of 60 sold listings named a
+    # size, and an XXL sits far longer than a M. Treat these as slower flips.
+    Model(
+        key="arcteryx_shell",
+        label="Arc'teryx GoreTex shell (Beta/Alpha)",
+        comp=325.00, measured="2026-07-25", sample=4,
+        include=r"arc'?\s*teryx.{0,40}(beta|alpha)\s*(sv|ar|fl|lt)?|"
+                r"arc'?\s*teryx.{0,30}gore[\s-]*tex",
+        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|\bcap\b|glove|"
+                r"\bshirt\b|\bsock|beanie|\bbag\b|backpack|\bcase\b",
+        outbound_shipping=9.00, category="outerwear", specificity=60,
+        comp_query="arcteryx beta jacket", note="n=4 - re-measure before bidding near the max.",
+    ),
+    Model(
+        key="arcteryx_atom",
+        label="Arc'teryx Atom (insulated)",
+        comp=140.80, measured="2026-07-25", sample=1,
+        include=r"arc'?\s*teryx.{0,30}atom",
+        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|glove|\bshirt\b|beanie",
+        outbound_shipping=9.00, category="outerwear", specificity=60,
+        comp_query="arcteryx atom jacket",
+        note="n=1 - ESTIMATE ONLY. Verify with `flipscout comp` before trusting.",
+    ),
+    Model(
+        key="arcteryx_fleece",
+        label="Arc'teryx fleece (Delta/Kyanite)",
+        comp=100.57, measured="2026-07-25", sample=8,
+        include=r"arc'?\s*teryx.{0,30}(delta|kyanite|fleece)",
+        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|glove|\bshirt\b|beanie",
+        outbound_shipping=9.00, category="outerwear", specificity=60,
+        comp_query="arcteryx fleece jacket",
+    ),
+    Model(
+        key="arcteryx_generic",
+        label="Arc'teryx (unspecified model)",
+        comp=70.00, measured="2026-07-25", sample=60,
+        include=r"arc'?\s*teryx",
+        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|\bcap\b|glove|"
+                r"\bshirt\b|\bsock|beanie|\bbag\b|backpack|\bcase\b|sticker",
+        outbound_shipping=9.00, category="outerwear", specificity=55,
+        comp_query="arcteryx jacket",
+        note="Unspecified model floor. A Beta/Alpha shell is worth 4.5x this - "
+             "read the tag in the photos before settling for the generic number.",
+    ),
+    Model(
+        key="patagonia_puffy",
+        label="Patagonia Nano Puff / Down Sweater",
+        comp=81.44, measured="2026-07-25", sample=9,
+        include=r"patagonia.{0,40}(nano[\s-]*puff|down sweater|nano[\s-]*air)",
+        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|glove|\bshirt\b|beanie",
+        outbound_shipping=9.00, category="outerwear", specificity=60,
+        comp_query="patagonia nano puff jacket",
+    ),
+    Model(
+        key="patagonia_generic",
+        label="Patagonia (unspecified)",
+        comp=60.03, measured="2026-07-25", sample=60,
+        include=r"patagonia",
+        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|\bcap\b|glove|"
+                r"\bshirt\b|\bsock|beanie|\bbag\b|backpack|sticker|\bshorts?\b",
+        outbound_shipping=9.00, category="outerwear", specificity=55,
+        comp_query="patagonia jacket",
+        note="Thin margin ($22.68 max buy) - only worth it because Goodwill "
+             "Patagonia sits at $9.99 with 78% of listings drawing zero bids.",
+    ),
+
     Model(
         key="tinspire_cx",
         label="TI-Nspire CX",
@@ -459,4 +539,6 @@ def search_terms() -> list[str]:
         "mitutoyo", "starrett", "micrometer", "dial indicator", "machinist tools",
         "machinist tool lot", "precision tools lot",
         "littmann", "stethoscope",
+        # technical outerwear - the unglamorous end, where nobody is bidding
+        "arcteryx", "arc'teryx", "patagonia", "patagonia jacket", "gore-tex jacket",
     ]

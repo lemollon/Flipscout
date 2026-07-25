@@ -332,3 +332,33 @@ def test_every_model_has_a_comp_search():
     from flipscout.pricebook import MODELS, comp_search
     for m in MODELS:
         assert comp_search(m).strip(), m.key
+
+
+# --- technical outerwear: the model is the trade here too --------------------
+
+@pytest.mark.parametrize("title,expected", [
+    ("Arc'teryx Beta AR Gore-Tex Jacket Mens Medium", "arcteryx_shell"),
+    ("Arcteryx Atom LT Hoody Large", "arcteryx_atom"),
+    ("Arc'teryx Kyanite Fleece Jacket", "arcteryx_fleece"),
+    ("Arcteryx Jacket Blue Large", "arcteryx_generic"),
+    ("Patagonia Nano Puff Jacket Mens M", "patagonia_puffy"),
+    ("Patagonia Better Sweater Fleece", "patagonia_generic"),
+])
+def test_outerwear_models(title, expected):
+    m = match(title)
+    assert m and m.model.key == expected
+
+
+@pytest.mark.parametrize("title", [
+    "Arcteryx Beanie hat", "Arcteryx Kids Jacket youth",
+    "Patagonia Dog Jacket", "Patagonia Sticker Pack",
+])
+def test_outerwear_lookalikes_rejected(title):
+    assert match(title) is None, title
+
+
+def test_named_shell_beats_the_generic_arcteryx_floor():
+    """A Beta AR is $325; an unspecified Arc'teryx is $70. Getting this backwards
+    would underprice the only listing worth real money."""
+    assert BY_KEY["arcteryx_shell"].comp > 4 * BY_KEY["arcteryx_generic"].comp / 1.1
+    assert BY_KEY["arcteryx_shell"].specificity > BY_KEY["arcteryx_generic"].specificity
