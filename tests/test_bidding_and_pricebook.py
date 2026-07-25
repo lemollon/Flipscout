@@ -332,3 +332,111 @@ def test_every_model_has_a_comp_search():
     from flipscout.pricebook import MODELS, comp_search
     for m in MODELS:
         assert comp_search(m).strip(), m.key
+
+
+# --- technical outerwear: the model is the trade here too --------------------
+
+@pytest.mark.parametrize("title,expected", [
+    ("Arc'teryx Beta AR Gore-Tex Jacket Mens Medium", "arcteryx_shell"),
+    ("Arcteryx Atom LT Hoody Large", "arcteryx_atom"),
+    ("Arc'teryx Kyanite Fleece Jacket", "arcteryx_fleece"),
+    ("Arcteryx Jacket Blue Large", "arcteryx_generic"),
+    ("Patagonia Nano Puff Jacket Mens M", "patagonia_puffy"),
+    ("Patagonia Better Sweater Fleece", "patagonia_generic"),
+])
+def test_outerwear_models(title, expected):
+    m = match(title)
+    assert m and m.model.key == expected
+
+
+@pytest.mark.parametrize("title", [
+    "Arcteryx Beanie hat", "Arcteryx Kids Jacket youth",
+    "Patagonia Dog Jacket", "Patagonia Sticker Pack",
+])
+def test_outerwear_lookalikes_rejected(title):
+    assert match(title) is None, title
+
+
+def test_named_shell_beats_the_generic_arcteryx_floor():
+    """A Beta AR is $325; an unspecified Arc'teryx is $70. Getting this backwards
+    would underprice the only listing worth real money."""
+    assert BY_KEY["arcteryx_shell"].comp > 4 * BY_KEY["arcteryx_generic"].comp / 1.1
+    assert BY_KEY["arcteryx_shell"].specificity > BY_KEY["arcteryx_generic"].specificity
+
+
+# --- Craigslist: fixed price + local pickup ---------------------------------
+
+CL_HTML = '''<html><script id="ld_searchpage_results" type="application/ld+json">
+{"itemListElement":[
+ {"item":{"name":"iPod Classic 160GB works great","url":"https://sfbay.craigslist.org/sfc/ele/d/x/7777777777.html",
+          "image":["https://images.craigslist.org/x_600x450.jpg"],"offers":{"price":"55.00"}}},
+ {"item":{"name":"Free broken printer","url":"https://sfbay.craigslist.org/sfc/zip/d/y/8888888888.html",
+          "offers":{"price":"0"}}}
+]}</script></html>'''
+
+
+def test_craigslist_parses_the_jsonld_block():
+    from flipscout.hunters import Craigslist
+    rows = Craigslist.parse(CL_HTML, "sfbay")
+    assert len(rows) == 1                    # the $0 listing is dropped
+    r = rows[0]
+    assert r["price"] == 55.0 and r["source"] == "craigslist"
+    assert r["listing_type"] == "fixed" and r["local"] is True
+    assert r["id"] == "7777777777"
+    assert r["min_bid"] == 55.0              # fixed price: the ask IS the number
+
+
+def test_craigslist_parse_is_fail_soft_on_junk():
+    from flipscout.hunters import Craigslist
+    assert Craigslist.parse("<html>no script here</html>", "sfbay") == []
+    assert Craigslist.parse('<script id="ld_searchpage_results">{bad json</script>', "x") == []
+
+
+def test_local_listings_are_not_charged_inbound_shipping():
+    """The flat ~$9 inbound is what kills thin margins - a local pickup is worth
+    that much more for the identical item."""
+    shipped = {**CE_ROW, "id": "s1"}
+    local = {**CE_ROW, "id": "l1", "local": True, "listing_type": "fixed", "handling": 0.0}
+    h = FakeHunter([])
+    a_shipped = hunt.evaluate([shipped], CFG, hunters=[h])[0]["advice"]
+    a_local = hunt.evaluate([local], CFG, hunters=[h])[0]["advice"]
+    # local ceiling is higher by exactly the inbound shipping (plus the handling
+    # the shipped row picks up during enrich)
+    assert a_local.max_bid > a_shipped.max_bid
+    assert a_local.max_bid - a_shipped.max_bid == pytest.approx(CFG["inbound_shipping"] + 3.0, abs=0.05)
+
+
+def test_fixed_price_alert_says_asking_not_bidding():
+    h = FakeHunter([])
+    local = {**CE_ROW, "id": "l2", "local": True, "listing_type": "fixed", "handling": 0.0}
+    a = hunt.to_alert(hunt.evaluate([local], CFG, hunters=[h])[0])
+    assert a["listing_type"] == "fixed"
+    assert "Asking" in a["reason"] and "negotiable" in a["reason"]
+    assert "no inbound shipping" in a["reason"]
+
+
+# --- unit counting: SEO repetition is not two items -------------------------
+
+def test_repeated_model_name_without_lot_evidence_is_one_unit():
+    """Live catch: "Like New FLUKE 175 Fluke 175 True RMS Digital Multimeter" is
+    ONE meter. Counting the repeat doubled the ceiling to $522 on a $323 item."""
+    m = match("Like New FLUKE 175 Fluke 175 True RMS Digital Multimeter")
+    assert m and m.units == 1
+
+
+@pytest.mark.parametrize("title,units", [
+    ("Lot of 2 TI-84 Plus CE and TI-84 Plus CE calculators", 2),
+    ("Pair of TI-84 Plus CE TI-84 Plus CE", 2),
+    ("TI-84 Plus CE TI-84 Plus CE", 1),          # no lot evidence -> one
+])
+def test_units_need_multi_item_evidence(title, units):
+    m = match(title)
+    assert m and m.units == units
+
+
+def test_over_counting_units_inflates_the_ceiling():
+    """Guards the direction that costs money: more units => higher max bid."""
+    from flipscout.bidding import advise
+    one = advise(BY_KEY["fluke_17x"].comp, units=1, outbound_shipping=9.0, current_price=200)
+    two = advise(BY_KEY["fluke_17x"].comp, units=2, outbound_shipping=9.0, current_price=200)
+    assert two.max_bid > one.max_bid * 1.9
