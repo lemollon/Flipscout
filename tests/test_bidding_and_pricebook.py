@@ -467,3 +467,15 @@ def test_unverified_comps_are_flagged_as_estimates():
     """sample=0 makes the alert print 'estimate, not measured'."""
     for k in ("pkmn_firered_leafgreen", "pkmn_ruby_sapphire", "pkmn_rby", "pkmn_gold_silver"):
         assert BY_KEY[k].sample == 0, k
+
+
+def test_run_reports_whether_delivery_actually_happened(capsys, monkeypatch):
+    """Silence looked identical to success, which made 'it stopped sending me
+    deals' impossible to diagnose from the logs."""
+    monkeypatch.setattr(hunt, "_save_seen", lambda *a: None)
+    hunt.run(CFG, hunters=[FakeHunter([CE_ROW])], notifier=lambda a, content="", **k: ["webhook"])
+    assert "DELIVERED" in capsys.readouterr().out
+
+    monkeypatch.setattr(hunt, "_load_seen", lambda p: set())
+    hunt.run(CFG, hunters=[FakeHunter([CE_ROW])], notifier=lambda a, content="", **k: [])
+    assert "NOT DELIVERED" in capsys.readouterr().out

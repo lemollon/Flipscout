@@ -129,7 +129,13 @@ def notify_rich(candidates: list, content: str = "", env=None, session=None) -> 
             r.raise_for_status()
             sent.append("webhook")
         except Exception as e:
-            print(f"[notify] rich webhook failed: {e}")
+            # Include the response body: Discord explains itself (unknown webhook,
+            # rate limit, bad embed) and that text is the whole diagnosis.
+            body = ""
+            resp = getattr(e, "response", None)
+            if resp is not None:
+                body = f" | HTTP {resp.status_code}: {str(resp.text)[:200]}"
+            print(f"[notify] rich webhook failed: {e}{body}")
     return sent
 
 

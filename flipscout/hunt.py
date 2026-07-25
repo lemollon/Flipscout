@@ -206,6 +206,15 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
               f"_Open at the first number, never bid past the second._")
     sent = notifier(alerts, content=header)
 
+    # Say out loud whether Discord actually took it. notify_rich is fail-soft, so
+    # a dead or wrong webhook produces silence that looks exactly like success -
+    # which is how "it stopped sending me deals" becomes undiagnosable from logs.
+    if sent:
+        print(f"[hunt] DELIVERED {len(alerts)} alert(s) via {', '.join(sent)}.")
+    else:
+        print(f"[hunt] NOT DELIVERED - {len(alerts)} alert(s) went nowhere. "
+              f"Check FLIPSCOUT_ALERT_WEBHOOK is set and still valid.")
+
     _save_seen(config["state_file"],
                seen | {f"{c['row']['source']}:{c['row']['id']}" for c in fresh})
     return {"scanned": len(rows), "priced": len(cands), "new": len(fresh), "sent": sent}

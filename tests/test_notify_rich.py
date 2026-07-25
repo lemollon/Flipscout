@@ -90,3 +90,23 @@ def test_embed_carries_both_the_buy_link_and_the_comps_link():
     assert "shopgoodwill.com/item/9" in links
     assert "LH_Sold=1" in links
     assert "Buy it here" in links and "sold for on eBay" in links
+
+
+def test_failure_message_includes_the_discord_response_body(capsys):
+    """Discord explains itself (unknown webhook / rate limit); that text IS the
+    diagnosis, so it must reach the logs."""
+    import requests
+
+    class Resp:
+        status_code = 404
+        text = '{"message": "Unknown Webhook", "code": 10015}'
+
+    class Boom:
+        def post(self, *a, **k):
+            err = requests.HTTPError("404 Client Error")
+            err.response = Resp()
+            raise err
+
+    assert notify_rich([CAND], env={"FLIPSCOUT_ALERT_WEBHOOK": "http://x"}, session=Boom()) == []
+    out = capsys.readouterr().out
+    assert "Unknown Webhook" in out and "HTTP 404" in out
