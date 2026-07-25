@@ -440,3 +440,30 @@ def test_over_counting_units_inflates_the_ceiling():
     one = advise(BY_KEY["fluke_17x"].comp, units=1, outbound_shipping=9.0, current_price=200)
     two = advise(BY_KEY["fluke_17x"].comp, units=2, outbound_shipping=9.0, current_price=200)
     assert two.max_bid > one.max_bid * 1.9
+
+
+# --- comps must reflect what you'll actually find ---------------------------
+
+def test_video_game_comps_do_not_use_the_used_filter():
+    """eBay's Used filter doesn't apply to video games (separate taxonomy), and
+    with it on, "pokemon emerald" returned ONE sold listing - so the comp link
+    would show an empty search."""
+    for k in ("pkmn_emerald", "pkmn_crystal", "pkmn_rby", "pkmn_gold_silver"):
+        assert BY_KEY[k].comp_used_only is False, k
+    # electronics/apparel DO respond to it, so they keep it
+    assert BY_KEY["ti84ce"].comp_used_only is True
+    assert BY_KEY["ipod_classic_160"].comp_used_only is True
+
+
+def test_pokemon_comps_are_the_loose_price_not_the_boxed_one():
+    """Prices are bimodal (Emerald: loose $108.75 vs boxed $278.13) and a thrift
+    find is almost always loose. Pricing at the boxed/blended number implied a
+    $210 max bid on a $108 cart."""
+    assert BY_KEY["pkmn_emerald"].comp < 150
+    assert BY_KEY["pkmn_crystal"].comp < 200
+
+
+def test_unverified_comps_are_flagged_as_estimates():
+    """sample=0 makes the alert print 'estimate, not measured'."""
+    for k in ("pkmn_firered_leafgreen", "pkmn_ruby_sapphire", "pkmn_rby", "pkmn_gold_silver"):
+        assert BY_KEY[k].sample == 0, k

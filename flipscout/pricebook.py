@@ -170,14 +170,32 @@ MODELS: list[Model] = [
     #     lose money here, and they are hard to spot in a listing photo. `exclude`
     #     catches the honest sellers who say so; nothing catches the dishonest
     #     ones, so treat every alert as "verify before bidding", not "buy".
-    #  2. The comps below came from a search containing the word "authentic",
-    #     which skews toward sellers asserting legitimacy - i.e. these medians are
-    #     probably optimistic. Small n on several. Re-measure with `flipscout comp`
-    #     before leaning on the high-value ones.
+    #  2. RE-MEASURED 2026-07-25 after the first pass was found to be badly high.
+    #     Two mistakes, both worth remembering:
+    #
+    #     a) eBay's Used filter (LH_ItemCondition=3000) DOES NOT APPLY to video
+    #        games - they use a separate taxonomy (Very Good / Good / Acceptable).
+    #        With it on, "pokemon emerald" returned ONE sold listing. Hence
+    #        comp_used_only=False on every cart here, which also fixes the
+    #        "see what it sold for" link, which was showing an near-empty search.
+    #
+    #     b) The price is BIMODAL and the median sat in the empty middle:
+    #             Emerald  loose $108.75 (n=36)  vs  boxed $278.13 (n=19)
+    #             Crystal  loose $145.28 (n=37)  vs  boxed $194.96 (n=21)
+    #        A thrift/auction find is almost always a loose cart, so the book now
+    #        carries the LOOSE number. The old unsegmented Emerald comp of $271.99
+    #        implied a $210 max bid on a cart that typically sells for $108.
+    #
+    #     Emerald and Crystal are re-measured. The remaining four are the original
+    #     un-segmented numbers from a search containing "authentic" (which skews
+    #     toward sellers asserting legitimacy), cut to the ~0.6 loose share
+    #     observed on Emerald/Crystal and flagged sample=0 so every alert says
+    #     "estimate, not measured". Re-measure them with `flipscout comp` before
+    #     bidding near their ceilings.
     Model(
         key="pkmn_emerald",
         label="Pokemon Emerald (GBA)",
-        comp=271.99, measured="2026-07-25", sample=7,
+        comp=108.75, measured="2026-07-25", sample=36, comp_used_only=False,
         include=r"pokemon\s*emerald",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
@@ -189,7 +207,7 @@ MODELS: list[Model] = [
     Model(
         key="pkmn_crystal",
         label="Pokemon Crystal (GBC)",
-        comp=276.30, measured="2026-07-25", sample=2,
+        comp=145.28, measured="2026-07-25", sample=37, comp_used_only=False,
         include=r"pokemon\s*crystal",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
@@ -200,7 +218,7 @@ MODELS: list[Model] = [
     Model(
         key="pkmn_firered_leafgreen",
         label="Pokemon FireRed / LeafGreen (GBA)",
-        comp=127.49, measured="2026-07-25", sample=10,
+        comp=76.49, measured="2026-07-25", sample=0, comp_used_only=False,
         include=r"pokemon\s*(fire\s*red|leaf\s*green)",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
@@ -211,7 +229,7 @@ MODELS: list[Model] = [
     Model(
         key="pkmn_ruby_sapphire",
         label="Pokemon Ruby / Sapphire (GBA)",
-        comp=119.99, measured="2026-07-25", sample=5,
+        comp=71.99, measured="2026-07-25", sample=0, comp_used_only=False,
         include=r"pokemon\s*(ruby|sapphire)",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
@@ -222,7 +240,7 @@ MODELS: list[Model] = [
     Model(
         key="pkmn_rby",
         label="Pokemon Red / Blue / Yellow (GB)",
-        comp=83.59, measured="2026-07-25", sample=10,
+        comp=50.15, measured="2026-07-25", sample=0, comp_used_only=False,
         include=r"pokemon\s*(red|blue|yellow)\b",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
@@ -233,7 +251,7 @@ MODELS: list[Model] = [
     Model(
         key="pkmn_gold_silver",
         label="Pokemon Gold / Silver (GBC)",
-        comp=64.99, measured="2026-07-25", sample=9,
+        comp=38.99, measured="2026-07-25", sample=0, comp_used_only=False,
         include=r"pokemon\s*(gold|silver)\b",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
