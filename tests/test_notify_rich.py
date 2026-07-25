@@ -78,3 +78,15 @@ def test_dead_webhook_is_fail_soft():
         def post(self, *a, **k):
             raise RuntimeError("503")
     assert notify_rich([CAND], env={"FLIPSCOUT_ALERT_WEBHOOK": "http://x"}, session=Boom()) == []
+
+
+def test_embed_carries_both_the_buy_link_and_the_comps_link():
+    """Every alert must let you verify the 'sells for more' claim yourself."""
+    from flipscout.notify import build_embed
+    e = build_embed({**CAND,
+                     "buy_url": "https://shopgoodwill.com/item/9",
+                     "comps_url": "https://www.ebay.com/sch/i.html?_nkw=ipod&LH_Sold=1"})
+    links = {f["name"]: f["value"] for f in e["fields"]}["Links"]
+    assert "shopgoodwill.com/item/9" in links
+    assert "LH_Sold=1" in links
+    assert "Buy it here" in links and "sold for on eBay" in links

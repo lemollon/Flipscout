@@ -55,9 +55,15 @@ EBAY = "https://www.ebay.com/sch/i.html"
 STRUCTURAL_FLOOR = 25.0
 
 
-def sold_url(query: str, ipg: int = 60) -> str:
-    """eBay search restricted to SOLD + COMPLETED - the only prices that are real."""
-    return f"{EBAY}?_nkw={quote_plus(query)}&LH_Sold=1&LH_Complete=1&_ipg={ipg}"
+def sold_url(query: str, ipg: int = 60, used_only: bool = False) -> str:
+    """eBay search restricted to SOLD + COMPLETED - the only prices that are real.
+
+    `used_only` adds eBay's Used filter (LH_ItemCondition=3000). Price-book comps
+    are measured that way, so linking with the same filter reproduces the exact
+    population the number came from - otherwise the link shows new-in-box sales
+    and the quoted comp looks wrong."""
+    cond = "&LH_ItemCondition=3000" if used_only else ""
+    return f"{EBAY}?_nkw={quote_plus(query)}&LH_Sold=1&LH_Complete=1{cond}&_ipg={ipg}"
 
 
 def active_url(query: str, ipg: int = 60, cheapest_first: bool = True) -> str:

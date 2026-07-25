@@ -313,3 +313,22 @@ def test_accessories_for_the_tool_are_not_the_tool():
     the $122 indicator itself."""
     assert match("Starrett No 25R Dial Indicator Contact Point Set") is None
     assert match("Starrett No. 25 Dial Indicator") is not None
+
+
+def test_alert_links_the_comps_that_justify_the_price():
+    from flipscout.ebay_ui import sold_url
+    from flipscout.pricebook import comp_search
+    h = FakeHunter([])
+    a = hunt.to_alert(hunt.evaluate([CE_ROW], CFG, hunters=[h])[0])
+    assert a["buy_url"] == "u"
+    assert "LH_Sold=1" in a["comps_url"] and "LH_Complete=1" in a["comps_url"]
+    # the link must reproduce the SAME population the comp was measured from
+    assert "LH_ItemCondition=3000" in a["comps_url"]
+    assert a["comps_url"] == sold_url(comp_search(BY_KEY["ti84ce"]), used_only=True)
+    assert "on eBay]" in a["reason"]
+
+
+def test_every_model_has_a_comp_search():
+    from flipscout.pricebook import MODELS, comp_search
+    for m in MODELS:
+        assert comp_search(m).strip(), m.key

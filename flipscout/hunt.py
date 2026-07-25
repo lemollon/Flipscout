@@ -26,7 +26,8 @@ from typing import Optional
 from .bidding import advise
 from .hunters import build_hunters
 from .notify import notify_rich
-from .pricebook import match, search_terms
+from .ebay_ui import sold_url
+from .pricebook import comp_search, match, search_terms
 
 
 def load_config(env=None) -> dict:
@@ -113,7 +114,12 @@ def to_alert(c: dict) -> dict:
     row, model, adv, m = c["row"], c["model"], c["advice"], c["match"]
     units = f" x{adv.units}" if adv.units > 1 else ""
 
-    bits = [f"**{model.label}{units}** - comps ${model.comp:,.2f}"]
+    # Both links, every time: where to BUY it, and the eBay solds that back the
+    # "sells for more" claim. The comp link reproduces the exact search that
+    # produced the number, so the claim is checkable in one click.
+    comps_link = sold_url(comp_search(model), used_only=model.comp_used_only)
+
+    bits = [f"**{model.label}{units}** - [comps ${model.comp:,.2f} on eBay]({comps_link})"]
     if model.sample:
         bits[-1] += f" (n={model.sample}, measured {model.measured})"
     else:
@@ -142,6 +148,8 @@ def to_alert(c: dict) -> dict:
         "ends": row.get("ends") or None,
         "open_bid": adv.open_bid,
         "source": row.get("source"),
+        "buy_url": row.get("url"),        # where to buy it
+        "comps_url": comps_link,          # the eBay solds backing the claim
         "reason": "\n".join(bits),
     }
 
