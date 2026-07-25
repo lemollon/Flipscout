@@ -153,6 +153,32 @@ def cmd_remember(args) -> int:
     return 0
 
 
+def cmd_hunt(args) -> int:
+    """Sweep every headless source, price what matches the book, alert with bids."""
+    from .hunt import load_config, run, sweep, evaluate, to_alert
+
+    cfg = load_config()
+    if args.sources:
+        cfg["sources"] = [s.strip() for s in args.sources.split(",") if s.strip()]
+    if args.target is not None:
+        cfg["target_profit"] = args.target
+
+    if args.dry:
+        rows = sweep(cfg)
+        cands = evaluate(rows, cfg)
+        print(f"{len(rows)} listings swept; {len(cands)} priceable\n")
+        for c in cands:
+            a, r = c["advice"], c["row"]
+            print(f"[{r['source']:8s}] {c['model'].label:<22} {a.summary()}")
+            print(f"           {r['title'][:72]}")
+            print(f"           {r.get('url','')}")
+        return 0
+
+    res = run(cfg)
+    print(res)
+    return 0
+
+
 def cmd_comp(args) -> int:
     """Real eBay SOLD comps via your own browser (no dev key — ours was rejected).
 
@@ -304,6 +330,13 @@ def build_parser() -> argparse.ArgumentParser:
                        help="save the headline comp to your price book")
     pcomp.add_argument("--memory", default=DEFAULT_MEMORY, help="price-book file")
     pcomp.set_defaults(func=cmd_comp)
+
+    ph = sub.add_parser("hunt",
+        help="sweep every source for priceable deals and alert with open/max bids")
+    ph.add_argument("--sources", default=None, help="goodwill,hibid (default both)")
+    ph.add_argument("--target", type=float, default=None, help="profit per flip (default 20)")
+    ph.add_argument("--dry", action="store_true", help="print candidates, don't alert")
+    ph.set_defaults(func=cmd_hunt)
 
     pr = sub.add_parser("remember", help="save a comp to your price book")
     pr.add_argument("title")

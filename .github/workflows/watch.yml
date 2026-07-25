@@ -13,6 +13,18 @@
 name: Flipscout deal watch
 
 on:
+  # RE-ARMED 2026-07-25, pointed at flipscout.hunt (multi-source) instead of the
+  # old eBay-API watcher. What changed since it was disabled:
+  #   * no eBay keys needed - it hunts ShopGoodwill + HiBid, both headless-friendly
+  #   * it only prices MEASURED models from the price book (TI-84 Plus CE), so it
+  #     can't alert on the ones that mathematically cannot profit
+  #   * every alert carries an opening bid AND a never-exceed max bid
+  # If the runner's datacenter IP gets blocked, hunt.run() reports blocked=True
+  # rather than silently reporting "no deals" - watch the log line.
+  schedule:
+    - cron: "17 * * * *"        # hourly at :17 (off the top-of-hour rush)
+
+  # --- history: why it was off ---------------------------------------------
   # SCHEDULE DISABLED 2026-07-24. Two reasons, in order:
   #
   #  1. It was failing every run (~12 red runs/day) — the eBay developer account was
@@ -50,19 +62,12 @@ jobs:
           path: flipscout_seen.json
           key: flipscout-seen-${{ github.run_id }}
           restore-keys: flipscout-seen-
-      - name: Scan and alert
-        run: python -m flipscout.watch
+      - name: Hunt every source and alert
+        run: python -m flipscout.hunt
         env:
-          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
-          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
-          EBAY_ENV: production
-          FLIPSCOUT_WATCHLIST: ${{ secrets.FLIPSCOUT_WATCHLIST }}
           FLIPSCOUT_ALERT_WEBHOOK: ${{ secrets.FLIPSCOUT_ALERT_WEBHOOK }}
-          FLIPSCOUT_SOURCES: ${{ vars.FLIPSCOUT_SOURCES || 'ebay' }}
-          FLIPSCOUT_MIN_PROFIT: ${{ vars.FLIPSCOUT_MIN_PROFIT || '20' }}
-          FLIPSCOUT_MIN_ROI: ${{ vars.FLIPSCOUT_MIN_ROI || '0.6' }}
-          FLIPSCOUT_MAX_DAYS: ${{ vars.FLIPSCOUT_MAX_DAYS || '' }}
+          FLIPSCOUT_SOURCES: ${{ vars.FLIPSCOUT_SOURCES || 'goodwill,hibid' }}
+          FLIPSCOUT_TARGET_PROFIT: ${{ vars.FLIPSCOUT_TARGET_PROFIT || '20' }}
+          FLIPSCOUT_INBOUND_SHIP: ${{ vars.FLIPSCOUT_INBOUND_SHIP || '9' }}
           FLIPSCOUT_TOP: ${{ vars.FLIPSCOUT_TOP || '10' }}
-          FLIPSCOUT_LOCAL: ${{ vars.FLIPSCOUT_LOCAL || '' }}
-          FLIPSCOUT_ZIP: ${{ vars.FLIPSCOUT_ZIP || '' }}
           FLIPSCOUT_STATE_FILE: flipscout_seen.json
