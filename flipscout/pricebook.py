@@ -480,17 +480,30 @@ class Match:
     dead_also_present: list = field(default_factory=list)
 
 
+# A repeated model name only means multiple units when the listing is actually a
+# multi-item one. Sellers repeat the model for search ranking: "Like New FLUKE 175
+# Fluke 175 True RMS Digital Multimeter" is ONE meter, and counting it as two
+# doubled the ceiling to $522 on a $323 item.
+MULTI_EVIDENCE = re.compile(
+    r"\blot\b|\bpair\b|\bset of\b|\bbundle\b|\bboth\b|\bx\s*[2-9]\b|\b[2-9]\s*x\b|"
+    r"\(\s*[2-9]\s*\)|\b[2-9]\s*(pc|pcs|piece|pieces|units?|calculators?|meters?|games?)\b|"
+    r"\bqty\s*[2-9]\b|\btwo\b|\bthree\b|\bfour\b"
+)
+
+
 def count_units(title: str, model: Model) -> int:
     """How many of `model` the title claims.
 
-    Titles like "Lot of 4 Calculators: TI-84 Plus, TI-84 Plus CE, Casio" name the
-    models present, so a repeated mention is a genuine count. We deliberately do
-    NOT read a leading "Lot of 4" as 4 units of the paying model - that number
-    counts everything in the box, most of which is worthless.
+    Repeated mentions only count when the title ALSO shows multi-item evidence
+    (lot / pair / set of / x3 / "4 pcs"). Without that, a second mention is SEO
+    keyword stuffing, not a second unit - and over-counting inflates the max bid
+    directly, which is the expensive direction to be wrong in.
     """
     t = normalize(title)
     hits = len(re.findall(model.include, t))
-    return max(1, hits)
+    if hits <= 1:
+        return 1
+    return hits if MULTI_EVIDENCE.search(t) else 1
 
 
 def match(title: str) -> Optional[Match]:

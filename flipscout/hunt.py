@@ -33,7 +33,7 @@ from .pricebook import comp_search, match, search_terms
 def load_config(env=None) -> dict:
     env = env if env is not None else os.environ
     return {
-        "sources": [s.strip() for s in env.get("FLIPSCOUT_SOURCES", "goodwill,hibid").split(",") if s.strip()],
+        "sources": [s.strip() for s in env.get("FLIPSCOUT_SOURCES", "goodwill,hibid,craigslist").split(",") if s.strip()],
         "target_profit": float(env.get("FLIPSCOUT_TARGET_PROFIT", "20")),
         "inbound_shipping": float(env.get("FLIPSCOUT_INBOUND_SHIP", "9")),
         "top": int(env.get("FLIPSCOUT_TOP", "10")),
@@ -88,11 +88,17 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
             except Exception:
                 pass
 
+        # Local pickup means you collect it yourself, so there is no inbound
+        # shipping to subtract. Worth stating plainly: that flat ~$9 is what makes
+        # thin-margin categories unprofitable, so the same item is worth ~$9 more
+        # to you on Craigslist than in a shipped auction.
+        inbound = 0.0 if row.get("local") else config["inbound_shipping"]
+
         adv = advise(
             m.model.comp,
             units=m.units,
             handling=float(row.get("handling") or 0),
-            inbound_shipping=config["inbound_shipping"],
+            inbound_shipping=inbound,
             outbound_shipping=m.model.outbound_shipping,
             target_profit=config["target_profit"],
             current_price=row.get("price"),
@@ -125,10 +131,23 @@ def to_alert(c: dict) -> dict:
     else:
         bits[-1] += "  :warning: *estimate, not measured*"
     bits.append(f"Sale side nets **${adv.net_resale:,.2f}** after fees + postage.")
-    if adv.profit_at_open is not None:
-        bits.append(f"Win at the opening bid -> **${adv.profit_at_open:,.2f}** profit.")
-    bits.append(f"At your max (${adv.max_bid:,.2f}) it lands at "
-                f"${adv.landed_at_max:,.2f} and still clears ${adv.profit_at_max:,.0f}.")
+
+    if row.get("listing_type") == "fixed":
+        # No auction to win: it's asking price vs your ceiling, and the price is
+        # negotiable, so the ceiling is really a walk-away number in person.
+        if adv.profit_at_open is not None:
+            bits.append(f"Asking **${adv.open_bid:,.2f}** -> buy it and clear "
+                        f"**${adv.profit_at_open:,.2f}**.")
+        bits.append(f"Don't pay over **${adv.max_bid:,.2f}** (that's where the "
+                    f"${adv.profit_at_max:,.0f} disappears). Price is negotiable.")
+        if row.get("local"):
+            bits.append("_Local pickup - no inbound shipping, so this is worth "
+                        "~$9 more to you than the same thing in a shipped auction._")
+    else:
+        if adv.profit_at_open is not None:
+            bits.append(f"Win at the opening bid -> **${adv.profit_at_open:,.2f}** profit.")
+        bits.append(f"At your max (${adv.max_bid:,.2f}) it lands at "
+                    f"${adv.landed_at_max:,.2f} and still clears ${adv.profit_at_max:,.0f}.")
     if m.dead_also_present:
         bits.append(":warning: also contains: " + "; ".join(m.dead_also_present))
     if row.get("pickup_risk"):
@@ -147,6 +166,7 @@ def to_alert(c: dict) -> dict:
         "bids": row.get("bids"),
         "ends": row.get("ends") or None,
         "open_bid": adv.open_bid,
+        "listing_type": row.get("listing_type", "auction"),
         "source": row.get("source"),
         "buy_url": row.get("url"),        # where to buy it
         "comps_url": comps_link,          # the eBay solds backing the claim

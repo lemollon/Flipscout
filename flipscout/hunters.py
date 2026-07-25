@@ -214,11 +214,147 @@ class HiBid:
         return out
 
 
+# --- Craigslist -------------------------------------------------------------
+
+# ONE metro by default, on purpose. The whole advantage of Craigslist is that you
+# collect it yourself, so hunting cities you can't drive to just burns requests -
+# and Craigslist rate-limits: sweeping 8 search terms x 10 cities returned ONE
+# listing, while a single city returns 24. Set FLIPSCOUT_CL_CITIES to your metro.
+_CL_CITIES = ["sfbay"]
+_CL_DELAY = 0.8      # be a polite guest; this is somebody's free classifieds site
+
+
+class Craigslist:
+    """Fixed-price LOCAL inventory. Structurally different from the auctions:
+
+      * no bidding and no waiting - you just buy it
+      * **local pickup, so inbound shipping is $0**, which is worth more than it
+        sounds: a flat $9 to ship something to you was quietly killing every thin
+        margin in the book
+      * prices are negotiable, so the ceiling doubles as your walk-away in person
+      * no login needed to search
+
+    Craigslist is per-city, not national, so `cities` decides your coverage.
+    Set FLIPSCOUT_CL_CITIES to your own metro(s) - hunting a city you can't drive
+    to is pointless, since the whole advantage is that you collect it yourself.
+
+    Results come from the JSON-LD block the search page embeds; the visible HTML
+    is rendered client-side and has no prices in it.
+    """
+
+    name = "craigslist"
+
+    def __init__(self, cities: Optional[list] = None,
+                 session: Optional[requests.Session] = None):
+        self.cities = cities or _CL_CITIES
+        self.session = session or requests.Session()
+
+    @staticmethod
+    def parse(html: str, city: str) -> list[dict]:
+        """Pull listings out of the embedded JSON-LD search results.
+
+        Two quirks of Craigslist's markup, both found the hard way:
+
+        * The JSON-LD `url` field is **empty** on live results, and no post id
+          appears anywhere in the HTML (the page is client-rendered). The first
+          version keyed dedup on that empty string, so 40 distinct listings
+          collapsed into one row.
+        * So we key on the IMAGE url, which is unique per post, and link to a
+          title search in the right city rather than the post itself. Their
+          private API (`sapi.craigslist.org/web/v8/postings/search/full`) does
+          carry ids, but they're offsets into a decode table and the
+          reconstructed permalinks 404 - not worth the fragility for a link that
+          a search reproduces reliably.
+        """
+        import json as _json
+        from urllib.parse import quote_plus as _q
+        m = re.search(r'<script[^>]*id="ld_searchpage_results"[^>]*>(.*?)</script>',
+                      html or "", re.S)
+        if not m:
+            return []
+        try:
+            data = _json.loads(m.group(1))
+        except Exception:
+            return []
+        out = []
+        for el in data.get("itemListElement") or []:
+            item = el.get("item") or {}
+            offers = item.get("offers") or {}
+            try:
+                price = float(offers.get("price"))
+            except (TypeError, ValueError):
+                continue
+            if price <= 0:
+                continue
+            img = item.get("image")
+            if isinstance(img, list):
+                img = img[0] if img else ""
+            title = (item.get("name") or "").strip()
+            url = item.get("url") or offers.get("url") or ""
+            if not url:
+                url = f"https://{city}.craigslist.org/search/sss?query={_q(title[:70])}"
+            # unique per post; the empty `url` field is not
+            ident = (re.search(r"/(\d+)\.html", url).group(1)
+                     if re.search(r"/(\d+)\.html", url)
+                     else (re.search(r"/([0-9A-Za-z_]+)_\d+x\d+", img or "").group(1)
+                           if re.search(r"/([0-9A-Za-z_]+)_\d+x\d+", img or "")
+                           else f"{city}:{title[:40]}:{price}"))
+            out.append({
+                "source": "craigslist",
+                "id": ident,
+                "title": title,
+                "url": url,
+                "price": price,
+                # Fixed price: there is no bid to place, so the "opening" number
+                # IS the asking price and the ceiling is your negotiating limit.
+                "min_bid": price,
+                "increment": 0.0,
+                "bids": None,
+                "handling": 0.0,
+                "image": img or "",
+                "ends": "",
+                "listing_type": "fixed",
+                "local": True,          # -> inbound shipping is $0
+                "city": city,
+            })
+        return out
+
+    def search(self, query: str, limit: int = 40) -> list[dict]:
+        out = []
+        for i, city in enumerate(self.cities):
+            if i:
+                time.sleep(_CL_DELAY)
+            try:
+                r = self.session.get(
+                    f"https://{city}.craigslist.org/search/sss",
+                    params={"query": query}, headers={"User-Agent": _UA,
+                                                      "Accept-Language": "en-US,en;q=0.9"},
+                    timeout=_TIMEOUT)
+                r.raise_for_status()
+                out.extend(self.parse(r.text, city))
+            except Exception:
+                continue          # fail-soft per city
+            if len(out) >= limit:
+                break
+        return out[:limit]
+
+
 # --- registry ---------------------------------------------------------------
 
-HUNTERS = {"goodwill": ShopGoodwill, "hibid": HiBid}
+HUNTERS = {"goodwill": ShopGoodwill, "hibid": HiBid, "craigslist": Craigslist}
 
 
-def build_hunters(names: Optional[list] = None) -> list:
+def build_hunters(names: Optional[list] = None, env=None) -> list:
+    import os
+    env = env if env is not None else os.environ
     names = names or list(HUNTERS)
-    return [HUNTERS[n]() for n in names if n in HUNTERS]
+    built = []
+    for n in names:
+        if n not in HUNTERS:
+            continue
+        if n == "craigslist":
+            cities = [c.strip() for c in env.get("FLIPSCOUT_CL_CITIES", "").split(",") if c.strip()]
+            built.append(Craigslist(cities=cities or None))
+        else:
+            built.append(HUNTERS[n]())
+    return built
