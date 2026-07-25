@@ -10,7 +10,8 @@ Pipeline, per run:
 
 Config (env):
     FLIPSCOUT_ALERT_WEBHOOK   Discord webhook
-    FLIPSCOUT_SOURCES         goodwill,hibid          (default both)
+    FLIPSCOUT_SOURCES         goodwill,hibid,craigslist (default all three)
+    FLIPSCOUT_CL_CITIES       your craigslist metro(s) (default sfbay)
     FLIPSCOUT_TARGET_PROFIT   dollars per flip        (default 20)
     FLIPSCOUT_INBOUND_SHIP    est. shipping to you    (default 9)
     FLIPSCOUT_TOP             max alerts per run      (default 10)
