@@ -38,13 +38,13 @@ def test_embed_fields_are_labelled_money():
     vals = {f["name"]: f["value"] for f in build_embed(CAND)["fields"]}
     assert vals["Costs now"] == "$103.26"
     assert vals["Sells for"] == "$265.74"
-    assert vals["Max bid"] == "$170.13"
+    assert vals["MAX bid (never exceed)"] == "$170.13"
     assert "batteries" in vals["Verdict"]
 
 
 def test_no_room_is_stated_not_a_negative_number():
     e = build_embed({**CAND, "max_bid": -5.0})
-    assert {f["name"]: f["value"] for f in e["fields"]}["Max bid"] == "no room"
+    assert {f["name"]: f["value"] for f in e["fields"]}["MAX bid (never exceed)"] == "no room"
 
 
 def test_missing_fields_are_omitted_not_crashed():

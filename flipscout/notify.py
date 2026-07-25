@@ -61,15 +61,21 @@ def build_embed(c: dict) -> dict:
         fields.append({"name": "Costs now", "value": f"${c['all_in']:,.2f}", "inline": True})
     if c.get("comp") is not None:
         fields.append({"name": "Sells for", "value": f"${c['comp']:,.2f}", "inline": True})
+    # The two numbers that matter, always adjacent and on the same (bid) basis:
+    # what to put in first, and the line you never cross when someone contests it.
+    if c.get("open_bid") is not None:
+        fields.append({"name": "Open at", "value": f"${c['open_bid']:,.2f}", "inline": True})
     if c.get("max_bid") is not None:
         mb = c["max_bid"]
-        fields.append({"name": "Max bid",
+        fields.append({"name": "MAX bid (never exceed)",
                        "value": f"${mb:,.2f}" if mb > 0 else "no room",
                        "inline": True})
     if c.get("bids") is not None:
         fields.append({"name": "Bids", "value": str(c["bids"]), "inline": True})
     if c.get("ends"):
-        fields.append({"name": "Ends in", "value": str(c["ends"]), "inline": True})
+        fields.append({"name": "Ends", "value": str(c["ends"]), "inline": True})
+    if c.get("source"):
+        fields.append({"name": "Source", "value": str(c["source"]), "inline": True})
     if c.get("reason"):
         fields.append({"name": "Verdict", "value": c["reason"][:1000], "inline": False})
 
