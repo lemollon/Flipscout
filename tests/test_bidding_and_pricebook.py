@@ -93,6 +93,41 @@ def test_ce_matches_across_the_ways_people_write_it():
         assert m and m.model.key.startswith("ti84ce"), t
 
 
+@pytest.mark.parametrize("title", [
+    # Caught live 2026-07-25: this was quoted a $198 max bid. It's a paperback.
+    "Pokemon Emerald Version Official Game Guide Prima Games GBA Strategy Book",
+    "Pokemon Emerald Official Nintendo Power Strategy Player's Guide GBA",
+    "Pokemon Crystal box only no game",
+    "Pokemon FireRed manual only",
+    "iPod Classic 160GB case only",
+    "Pokemon Emerald poster",
+    "TI-84 Plus CE cover only",
+])
+def test_accessories_never_match_the_product(title):
+    """A guide/box/manual/poster carries the name but not the value."""
+    assert match(title) is None, title
+
+
+def test_the_actual_cartridge_still_matches():
+    # The guard must not be so broad it kills the real thing.
+    m = match("Pokemon Emerald Version Nintendo GBA Cartridge Green Translucent")
+    assert m and m.model.key == "pkmn_emerald"
+
+
+def test_repro_carts_are_rejected():
+    assert match("Pokemon Emerald GBA Reproduction Cart") is None
+    assert match("Pokemon Crystal custom fan made cartridge") is None
+
+
+def test_ipod_variants_price_separately():
+    assert match("Apple iPod Classic 160GB Black").model.key == "ipod_classic_160"
+    assert match("Apple iPod Video 30GB Silver").model.key == "ipod_video_30"
+
+
+def test_broken_ipods_are_rejected():
+    assert match("Apple iPod Classic 160GB for parts not working") is None
+
+
 def test_unicode_dashes_still_match():
     # Real HiBid lot used an EN-DASH; an ASCII-only pattern skipped it silently
     # on the lowest-competition source.
