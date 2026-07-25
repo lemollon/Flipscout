@@ -78,6 +78,15 @@ def build_embed(c: dict) -> dict:
         fields.append({"name": "Source", "value": str(c["source"]), "inline": True})
     if c.get("reason"):
         fields.append({"name": "Verdict", "value": c["reason"][:1000], "inline": False})
+    # Both sides of the trade, spelled out as links you can click to check the
+    # claim rather than take it on trust.
+    links = []
+    if c.get("buy_url"):
+        links.append(f"[Buy it here]({c['buy_url']})")
+    if c.get("comps_url"):
+        links.append(f"[See what it sold for on eBay]({c['comps_url']})")
+    if links:
+        fields.append({"name": "Links", "value": "  |  ".join(links)[:1000], "inline": False})
 
     embed = {
         "title": (c.get("title") or "untitled")[:250],

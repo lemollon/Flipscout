@@ -243,3 +243,92 @@ def test_run_alerts_and_reports(monkeypatch):
     res = hunt.run(CFG, hunters=[FakeHunter([CE_ROW, JUNK_ROW])], notifier=fake_notify)
     assert res["new"] == 1 and res["sent"] == ["webhook"]
     assert "never bid past" in sent["content"]
+
+
+# --- the professional-tool categories (chosen for the surplus channel) -------
+
+@pytest.mark.parametrize("title,expected", [
+    ("Fluke 87V True RMS Industrial Multimeter", "fluke_87"),
+    ("Fluke 179 Digital Multimeter", "fluke_17x"),
+    ("Fluke 323 Clamp Meter", "fluke_clamp"),
+    ("Mitutoyo 0-1 inch Micrometer", "mitutoyo"),
+    ("Starrett Combination Square", "starrett"),
+    # "No." has a period in it; an [^.] gap made brand and noun unreachable.
+    ("Starrett No. 25 Dial Indicator", "dial_indicator"),
+    ("3M Littmann Master Cardiology Stethoscope", "littmann_master_cardiology"),
+])
+def test_pro_tool_models_match(title, expected):
+    m = match(title)
+    assert m and m.model.key == expected, f"{title} -> {m.model.key if m else None}"
+
+
+@pytest.mark.parametrize("title", [
+    "Fluke Networks test lead only",
+    "Summer flounder fluke fishing rig",      # 'fluke' is also a fish
+    "Mitutoyo micrometer case only",
+    "Littmann ear tips replacement part",
+    "Littmann Classic III",                    # deliberately not in the book
+])
+def test_pro_tool_lookalikes_rejected(title):
+    assert match(title) is None, title
+
+
+# --- "a brand is not a model" -----------------------------------------------
+# Live 2026-07-25: a bare \bfluke\b catch-all quoted a $130.75 max bid on fishing
+# lures and a boat anchor. Brand-level models must be corroborated by a noun.
+
+@pytest.mark.parametrize("title", [
+    "Zoom Winged Fluke - Gizzard Shad 4in",      # soft-plastic fishing lure
+    "JY PERFORMANCE Galvanized Fluke Anchor 13 lb",
+    "Tsunami Fluke Spinner Rig w/ Holographic Squid",
+    "Zoom Soft Plastic Fluke Assortment with Utility Box",
+    "Starrett Hacksaw Blades 10 pack",
+    "Starrett Tape Measure 25ft",
+])
+def test_brand_name_alone_is_not_the_product(title):
+    assert match(title) is None, title
+
+
+@pytest.mark.parametrize("title,expected", [
+    ("Fluke Digital Multimeter", "fluke_generic"),
+    ("Fluke Temperature Calibrator", "fluke_generic"),
+    ("Mitutoyo Digital Caliper 6in", "mitutoyo"),
+    ("Starrett Combination Square 12 inch", "starrett"),
+])
+def test_brand_plus_instrument_still_matches(title, expected):
+    m = match(title)
+    assert m and m.model.key == expected
+
+
+def test_unidentified_fluke_is_priced_conservatively():
+    """A generic Fluke must not inherit the $194.99 multimeter median - cheap
+    models sell $40-60, and we don't know which one it is."""
+    generic = BY_KEY["fluke_generic"]
+    assert generic.comp <= 100
+    assert generic.comp < BY_KEY["fluke_87"].comp
+
+
+def test_accessories_for_the_tool_are_not_the_tool():
+    """Live catch: a bag of indicator contact points reads almost identically to
+    the $122 indicator itself."""
+    assert match("Starrett No 25R Dial Indicator Contact Point Set") is None
+    assert match("Starrett No. 25 Dial Indicator") is not None
+
+
+def test_alert_links_the_comps_that_justify_the_price():
+    from flipscout.ebay_ui import sold_url
+    from flipscout.pricebook import comp_search
+    h = FakeHunter([])
+    a = hunt.to_alert(hunt.evaluate([CE_ROW], CFG, hunters=[h])[0])
+    assert a["buy_url"] == "u"
+    assert "LH_Sold=1" in a["comps_url"] and "LH_Complete=1" in a["comps_url"]
+    # the link must reproduce the SAME population the comp was measured from
+    assert "LH_ItemCondition=3000" in a["comps_url"]
+    assert a["comps_url"] == sold_url(comp_search(BY_KEY["ti84ce"]), used_only=True)
+    assert "on eBay]" in a["reason"]
+
+
+def test_every_model_has_a_comp_search():
+    from flipscout.pricebook import MODELS, comp_search
+    for m in MODELS:
+        assert comp_search(m).strip(), m.key

@@ -46,7 +46,14 @@ ACCESSORY_EXCLUDE = (
     r"\bguide\b|\bbook\b|paperback|magazine|poster|\bposter\b|sticker|decal|"
     r"\bempty\b|box only|case only|cover only|manual only|insert only|label only|"
     r"shell only|display only|\breplica\b|\bpromo\b|advertisement|\bad\b|"
-    r"trading card|\bcard\b|keychain|plush|figure|pin\b"
+    r"trading card|\bcard\b|keychain|plush|figure|pin\b|"
+    # Accessories FOR a tool, which read almost identically to the tool. These
+    # MUST live in the universal guard, not on one model: per-model excludes do
+    # not compose. "Starrett No 25R Dial Indicator Contact Point Set" was rejected
+    # by `dial_indicator` and then quietly matched the broader `starrett` model,
+    # which priced a ~$15 bag of tips at $81.95.
+    r"contact point|point set|\btips?\s*(set|kit|assortment)|"
+    r"attachment only|holder only|bezel only|crystal only"
 )
 
 
@@ -64,6 +71,13 @@ class Model:
     outbound_shipping: float = 5.00
     category: str = ""
     note: str = ""
+    # The eBay search that PRODUCED `comp`. Every alert links it so the claim
+    # "this sells for more" is checkable in one click instead of trusted.
+    # Defaults to the label when the label is already a good search.
+    comp_query: str = ""
+    # True when `comp` was measured with eBay's Used filter (LH_ItemCondition=3000),
+    # so the link reproduces the same population.
+    comp_used_only: bool = True
     # Higher wins when several models match one title. Declared, not inferred:
     # regex length is a tempting proxy and it is wrong (the base-CE pattern is
     # longer than the CE-Python one, so Python would get priced as a base CE).
@@ -94,7 +108,8 @@ MODELS: list[Model] = [
         # "CE" must be present. Bare "TI-84 Plus" is the monochrome model.
         include=r"ti\s*-?\s*84\s*plus\s*ce|ti\s*-?\s*84ce|ti\s*-?\s*84\s*ce\b",
         exclude=r"\bcase only\b|\bcover only\b|charger only|for parts|parts only",
-        outbound_shipping=5.00, category="calculators", specificity=10,
+        outbound_shipping=5.00, category="calculators", comp_query="TI-84 Plus CE graphing calculator",
+        specificity=10,
         note="CE Python variant comps higher; treat this as the floor.",
     ),
     Model(
@@ -103,7 +118,8 @@ MODELS: list[Model] = [
         comp=70.00, measured="2026-07-25", sample=0,
         include=r"ti\s*-?\s*84\s*plus\s*ce\s*python|ce\s*python",
         exclude=r"\bcase only\b|for parts|parts only",
-        outbound_shipping=5.00, category="calculators", specificity=20,
+        outbound_shipping=5.00, category="calculators", comp_query="TI-84 Plus CE Python",
+        specificity=20,
         note="ESTIMATE, not measured - verify with `flipscout comp` before trusting.",
     ),
     # --- iPods (measured 2026-07-25, eBay used solds, n=58 overall) -----------
@@ -117,7 +133,8 @@ MODELS: list[Model] = [
         comp=149.99, measured="2026-07-25", sample=21,
         include=r"ipod\s*(classic)?[^a-z0-9]{0,6}160\s*gb|160\s*gb[^a-z0-9]{0,6}ipod",
         exclude=r"for parts|parts only|not working|broken|\bcase only\b|charger only|cable only",
-        outbound_shipping=6.00, category="ipods", specificity=30,
+        outbound_shipping=6.00, category="ipods", comp_query="ipod classic 160gb",
+        specificity=30,
     ),
     Model(
         key="ipod_classic_120",
@@ -125,7 +142,8 @@ MODELS: list[Model] = [
         comp=136.07, measured="2026-07-25", sample=8,
         include=r"ipod\s*(classic)?[^a-z0-9]{0,6}120\s*gb|120\s*gb[^a-z0-9]{0,6}ipod",
         exclude=r"for parts|parts only|not working|broken|\bcase only\b|charger only",
-        outbound_shipping=6.00, category="ipods", specificity=30,
+        outbound_shipping=6.00, category="ipods", comp_query="ipod classic 120gb",
+        specificity=30,
     ),
     Model(
         key="ipod_classic_80",
@@ -133,7 +151,8 @@ MODELS: list[Model] = [
         comp=135.60, measured="2026-07-25", sample=11,
         include=r"ipod\s*(classic|video)?[^a-z0-9]{0,6}80\s*gb|80\s*gb[^a-z0-9]{0,6}ipod",
         exclude=r"for parts|parts only|not working|broken|\bcase only\b|charger only",
-        outbound_shipping=6.00, category="ipods", specificity=30,
+        outbound_shipping=6.00, category="ipods", comp_query="ipod classic 80gb",
+        specificity=30,
     ),
     Model(
         key="ipod_video_30",
@@ -141,7 +160,8 @@ MODELS: list[Model] = [
         comp=100.90, measured="2026-07-25", sample=15,
         include=r"ipod\s*(classic|video)?[^a-z0-9]{0,6}30\s*gb|30\s*gb[^a-z0-9]{0,6}ipod",
         exclude=r"for parts|parts only|not working|broken|\bcase only\b|charger only",
-        outbound_shipping=6.00, category="ipods", specificity=30,
+        outbound_shipping=6.00, category="ipods", comp_query="ipod classic 30gb",
+        specificity=30,
     ),
 
     # --- Pokemon Game Boy carts (measured 2026-07-25) ------------------------
@@ -161,7 +181,8 @@ MODELS: list[Model] = [
         include=r"pokemon\s*emerald",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
-        outbound_shipping=5.00, category="pokemon", specificity=40,
+        outbound_shipping=5.00, category="pokemon", comp_query="pokemon emerald gameboy advance",
+        specificity=40,
         note="HIGH VALUE = high repro risk. Verify the cart before bidding; "
              "comp sample is small (n=7) and search-biased.",
     ),
@@ -172,7 +193,8 @@ MODELS: list[Model] = [
         include=r"pokemon\s*crystal",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
-        outbound_shipping=5.00, category="pokemon", specificity=40,
+        outbound_shipping=5.00, category="pokemon", comp_query="pokemon crystal gameboy color",
+        specificity=40,
         note="n=2 - treat as an ESTIMATE. Re-measure before trusting.",
     ),
     Model(
@@ -182,7 +204,8 @@ MODELS: list[Model] = [
         include=r"pokemon\s*(fire\s*red|leaf\s*green)",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
-        outbound_shipping=5.00, category="pokemon", specificity=40,
+        outbound_shipping=5.00, category="pokemon", comp_query="pokemon fire red gameboy advance",
+        specificity=40,
         note="Verify authenticity before bidding.",
     ),
     Model(
@@ -192,7 +215,8 @@ MODELS: list[Model] = [
         include=r"pokemon\s*(ruby|sapphire)",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
-        outbound_shipping=5.00, category="pokemon", specificity=40,
+        outbound_shipping=5.00, category="pokemon", comp_query="pokemon ruby gameboy advance",
+        specificity=40,
         note="Verify authenticity before bidding.",
     ),
     Model(
@@ -202,7 +226,8 @@ MODELS: list[Model] = [
         include=r"pokemon\s*(red|blue|yellow)\b",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
-        outbound_shipping=5.00, category="pokemon", specificity=40,
+        outbound_shipping=5.00, category="pokemon", comp_query="pokemon yellow gameboy",
+        specificity=40,
         note="Save battery is usually dead - it does not stop a sale but mention it.",
     ),
     Model(
@@ -212,8 +237,135 @@ MODELS: list[Model] = [
         include=r"pokemon\s*(gold|silver)\b",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
-        outbound_shipping=5.00, category="pokemon", specificity=40,
+        outbound_shipping=5.00, category="pokemon", comp_query="pokemon gold gameboy color",
+        specificity=40,
         note="Save battery is usually dead - it does not stop a sale but mention it.",
+    ),
+
+    # === MY PICKS, chosen to exploit the CHANNEL rather than a fandom ==========
+    # HiBid aggregates estate, industrial and government surplus. So the best
+    # categories are professional tools that FLOOD those auctions, carry a model
+    # number in the title, and that eBay's hobbyist crowd doesn't camp on.
+    # Shared traits: effectively zero counterfeit risk on used pro gear, condition
+    # is binary (it reads or it doesn't), and buyers are tradespeople, not
+    # collectors, so prices are stable rather than hype-driven.
+
+    # --- Fluke test gear (measured 2026-07-25, used solds, n=60 overall) -------
+    # Best sample-to-value ratio in the whole book: $194.99 median across n=60.
+    Model(
+        key="fluke_87",
+        label="Fluke 87/87V multimeter",
+        comp=258.95, measured="2026-07-25", sample=5,
+        include=r"fluke\s*87",
+        exclude=r"\bprobe|leads only|holster|test lead|\bcase\b|fish|flounder|anchor",
+        outbound_shipping=9.00, category="test-gear", comp_query="fluke 87v multimeter",
+        specificity=50,
+    ),
+    Model(
+        key="fluke_17x",
+        label="Fluke 175/177/179 multimeter",
+        comp=323.62, measured="2026-07-25", sample=2,
+        include=r"fluke\s*17[579]",
+        exclude=r"\bprobe|leads only|holster|test lead|fish|anchor",
+        outbound_shipping=9.00, category="test-gear", comp_query="fluke 179 multimeter",
+        specificity=50,
+        note="n=2 - ESTIMATE, re-measure before leaning on it.",
+    ),
+    Model(
+        key="fluke_clamp",
+        label="Fluke 3xx clamp meter",
+        comp=144.99, measured="2026-07-25", sample=7,
+        include=r"fluke\s*3\d\d",
+        exclude=r"\bprobe|leads only|holster|test lead|fish|anchor",
+        outbound_shipping=9.00, category="test-gear", comp_query="fluke clamp meter",
+        specificity=50,
+    ),
+    Model(
+        key="fluke_generic",
+        label="Fluke meter (unspecified model)",
+        comp=90.00, measured="2026-07-25", sample=60,
+        # A BRAND IS NOT A MODEL. "Fluke" is also a fish, a soft-plastic fishing
+        # lure, and part of a boat anchor. The first version of this catch-all
+        # quoted a $130.75 max bid on "Zoom Winged Fluke - Gizzard Shad" and on a
+        # galvanized anchor, so the title must ALSO name an instrument.
+        include=r"\bfluke\b.{0,40}(multimeter|multi meter|\bmeter\b|\bdmm\b|clamp|tester|"
+                r"calibrator|thermometer|scopemeter|true rms|insulation)|"
+                r"(multimeter|multi meter|\bmeter\b|\bdmm\b|clamp|tester|calibrator|"
+                r"thermometer|scopemeter).{0,40}\bfluke\b",
+        exclude=r"\bprobe|leads only|holster|test lead|fish|flounder|anchor|lure|"
+                r"spinner|shad|tackle|\brig\b|swimbait|\bcase\b|carrying case|meter case",
+        outbound_shipping=9.00, category="test-gear", comp_query="fluke multimeter",
+        specificity=45,
+        note="Unidentified Fluke: priced at a CONSERVATIVE $90 floor, not the $194.99 "
+             "multimeter median, because cheap models (101/106/107) sell $40-60. "
+             "Confirm the model before bidding near the max.",
+    ),
+
+    # --- Machinist metrology (measured 2026-07-25) ----------------------------
+    # Estate auctions are full of these. Note the inversion vs junk lots: tool
+    # SETS sell HIGHER ($146 median) than singles, because the buyer wants the set.
+    Model(
+        key="mitutoyo",
+        label="Mitutoyo micrometer/caliper/indicator",
+        comp=87.05, measured="2026-07-25", sample=44,
+        include=r"mitutoyo.{0,40}(micrometer|caliper|indicator|gage|gauge|height|depth|"
+                r"bore|dial|scale|protractor)|(micrometer|caliper|indicator|gage|gauge)"
+                r".{0,40}mitutoyo",
+        exclude=r"\bcase only\b|box only|anvil only|spindle only|\bstand only\b",
+        outbound_shipping=8.00, category="metrology", comp_query="mitutoyo micrometer",
+        specificity=50,
+    ),
+    Model(
+        key="starrett",
+        label="Starrett precision tool",
+        comp=81.95, measured="2026-07-25", sample=43,
+        # Same rule as Fluke: Starrett also sells $5 hacksaw blades and tape
+        # measures, which the bare brand would have priced at $81.95.
+        include=r"starrett.{0,40}(micrometer|caliper|indicator|gage|gauge|square|level|"
+                r"protractor|dial|height|depth|precision|toolmaker|surface plate)|"
+                r"(micrometer|caliper|indicator|gage|gauge).{0,40}starrett",
+        exclude=r"\bcase only\b|box only|anvil only|spindle only|\bstand only\b|"
+                r"hacksaw|saw blade|bandsaw|band saw|tape measure|blade only|\bblades\b",
+        outbound_shipping=8.00, category="metrology", comp_query="starrett precision tool",
+        specificity=50,
+    ),
+    Model(
+        key="dial_indicator",
+        label="Dial / test indicator (brand-name)",
+        comp=122.50, measured="2026-07-25", sample=13,
+        # `.` not `[^.]` - real titles read "Starrett No. 25 Dial Indicator", and
+        # excluding periods made the brand and the noun unreachable from each other.
+        include=r"(starrett|mitutoyo|brown\s*&?\s*sharpe|interapid|federal).{0,40}indicator",
+        # Live catch: "Starrett No 25R Dial Indicator Contact Point Set" is a bag
+        # of ~$15 tips, not a $122 indicator. Accessories FOR the tool read almost
+        # identically to the tool.
+        exclude=r"\bcase only\b|box only|\bstand only\b|contact point|"
+                r"\btips?\s*(set|kit|assortment)|point set|\banvil\b|"
+                r"attachment only|back only|bezel|crystal only|holder only",
+        outbound_shipping=8.00, category="metrology", comp_query="starrett dial indicator",
+        specificity=55,
+    ),
+
+    # --- Littmann stethoscopes (measured 2026-07-25) --------------------------
+    # Only the high end clears well: the generic Littmann median is $59.95 and
+    # leaves just $26.61 of room, so the cheap models are deliberately NOT here.
+    Model(
+        key="littmann_master_cardiology",
+        label="Littmann Master Cardiology",
+        comp=139.99, measured="2026-07-25", sample=4,
+        include=r"master\s*cardiology",
+        exclude=r"ear\s?tips?|diaphragm|tubing only|replacement part|name tag",
+        outbound_shipping=5.00, category="medical", comp_query="littmann master cardiology stethoscope",
+        specificity=50,
+    ),
+    Model(
+        key="littmann_cardiology_iv",
+        label="Littmann Cardiology IV",
+        comp=97.49, measured="2026-07-25", sample=5,
+        include=r"cardiology\s*(iv|4)\b",
+        exclude=r"ear\s?tips?|diaphragm|tubing only|replacement part|name tag",
+        outbound_shipping=5.00, category="medical", comp_query="littmann cardiology iv stethoscope",
+        specificity=50,
     ),
 
     Model(
@@ -222,7 +374,8 @@ MODELS: list[Model] = [
         comp=45.00, measured="2026-07-25", sample=0,
         include=r"ti\s*-?\s*nspire\s*cx",
         exclude=r"\bcase only\b|for parts|parts only",
-        outbound_shipping=5.00, category="calculators",
+        outbound_shipping=5.00, comp_query="TI-Nspire CX",
+        category="calculators",
         note="ESTIMATE, not measured - verify before trusting.",
     ),
 ]
@@ -279,6 +432,11 @@ def match(title: str) -> Optional[Match]:
                  evidence=best.label, dead_also_present=dead)
 
 
+def comp_search(model: Model) -> str:
+    """The search phrase that reproduces this model's measured comp."""
+    return model.comp_query or model.label
+
+
 def search_terms() -> list[str]:
     """Queries to push at every source. Deliberately broader than the models -
     junk-titled lots ("SCIENTIFIC CALCULATOR BULK LOT") hide the good models, and
@@ -295,4 +453,10 @@ def search_terms() -> list[str]:
         "pokemon gameboy", "pokemon game boy advance", "pokemon gba",
         "gameboy game lot", "game boy advance lot", "nintendo handheld lot",
         "pokemon game",
+        # test gear / metrology / medical - these live in estate, industrial and
+        # government surplus, which is exactly what HiBid aggregates
+        "fluke multimeter", "fluke meter", "fluke", "multimeter",
+        "mitutoyo", "starrett", "micrometer", "dial indicator", "machinist tools",
+        "machinist tool lot", "precision tools lot",
+        "littmann", "stethoscope",
     ]
