@@ -343,9 +343,111 @@ class Craigslist:
         return out[:limit]
 
 
+# --- Poshmark ---------------------------------------------------------------
+
+_POSH_SEARCH = "https://poshmark.com/search"
+
+
+class Poshmark:
+    """Online secondhand clothing. Fixed price, ships to you, no login to search.
+
+    Only serves the outerwear models (Arc'teryx, Patagonia) - there are no Fluke
+    meters on a fashion resale site - and those are the thinnest margins in the
+    book, so treat it as breadth rather than the main event.
+
+    Parsing note: Poshmark renders server-side (no XHR for search results at all),
+    so it works headless. Titles come from the ld+json ItemList urls, where the
+    slug IS the title; prices come from the rendered tiles. The two lists came
+    back the same length and in the same order on every query tested, but that
+    alignment is an assumption about their markup, so parse() refuses to guess
+    when the counts disagree rather than pairing the wrong price to an item.
+
+    The other thrift sites were checked and rejected 2026-07-26:
+      goodwillfinds.com  DNS_PROBE_FINISHED_NXDOMAIN - the domain is gone
+      ThredUp / Mercari / eBid            403 to scripts
+      Vinted / Curtsy / EBTH / satruck    client-rendered, no structured data
+    """
+
+    name = "poshmark"
+
+    # Each search page is ~5MB. Throwing the full 25-term watchlist at it is
+    # 125MB a run and gets throttled to zero results - and asking a fashion
+    # resale site for "fluke multimeter" was never going to return anything.
+    TERMS = ("arcteryx", "arc'teryx", "patagonia", "patagonia jacket")
+
+    def relevant_terms(self, terms: list) -> list:
+        want = {t.lower() for t in self.TERMS}
+        return [t for t in terms if t.lower() in want] or list(self.TERMS[:2])
+
+    def __init__(self, session: Optional[requests.Session] = None):
+        self.session = session or requests.Session()
+
+    @staticmethod
+    def title_from_url(url: str) -> str:
+        from urllib.parse import unquote
+        slug = (url or "").rstrip("/").split("/listing/")[-1]
+        slug = re.sub(r"-[0-9a-f]{24,}$", "", slug)      # drop the trailing id
+        return unquote(slug).replace("-", " ").strip()
+
+    @staticmethod
+    def parse(html: str) -> list[dict]:
+        import json as _json
+        urls: list[str] = []
+        for blob in re.findall(r'type="application/ld\+json">(\{.*?\})</script>',
+                               html or "", re.S):
+            try:
+                d = _json.loads(blob)
+            except Exception:
+                continue
+            if d.get("@type") == "ItemList":
+                for el in d.get("itemListElement") or []:
+                    if el.get("url"):
+                        urls.append(el["url"])
+        prices = re.findall(
+            r'tile-grid-redesign__price-current[^>]*>\s*\$?([0-9][0-9,]*)', html or "")
+
+        # Pairing by position is only safe while the counts match. If Poshmark
+        # changes its markup this goes to zero rather than mispricing items.
+        if not urls or len(urls) != len(prices):
+            return []
+
+        out = []
+        for url, raw in zip(urls, prices):
+            try:
+                price = float(raw.replace(",", ""))
+            except ValueError:
+                continue
+            if price <= 0:
+                continue
+            ident = (re.search(r"-([0-9a-f]{24,})$", url.rstrip("/")) or [None, url])[1]
+            out.append({
+                "source": "poshmark", "id": str(ident),
+                "title": Poshmark.title_from_url(url),
+                "url": url, "price": price,
+                "min_bid": price, "increment": 0.0, "bids": None,
+                "handling": 0.0, "image": "", "ends": "",
+                "listing_type": "fixed", "local": False,
+            })
+        return out
+
+    def search(self, query: str, limit: int = 40) -> list[dict]:
+        time.sleep(0.5)          # 5MB a page; don't hammer it
+        try:
+            r = self.session.get(_POSH_SEARCH,
+                                 params={"query": query, "type": "listings"},
+                                 headers={"User-Agent": _UA,
+                                          "Accept-Language": "en-US,en;q=0.9"},
+                                 timeout=_TIMEOUT)
+            r.raise_for_status()
+            return self.parse(r.text)[:limit]
+        except Exception:
+            return []
+
+
 # --- registry ---------------------------------------------------------------
 
-HUNTERS = {"goodwill": ShopGoodwill, "hibid": HiBid, "craigslist": Craigslist}
+HUNTERS = {"goodwill": ShopGoodwill, "hibid": HiBid,
+           "craigslist": Craigslist, "poshmark": Poshmark}
 
 
 def build_hunters(names: Optional[list] = None, env=None) -> list:

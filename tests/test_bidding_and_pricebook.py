@@ -566,3 +566,46 @@ def test_baseline_and_cache_are_merged(tmp_path):
     base = tmp_path / "baseline.json"; base.write_text(_j.dumps(["goodwill:1"]))
     cache = tmp_path / "seen.json";    cache.write_text(_j.dumps(["hibid:2"]))
     assert hunt._load_seen(str(cache), baseline=str(base)) == {"goodwill:1", "hibid:2"}
+
+
+# --- Poshmark ---------------------------------------------------------------
+
+POSH_HTML = '''<html>
+<script type="application/ld+json">{"@type":"ItemList","itemListElement":[
+ {"@type":"ListItem","position":1,"url":"https://poshmark.com/listing/Arcteryx-Beta-AR-Gore-Tex-Jacket-Mens-M-6a58fc086cb7779a11e57943"},
+ {"@type":"ListItem","position":2,"url":"https://poshmark.com/listing/Patagonia-Nano-Puff-Jacket-6a557f362c7ec673a74ae9c1"}]}</script>
+<div class="tile-grid-redesign__price-current"> $150</div>
+<div class="tile-grid-redesign__price-current"> $60</div>
+</html>'''
+
+
+def test_poshmark_pairs_titles_and_prices():
+    from flipscout.hunters import Poshmark
+    rows = Poshmark.parse(POSH_HTML)
+    assert len(rows) == 2
+    assert rows[0]["title"] == "Arcteryx Beta AR Gore Tex Jacket Mens M"
+    assert rows[0]["price"] == 150.0
+    assert rows[0]["listing_type"] == "fixed" and rows[0]["local"] is False
+    assert rows[0]["id"] == "6a58fc086cb7779a11e57943"
+
+
+def test_poshmark_refuses_to_guess_when_counts_disagree():
+    """Pairing by position is only safe while url count == price count. A markup
+    change must yield nothing, not a wrong price on the wrong item."""
+    from flipscout.hunters import Poshmark
+    broken = POSH_HTML.replace('<div class="tile-grid-redesign__price-current"> $60</div>', "")
+    assert Poshmark.parse(broken) == []
+
+
+def test_poshmark_parse_is_fail_soft():
+    from flipscout.hunters import Poshmark
+    assert Poshmark.parse("<html>nothing</html>") == []
+    assert Poshmark.parse("") == []
+
+
+def test_poshmark_rows_price_through_the_book():
+    from flipscout.hunters import Poshmark
+    rows = Poshmark.parse(POSH_HTML)
+    got = hunt.evaluate(rows, CFG, hunters=[])
+    keys = {c["model"].key for c in got}
+    assert "arcteryx_shell" in keys           # $150 vs a $325 comp
