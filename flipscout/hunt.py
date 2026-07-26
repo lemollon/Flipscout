@@ -26,7 +26,7 @@ from typing import Optional
 
 from .bidding import advise
 from .hunters import build_hunters
-from .notify import notify_rich
+from .notify import describe_webhook, notify_rich
 from .ebay_ui import sold_url
 from .pricebook import comp_search, match, search_terms
 
@@ -177,6 +177,9 @@ def to_alert(c: dict) -> dict:
 
 def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> dict:
     config = config or load_config()
+    # Print the DESTINATION every run. Delivery success has repeatedly meant
+    # "Discord accepted it" while the alerts landed in a channel nobody watches.
+    print(f"[hunt] alert destination: {describe_webhook(os.environ.get('FLIPSCOUT_ALERT_WEBHOOK'))}")
     rows = sweep(config, hunters=hunters)
     cands = evaluate(rows, config, hunters=hunters)
 

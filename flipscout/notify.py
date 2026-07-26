@@ -104,6 +104,27 @@ def build_embed(c: dict) -> dict:
     return embed
 
 
+def describe_webhook(url: str, session=None) -> str:
+    """Which channel does this webhook actually post to?
+
+    A 2xx on POST only proves Discord accepted the message - it says nothing
+    about whether it landed anywhere you look. Logging the resolved channel makes
+    the destination visible instead of assumed, which is the failure that made
+    "it stopped sending me deals" take three rounds to diagnose.
+    """
+    if not url:
+        return "no webhook configured"
+    session = session or requests
+    try:
+        r = session.get(url, timeout=10)
+        r.raise_for_status()
+        d = r.json()
+        return (f"webhook '{d.get('name')}' -> channel {d.get('channel_id')} "
+                f"in guild {d.get('guild_id')}")
+    except Exception as e:
+        return f"could not resolve webhook: {e}"
+
+
 def notify_rich(candidates: list, content: str = "", env=None, session=None) -> list[str]:
     """Post candidates to the webhook as embeds (image + clickable link).
 
