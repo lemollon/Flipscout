@@ -224,7 +224,7 @@ class HiBid:
 # collect it yourself, so hunting cities you can't drive to just burns requests -
 # and Craigslist rate-limits: sweeping 8 search terms x 10 cities returned ONE
 # listing, while a single city returns 24. Set FLIPSCOUT_CL_CITIES to your metro.
-_CL_CITIES = ["sfbay"]
+_CL_CITIES = ["houston"]      # Fulshear TX -> the Houston craigslist region
 _CL_DELAY = 0.8      # be a polite guest; this is somebody's free classifieds site
 
 
