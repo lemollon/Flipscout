@@ -648,3 +648,89 @@ def test_propertyroom_is_fail_soft():
     from flipscout.hunters import PropertyRoom
     assert PropertyRoom.parse("<html>nothing</html>") == []
     assert PropertyRoom.parse("") == []
+
+
+# --- Shopify used-gear shops ------------------------------------------------
+
+SHOPIFY_PAYLOAD = {"resources": {"results": {"products": [
+    {"id": 123, "title": "Arcteryx Beta AR Gore-Tex Jacket", "price": "150.00",
+     "available": True, "url": "/products/arcteryx-beta-ar?_pos=1",
+     "image": "https://cdn.shopify.com/x.jpg"},
+    {"id": 124, "title": "Arcteryx Sold Out Jacket", "price": "99.00",
+     "available": False, "url": "/products/sold"},
+    {"id": 125, "title": "Broken price", "price": None, "available": True,
+     "url": "/products/x"},
+]}}}
+
+
+def test_shopify_parses_and_skips_unavailable_and_priceless():
+    from flipscout.hunters import ShopifyStore
+    rows = ShopifyStore.parse(SHOPIFY_PAYLOAD, "outandback", "outandbackoutdoor.com")
+    assert len(rows) == 1
+    r = rows[0]
+    assert r["price"] == 150.0 and r["source"] == "outandback"
+    assert r["url"] == "https://outandbackoutdoor.com/products/arcteryx-beta-ar"
+    assert r["listing_type"] == "fixed" and r["local"] is False
+
+
+def test_shopify_parse_is_fail_soft():
+    from flipscout.hunters import ShopifyStore
+    assert ShopifyStore.parse({}, "x", "y.com") == []
+    assert ShopifyStore.parse({"resources": {}}, "x", "y.com") == []
+
+
+def test_shopify_rows_price_through_the_book():
+    from flipscout.hunters import ShopifyStore
+    rows = ShopifyStore.parse(SHOPIFY_PAYLOAD, "outandback", "outandbackoutdoor.com")
+    got = hunt.evaluate(rows, CFG, hunters=[])
+    assert {c["model"].key for c in got} == {"arcteryx_shell"}
+
+
+def test_gear_shops_only_get_clothing_terms():
+    """These are outdoor shops - asking them for 'fluke multimeter' wastes a
+    request and returns nothing."""
+    from flipscout.hunters import build_hunters
+    from flipscout.pricebook import search_terms
+    h = build_hunters(["outandback"])[0]
+    terms = h.relevant_terms(search_terms())
+    assert terms and all("arc" in t or "patagonia" in t for t in terms)
+
+
+@pytest.mark.parametrize("title", [
+    "Arcteryx Womens Sentinel Bib Pant",
+    "Arcteryx Sabre Pants - Men's",
+    "Arcteryx Sylan 2 Shoe - Men's",
+    "Arcteryx Womens Essent Leggings",
+    "Patagonia Baggies Shorts",
+    "Patagonia Nano Puff Vest",
+])
+def test_non_jacket_garments_do_not_inherit_a_jacket_comp(title):
+    """Every outerwear comp was measured from JACKET sales. The used-gear shops
+    surface pants/shoes/leggings under the same brand; pricing a $374 bib pant
+    off a $70 jacket comp is just a wrong number."""
+    assert match(title) is None, title
+
+
+@pytest.mark.parametrize("title,expected", [
+    ("Arcteryx Beta AR Gore-Tex Jacket", "arcteryx_shell"),
+    ("Arcteryx Atom LT Hoody", "arcteryx_atom"),
+    ("Patagonia Nano Puff Jacket", "patagonia_puffy"),
+    ("Arcteryx Jacket Large Blue", "arcteryx_generic"),
+])
+def test_actual_jackets_still_match(title, expected):
+    m = match(title)
+    assert m and m.model.key == expected
+
+
+def test_pricebook_has_no_literal_control_characters():
+    """A patch once turned every \b word-boundary into a literal backspace
+    (0x08), silently disabling the kids/dog/pants excludes on three models -
+    they matched nothing and nothing was excluded. Cheap guard against a class of
+    bug that is invisible in a diff."""
+    import flipscout.pricebook as pb
+    src = open(pb.__file__, "rb").read()
+    for bad in (b"\x08", b"\x07", b"\x0c", b"\x0b"):
+        assert bad not in src, f"control char {bad!r} in pricebook.py"
+    for m in pb.MODELS:
+        for field in (m.include, m.exclude):
+            assert not any(ord(c) < 32 for c in field), m.key

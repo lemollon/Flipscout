@@ -523,10 +523,95 @@ class PropertyRoom:
             return []
 
 
+# --- Shopify-backed used-gear shops -----------------------------------------
+
+
+class ShopifyStore:
+    """Any Shopify storefront, via the built-in /search/suggest.json endpoint.
+
+    Out&Back and GearTrade both sell USED outdoor gear and both run Shopify, so
+    one adapter covers them - and any future Shopify resale shop is a one-line
+    addition rather than a new parser.
+
+    Two honest limits:
+      * suggest.json returns at most 10 products per query no matter what
+        resources[limit] says, so this is breadth, not depth.
+      * these are shops, not individuals - they price used gear near market
+        ($419 for an Arc'teryx parka), so expect most items to sit above the
+        ceiling and get filtered out. The win is catching their clearance end.
+    """
+
+    def __init__(self, name: str, domain: str, terms: tuple,
+                 session: Optional[requests.Session] = None):
+        self.name = name
+        self.domain = domain
+        self.TERMS = terms
+        self.session = session or requests.Session()
+
+    def relevant_terms(self, terms: list) -> list:
+        want = {t.lower() for t in self.TERMS}
+        return [t for t in terms if t.lower() in want] or list(self.TERMS[:2])
+
+    @staticmethod
+    def parse(payload: dict, name: str, domain: str) -> list[dict]:
+        products = (((payload or {}).get("resources") or {}).get("results") or {}).get("products") or []
+        out = []
+        for p in products:
+            if p.get("available") is False:
+                continue
+            try:
+                price = float(p.get("price"))
+            except (TypeError, ValueError):
+                continue
+            if price <= 0:
+                continue
+            url = p.get("url") or ""
+            if url.startswith("/"):
+                url = f"https://{domain}{url.split('?')[0]}"
+            img = p.get("image") or ""
+            if isinstance(p.get("featured_image"), dict):
+                img = p["featured_image"].get("url") or img
+            out.append({
+                "source": name, "id": str(p.get("id") or p.get("handle") or ""),
+                "title": (p.get("title") or "").strip(),
+                "url": url, "price": price,
+                "min_bid": price, "increment": 0.0, "bids": None,
+                "handling": 0.0, "image": img, "ends": "",
+                "listing_type": "fixed", "local": False,
+            })
+        return out
+
+    def search(self, query: str, limit: int = 40) -> list[dict]:
+        time.sleep(0.3)
+        try:
+            r = self.session.get(
+                f"https://{self.domain}/search/suggest.json",
+                params={"q": query, "resources[type]": "product",
+                        "resources[limit]": "10"},
+                headers={"User-Agent": _UA, "Accept": "application/json"},
+                timeout=_TIMEOUT)
+            r.raise_for_status()
+            return self.parse(r.json(), self.name, self.domain)[:limit]
+        except Exception:
+            return []
+
+
+_GEAR_TERMS = ("arcteryx", "arc'teryx", "patagonia", "patagonia jacket")
+
+
+def _outandback():
+    return ShopifyStore("outandback", "outandbackoutdoor.com", _GEAR_TERMS)
+
+
+def _geartrade():
+    return ShopifyStore("geartrade", "www.geartrade.com", _GEAR_TERMS)
+
+
 # --- registry ---------------------------------------------------------------
 
 HUNTERS = {"goodwill": ShopGoodwill, "hibid": HiBid, "craigslist": Craigslist,
-           "poshmark": Poshmark, "propertyroom": PropertyRoom}
+           "poshmark": Poshmark, "propertyroom": PropertyRoom,
+           "outandback": _outandback, "geartrade": _geartrade}
 
 
 def build_hunters(names: Optional[list] = None, env=None) -> list:

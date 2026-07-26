@@ -35,7 +35,7 @@ from .pricebook import comp_search, match, search_terms
 def load_config(env=None) -> dict:
     env = env if env is not None else os.environ
     return {
-        "sources": [s.strip() for s in env.get("FLIPSCOUT_SOURCES", "goodwill,hibid,craigslist,poshmark").split(",") if s.strip()],
+        "sources": [s.strip() for s in env.get("FLIPSCOUT_SOURCES", "goodwill,hibid,craigslist,poshmark,propertyroom,outandback,geartrade").split(",") if s.strip()],
         "target_profit": float(env.get("FLIPSCOUT_TARGET_PROFIT", "20")),
         "inbound_shipping": float(env.get("FLIPSCOUT_INBOUND_SHIP", "9")),
         "top": int(env.get("FLIPSCOUT_TOP", "10")),

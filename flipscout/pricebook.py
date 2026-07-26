@@ -406,7 +406,8 @@ MODELS: list[Model] = [
         label="Arc'teryx Atom (insulated)",
         comp=183.98, measured="2026-07-26", sample=60,
         include=r"arc'?\s*teryx.{0,30}atom",
-        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|glove|\bshirt\b|beanie",
+        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|glove|\bshirt\b|beanie|"
+                r"\bpants?\b|\bbib\b|\bshorts?\b|legging|\bshoes?\b|boot|\bvest\b",
         outbound_shipping=9.00, category="outerwear", specificity=60,
         comp_query="arcteryx atom jacket",
     ),
@@ -415,7 +416,8 @@ MODELS: list[Model] = [
         label="Arc'teryx fleece (Delta/Kyanite)",
         comp=100.57, measured="2026-07-25", sample=8,
         include=r"arc'?\s*teryx.{0,30}(delta|kyanite|fleece)",
-        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|glove|\bshirt\b|beanie",
+        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|glove|\bshirt\b|beanie|"
+                r"\bpants?\b|\bbib\b|\bshorts?\b|legging|\bshoes?\b|boot|\bvest\b",
         outbound_shipping=9.00, category="outerwear", specificity=60,
         comp_query="arcteryx fleece jacket",
     ),
@@ -424,8 +426,13 @@ MODELS: list[Model] = [
         label="Arc'teryx (unspecified model)",
         comp=70.00, measured="2026-07-25", sample=60,
         include=r"arc'?\s*teryx",
+        # Every outerwear comp here was measured from JACKET sales. The used-gear
+        # shops surface pants, bibs, shoes and leggings under the same brand, and
+        # pricing a $374 bib pant off a $70 jacket comp is simply a wrong number.
         exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|\bcap\b|glove|"
-                r"\bshirt\b|\bsock|beanie|\bbag\b|backpack|\bcase\b|sticker",
+                r"\bshirt\b|\bsock|beanie|\bbag\b|backpack|\bcase\b|sticker|"
+                r"\bpants?\b|\bbib\b|\bshorts?\b|legging|\bshoes?\b|\bboots?\b|"
+                r"\bharness\b|\bbelt\b|gaiter|\bvest\b|\bskirt\b",
         outbound_shipping=9.00, category="outerwear", specificity=55,
         comp_query="arcteryx jacket",
         note="Unspecified model floor. A Beta/Alpha shell is worth 4.5x this - "
@@ -436,7 +443,8 @@ MODELS: list[Model] = [
         label="Patagonia Nano Puff / Down Sweater",
         comp=81.44, measured="2026-07-25", sample=9,
         include=r"patagonia.{0,40}(nano[\s-]*puff|down sweater|nano[\s-]*air)",
-        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|glove|\bshirt\b|beanie",
+        exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|glove|\bshirt\b|beanie|"
+                r"\bpants?\b|\bbib\b|\bshorts?\b|legging|\bshoes?\b|boot|\bvest\b",
         outbound_shipping=9.00, category="outerwear", specificity=60,
         comp_query="patagonia nano puff jacket",
     ),
@@ -446,7 +454,9 @@ MODELS: list[Model] = [
         comp=60.03, measured="2026-07-25", sample=60,
         include=r"patagonia",
         exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|\bcap\b|glove|"
-                r"\bshirt\b|\bsock|beanie|\bbag\b|backpack|sticker|\bshorts?\b",
+                r"\bshirt\b|\bsock|beanie|\bbag\b|backpack|sticker|"
+                r"\bpants?\b|\bbib\b|\bshorts?\b|legging|\bshoes?\b|\bboots?\b|"
+                r"\bharness\b|\bbelt\b|gaiter|\bvest\b|\bskirt\b",
         outbound_shipping=9.00, category="outerwear", specificity=55,
         comp_query="patagonia jacket",
         note="Thin margin ($22.68 max buy) - only worth it because Goodwill "
