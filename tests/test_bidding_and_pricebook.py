@@ -479,3 +479,41 @@ def test_run_reports_whether_delivery_actually_happened(capsys, monkeypatch):
     monkeypatch.setattr(hunt, "_load_seen", lambda p: set())
     hunt.run(CFG, hunters=[FakeHunter([CE_ROW])], notifier=lambda a, content="", **k: [])
     assert "NOT DELIVERED" in capsys.readouterr().out
+
+
+# --- freshness ---------------------------------------------------------------
+
+def test_age_hours_parses_and_fails_soft():
+    import datetime as dt
+    now = dt.datetime(2026, 7, 26, 19, 0, 0)
+    assert hunt.age_hours("2026-07-26T12:00:00", now) == pytest.approx(7.0)
+    assert hunt.age_hours(None, now) is None
+    assert hunt.age_hours("not-a-date", now) is None
+
+
+def test_max_age_filter_is_off_by_default():
+    """For auctions, 'listed recently' is the wrong signal - an old lot ending in
+    30 minutes with no bids is the better buy."""
+    assert hunt.load_config({}) ["max_age_hours"] is None
+
+
+def test_max_age_filter_drops_stale_but_keeps_unknown_age():
+    import datetime as dt
+    old = (dt.datetime.now() - dt.timedelta(hours=48)).isoformat()[:19]
+    fresh = (dt.datetime.now() - dt.timedelta(hours=1)).isoformat()[:19]
+    cfg = {**CFG, "max_age_hours": 24.0}
+    rows = [
+        {**CE_ROW, "id": "old", "listed": old},
+        {**CE_ROW, "id": "fresh", "listed": fresh},
+        {**CE_ROW, "id": "unknown"},          # craigslist/hibid never report one
+    ]
+    got = {c["row"]["id"] for c in hunt.evaluate(rows, cfg, hunters=[FakeHunter([])])}
+    assert "old" not in got
+    assert got == {"fresh", "unknown"}
+
+
+def test_alert_shows_how_fresh_the_listing_is():
+    import datetime as dt
+    fresh = (dt.datetime.now() - dt.timedelta(hours=3)).isoformat()[:19]
+    c = hunt.evaluate([{**CE_ROW, "listed": fresh}], CFG, hunters=[FakeHunter([])])[0]
+    assert "Listed 3h ago" in hunt.to_alert(c)["reason"]

@@ -97,6 +97,10 @@ class ShopGoodwill:
                 "handling": None,
                 "image": (it.get("imageURL") or "").replace("\\", "/"),
                 "ends": (it.get("endTime") or "")[:16],
+                # When it was LISTED. Goodwill is the only source that exposes
+                # this: Craigslist's search JSON has no date field at all, and
+                # HiBid gives auction dates rather than per-lot listing dates.
+                "listed": (it.get("startTime") or "")[:16],
             })
         return out
 

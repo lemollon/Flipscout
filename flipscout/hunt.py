@@ -20,6 +20,7 @@ Config (env):
 
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import os
 from typing import Optional
@@ -38,6 +39,12 @@ def load_config(env=None) -> dict:
         "target_profit": float(env.get("FLIPSCOUT_TARGET_PROFIT", "20")),
         "inbound_shipping": float(env.get("FLIPSCOUT_INBOUND_SHIP", "9")),
         "top": int(env.get("FLIPSCOUT_TOP", "10")),
+        # Optional hard freshness filter, OFF by default on purpose: for auctions
+        # "listed recently" is the wrong signal - a lot posted days ago that ends
+        # in 30 minutes with no bids is the better buy, because its price is
+        # nearly final. Only Goodwill exposes a listing date at all.
+        "max_age_hours": (float(env["FLIPSCOUT_MAX_AGE_HOURS"])
+                          if env.get("FLIPSCOUT_MAX_AGE_HOURS") else None),
         "state_file": env.get("FLIPSCOUT_STATE_FILE", "flipscout_seen.json"),
     }
 
@@ -109,11 +116,33 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
         )
         if not adv.has_room:
             continue
+
+        max_age = config.get("max_age_hours")
+        if max_age is not None:
+            age = age_hours(row.get("listed"))
+            # Unknown age is NOT treated as stale - Craigslist and HiBid never
+            # report one, and silently dropping two of three sources would look
+            # like the watcher had died.
+            if age is not None and age > max_age:
+                continue
+
         out.append({"row": row, "model": m.model, "match": m, "advice": adv})
 
     # Best headroom first: what you'd clear if you won at the current minimum.
     out.sort(key=lambda c: (c["advice"].profit_at_open or 0), reverse=True)
     return out
+
+
+def age_hours(listed: Optional[str], now: Optional[_dt.datetime] = None) -> Optional[float]:
+    """Hours since the listing went up, or None when the source doesn't say."""
+    if not listed:
+        return None
+    try:
+        t = _dt.datetime.fromisoformat(str(listed)[:19])
+    except ValueError:
+        return None
+    now = now or _dt.datetime.now()
+    return max(0.0, (now - t).total_seconds() / 3600.0)
 
 
 def to_alert(c: dict) -> dict:
@@ -149,6 +178,9 @@ def to_alert(c: dict) -> dict:
             bits.append(f"Win at the opening bid -> **${adv.profit_at_open:,.2f}** profit.")
         bits.append(f"At your max (${adv.max_bid:,.2f}) it lands at "
                     f"${adv.landed_at_max:,.2f} and still clears ${adv.profit_at_max:,.0f}.")
+    age = age_hours(row.get("listed"))
+    if age is not None:
+        bits.append(f"_Listed {age:.0f}h ago._" if age >= 1 else "_Just listed._")
     if m.dead_also_present:
         bits.append(":warning: also contains: " + "; ".join(m.dead_also_present))
     if row.get("pickup_risk"):
