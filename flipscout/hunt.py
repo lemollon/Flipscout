@@ -52,12 +52,22 @@ def load_config(env=None) -> dict:
     }
 
 
-def _load_seen(path: str) -> set:
-    try:
-        with open(path, encoding="utf-8") as f:
-            return set(json.load(f))
-    except Exception:
-        return set()
+# A committed floor for the sent-list. The Actions cache is the primary store,
+# but it is not durable: changing the workflow's cache `path` invalidated it once
+# and the watcher happily re-sent 50 already-delivered deals. Anything in this
+# baseline is never alerted again, whatever the cache does.
+BASELINE_SEEN = "flipscout_seen_baseline.json"
+
+
+def _load_seen(path: str, baseline: str = BASELINE_SEEN) -> set:
+    seen: set = set()
+    for candidate in (baseline, path):
+        try:
+            with open(candidate, encoding="utf-8") as f:
+                seen |= set(json.load(f))
+        except Exception:
+            pass
+    return seen
 
 
 def _save_seen(path: str, seen: set) -> None:

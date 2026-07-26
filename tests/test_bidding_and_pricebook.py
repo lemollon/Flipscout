@@ -547,3 +547,22 @@ def test_zero_new_still_checks_in_once_a_day(tmp_path, monkeypatch):
 
     hunt.run(cfg, hunters=[FakeHunter([CE_ROW])], notifier=notifier)
     assert len(posts) == 1          # not twice in one day
+
+
+def test_baseline_seen_survives_a_cache_wipe(tmp_path):
+    """The Actions cache is not durable - changing the workflow's cache path
+    invalidated it once and 50 already-delivered deals got re-sent. The committed
+    baseline is the floor that can't be wiped."""
+    import json as _j
+    base = tmp_path / "baseline.json"
+    base.write_text(_j.dumps(["goodwill:1", "hibid:2"]))
+    empty_cache = str(tmp_path / "missing.json")   # simulates the wipe
+    seen = hunt._load_seen(empty_cache, baseline=str(base))
+    assert seen == {"goodwill:1", "hibid:2"}
+
+
+def test_baseline_and_cache_are_merged(tmp_path):
+    import json as _j
+    base = tmp_path / "baseline.json"; base.write_text(_j.dumps(["goodwill:1"]))
+    cache = tmp_path / "seen.json";    cache.write_text(_j.dumps(["hibid:2"]))
+    assert hunt._load_seen(str(cache), baseline=str(base)) == {"goodwill:1", "hibid:2"}
