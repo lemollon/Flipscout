@@ -444,10 +444,89 @@ class Poshmark:
             return []
 
 
+# --- PropertyRoom -----------------------------------------------------------
+
+
+class PropertyRoom:
+    """Police / seized-property auctions: jewellery, watches, coins, electronics.
+
+    Narrow overlap with this book - it carries iPods but no test gear or
+    metrology ("fluke" there returns a Wyland painting *called* Fluke). And its
+    iPod prices ran ABOVE our ceiling when measured (a 160GB at $250 against a
+    $149.99 comp), partly because several are modded 128GB-SSD units.
+
+    Kept anyway because it costs one request per term and fails soft: if nothing
+    clears the ceiling nothing is alerted, and a cheap unit will get caught the
+    day it appears.
+
+    Search lives at /s/<query>; /search?q= silently returns the homepage, which
+    is how the first version "worked" while returning nothing relevant.
+    """
+
+    name = "propertyroom"
+
+    TERMS = ("ipod", "ipod classic", "ipod video")
+
+    def relevant_terms(self, terms: list) -> list:
+        want = {t.lower() for t in self.TERMS}
+        return [t for t in terms if t.lower() in want] or list(self.TERMS)
+
+    def __init__(self, session: Optional[requests.Session] = None):
+        self.session = session or requests.Session()
+
+    @staticmethod
+    def parse(html: str) -> list[dict]:
+        out, seen = [], set()
+        blocks = re.split(r'<div[^>]*class="[^"]*ListingContainer[^"]*"', html or "")[1:]
+        for b in blocks:
+            lid = (re.search(r'lid="(\d+)"', b) or [None, None])[1]
+            if not lid or lid in seen:
+                continue
+            seen.add(lid)
+            href = (re.search(r'href="(/l/[^"]+?/\d+)"', b) or [None, ""])[1]
+            title = (re.search(r'class="product-name-category"><a[^>]*>([^<]{4,150})</a>', b)
+                     or re.search(r'alt="([^"]{6,150})"', b) or [None, ""])[1]
+            img = (re.search(r'<img[^>]+src="(https://content\.propertyroom\.com[^"]+)"', b)
+                   or [None, ""])[1]
+            text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", b))
+            raw = (re.search(r"\$\s?([0-9][0-9,]*\.?\d{0,2})", text) or [None, None])[1]
+            if not raw:
+                continue
+            try:
+                price = float(raw.replace(",", ""))
+            except ValueError:
+                continue
+            if price <= 0:
+                continue
+            bids = (re.search(r"(\d+)\s*bid", text, re.I) or [None, None])[1]
+            out.append({
+                "source": "propertyroom", "id": lid, "title": title.strip(),
+                "url": f"https://www.propertyroom.com{href}" if href else "",
+                "price": price, "min_bid": price, "increment": 1.0,
+                "bids": int(bids) if bids else None,
+                "handling": 0.0, "image": img, "ends": "",
+                "listing_type": "auction", "local": False,
+            })
+        return out
+
+    def search(self, query: str, limit: int = 40) -> list[dict]:
+        from urllib.parse import quote
+        time.sleep(0.4)
+        try:
+            r = self.session.get(f"https://www.propertyroom.com/s/{quote(query)}",
+                                 headers={"User-Agent": _UA,
+                                          "Accept-Language": "en-US,en;q=0.9"},
+                                 timeout=_TIMEOUT)
+            r.raise_for_status()
+            return self.parse(r.text)[:limit]
+        except Exception:
+            return []
+
+
 # --- registry ---------------------------------------------------------------
 
-HUNTERS = {"goodwill": ShopGoodwill, "hibid": HiBid,
-           "craigslist": Craigslist, "poshmark": Poshmark}
+HUNTERS = {"goodwill": ShopGoodwill, "hibid": HiBid, "craigslist": Craigslist,
+           "poshmark": Poshmark, "propertyroom": PropertyRoom}
 
 
 def build_hunters(names: Optional[list] = None, env=None) -> list:

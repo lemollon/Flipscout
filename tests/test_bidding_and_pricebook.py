@@ -358,9 +358,11 @@ def test_outerwear_lookalikes_rejected(title):
 
 
 def test_named_shell_beats_the_generic_arcteryx_floor():
-    """A Beta AR is $325; an unspecified Arc'teryx is $70. Getting this backwards
-    would underprice the only listing worth real money."""
-    assert BY_KEY["arcteryx_shell"].comp > 4 * BY_KEY["arcteryx_generic"].comp / 1.1
+    """A named GoreTex shell is worth multiples of an unspecified Arc'teryx
+    ($250.52 vs $70 as measured). Asserting the RELATIONSHIP, not a specific
+    ratio - the first version pinned 4x off an n=4 comp and broke the moment that
+    comp was measured properly on n=60."""
+    assert BY_KEY["arcteryx_shell"].comp > 2 * BY_KEY["arcteryx_generic"].comp
     assert BY_KEY["arcteryx_shell"].specificity > BY_KEY["arcteryx_generic"].specificity
 
 
@@ -448,7 +450,7 @@ def test_video_game_comps_do_not_use_the_used_filter():
     """eBay's Used filter doesn't apply to video games (separate taxonomy), and
     with it on, "pokemon emerald" returned ONE sold listing - so the comp link
     would show an empty search."""
-    for k in ("pkmn_emerald", "pkmn_crystal", "pkmn_rby", "pkmn_gold_silver"):
+    for k in ("pkmn_emerald", "pkmn_crystal", "pkmn_rby"):
         assert BY_KEY[k].comp_used_only is False, k
     # electronics/apparel DO respond to it, so they keep it
     assert BY_KEY["ti84ce"].comp_used_only is True
@@ -465,7 +467,7 @@ def test_pokemon_comps_are_the_loose_price_not_the_boxed_one():
 
 def test_unverified_comps_are_flagged_as_estimates():
     """sample=0 makes the alert print 'estimate, not measured'."""
-    for k in ("pkmn_firered_leafgreen", "pkmn_ruby_sapphire", "pkmn_rby", "pkmn_gold_silver"):
+    for k in ("pkmn_firered_leafgreen", "pkmn_ruby_sapphire", "pkmn_rby"):
         assert BY_KEY[k].sample == 0, k
 
 
@@ -609,3 +611,40 @@ def test_poshmark_rows_price_through_the_book():
     got = hunt.evaluate(rows, CFG, hunters=[])
     keys = {c["model"].key for c in got}
     assert "arcteryx_shell" in keys           # $150 vs a $325 comp
+
+
+def test_unprofitable_models_are_removed_not_kept_at_zero():
+    """Pokemon Gold/Silver comped at $38.99 -> a $0.00 max buy. A model that can
+    never clear the bar only generates work; it was dropped rather than left in
+    the book pretending to be a candidate."""
+    from flipscout.pricebook import BY_KEY
+    assert "pkmn_gold_silver" not in BY_KEY
+    from flipscout.bidding import advise
+    for m in __import__("flipscout.pricebook", fromlist=["MODELS"]).MODELS:
+        a = advise(m.comp, outbound_shipping=m.outbound_shipping,
+                   target_profit=20.0, inbound_shipping=9.0, current_price=1)
+        assert a.max_bid > 0, f"{m.key} can never profit and should be removed"
+
+
+# --- PropertyRoom -----------------------------------------------------------
+
+PR_HTML = '''<div class="col-products ListingContainer" lid="18851774">
+ <img src="https://content.propertyroom.com/x/y.jpeg" alt="Apple Ipod Classic 160GB" />
+ <div class="product-name-category"><a href="/l/apple-ipod-classic-160gb/18851774">Apple Ipod Classic 160GB</a></div>
+ <div class="time-bids-category">$80.00 3 bids 1d 16h</div></div>'''
+
+
+def test_propertyroom_parses_a_listing():
+    from flipscout.hunters import PropertyRoom
+    rows = PropertyRoom.parse(PR_HTML)
+    assert len(rows) == 1
+    r = rows[0]
+    assert r["id"] == "18851774" and r["price"] == 80.0 and r["bids"] == 3
+    assert r["url"].endswith("/l/apple-ipod-classic-160gb/18851774")
+    assert r["source"] == "propertyroom"
+
+
+def test_propertyroom_is_fail_soft():
+    from flipscout.hunters import PropertyRoom
+    assert PropertyRoom.parse("<html>nothing</html>") == []
+    assert PropertyRoom.parse("") == []

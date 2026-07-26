@@ -248,17 +248,6 @@ MODELS: list[Model] = [
         specificity=40,
         note="Save battery is usually dead - it does not stop a sale but mention it.",
     ),
-    Model(
-        key="pkmn_gold_silver",
-        label="Pokemon Gold / Silver (GBC)",
-        comp=38.99, measured="2026-07-25", sample=0, comp_used_only=False,
-        include=r"pokemon\s*(gold|silver)\b",
-        exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
-                r"box only|manual only|for parts|parts only",
-        outbound_shipping=5.00, category="pokemon", comp_query="pokemon gold gameboy color",
-        specificity=40,
-        note="Save battery is usually dead - it does not stop a sale but mention it.",
-    ),
 
     # === MY PICKS, chosen to exploit the CHANNEL rather than a fandom ==========
     # HiBid aggregates estate, industrial and government surplus. So the best
@@ -282,12 +271,11 @@ MODELS: list[Model] = [
     Model(
         key="fluke_17x",
         label="Fluke 175/177/179 multimeter",
-        comp=323.62, measured="2026-07-25", sample=2,
+        comp=169.99, measured="2026-07-26", sample=54,
         include=r"fluke\s*17[579]",
         exclude=r"\bprobe|leads only|holster|test lead|fish|anchor",
         outbound_shipping=9.00, category="test-gear", comp_query="fluke 179 multimeter",
         specificity=50,
-        note="n=2 - ESTIMATE, re-measure before leaning on it.",
     ),
     Model(
         key="fluke_clamp",
@@ -405,7 +393,7 @@ MODELS: list[Model] = [
     Model(
         key="arcteryx_shell",
         label="Arc'teryx GoreTex shell (Beta/Alpha)",
-        comp=325.00, measured="2026-07-25", sample=4,
+        comp=250.52, measured="2026-07-26", sample=60,
         include=r"arc'?\s*teryx.{0,40}(beta|alpha)\s*(sv|ar|fl|lt)?|"
                 r"arc'?\s*teryx.{0,30}gore[\s-]*tex",
         exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|\bcap\b|glove|"
@@ -416,12 +404,11 @@ MODELS: list[Model] = [
     Model(
         key="arcteryx_atom",
         label="Arc'teryx Atom (insulated)",
-        comp=140.80, measured="2026-07-25", sample=1,
+        comp=183.98, measured="2026-07-26", sample=60,
         include=r"arc'?\s*teryx.{0,30}atom",
         exclude=r"\bkids?\b|toddler|baby|youth|\bdog\b|\bhat\b|glove|\bshirt\b|beanie",
         outbound_shipping=9.00, category="outerwear", specificity=60,
         comp_query="arcteryx atom jacket",
-        note="n=1 - ESTIMATE ONLY. Verify with `flipscout comp` before trusting.",
     ),
     Model(
         key="arcteryx_fleece",
