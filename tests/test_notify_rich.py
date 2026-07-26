@@ -110,3 +110,21 @@ def test_failure_message_includes_the_discord_response_body(capsys):
     assert notify_rich([CAND], env={"FLIPSCOUT_ALERT_WEBHOOK": "http://x"}, session=Boom()) == []
     out = capsys.readouterr().out
     assert "Unknown Webhook" in out and "HTTP 404" in out
+
+
+def test_photo_is_full_width_by_default(monkeypatch):
+    """Condition is most of the buy decision and can't be judged from an 80px
+    corner crop."""
+    from flipscout.notify import build_embed
+    monkeypatch.delenv("FLIPSCOUT_SMALL_IMAGES", raising=False)
+    e = build_embed(CAND)
+    assert e["image"]["url"] == CAND["image"]
+    assert "thumbnail" not in e
+
+
+def test_small_images_can_be_opted_into(monkeypatch):
+    from flipscout.notify import build_embed
+    monkeypatch.setenv("FLIPSCOUT_SMALL_IMAGES", "1")
+    e = build_embed(CAND)
+    assert e["thumbnail"]["url"] == CAND["image"]
+    assert "image" not in e

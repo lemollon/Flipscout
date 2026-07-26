@@ -100,7 +100,13 @@ def build_embed(c: dict) -> dict:
     if c.get("url"):
         embed["url"] = c["url"]
     if c.get("image"):
-        embed["thumbnail"] = {"url": c["image"]}
+        # `image` renders full-width, `thumbnail` renders small in the corner.
+        # Condition is most of the buy decision here (paint-spattered tools,
+        # scratched screens, what's actually in a lot), and you can't judge that
+        # from a 80px corner crop. Set FLIPSCOUT_SMALL_IMAGES=1 for the compact
+        # layout when a batch of 10 gets too tall to scroll.
+        key = "thumbnail" if os.environ.get("FLIPSCOUT_SMALL_IMAGES") else "image"
+        embed[key] = {"url": c["image"]}
     return embed
 
 
