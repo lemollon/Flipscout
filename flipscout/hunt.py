@@ -45,6 +45,9 @@ def load_config(env=None) -> dict:
         # nearly final. Only Goodwill exposes a listing date at all.
         "max_age_hours": (float(env["FLIPSCOUT_MAX_AGE_HOURS"])
                           if env.get("FLIPSCOUT_MAX_AGE_HOURS") else None),
+        # Quiet is the NORMAL state - most runs find nothing new - but silence
+        # reads as breakage. Once a day, say so out loud even with zero finds.
+        "heartbeat_file": env.get("FLIPSCOUT_HEARTBEAT_FILE", "flipscout_heartbeat.json"),
         "state_file": env.get("FLIPSCOUT_STATE_FILE", "flipscout_seen.json"),
     }
 
@@ -63,6 +66,24 @@ def _save_seen(path: str, seen: set) -> None:
             json.dump(list(seen)[-5000:], f)
     except Exception as e:
         print(f"[hunt] couldn't save seen-cache: {e}")
+
+
+def _due_for_heartbeat(path: str, today: Optional[str] = None) -> bool:
+    """True at most once per calendar day."""
+    today = today or _dt.date.today().isoformat()
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f).get("last") != today
+    except Exception:
+        return True
+
+
+def _mark_heartbeat(path: str, today: Optional[str] = None) -> None:
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump({"last": today or _dt.date.today().isoformat()}, f)
+    except Exception as e:
+        print(f"[hunt] couldn't save heartbeat: {e}")
 
 
 def sweep(config: dict, hunters=None) -> list[dict]:
@@ -238,6 +259,14 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
         return {"scanned": 0, "priced": 0, "new": 0, "sent": [], "blocked": True}
 
     if not fresh:
+        if _due_for_heartbeat(config["heartbeat_file"]):
+            notifier([], content=(
+                f"**Flipscout daily check-in** - still running, nothing new right now.\n"
+                f"Swept **{len(rows):,}** listings across {len(config['sources'])} sources; "
+                f"**{len(cands)}** currently clear your ${config['target_profit']:.0f} bar, "
+                f"and you've already been sent all of them.\n"
+                f"_Quiet is normal - only a few genuinely new items qualify per day._"))
+            _mark_heartbeat(config["heartbeat_file"])
         return {"scanned": len(rows), "priced": len(cands), "new": 0, "sent": []}
 
     alerts = [to_alert(c) for c in fresh]

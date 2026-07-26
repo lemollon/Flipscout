@@ -517,3 +517,33 @@ def test_alert_shows_how_fresh_the_listing_is():
     fresh = (dt.datetime.now() - dt.timedelta(hours=3)).isoformat()[:19]
     c = hunt.evaluate([{**CE_ROW, "listed": fresh}], CFG, hunters=[FakeHunter([])])[0]
     assert "Listed 3h ago" in hunt.to_alert(c)["reason"]
+
+
+# --- daily heartbeat: prove quiet != broken ---------------------------------
+
+def test_heartbeat_fires_once_per_day(tmp_path):
+    f = str(tmp_path / "hb.json")
+    assert hunt._due_for_heartbeat(f, "2026-07-26") is True   # never sent
+    hunt._mark_heartbeat(f, "2026-07-26")
+    assert hunt._due_for_heartbeat(f, "2026-07-26") is False  # already today
+    assert hunt._due_for_heartbeat(f, "2026-07-27") is True   # new day
+
+
+def test_zero_new_still_checks_in_once_a_day(tmp_path, monkeypatch):
+    """Three separate rounds of 'it stopped sending me deals' were all healthy
+    runs with nothing new. Silence has to announce itself."""
+    posts = []
+    cfg = {**CFG, "heartbeat_file": str(tmp_path / "hb.json")}
+    monkeypatch.setattr(hunt, "_load_seen", lambda p: {"goodwill:1"})   # already sent
+    monkeypatch.setattr(hunt, "_save_seen", lambda *a: None)
+
+    def notifier(alerts, content="", **k):
+        posts.append(content)
+        return ["webhook"]
+
+    hunt.run(cfg, hunters=[FakeHunter([CE_ROW])], notifier=notifier)
+    assert len(posts) == 1 and "daily check-in" in posts[0]
+    assert "Quiet is normal" in posts[0]
+
+    hunt.run(cfg, hunters=[FakeHunter([CE_ROW])], notifier=notifier)
+    assert len(posts) == 1          # not twice in one day
