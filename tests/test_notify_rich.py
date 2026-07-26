@@ -30,7 +30,7 @@ CAND = {
 def test_embed_carries_link_and_image():
     e = build_embed(CAND)
     assert e["url"] == CAND["url"]
-    assert e["thumbnail"]["url"] == CAND["image"]
+    assert e["image"]["url"] == CAND["image"]
     assert e["color"] == VERDICT_COLORS["pass"]
 
 
