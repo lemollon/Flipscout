@@ -184,8 +184,14 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     cands = evaluate(rows, config, hunters=hunters)
 
     seen = _load_seen(config["state_file"])
+    all_keys = {f"{c['row']['source']}:{c['row']['id']}" for c in cands}
+    unseen = all_keys - seen
     fresh = [c for c in cands
              if f"{c['row']['source']}:{c['row']['id']}" not in seen][: config["top"]]
+    # Is the queue genuinely refilling, or are we just draining a backlog? This is
+    # the difference between "new opportunities daily" and "one pool, dripped out".
+    print(f"[hunt] already-alerted: {len(seen)} | qualifying now: {len(all_keys)} | "
+          f"never-alerted: {len(unseen)} | releasing: {min(len(unseen), config['top'])}")
 
     print(f"[hunt] {len(rows)} listings across {len(config['sources'])} source(s); "
           f"{len(cands)} priced; {len(fresh)} new.")
