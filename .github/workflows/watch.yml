@@ -73,4 +73,15 @@ jobs:
           FLIPSCOUT_INBOUND_SHIP: ${{ vars.FLIPSCOUT_INBOUND_SHIP || '9' }}
           FLIPSCOUT_TOP: ${{ vars.FLIPSCOUT_TOP || '10' }}
           FLIPSCOUT_STATE_FILE: flipscout_seen.json
+          # Anything NOT listed here is invisible to the run, however carefully
+          # you set it with `gh variable set`. FLIPSCOUT_ZIP, RADIUS_MILES and
+          # ESTATE_AREA were all set on the repo and silently did nothing - the
+          # run looked healthy while HiBid searched nationally only and the
+          # estate digest never fired. FLIPSCOUT_CL_CITIES had the same hole and
+          # only worked because the code default is already houston.
+          FLIPSCOUT_CL_CITIES: ${{ vars.FLIPSCOUT_CL_CITIES || 'houston' }}
+          FLIPSCOUT_ZIP: ${{ vars.FLIPSCOUT_ZIP }}
+          FLIPSCOUT_RADIUS_MILES: ${{ vars.FLIPSCOUT_RADIUS_MILES }}
+          FLIPSCOUT_NELLIS_LOCATION: ${{ vars.FLIPSCOUT_NELLIS_LOCATION || 'houston' }}
+          FLIPSCOUT_ESTATE_AREA: ${{ vars.FLIPSCOUT_ESTATE_AREA }}
           FLIPSCOUT_HEARTBEAT_FILE: flipscout_heartbeat.json
