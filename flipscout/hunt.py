@@ -58,6 +58,8 @@ def load_config(env=None) -> dict:
         # reads as breakage. Once a day, say so out loud even with zero finds.
         "heartbeat_file": env.get("FLIPSCOUT_HEARTBEAT_FILE", "flipscout_heartbeat.json"),
         "state_file": env.get("FLIPSCOUT_STATE_FILE", "flipscout_seen.json"),
+        # Every qualifying item, published for the web app's deals board.
+        "board_file": env.get("FLIPSCOUT_BOARD_FILE", "docs/deals.json"),
     }
 
 
@@ -338,6 +340,15 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
                "or an API change, not an empty market - check the hunters.")
         print(msg)
         return {"scanned": 0, "priced": 0, "new": 0, "sent": [], "blocked": True}
+
+    # Publish EVERY qualifying item, not just the new ones. An alert is news;
+    # the board is inventory, and something you were told about an hour ago is
+    # still buyable. Deliberately after the blocked-check above, so a WAF block
+    # leaves the last good board in place instead of blanking it.
+    from . import board as _board
+    board_file = config.get("board_file")
+    if board_file and _board.write(cands, board_file):
+        print(f"[hunt] deals board: {len(cands)} item(s) -> {board_file}")
 
     # Independent of whether any deal qualified: the estate-sale calendar is
     # its own thing, and a quiet deal-day is exactly when it's most useful.

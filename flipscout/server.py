@@ -39,6 +39,8 @@ except ImportError as e:  # pragma: no cover
 from .comps import Comp, CompsProvider
 
 _WEB_DIR = Path(__file__).resolve().parent.parent / "web"
+# Where the hourly watcher publishes the qualifying items (see board.py).
+_BOARD_FILE = Path(__file__).resolve().parent.parent / "docs" / "deals.json"
 
 # Test seams: set these to fakes to bypass eBay / the screenshot scanner.
 _provider: Optional[CompsProvider] = None
@@ -105,6 +107,21 @@ def create_app() -> "FastAPI":
             "high": comp.high,
         }
 
+    @app.get("/api/board")
+    def board(nearby: bool = False, source: Optional[str] = None):
+        """The items that currently clear your bar, as found by the hourly
+        watcher. This is the one the deals page actually uses: no eBay
+        credentials, no query to type, real items with real max bids."""
+        from .board import load
+        data = load(os.environ.get("FLIPSCOUT_BOARD_FILE", str(_BOARD_FILE)))
+        items = data.get("items", [])
+        if nearby:
+            items = [i for i in items if i.get("nearby")]
+        if source:
+            want = {s.strip().lower() for s in source.split(",") if s.strip()}
+            items = [i for i in items if (i.get("source") or "").lower() in want]
+        return {**data, "count": len(items), "items": items}
+
     @app.get("/api/deals")
     def deals(q: str = Query(..., min_length=1, description="comma-separated searches"),
               min_profit: float = 15.0, min_roi: float = 0.5,
@@ -114,7 +131,8 @@ def create_app() -> "FastAPI":
         if not ebay_configured() and _provider is None:
             raise HTTPException(status_code=503, detail=(
                 "Live eBay lookups aren't set up. Set EBAY_CLIENT_ID and "
-                "EBAY_CLIENT_SECRET to scan for deals."))
+                "EBAY_CLIENT_SECRET to scan for deals. The deals board "
+                "(/api/board) needs none of that - use that instead."))
         from .analyzer import Thresholds
         from .scanner import scan
         from .sources import build_sources

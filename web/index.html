@@ -287,32 +287,20 @@
   <!-- ============ FIND DEALS (arbitrage scanner) ============ -->
   <section id="view-deals" role="tabpanel" aria-labelledby="tab-deals" class="hide">
     <div class="card">
-      <div class="field">
-        <label for="d-q">Searches <span class="hint">— comma-separated, e.g. dewalt dcd771, canon powershot</span></label>
-        <input type="text" id="d-q" placeholder="dewalt dcd771, sansui receiver" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Buy from</label>
-        <label style="display:inline-flex;align-items:center;gap:6px;margin-right:16px;font-weight:500;color:var(--text)"><input type="checkbox" id="d-src-ebay" checked> eBay</label>
-        <label style="display:inline-flex;align-items:center;gap:6px;font-weight:500;color:var(--text)"><input type="checkbox" id="d-src-goodwill"> ShopGoodwill</label>
-      </div>
-      <div class="grid">
-        <div class="field" style="margin-bottom:0">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-            <input type="checkbox" id="d-local"> Local pickup <span class="hint">(eBay only)</span>
-          </label>
+      <div class="row" style="justify-content:space-between;align-items:baseline">
+        <div>
+          <div style="font-weight:650">Buyable right now</div>
+          <div class="hint" id="d-generated">Loading the board…</div>
         </div>
-        <div class="field" style="margin-bottom:0">
-          <label for="d-zip">Your ZIP <span class="hint">(for local)</span></label>
-          <input type="text" id="d-zip" inputmode="numeric" placeholder="98101" autocomplete="off">
-        </div>
+        <button class="btn" id="d-go" type="button">Refresh</button>
       </div>
-      <div class="field">
-        <label for="d-days">Sells within <span class="hint">— hide slow movers (blank = any)</span></label>
-        <input class="num" type="number" id="d-days" inputmode="numeric" min="1" step="1" placeholder="30"> <span class="hint">days</span>
-      </div>
-      <div class="row">
-        <button class="btn primary" id="d-go" type="button">Scan for deals</button>
+      <div class="row" style="gap:16px;margin-top:10px">
+        <label style="display:inline-flex;align-items:center;gap:6px;font-weight:500;color:var(--text)">
+          <input type="checkbox" id="d-nearby"> Drivable only
+        </label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-weight:500;color:var(--text)">
+          <input type="checkbox" id="d-shippable"> Ships to me only
+        </label>
       </div>
       <div class="look-status" id="d-status"></div>
     </div>
@@ -523,52 +511,122 @@ function selectTab(which){
     $("#view-"+t).classList.toggle("hide", t!==which);
   });
 }
-TABS.forEach(t=> $("#tab-"+t).addEventListener("click", ()=>selectTab(t)));
+let _boardLoaded = false;
+TABS.forEach(t=> $("#tab-"+t).addEventListener("click", ()=>{
+  selectTab(t);
+  // Opening the tab IS the request - there's nothing to type any more.
+  if(t==="deals" && !_boardLoaded){ _boardLoaded = true; loadBoard(); }
+}));
 
-/* ---- find deals (arbitrage scanner via /api/deals) ---- */
-async function findDeals(){
-  const q = $("#d-q").value.trim();
+/* ---- the deals board ----------------------------------------------------
+   Real items that already cleared the bar, published hourly by the watcher
+   (docs/deals.json). No search to type and no eBay credentials: the old
+   scanner needed an API key we were never granted, so this tab could only
+   ever show an error. Falls back to the committed file when there's no
+   server, so it works as a plain static page too.                        */
+const esc = s => String(s??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ago = iso => {
+  if(!iso) return "";
+  const mins = Math.round((Date.now() - new Date(iso).getTime())/60000);
+  if(!isFinite(mins)) return "";
+  return mins < 2 ? "just now" : mins < 90 ? mins+" min ago"
+       : Math.round(mins/60)+"h ago";
+};
+
+async function loadBoard(){
   const box = $("#d-result"), st = $("#d-status"), btn = $("#d-go");
-  if(!q){ st.className="look-status err"; st.textContent="Enter at least one search."; return; }
-  btn.setAttribute("aria-busy","true"); box.innerHTML="";
-  st.className="look-status"; st.textContent="Scanning eBay for underpriced listings…";
+  btn.setAttribute("aria-busy","true");
+  st.className="look-status"; st.textContent="Loading what's buyable right now…";
   try{
     const base = (SET.apiBase||"").replace(/\/+$/,"");
-    const local = $("#d-local").checked, zip = $("#d-zip").value.trim();
-    const srcs = [];
-    if($("#d-src-ebay").checked) srcs.push("ebay");
-    if($("#d-src-goodwill").checked) srcs.push("goodwill");
-    const days = $("#d-days").value.trim();
-    const url = base + "/api/deals?q=" + encodeURIComponent(q)
-      + "&min_profit=" + SET.minProfit + "&min_roi=" + SET.minRoi
-      + "&sources=" + (srcs.join(",") || "ebay")
-      + (local ? "&local=true" : "") + (zip ? "&zip=" + encodeURIComponent(zip) : "")
-      + (days ? "&max_days=" + encodeURIComponent(days) : "");
-    const r = await fetch(url, {headers:{Accept:"application/json"}});
-    if(r.status===503){ const d=await r.json().catch(()=>({})); throw new Error(d.detail || "Deal scanning needs the eBay API set up on the server."); }
-    if(!r.ok){ throw new Error("Scan failed ("+r.status+")."); }
-    const deals = (await r.json()).deals || [];
-    if(!deals.length){ st.className="look-status"; st.textContent="No deals found — nothing priced below its sold value by your bar."; return; }
-    st.className="look-status ok"; st.textContent = `${deals.length} ${local?"local ":""}deal(s), best $/hour first:`;
-    box.innerHTML = deals.map(d=>{
+    let data = null;
+    try{
+      const r = await fetch(base + "/api/board", {headers:{Accept:"application/json"}});
+      if(r.ok) data = await r.json();
+    }catch(e){ /* no server - fall through to the static file */ }
+    if(!data){
+      const r2 = await fetch("docs/deals.json", {headers:{Accept:"application/json"}});
+      if(!r2.ok) throw new Error("No board published yet. Run the watcher once.");
+      data = await r2.json();
+    }
+
+    let items = data.items || [];
+    if($("#d-nearby").checked)    items = items.filter(i => i.nearby);
+    if($("#d-shippable").checked) items = items.filter(i => !i.pickup_only);
+    // Best headroom first: what you clear if you win at the current price.
+    items.sort((a,b) => (b.profit_at_open ?? -1e9) - (a.profit_at_open ?? -1e9));
+
+    $("#d-generated").textContent =
+      `${data.count||0} item(s) across ${(data.sources||[]).join(", ")||"—"}`
+      + (data.nearby_count ? ` · ${data.nearby_count} drivable` : "")
+      + (data.generated ? ` · updated ${ago(data.generated)}` : "");
+
+    if(!items.length){
+      st.className="look-status";
+      st.textContent = (data.count||0)
+        ? "Nothing matches those filters right now."
+        : "Nothing clears your bar right now. That's normal — the watcher checks hourly.";
+      box.innerHTML=""; return;
+    }
+    st.className="look-status ok";
+    st.textContent = `${items.length} item(s), biggest profit first:`;
+
+    box.innerHTML = items.map(d=>{
       const s = STYLE.BUY;
-      const link = d.url ? `<a href="${d.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">view →</a>` : "";
+      const fixed = d.listing_type === "fixed";
+      const now = fixed ? "Asking" : "Open at";
+      const cap  = fixed ? "Don't pay over" : "MAX bid";
+      const tags = [
+        `<span class="chip">${esc(d.source)}</span>`,
+        d.nearby ? `<span class="chip">📍 drivable</span>` : "",
+        d.pickup_only ? `<span class="chip">pickup only</span>` : "",
+        (d.bids!=null) ? `<span class="chip">${d.bids} bid${d.bids==1?"":"s"}</span>` : "",
+      ].join(" ");
+      const where = [d.house, d.where].filter(Boolean).join(" — ");
+      const warn = (d.warnings||[]).length
+        ? `<div class="hint" style="color:var(--warn,#b45309)">⚠ also contains: ${esc(d.warnings.join("; "))}</div>` : "";
+      const est = d.comp_sample ? `n=${d.comp_sample}, measured ${esc(d.comp_measured)}`
+                                : "⚠ estimate, not measured";
+      // onerror: some auction CDNs rate-limit hotlinked images. Collapse the
+      // slot rather than leaving a broken-image gap next to a real deal.
+      const img = d.image ? `<img src="${esc(d.image)}" alt="" loading="lazy"
+            onerror="this.style.display='none'"
+            style="width:96px;height:96px;object-fit:cover;border-radius:8px;flex:0 0 auto">` : "";
       return `<div class="result" style="--line:${s.line};--tint:${s.bg};--fg:${s.fg}">
-        <div class="head">
-          <div><div style="font-weight:650;font-size:.9rem">${(d.title||"").slice(0,56)} <span class="chip">${d.source}</span></div>
-            <div class="hint" style="font-size:.78rem">${$money(d.profit)} profit · ROI ${$pct(d.roi)}${d.days_to_sell!=null?" · ~"+Math.round(d.days_to_sell)+"d to sell":""} · buy ${$money(d.buy_price)} → sell ${$money(d.sold_price)} · ${link}</div></div>
-          <div class="big"><span class="n">$${Math.round(d.per_hour)}</span><span class="k">per hour</span></div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          ${img}
+          <div style="min-width:0;flex:1">
+            <div style="font-weight:650;font-size:.9rem">${esc((d.title||"").slice(0,90))}</div>
+            <div class="hint" style="font-size:.78rem;margin:2px 0 6px">${tags}</div>
+            <div class="hint" style="font-size:.8rem">
+              <b>${esc(d.model)}</b>${d.units>1?" ×"+d.units:""} ·
+              comps ${$money(d.comp)} (${est}) · nets ${$money(d.net_resale)} after fees
+            </div>
+            ${where ? `<div class="hint" style="font-size:.78rem">${esc(where)}</div>` : ""}
+            ${warn}
+            <div style="margin-top:8px;display:flex;gap:14px;flex-wrap:wrap;align-items:baseline">
+              <div><span class="hint">${now}</span> <b>${$money(d.open_bid)}</b>
+                ${d.profit_at_open!=null?`<span class="hint">→ clear ${$money(d.profit_at_open)}</span>`:""}</div>
+              <div><span class="hint">${cap}</span> <b>${$money(d.max_bid)}</b></div>
+              ${d.ends?`<div class="hint">ends ${esc(d.ends)}</div>`:""}
+            </div>
+            <div style="margin-top:6px;display:flex;gap:14px">
+              <a href="${esc(d.url)}" target="_blank" rel="noopener"
+                 style="color:var(--accent);text-decoration:none;font-weight:600">Buy it here →</a>
+              <a href="${esc(d.comps_url)}" target="_blank" rel="noopener"
+                 style="color:var(--accent);text-decoration:none">What it sold for →</a>
+            </div>
+          </div>
         </div></div>`;
     }).join("");
   }catch(err){
     st.className="look-status err";
-    st.textContent = (err && err.name==="TypeError")
-      ? "Can't reach the Flipscout server. Deal scanning needs the hosted/local server running."
-      : (err.message || "Scan failed.");
+    st.textContent = err.message || "Couldn't load the board.";
   }finally{ btn.removeAttribute("aria-busy"); }
 }
-$("#d-go").addEventListener("click", findDeals);
-$("#d-q").addEventListener("keydown", e=>{ if(e.key==="Enter") findDeals(); });
+$("#d-go").addEventListener("click", loadBoard);
+$("#d-nearby").addEventListener("change", loadBoard);
+$("#d-shippable").addEventListener("change", loadBoard);
 
 /* ---- settings ---- */
 const SET_FIELDS = [["set-fvf","fvf",100],["set-order","perOrder",1],["set-promo","promoted",100],
