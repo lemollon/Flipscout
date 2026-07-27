@@ -94,6 +94,49 @@ def write(cands: list, path: str, now: Optional[_dt.datetime] = None) -> Optiona
         return None
 
 
+def digest(board_data: dict, top: int = 5) -> str:
+    """The board as one Discord message.
+
+    The daily check-in used to say "nothing new right now - you've already been
+    sent all of them", which is actively misleading when 164 items are sitting
+    there buyable. Discord should say what's ON the board, not just what changed
+    since yesterday.
+    """
+    items = board_data.get("items") or []
+    if not items:
+        return ""
+    best = sorted(items, key=lambda i: (i.get("profit_at_open") or -1e9),
+                  reverse=True)[:top]
+    near = board_data.get("nearby_count") or 0
+    lines = [f"**Flipscout board** - {len(items)} item(s) buyable right now"
+             + (f", {near} drivable" if near else "")
+             + f" across {', '.join(board_data.get('sources') or []) or '-'}",
+             "_Nothing NEW since the last alert - this is everything currently "
+             "clearing your bar._", ""]
+    for i in best:
+        fixed = i.get("listing_type") == "fixed"
+        now_label = "Asking" if fixed else "Open"
+        cap_label = "don't pay over" if fixed else "max bid"
+        tags = []
+        if i.get("nearby"):
+            tags.append(":round_pushpin: drivable")
+        if i.get("pickup_only"):
+            tags.append("pickup only")
+        where = " - ".join(x for x in (i.get("house"), i.get("where")) if x)
+        lines.append(
+            f"**[{(i.get('title') or '')[:70]}]({i.get('url')})** "
+            f"({i.get('source')}{', ' + ', '.join(tags) if tags else ''})")
+        profit = i.get("profit_at_open")
+        lines.append(
+            f"   {i.get('model')} - {now_label} ${i.get('open_bid'):,.2f}"
+            + (f" -> clear **${profit:,.2f}**" if profit is not None else "")
+            + f", {cap_label} **${i.get('max_bid'):,.2f}**"
+            + (f"  _{where}_" if where else ""))
+    if len(items) > top:
+        lines.append(f"\n_...and {len(items) - top} more on the board._")
+    return "\n".join(lines)[:1900]
+
+
 def load(path: str) -> dict:
     """Read a published board. Returns an empty board when there isn't one."""
     try:

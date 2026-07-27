@@ -359,12 +359,16 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
 
     if not fresh:
         if _due_for_heartbeat(config["heartbeat_file"]):
-            notifier([], content=(
+            # Post what's ON the board, not just "nothing changed". Saying
+            # "nothing new right now" while 164 items sit there buyable is how
+            # a working watcher reads as a dead one.
+            body = _board.digest(_board.build(cands))
+            notifier([], content=(body or (
                 f"**Flipscout daily check-in** - still running, nothing new right now.\n"
-                f"Swept **{len(rows):,}** listings across {len(config['sources'])} sources; "
-                f"**{len(cands)}** currently clear your ${config['target_profit']:.0f} bar, "
-                f"and you've already been sent all of them.\n"
-                f"_Quiet is normal - only a few genuinely new items qualify per day._"))
+                f"Swept **{len(rows):,}** listings across {len(config['sources'])} "
+                f"sources; nothing currently clears your "
+                f"${config['target_profit']:.0f} bar.\n"
+                f"_Quiet is normal._")))
             _mark_heartbeat(config["heartbeat_file"])
         return {"scanned": len(rows), "priced": len(cands), "new": 0, "sent": []}
 
