@@ -10,6 +10,25 @@ Reachability was measured 2026-07-25, because it decides the whole architecture:
     GovDeals      SPA           shell only    results are XHR; endpoint TBD
     PublicSurplus SPA           shell only    same
 
+Second sweep 2026-07-27, hunting estate sales and auction houses near 77441:
+
+    Nellis        Remix loader  OK headless   ADDED - Katy + SW Houston pickup
+    HiBid geo     GraphQL       OK headless   ADDED - zip+miles, 50k lots <60mi
+    EstateSales   ld+json       OK headless   ADDED - see estates.py (no prices)
+    PublicSurplus form          DECOY         `keyword=` is IGNORED on browse/
+                                              home - "fluke", "calculator" and
+                                              "texas instruments" all return the
+                                              SAME featured lots. Real search is
+                                              XHR. Nearly shipped as a source.
+    Proxibid      --            403 WAF       browser tier
+    MaxSold       --            403 WAF       browser tier
+    CTBids        SPA           token-walled  api.ctbids.com/services wants a
+                                              Bearer; browsing is anonymous in
+                                              the app, so a mint endpoint exists
+    AuctionNinja  PHP           no results    search_mid.php returns 0 bytes
+    AuctionZip    JS-built      shell only    results eval'd client-side
+    estatesales.org             shell only    825KB, no ld+json, no sale links
+
 The blocked ones aren't gone, they're just a different tier: `flipscout comp`
 drives them through your own browser. Everything here runs unattended.
 
@@ -141,9 +160,11 @@ _HIBID_HEADERS = {
 # price on, so a schema change breaks loudly instead of silently.
 _HIBID_QUERY = """
 query LotSearch($searchText: String, $pageNumber: Int!, $pageLength: Int!,
-                $status: AuctionLotStatus, $sortOrder: EventItemSortOrder) {
+                $status: AuctionLotStatus, $sortOrder: EventItemSortOrder,
+                $zip: String, $miles: Int) {
   lotSearch(
-    input: {searchText: $searchText, status: $status, sortOrder: $sortOrder, countAsView: false}
+    input: {searchText: $searchText, status: $status, sortOrder: $sortOrder,
+            countAsView: false, zip: $zip, miles: $miles}
     pageNumber: $pageNumber
     pageLength: $pageLength
     sortDirection: DESC
@@ -156,9 +177,10 @@ query LotSearch($searchText: String, $pageNumber: Int!, $pageLength: Int!,
         lead
         lotNumber
         description
+        shippingOffered
         featuredPicture { thumbnailLocation fullSizeLocation }
         lotState { bidCount highBid minBid isClosed buyNow }
-        auction { id }
+        auction { id eventName auctioneer { name city state } }
       }
     }
   }
@@ -168,20 +190,47 @@ query LotSearch($searchText: String, $pageNumber: Int!, $pageLength: Int!,
 
 class HiBid:
     """Aggregates thousands of regional auction houses - far thinner competition
-    than eBay for the same goods. Caveat: many lots are LOCAL PICKUP ONLY, and
-    shipping (when offered) is set by the individual auctioneer, so treat
-    inbound cost as unknown until you read the lot terms."""
+    than eBay for the same goods.
+
+    Runs TWO passes per term and merges them:
+
+      * a NATIONAL pass, which is what this hunter always did, and
+      * a LOCAL pass filtered to `zip` + `miles`, which is where the estate,
+        farm and industrial houses around your own town show up.
+
+    The local pass is the point. Measured 2026-07-27 from 77441 (Fulshear TX):
+    "fluke" returned 67 lots nationally but 9 within 150 miles, and a generic
+    "tools" search returned **4,711 lots inside that radius** - hundreds of
+    regional auction houses that never surface in a national sort. Those lots
+    are drivable, which means inbound shipping is $0 rather than ~$9, and that
+    $9 is exactly what kills thin margins (see the structural floor in the
+    project notes).
+
+    Geo fields were found by probing the input type - `zip` (String) and
+    `miles` (Int) are accepted, while zipCode/postalCode/radius/distance/
+    latitude are all rejected as unknown fields, so don't "fix" the names.
+
+    `shippingOffered` replaces the blanket pickup guess this used to make: the
+    old code flagged EVERY HiBid lot as maybe-pickup-only, which trained you to
+    ignore the warning. Now it only fires when the auctioneer really offers no
+    shipping.
+    """
 
     name = "hibid"
 
-    def __init__(self, session: Optional[requests.Session] = None):
+    def __init__(self, session: Optional[requests.Session] = None,
+                 zip_code: Optional[str] = None, miles: Optional[int] = None):
         self.session = session or requests.Session()
+        self.zip_code = zip_code or None
+        self.miles = int(miles) if miles else None
 
-    def search(self, query: str, limit: int = 50) -> list[dict]:
+    def _query(self, query: str, limit: int, zip_code: Optional[str],
+               miles: Optional[int]) -> list[dict]:
         payload = {
             "operationName": "LotSearch", "query": _HIBID_QUERY,
             "variables": {"searchText": query, "pageNumber": 1, "pageLength": limit,
-                          "status": "OPEN", "sortOrder": "NO_ORDER"},
+                          "status": "OPEN", "sortOrder": "NO_ORDER",
+                          "zip": zip_code, "miles": miles},
         }
         try:
             r = self.session.post(_HIBID_GQL, json=payload, headers=_HIBID_HEADERS,
@@ -190,32 +239,61 @@ class HiBid:
             d = r.json() or {}
             if d.get("errors"):
                 return []
-            res = ((((d.get("data") or {}).get("lotSearch") or {})
-                    .get("pagedResults") or {}).get("results")) or []
+            return ((((d.get("data") or {}).get("lotSearch") or {})
+                     .get("pagedResults") or {}).get("results")) or []
         except Exception:
             return []
-        out = []
-        for L in res:
-            st = L.get("lotState") or {}
-            if st.get("isClosed"):
-                continue
-            pic = L.get("featuredPicture") or {}
-            lot_id = L.get("id")
-            out.append({
-                "source": self.name, "id": str(lot_id),
-                "title": (L.get("lead") or "").strip(),
-                "url": f"https://hibid.com/lot/{lot_id}",
-                "price": float(st.get("highBid") or 0),
-                "min_bid": float(st.get("minBid") or 0) or None,
-                "increment": 1.0,
-                "bids": st.get("bidCount"),
-                "handling": None,          # auctioneer-set; unknown from search
-                "image": pic.get("fullSizeLocation") or pic.get("thumbnailLocation") or "",
-                "ends": "",
-                "description": (L.get("description") or "")[:400],
-                "pickup_risk": True,       # many HiBid lots are pickup-only
-            })
-        return out
+
+    @staticmethod
+    def _row(L: dict, nearby: bool) -> Optional[dict]:
+        st = L.get("lotState") or {}
+        if st.get("isClosed"):
+            return None
+        pic = L.get("featuredPicture") or {}
+        auc = L.get("auction") or {}
+        house = auc.get("auctioneer") or {}
+        lot_id = L.get("id")
+        ships = L.get("shippingOffered")
+        return {
+            "source": "hibid", "id": str(lot_id),
+            "title": (L.get("lead") or "").strip(),
+            "url": f"https://hibid.com/lot/{lot_id}",
+            "price": float(st.get("highBid") or 0),
+            "min_bid": float(st.get("minBid") or 0) or None,
+            "increment": 1.0,
+            "bids": st.get("bidCount"),
+            "handling": None,          # auctioneer-set; unknown from search
+            "image": pic.get("fullSizeLocation") or pic.get("thumbnailLocation") or "",
+            "ends": "",
+            "description": (L.get("description") or "")[:400],
+            # Who and where, so an alert can tell you whether it's a drive or a
+            # gamble. HiBid's `city` comes through lowercased ("houston").
+            "house": (house.get("name") or "").strip(),
+            "city": (house.get("city") or "").strip().title(),
+            "state": (house.get("state") or "").strip().upper(),
+            "event": (auc.get("eventName") or "").strip(),
+            "ships": bool(ships) if ships is not None else None,
+            # Within driving range -> you collect it, so no inbound shipping.
+            "local": nearby,
+            "nearby": nearby,
+            # Only a real warning now, not a blanket one.
+            "pickup_risk": ships is False,
+        }
+
+    def search(self, query: str, limit: int = 50) -> list[dict]:
+        out: dict[str, dict] = {}
+        # Local first, so that when the same lot appears in both passes the row
+        # that survives is the one flagged `nearby` (dict insert order wins).
+        if self.zip_code and self.miles:
+            for L in self._query(query, limit, self.zip_code, self.miles):
+                row = self._row(L, nearby=True)
+                if row:
+                    out[row["id"]] = row
+        for L in self._query(query, limit, None, None):
+            row = self._row(L, nearby=False)
+            if row and row["id"] not in out:
+                out[row["id"]] = row
+        return list(out.values())
 
 
 # --- Craigslist -------------------------------------------------------------
@@ -523,6 +601,134 @@ class PropertyRoom:
             return []
 
 
+# --- Nellis Auction (local warehouses) --------------------------------------
+
+_NELLIS = "https://www.nellisauction.com"
+# From the site's own location picker (POST /change-shopping-location).
+NELLIS_LOCATIONS = {"las vegas": 1, "phoenix": 2, "houston": 5,
+                    "philadelphia": 6, "denver": 7, "dallas": 8}
+
+
+class NellisAuction:
+    """Retail-returns and overstock auctions run out of physical warehouses.
+
+    Why it earns a slot: it is genuinely LOCAL. With the location set to
+    Houston, lots sit in **Katy and SW Houston** - roughly 15-30 minutes from
+    Fulshear - so you collect them yourself and inbound shipping is $0. Bid
+    counts on measured samples ran 0-7 against Amazon retail prices, because
+    the bidder pool is whoever will drive to that warehouse.
+
+    Two things to be honest about:
+
+      * It is EVERYTHING-goods (returns pallets), not a metrology or retro-game
+        pool, so overlap with the price book is thin today and most of what it
+        returns will be filtered out by the model guards. Measured 2026-07-27:
+        "fluke" returned boat anchors and fluted wall panels, "ti-84" returned a
+        calculator CASE. That is the ACCESSORY_EXCLUDE / brand-is-not-a-model
+        machinery doing its job, and it is the reason this source is safe to add
+        rather than a reason to skip it.
+      * Everything here is pickup-only, so a win you don't collect is a loss.
+
+    Transport: a Remix app. Appending `_data=routes/search` to the normal search
+    URL returns the loader's JSON directly - no HTML parsing, no browser. The
+    warehouse is chosen by a `__shopping-location` cookie, which is set by
+    POSTing `shoppingLocationId` to /change-shopping-location; without it every
+    result is Las Vegas.
+    """
+
+    name = "nellis"
+
+    def __init__(self, location: str = "houston",
+                 session: Optional[requests.Session] = None):
+        self.session = session or requests.Session()
+        self.location = (location or "houston").strip().lower()
+        self._located = False
+
+    def _set_location(self) -> None:
+        """Pin the session to a warehouse. Failure is not fatal - it just means
+        results come back for the default city, which the alert would then
+        mislabel as local, so on failure we mark it and stop claiming local."""
+        if self._located:
+            return
+        loc_id = NELLIS_LOCATIONS.get(self.location)
+        if not loc_id:
+            self._located = True
+            return
+        try:
+            self.session.post(f"{_NELLIS}/change-shopping-location",
+                              data={"shoppingLocationId": str(loc_id)},
+                              headers={"User-Agent": _UA,
+                                       "Content-Type": "application/x-www-form-urlencoded"},
+                              timeout=_TIMEOUT)
+        except Exception:
+            pass
+        self._located = True
+
+    @staticmethod
+    def parse(payload: dict, want_city: str = "") -> list[dict]:
+        products = (payload or {}).get("products") or []
+        # The loader echoes which warehouse it actually served. If the cookie
+        # didn't take we are looking at another state's inventory, and calling
+        # that "local pickup, $0 inbound" would be a lie that costs money.
+        served = ((payload or {}).get("currentShoppingLocation") or {}).get("name") or ""
+        is_local = (not want_city) or want_city.split(",")[0].strip().lower() in served.lower()
+        out = []
+        for p in products:
+            if p.get("isClosed") or p.get("marketStatus") not in (None, "open"):
+                continue
+            try:
+                price = float(p.get("currentPrice") or 0)
+            except (TypeError, ValueError):
+                continue
+            photos = p.get("photos") or []
+            img = ""
+            for ph in photos:
+                if isinstance(ph, dict) and ph.get("url"):
+                    img = ph["url"]
+                    break
+            close = p.get("closeTime")
+            if isinstance(close, dict):
+                close = close.get("value") or ""
+            loc = p.get("location")
+            if isinstance(loc, dict):
+                loc = loc.get("name") or ""
+            out.append({
+                "source": "nellis", "id": str(p.get("id") or ""),
+                "title": (p.get("title") or "").strip(),
+                "url": f"{_NELLIS}/p/{p.get('id')}",
+                "price": price,
+                # Nellis has no visible reserve: the next legal bid is $1 over.
+                "min_bid": price + 1.0,
+                "increment": 1.0,
+                "bids": p.get("bidCount"),
+                "handling": 0.0,
+                "image": img,
+                "ends": str(close)[:16],
+                "listing_type": "auction",
+                "local": is_local,
+                "nearby": is_local,
+                "pickup_risk": True,      # ALWAYS pickup - there is no shipping
+                "city": loc or "",
+                "house": f"Nellis Auction ({served})" if served else "Nellis Auction",
+                "retail": p.get("retailPrice"),
+            })
+        return out
+
+    def search(self, query: str, limit: int = 40) -> list[dict]:
+        from urllib.parse import quote_plus
+        self._set_location()
+        time.sleep(0.3)
+        try:
+            r = self.session.get(
+                f"{_NELLIS}/search?query={quote_plus(query)}&_data=routes%2Fsearch",
+                headers={"User-Agent": _UA, "Accept": "application/json"},
+                timeout=_TIMEOUT)
+            r.raise_for_status()
+            return self.parse(r.json(), want_city=self.location)[:limit]
+        except Exception:
+            return []
+
+
 # --- Shopify-backed used-gear shops -----------------------------------------
 
 
@@ -611,6 +817,7 @@ def _geartrade():
 
 HUNTERS = {"goodwill": ShopGoodwill, "hibid": HiBid, "craigslist": Craigslist,
            "poshmark": Poshmark, "propertyroom": PropertyRoom,
+           "nellis": NellisAuction,
            "outandback": _outandback, "geartrade": _geartrade}
 
 
@@ -618,6 +825,11 @@ def build_hunters(names: Optional[list] = None, env=None) -> list:
     import os
     env = env if env is not None else os.environ
     names = names or list(HUNTERS)
+    # Where you actually live. HiBid uses it to add a local pass, Nellis to pick
+    # a warehouse. Both fall back to national-only behaviour when it's unset,
+    # so an unconfigured install still works.
+    zip_code = (env.get("FLIPSCOUT_ZIP") or "").strip() or None
+    miles = (env.get("FLIPSCOUT_RADIUS_MILES") or "").strip() or None
     built = []
     for n in names:
         if n not in HUNTERS:
@@ -625,6 +837,11 @@ def build_hunters(names: Optional[list] = None, env=None) -> list:
         if n == "craigslist":
             cities = [c.strip() for c in env.get("FLIPSCOUT_CL_CITIES", "").split(",") if c.strip()]
             built.append(Craigslist(cities=cities or None))
+        elif n == "hibid":
+            built.append(HiBid(zip_code=zip_code, miles=miles))
+        elif n == "nellis":
+            built.append(NellisAuction(
+                location=env.get("FLIPSCOUT_NELLIS_LOCATION", "houston")))
         else:
             built.append(HUNTERS[n]())
     return built
