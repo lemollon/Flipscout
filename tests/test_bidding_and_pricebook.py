@@ -544,8 +544,11 @@ def test_zero_new_still_checks_in_once_a_day(tmp_path, monkeypatch):
         return ["webhook"]
 
     hunt.run(cfg, hunters=[FakeHunter([CE_ROW])], notifier=notifier)
-    assert len(posts) == 1 and "daily check-in" in posts[0]
-    assert "Quiet is normal" in posts[0]
+    assert len(posts) == 1
+    # It now reports what's ON the board rather than just "nothing new" - the
+    # old wording ("you've already been sent all of them") read as dead-air
+    # while items were sitting there buyable.
+    assert "buyable right now" in posts[0]
 
     hunt.run(cfg, hunters=[FakeHunter([CE_ROW])], notifier=notifier)
     assert len(posts) == 1          # not twice in one day

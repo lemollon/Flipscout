@@ -91,3 +91,57 @@ def test_a_block_does_not_blank_the_board(tmp_path, monkeypatch):
     out = hunt.run(cfg, hunters=[Dead()], notifier=lambda *a, **k: [])
     assert out["blocked"] is True
     assert board.load(str(p))["count"] == 1        # untouched
+
+
+# --- the daily Discord recap ------------------------------------------------
+
+def test_digest_says_what_is_on_the_board():
+    b = board.build([_cand(), _cand(nearby=True, source="goodwill")])
+    body = board.digest(b)
+    assert "2 item(s) buyable right now" in body
+    assert "1 drivable" in body
+    assert "max bid" in body
+    assert "http://x/1" in body          # clickable straight to the listing
+
+
+def test_digest_is_empty_when_the_board_is_empty():
+    assert board.digest(board.build([])) == ""
+
+
+def test_digest_fits_in_a_discord_message():
+    body = board.digest(board.build([_cand() for _ in range(200)]))
+    assert len(body) <= 1900
+
+
+def test_digest_words_fixed_price_rows_differently():
+    b = board.build([_cand(source="craigslist", listing_type="fixed", nearby=True)])
+    assert "Asking" in board.digest(b) and "don't pay over" in board.digest(b)
+
+
+def test_checkin_posts_the_board_instead_of_nothing_new(tmp_path):
+    """The old check-in said "you've already been sent all of them", which is
+    misleading when the board is full. It should list what's buyable."""
+    from flipscout import hunt
+    posted = []
+    cfg = dict(hunt.load_config({}),
+               board_file=str(tmp_path / "b.json"),
+               state_file=str(tmp_path / "seen.json"),
+               heartbeat_file=str(tmp_path / "hb.json"),
+               estate_area="")
+
+    class One:
+        name = "goodwill"
+
+        def search(self, q, limit=40):
+            return [{"source": "goodwill", "id": "1",
+                     "title": "Fluke 87V True RMS Multimeter", "url": "http://x/1",
+                     "price": 5.0, "min_bid": 6.0, "increment": 1.0, "bids": 0,
+                     "handling": 0.0, "image": "", "ends": ""}]
+
+    # First run alerts it; second finds nothing new -> the check-in fires.
+    hunt.run(cfg, hunters=[One()], notifier=lambda a, content="": posted.append(content) or ["webhook"])
+    posted.clear()
+    hunt.run(cfg, hunters=[One()], notifier=lambda a, content="": posted.append(content) or ["webhook"])
+    assert posted, "the daily check-in should still post"
+    assert "buyable right now" in posted[0]
+    assert "already been sent" not in posted[0]
