@@ -50,6 +50,10 @@ concurrency:                     # don't overlap runs
 jobs:
   watch:
     runs-on: ubuntu-latest
+    # Needed by the "Publish the deals board" step below - the default token is
+    # read-only, so without this the board commit fails at the push.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -84,4 +88,16 @@ jobs:
           FLIPSCOUT_RADIUS_MILES: ${{ vars.FLIPSCOUT_RADIUS_MILES }}
           FLIPSCOUT_NELLIS_LOCATION: ${{ vars.FLIPSCOUT_NELLIS_LOCATION || 'houston' }}
           FLIPSCOUT_ESTATE_AREA: ${{ vars.FLIPSCOUT_ESTATE_AREA }}
+          FLIPSCOUT_BOARD_FILE: docs/deals.json
+
+      # Publish the qualifying items so the web app's deals board shows real
+      # items instead of an empty scanner. Committing it (rather than caching)
+      # is what makes the board work with no server and no API keys.
+      - name: Publish the deals board
+        run: |
+          git config user.name  "flipscout-bot"
+          git config user.email "flipscout-bot@users.noreply.github.com"
+          git add docs/deals.json
+          git diff --cached --quiet || git commit -m "board: refresh deals [skip ci]"
+          git push
           FLIPSCOUT_HEARTBEAT_FILE: flipscout_heartbeat.json
