@@ -306,6 +306,14 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     # Print the DESTINATION every run. Delivery success has repeatedly meant
     # "Discord accepted it" while the alerts landed in a channel nobody watches.
     print(f"[hunt] alert destination: {describe_webhook(os.environ.get('FLIPSCOUT_ALERT_WEBHOOK'))}")
+    # Say the local config out loud. These come from repo VARIABLES, which the
+    # workflow has to map into env one by one - three of them were set and
+    # silently inert for a full run, and the log looked perfectly healthy.
+    print("[hunt] local config: "
+          + (f"zip {config['zip']} +{config['radius_miles']}mi"
+             if config.get("zip") and config.get("radius_miles")
+             else "NO ZIP SET - HiBid is searching nationally only")
+          + " | estates: " + (config.get("estate_area") or "OFF"))
     rows = sweep(config, hunters=hunters)
     cands = evaluate(rows, config, hunters=hunters)
 
