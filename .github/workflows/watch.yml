@@ -89,6 +89,7 @@ jobs:
           FLIPSCOUT_NELLIS_LOCATION: ${{ vars.FLIPSCOUT_NELLIS_LOCATION || 'houston' }}
           FLIPSCOUT_ESTATE_AREA: ${{ vars.FLIPSCOUT_ESTATE_AREA }}
           FLIPSCOUT_BOARD_FILE: docs/deals.json
+          FLIPSCOUT_HEARTBEAT_FILE: flipscout_heartbeat.json
 
       # Publish the qualifying items so the web app's deals board shows real
       # items instead of an empty scanner. Committing it (rather than caching)
@@ -100,4 +101,3 @@ jobs:
           git add docs/deals.json
           git diff --cached --quiet || git commit -m "board: refresh deals [skip ci]"
           git push
-          FLIPSCOUT_HEARTBEAT_FILE: flipscout_heartbeat.json
