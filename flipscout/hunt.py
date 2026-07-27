@@ -11,7 +11,11 @@ Pipeline, per run:
 Config (env):
     FLIPSCOUT_ALERT_WEBHOOK   Discord webhook
     FLIPSCOUT_SOURCES         goodwill,hibid,craigslist (default all three)
-    FLIPSCOUT_CL_CITIES       your craigslist metro(s) (default sfbay)
+    FLIPSCOUT_CL_CITIES       your craigslist metro(s) (default houston)
+    FLIPSCOUT_ZIP             your zip - adds HiBid's local pass  (e.g. 77441)
+    FLIPSCOUT_RADIUS_MILES    how far you'd drive               (e.g. 150)
+    FLIPSCOUT_NELLIS_LOCATION nellis warehouse city             (default houston)
+    FLIPSCOUT_ESTATE_AREA     estate-sale digest area  (e.g. TX/Fulshear/77441)
     FLIPSCOUT_TARGET_PROFIT   dollars per flip        (default 20)
     FLIPSCOUT_INBOUND_SHIP    est. shipping to you    (default 9)
     FLIPSCOUT_TOP             max alerts per run      (default 10)
@@ -35,7 +39,12 @@ from .pricebook import comp_search, match, search_terms
 def load_config(env=None) -> dict:
     env = env if env is not None else os.environ
     return {
-        "sources": [s.strip() for s in env.get("FLIPSCOUT_SOURCES", "goodwill,hibid,craigslist,poshmark,propertyroom,outandback,geartrade").split(",") if s.strip()],
+        "sources": [s.strip() for s in env.get("FLIPSCOUT_SOURCES", "goodwill,hibid,craigslist,poshmark,propertyroom,nellis,outandback,geartrade").split(",") if s.strip()],
+        # Where you live. Drives HiBid's local pass and labels alerts as drivable.
+        "zip": (env.get("FLIPSCOUT_ZIP") or "").strip(),
+        "radius_miles": (env.get("FLIPSCOUT_RADIUS_MILES") or "").strip(),
+        # Estate sales are a digest, not an alert - they carry no item prices.
+        "estate_area": (env.get("FLIPSCOUT_ESTATE_AREA") or "").strip(),
         "target_profit": float(env.get("FLIPSCOUT_TARGET_PROFIT", "20")),
         "inbound_shipping": float(env.get("FLIPSCOUT_INBOUND_SHIP", "9")),
         "top": int(env.get("FLIPSCOUT_TOP", "10")),
@@ -78,22 +87,52 @@ def _save_seen(path: str, seen: set) -> None:
         print(f"[hunt] couldn't save seen-cache: {e}")
 
 
-def _due_for_heartbeat(path: str, today: Optional[str] = None) -> bool:
-    """True at most once per calendar day."""
+def _due_for_heartbeat(path: str, today: Optional[str] = None,
+                       key: str = "last") -> bool:
+    """True at most once per calendar day, per key."""
     today = today or _dt.date.today().isoformat()
     try:
         with open(path, encoding="utf-8") as f:
-            return json.load(f).get("last") != today
+            return json.load(f).get(key) != today
     except Exception:
         return True
 
 
-def _mark_heartbeat(path: str, today: Optional[str] = None) -> None:
+def _mark_heartbeat(path: str, today: Optional[str] = None,
+                    key: str = "last") -> None:
+    state = {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            state = json.load(f) or {}
+    except Exception:
+        pass          # first run, or a corrupt file we're about to replace
+    state[key] = today or _dt.date.today().isoformat()
     try:
         with open(path, "w", encoding="utf-8") as f:
-            json.dump({"last": today or _dt.date.today().isoformat()}, f)
+            json.dump(state, f)
     except Exception as e:
         print(f"[hunt] couldn't save heartbeat: {e}")
+
+
+def post_estate_digest(config: dict, notifier, feed=None) -> bool:
+    """Once a day, list the estate sales and online estate auctions near you.
+
+    Kept separate from the deal alerts because these carry NO item prices (see
+    estates.py) - it's a "go look at these" list, not a max bid. Returns True
+    when something was posted."""
+    area = config.get("estate_area")
+    if not area or not _due_for_heartbeat(config["heartbeat_file"], key="estates"):
+        return False
+    from .estates import EstateSalesNet, digest
+    feed = feed if feed is not None else EstateSalesNet(area=area)
+    sales = feed.sales()
+    if not sales:
+        return False
+    body = digest(sales, area_label=area.split("/")[1] if "/" in area else area)
+    notifier([], content=body)
+    _mark_heartbeat(config["heartbeat_file"], key="estates")
+    print(f"[hunt] estate digest: {len(sales)} sale(s) near {area}.")
+    return True
 
 
 def sweep(config: dict, hunters=None) -> list[dict]:
@@ -218,8 +257,28 @@ def to_alert(c: dict) -> dict:
         bits.append(f"_Listed {age:.0f}h ago._" if age >= 1 else "_Just listed._")
     if m.dead_also_present:
         bits.append(":warning: also contains: " + "; ".join(m.dead_also_present))
+
+    # WHO is selling it and WHERE. On the local auction sources this is the
+    # difference between a 30-minute drive and an unknown, so say it plainly.
+    where = ", ".join(x for x in (row.get("city"), row.get("state")) if x)
+    if row.get("house"):
+        bits.append(f"_{row['house']}" + (f" - {where}_" if where else "_"))
+    elif where:
+        bits.append(f"_Located in {where}._")
+
+    if row.get("nearby") and row.get("source") != "craigslist":
+        bits.append(":round_pushpin: **Within driving range** - collect it "
+                    "yourself, so no inbound shipping (that's ~$9 of margin "
+                    "the shipped auctions lose).")
+    # Only warn when the auctioneer actually offers no shipping. This used to
+    # fire on EVERY HiBid lot, which is how a warning becomes wallpaper.
     if row.get("pickup_risk"):
-        bits.append(":warning: HiBid lot - may be **local pickup only**; check the terms.")
+        if row.get("source") == "nellis":
+            bits.append(":warning: Nellis is **pickup only** - you must collect "
+                        "it from the warehouse, or you've bought nothing.")
+        else:
+            bits.append(":warning: Auctioneer offers **no shipping** - local "
+                        "pickup only; check the lot terms.")
     if adv.note:
         bits.append(f"_{adv.note}_")
 
@@ -271,6 +330,13 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
                "or an API change, not an empty market - check the hunters.")
         print(msg)
         return {"scanned": 0, "priced": 0, "new": 0, "sent": [], "blocked": True}
+
+    # Independent of whether any deal qualified: the estate-sale calendar is
+    # its own thing, and a quiet deal-day is exactly when it's most useful.
+    try:
+        post_estate_digest(config, notifier)
+    except Exception as e:
+        print(f"[hunt] estate digest failed (non-fatal): {e}")
 
     if not fresh:
         if _due_for_heartbeat(config["heartbeat_file"]):

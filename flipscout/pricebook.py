@@ -53,7 +53,26 @@ ACCESSORY_EXCLUDE = (
     # by `dial_indicator` and then quietly matched the broader `starrett` model,
     # which priced a ~$15 bag of tips at $81.95.
     r"contact point|point set|\btips?\s*(set|kit|assortment)|"
-    r"attachment only|holder only|bezel only|crystal only"
+    r"attachment only|holder only|bezel only|crystal only|"
+    # MERCHANDISE that borrows a valuable product's name. The local liquidation
+    # sources added 2026-07-27 sell consumer goods by the pallet, so the book now
+    # meets far more of this than the thrift/auction sources ever produced.
+    # Caught live on the first sweep: "1pc Pokemon Crystal Ball Pikachu Gengar"
+    # matched `pokemon\s*crystal` and quoted a **$100.63 max bid on a plastic
+    # ball**, against a $145 loose-cartridge comp. Same family as the Zoom
+    # Winged Fluke fishing lure and the Prima strategy guide.
+    r"\bball\b|\btoys?\b|figurine|bobblehead|keyring|lanyard|\bmug\b|tumbler|"
+    r"t-?shirt|hoodie|blanket|pillow|puzzle|backpack|ornament|"
+    # ACCESSORIES SOLD FOR a device. "case only" already existed, but the
+    # retail-returns sources sell the accessory as the product, so the title
+    # reads like the device itself. Both of these priced as a $23.50 TI-84 CE
+    # on the first live local sweep:
+    #   "Hard Case Compatible with Texas Instruments TI-84 Plus CE"  (a ~$12 case)
+    #   "SCOVEE PS3 Charger Cable ... Compatible with TI-84 Plus CE" (a cable)
+    # "compatible with" is the tell: nobody describes the actual device that way.
+    r"compatible\s+with|\bfor\s+use\s+with\b|replacement\s+(cable|charger|battery)|"
+    r"charging\s+(cable|cord|dock|station)|\bcharger\b|usb\s+cable|"
+    r"screen\s+protector|(hard|soft|carrying|travel|storage)\s+case|\bsleeve\b"
 )
 
 
