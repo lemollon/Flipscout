@@ -704,6 +704,112 @@ MODELS: list[Model] = [
              "untested only $40-85, so bid the condition you're actually buying.",
     ),
 
+    # === Women's apparel (measured 2026-07-28) ================================
+    # Leron asked whether boutique dresses were being missed. Measured verdict:
+    # the GENERIC boutique dress fails - Free People / Anthropologie / Lilly
+    # Pulitzer sold medians are $39-41 on eBay (n=60 each), which nets ~$7 a
+    # flip after Goodwill's $11-15 + $9 inbound. What PASSES is the same shape
+    # as the outerwear book: specific lines with a tag readable in a photo,
+    # near-zero counterfeit risk, and an EMPTY buy side.
+    #
+    # Buy-side census 2026-07-28 across goodwill/hibid/nellis/craigslist/
+    # poshmark: Free People 98% zero-bid @ $11.49, St John 70% @ $14.95 (+20
+    # HiBid lots at $0), Gunne Sax 70% @ $20, Veronica Beard 51% @ $16, and
+    # Johnny Was is CROWDED on Goodwill (12% zero-bid) but WIDE OPEN on HiBid
+    # (78 lots, 68% zero-bid, 38 drivable from Fulshear - estate houses
+    # liquidate it). Farm Rio / LoveShackFancy already draw 6 bids median on
+    # Goodwill - the crowd found those; deliberately NOT in the book.
+    #
+    # Sell comps below are POSHMARK SOLDS (n=48/query) - eBay sign-walled its
+    # sold search mid-measurement; Poshmark is the native apparel channel and
+    # its sold prices print on the listing. Re-measure on eBay with
+    # `flipscout comp` before trusting a ceiling to the dollar.
+    #
+    # Shared risks (same as outerwear, priced into the floors): SIZE (an XS or
+    # XXL sits), stains/alterations that don't photograph, and slower turns
+    # than electronics.
+    Model(
+        key="gunne_sax",
+        label="Gunne Sax vintage dress",
+        comp=122.00, measured="2026-07-28", sample=48,
+        include=r"gunne\s+sax",
+        # comp is the DRESS median - a live Goodwill sweep surfaced a Gunne Sax
+        # CLUTCH and skirts under the same brand
+        exclude=r"\bgirls?\b|\bkids?\b|children|\bpattern\b|sewing|"
+                r"\bclutch\b|\bpurse\b|handbag|\bskirts?\b",
+        outbound_shipping=6.00, category="womens-apparel",
+        comp_query="gunne sax dress", specificity=60,
+        note="1970s-80s prairie/cottagecore revival: sold median $122, p75 $210, "
+             "peak $400 (Poshmark solds n=48). Nobody counterfeits it and the "
+             "label is unmistakable. Vintage sizing runs 2+ sizes small - "
+             "condition-check lace and zippers in photos.",
+    ),
+    Model(
+        key="veronica_beard",
+        label="Veronica Beard blazer/jacket",
+        comp=150.00, measured="2026-07-28", sample=48,
+        # Blazer-corroborated only: the $150 comp is the Dickey-jacket end,
+        # not VB tees. Same brand-is-not-a-model rule as Fluke.
+        include=r"veronica\s+beard.{0,40}(blazer|jacket|dickey)|"
+                r"(blazer|jacket|dickey).{0,40}veronica\s+beard",
+        exclude=r"\bkids?\b|\bdickey\s+only\b|insert only",
+        outbound_shipping=7.00, category="womens-apparel",
+        comp_query="veronica beard blazer", specificity=60,
+        note="Sold median $150, p75 $220 (Poshmark n=48). The removable dickey "
+             "being PRESENT adds value - look for it in the photos.",
+    ),
+    Model(
+        key="st_john_knit",
+        label="St. John knit jacket/suit",
+        comp=99.50, measured="2026-07-28", sample=48,
+        # Corroborating noun required: bare "St John" is also St John's Bay
+        # (JCPenney, ~$8) and Virgin-Islands souvenir shirts.
+        include=r"st\.?\s*john.{0,40}(knit|jacket|blazer|suit|santana|dress)|"
+                r"(knit|jacket|blazer|suit).{0,40}st\.?\s*john\b",
+        # \s* not \s+: a live listing wrote "St. JohnsBay" with no space and
+        # walked straight past the first version of this exclude. And the comp
+        # is knit JACKETS - pants/cardigans matched via bare "knit" and sell
+        # $40-60, so they're excluded rather than overbid.
+        exclude=r"st\.?\s*john'?s\s*bay|virgin\s+islands|\busvi\b|\bkids?\b|"
+                r"\bpants?\b|\bskirts?\b(?!\s*suit)|cardigan|\bsweater\b|"
+                r"\btops?\b|\bcami|\btank\b|\bshorts?\b",
+        outbound_shipping=7.00, category="womens-apparel",
+        comp_query="st john knit jacket", specificity=60,
+        note="Sold median $99.50, p75 $140, Santana-knit suits to $600 (Poshmark "
+             "n=48). THE estate-auction apparel brand - 20 HiBid lots sat at $0 "
+             "bids on census day. Check knit for pilling in photos.",
+    ),
+    Model(
+        key="johnny_was",
+        label="Johnny Was embroidered top/dress",
+        comp=65.00, measured="2026-07-28", sample=48,
+        include=r"johnny\s+was",
+        # comp is dresses/embroidered tops - the HiBid estate lots also carry
+        # JW shoes, leggings and the cheaper Pete & Greta subline
+        exclude=r"\bscarf\b|\bkids?\b|\bshoes?\b|sneaker|legging|\bsocks?\b|"
+                r"pete\s*&?\s*greta",
+        outbound_shipping=6.00, category="womens-apparel",
+        comp_query="johnny was dress", specificity=55,
+        note="Sold median $65, p75 $95 (Poshmark n=48). Goodwill is CROWDED for "
+             "this brand (12% zero-bid) - the play is HiBid estate lots, which "
+             "sat 68% zero-bid with 38 drivable on census day. Embroidery is "
+             "the tell; no counterfeit market.",
+    ),
+    Model(
+        key="reformation_dress",
+        label="Reformation dress",
+        comp=56.07, measured="2026-07-28", sample=60,
+        include=r"reformation.{0,40}(dress|midi|maxi|mini)|"
+                r"(dress|midi|maxi).{0,40}reformation",
+        exclude=r"\bkids?\b|church|\bbook\b",
+        outbound_shipping=6.00, category="womens-apparel",
+        comp_query="reformation dress", specificity=55,
+        note="eBay used solds n=60: median $56.07, p25-p75 $41-88. BORDERLINE "
+             "at the median (~$18/flip) - the real targets are silk and named "
+             "styles (Scottie $180, Rowe $120, silk maxi $220). 'Reformation' "
+             "on a church/book title is not the brand; excludes catch some.",
+    ),
+
     Model(
         key="tinspire_cx",
         label="TI-Nspire CX",
@@ -818,4 +924,8 @@ def search_terms() -> list[str]:
         "canon ae-1", "pentax k1000", "olympus stylus", "polaroid sx-70",
         "35mm film camera", "point and shoot camera",
         "sony handycam", "camcorder",
+        # women's apparel - the measured-empty channels (Johnny Was and St John
+        # specifically live in HiBid estate lots)
+        "gunne sax", "st john knit", "johnny was", "veronica beard",
+        "reformation dress", "womens dress lot",
     ]
