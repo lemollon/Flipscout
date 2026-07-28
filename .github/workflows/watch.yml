@@ -22,7 +22,14 @@ on:
   # If the runner's datacenter IP gets blocked, hunt.run() reports blocked=True
   # rather than silently reporting "no deals" - watch the log line.
   schedule:
+    # TWO entries on purpose: GitHub's scheduler is best-effort and sheds load
+    # at busy hours — on 2026-07-28 it silently skipped the 15:17Z and 16:17Z
+    # firings, a 2h9m alert gap that read as "Flipscout stopped updating".
+    # Each entry is dispatched independently, so a skipped slot now costs ~30
+    # minutes instead of 2+ hours. Runs are cheap: the seen-cache means a
+    # second sweep with nothing new only refreshes the board.
     - cron: "17 * * * *"        # hourly at :17 (off the top-of-hour rush)
+    - cron: "47 * * * *"        # and at :47, as insurance against skips
 
   # --- history: why it was off ---------------------------------------------
   # SCHEDULE DISABLED 2026-07-24. Two reasons, in order:
