@@ -835,6 +835,16 @@ class ShopifyStore:
 
 _GEAR_TERMS = ("arcteryx", "arc'teryx", "patagonia", "patagonia jacket")
 
+# Unclaimed Baggage sells the CONTENTS of airlines' lost luggage - cameras,
+# electronics, designer apparel - fixed price, actually shipped, and it runs
+# Shopify so the existing adapter covers it (probed live 2026-07-28: real
+# camera inventory at $30-100). Terms span every book category that plausibly
+# rides in a suitcase.
+_LUGGAGE_TERMS = ("canon powershot", "canon g7x", "nikon coolpix", "sony cybershot",
+                  "fujifilm finepix", "ipod classic", "apple ipod", "sony handycam",
+                  "polaroid sx-70", "arcteryx", "patagonia", "johnny was",
+                  "st john knit", "gunne sax", "reformation dress")
+
 
 def _outandback():
     return ShopifyStore("outandback", "outandbackoutdoor.com", _GEAR_TERMS)
@@ -844,12 +854,95 @@ def _geartrade():
     return ShopifyStore("geartrade", "www.geartrade.com", _GEAR_TERMS)
 
 
+def _unclaimedbaggage():
+    return ShopifyStore("unclaimedbaggage", "www.unclaimedbaggage.com", _LUGGAGE_TERMS)
+
+
+# --- GSA Auctions: federal surplus ------------------------------------------
+
+class GSAAuctions:
+    """US federal surplus via api.gsa.gov - a real public API, no scraping.
+
+    One request returns EVERY open lot (~1,200), so this ignores the query and
+    filters locally; sweep-level dedup collapses the repeats. Leron's call
+    2026-07-28: geography doesn't matter as long as the goods can move - but
+    be honest about what "delivery" means here: GSA releases to whoever shows
+    up, INCLUDING a shipper you hire; it packs and mails NOTHING itself. Every
+    row therefore carries pickup_risk so the alert says so.
+
+    DEMO_KEY is rate-limited per IP (30/hr, shared on CI runners) - one call
+    per run stays inside it, and a real key is a free 2-minute form at
+    api.data.gov (FLIPSCOUT_GSA_KEY) if throttling ever shows up.
+    """
+
+    name = "gsa"
+    _URL = "https://api.gsa.gov/assets/gsaauctions/v2/auctions"
+
+    def __init__(self, api_key: Optional[str] = None,
+                 session: Optional[requests.Session] = None):
+        self.session = session or requests.Session()
+        self.api_key = (api_key or "").strip() or "DEMO_KEY"
+        self._cache: Optional[list] = None
+
+    @staticmethod
+    def parse(payload: dict) -> list[dict]:
+        raw = (payload or {}).get("Results") or []
+        rows = []
+        for it in raw:
+            if (it.get("auctionStatus") or "").lower() not in ("", "active", "open"):
+                continue
+            try:
+                price = float(it.get("highBidAmount") or 0)
+            except (TypeError, ValueError):
+                price = 0.0
+            lot = f"{it.get('saleNo') or ''}-{it.get('lotNo') or ''}"
+            st = (it.get("locationST") or "").strip().upper()
+            city = (it.get("locationCity") or "").strip().title()
+            rows.append({
+                "source": "gsa", "id": lot,
+                "title": (it.get("itemName") or "").strip(),
+                "url": (it.get("itemDescURL") or "https://gsaauctions.gov").strip(),
+                "price": price,
+                "min_bid": price + float(it.get("aucIncrement") or 1.0) if price else None,
+                "increment": float(it.get("aucIncrement") or 1.0),
+                "bids": int(it.get("biddersCount") or 0),
+                "handling": None,
+                "image": (it.get("imageURL") or "").strip(),
+                "ends": (it.get("aucEndDt") or "")[:16],
+                "house": (it.get("agencyName") or "GSA").strip(),
+                "city": city, "state": st,
+                "local": False, "nearby": st == "TX",
+                # GSA never ships - the buyer removes it or sends a shipper.
+                "pickup_risk": True,
+            })
+        return rows
+
+    def _fetch(self) -> list[dict]:
+        if self._cache is not None:
+            return self._cache
+        try:
+            r = self.session.get(self._URL,
+                                 params={"api_key": self.api_key, "format": "JSON"},
+                                 timeout=_TIMEOUT)
+            r.raise_for_status()
+            self._cache = self.parse(r.json() or {})
+        except Exception:
+            self._cache = []
+        return self._cache
+
+    def search(self, query: str, limit: int = 40) -> list[dict]:
+        q = (query or "").lower()
+        rows = [r for r in self._fetch() if q in r["title"].lower()]
+        return rows[:limit]
+
+
 # --- registry ---------------------------------------------------------------
 
 HUNTERS = {"goodwill": ShopGoodwill, "hibid": HiBid, "craigslist": Craigslist,
            "poshmark": Poshmark, "propertyroom": PropertyRoom,
            "nellis": NellisAuction,
-           "outandback": _outandback, "geartrade": _geartrade}
+           "outandback": _outandback, "geartrade": _geartrade,
+           "unclaimedbaggage": _unclaimedbaggage, "gsa": GSAAuctions}
 
 
 def build_hunters(names: Optional[list] = None, env=None) -> list:
@@ -873,6 +966,8 @@ def build_hunters(names: Optional[list] = None, env=None) -> list:
         elif n == "nellis":
             built.append(NellisAuction(
                 location=env.get("FLIPSCOUT_NELLIS_LOCATION", "houston")))
+        elif n == "gsa":
+            built.append(GSAAuctions(api_key=env.get("FLIPSCOUT_GSA_KEY")))
         else:
             built.append(HUNTERS[n]())
     return built

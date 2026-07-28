@@ -292,3 +292,62 @@ def test_goodwill_buynow_rows_price_as_fixed_through_the_book():
     a = hunt.to_alert(got[0])
     assert a["listing_type"] == "fixed"
     assert "Asking" in a["reason"]
+
+
+# --- GSA Auctions + Unclaimed Baggage (2026-07-28) ---------------------------
+
+GSA_PAYLOAD = {"Results": [
+    {"itemName": "Nikon D50 Digital Camera", "highBidAmount": "120.0",
+     "aucIncrement": "10", "biddersCount": "2", "auctionStatus": "active",
+     "itemDescURL": "https://gsaauctions.gov/auctions/preview/12345",
+     "imageURL": "https://img/1.jpg", "aucEndDt": "2026-08-01 10:00",
+     "saleNo": "91QSCI25400701", "lotNo": "3", "agencyName": "GSA",
+     "locationCity": "BOSTON", "locationST": "MA"},
+    {"itemName": "Forklift", "highBidAmount": None, "auctionStatus": "closed",
+     "saleNo": "X", "lotNo": "1"},
+]}
+
+
+def test_gsa_rows_carry_pickup_risk_and_filter_locally(monkeypatch):
+    from flipscout.hunters import GSAAuctions
+    g = GSAAuctions()
+    monkeypatch.setattr(g, "_fetch", lambda: GSAAuctions.parse(GSA_PAYLOAD))
+    rows = g.search("nikon")
+    assert len(rows) == 1
+    r = rows[0]
+    assert r["source"] == "gsa" and r["price"] == 120.0 and r["bids"] == 2
+    # GSA never ships anything itself - every row must say so
+    assert r["pickup_risk"] is True
+    assert r["url"].startswith("https://gsaauctions.gov")
+    assert g.search("zamboni") == []
+
+
+def test_gsa_one_fetch_serves_every_search_term():
+    """DEMO_KEY allows ~30 req/hr per (shared) IP: the whole point of the
+    local-filter design is ONE api call per run, not one per term."""
+    from flipscout.hunters import GSAAuctions
+    g = GSAAuctions()
+    calls = []
+
+    class Sess:
+        def get(self, url, params=None, timeout=None):
+            calls.append(url)
+            class R:
+                def raise_for_status(self): pass
+                def json(self): return GSA_PAYLOAD
+            return R()
+
+    g.session = Sess()
+    g.search("nikon"); g.search("camera"); g.search("fluke")
+    assert len(calls) == 1
+
+
+def test_unclaimedbaggage_is_registered_with_book_terms():
+    from flipscout.hunters import build_hunters
+    from flipscout.pricebook import search_terms
+    h = build_hunters(["unclaimedbaggage"])[0]
+    assert h.name == "unclaimedbaggage"
+    terms = h.relevant_terms(search_terms())
+    # spans luggage-plausible categories, not just outerwear
+    assert any("coolpix" in t for t in terms)
+    assert any("patagonia" in t for t in terms)
