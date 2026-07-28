@@ -725,6 +725,124 @@ def test_actual_jackets_still_match(title, expected):
     assert m and m.model.key == expected
 
 
+# --- cameras (measured 2026-07-28): the model is the trade, again ------------
+
+@pytest.mark.parametrize("title,expected", [
+    ("Canon PowerShot G7 X Mark II 20.1MP Compact Camera - Black", "g7x_mark2"),
+    ("Canon PowerShot G7 X Mark III 20.1MP Point & Shoot Digital Camera", "g7x_mark3"),
+    ("Canon PowerShot G7X Digital Camera 20.3 MP 4.2X Optical Zoom", "g7x"),
+    ("Canon PowerShot ELPH 180 20.0 MP Digital Camera - Silver", "powershot_elph"),
+    ("Sony Cyber-shot DSC-W800 Digital Camera 20.1MP", "sony_cybershot"),
+    ("Sony Cybershot DSC-RX100 20.2MP Compact Digital Point and Shoot", "sony_rx100"),
+    ("Nikon COOLPIX S8000 black Digital Camera 14.2 MP 10x Optical Zoom", "nikon_coolpix"),
+    ("Fujifilm FinePix Z5fd Brown Digital Camera Retro CCD Tested", "fujifilm_finepix"),
+    ("Olympus Stylus Epic MJU II 35mm F2.8 Point & Shoot Camera", "olympus_mju2"),
+    ("Olympus Stylus Epic DLX 35mm Film Camera Mju II f/2.8 Tested", "olympus_mju2"),
+    ("Olympus Stylus Epic Zoom 80 35mm Point & Shoot Film Camera", "stylus_epic_zoom"),
+    ("Canon AE-1 Program 35mm Film Camera w/ FD 50mm f1.8 Lens", "canon_ae1"),
+    ("Cannon AE-1 50mm Camera W Flash Instructions 4 Rolls Film Battery", "canon_ae1"),
+    ("Asahi Pentax K1000 35mm SLR Camera w/50mm f/2 Lens", "pentax_k1000"),
+    ("Polaroid SX-70 Sonar OneStep Land Camera Tested Working", "polaroid_sx70"),
+    ("Sony Handycam CCD-TRV37 Vision Video8 Camcorder With Nightshot", "sony_handycam"),
+])
+def test_camera_models_match(title, expected):
+    m = match(title)
+    assert m and m.model.key == expected, f"{title} -> {m.model.key if m else None}"
+
+
+@pytest.mark.parametrize("title", [
+    # every one of these appeared in the live 2026-07-28 comp sweep
+    "Battery door - Canon A1 / AE1 / AE1 program - 3D print (2 Pack) Best Deal",
+    "CAMERA REPAIR SERVICE FOR CANON G7X MARK III M3 GENUINE PARTS",
+    "Polaroid Close Up Lens And Flash Diffuser #121 For SX-70 Land Camera",
+    "3 Polaroid SX-70 Land Camera Lens Shades #120 *2 in the Original Box",
+    "Genuine Polaroid sx-70 alpha 1 Tan Leather Neck Strap",
+    "Polaroid SX-70 Land Camera Leatherette Replacement Cover - Tan",
+    "ND Filter for SX-70 | Use Polaroid 600 Film in Your SX-70!",
+    # the plastic Rainbow/OneStep box camera shares the film format, sells $11
+    "Vintage Polaroid One Step Land Camera Rainbow Stripe SX-70 untested",
+    # the 1990s APS-FILM Elph sold for $5.99 mid-sweep; the digital one is $184
+    "CANON ELPH 2 / Point & Shoot Film Camera Untested Read",
+    # a charger that names the camera it charges is still just a charger
+    "Canon PowerShot ELPH Battery Charger CB-2LV OEM",
+    "Sony Hi8 Video Tapes for Handycam Lot of 10",
+    # the Pentax KM is not a K1000, even when the title mentions one
+    "Pentax Asahi KM Camera w/ 50mm lens - what Pentax K1000 should have been!",
+    # measured-cheap cohorts the floor would overbid: every P-series in the
+    # sweep sold $10-42, DVD-era Handycams $15-71
+    "Sony Cyber-shot DSC-P10 Compact Digital Camera 5.0MP 3x Zoom Silver",
+    "Sony DCR-DVD308 Mini DVD Handycam Camcorder w/ Accessories, Untested",
+])
+def test_camera_lookalikes_and_accessories_rejected(title):
+    assert match(title) is None, title
+
+
+@pytest.mark.parametrize("title,expected", [
+    # Cameras are SOLD as bundles - "w/ battery & charger" is evidence of the
+    # camera, not of an accessory. The old blanket \bcharger\b / \bcard\b guard
+    # rejected all of these real listings.
+    ("Canon PowerShot ELPH 135 Compact Digital Camera silver w/ battery & Charger",
+     "powershot_elph"),
+    ("Sony Cyber-shot DSC-W55 Camera w/ Charger, Battery & SD Card TESTED",
+     "sony_cybershot"),
+    ("Canon PowerShot G7X Mark II 20.1 MP Compact Digital Camera 64gb Card",
+     "g7x_mark2"),
+    ("Nikon COOLPIX B500 Red 16.0MP Digital Camera Bundle - 64GB, Case & Strap",
+     "nikon_coolpix"),
+    ("Nikon Coolpix L820 16MP Digital Camera w/Padded Case, Batteries & Card",
+     "nikon_coolpix"),
+    ("Vintage Pentax K1000 SLR Film Camera Working w/ Pentax 50mm F/2 Lens w/ Lens Cap",
+     "pentax_k1000"),
+])
+def test_bundled_accessories_do_not_reject_the_camera(title, expected):
+    m = match(title)
+    assert m and m.model.key == expected, f"{title} -> {m.model.key if m else None}"
+
+
+def test_accessory_as_product_still_rejected_after_the_bundle_fix():
+    # the two live catches that motivated the guard must STAY dead
+    assert match("Hard Case Compatible with Texas Instruments TI-84 Plus CE") is None
+    assert match("SCOVEE PS3 Charger Cable 5FT Compatible with TI-84 Plus CE") is None
+    # and a leading "Hard Case ..." with no bundle context is the accessory
+    assert match("Hard Case for iPod Classic 160GB") is None
+
+
+def test_camera_brand_lines_are_priced_at_a_conservative_floor():
+    """Same rule as fluke_generic: the spread inside Cyber-shot/Coolpix/FinePix
+    is ~10x and the sub-model rarely survives an auction title, so the book
+    carries a floor below the measured median (118.86 / 97.98 / 66.06)."""
+    assert BY_KEY["sony_cybershot"].comp <= 75
+    assert BY_KEY["nikon_coolpix"].comp <= 55
+    assert BY_KEY["fujifilm_finepix"].comp <= 45
+    assert BY_KEY["powershot_elph"].comp <= 120
+
+
+def test_named_camera_models_beat_their_brand_floor():
+    assert BY_KEY["sony_rx100"].comp > 3 * BY_KEY["sony_cybershot"].comp
+    assert BY_KEY["g7x_mark2"].comp > BY_KEY["g7x"].comp
+    assert BY_KEY["sony_rx100"].specificity > BY_KEY["sony_cybershot"].specificity
+    # mju-II vs the Zoom variants: 2.8x, measured
+    assert BY_KEY["olympus_mju2"].comp > 2 * BY_KEY["stylus_epic_zoom"].comp
+
+
+def test_epic_zoom_is_not_priced_as_the_mju2():
+    """'Stylus Epic Zoom 80 MJU II' listings exist - sellers stuff both names.
+    'Zoom' must demote to the $176 model, never the $485 one."""
+    m = match("Olympus Stylus Epic Zoom 80 MJU II Black 35mm Film Point and Shoot")
+    assert m and m.model.key == "stylus_epic_zoom"
+
+
+def test_film_camera_comps_do_not_use_the_used_filter():
+    """Vintage film cameras are listed under every condition bucket; the Used
+    filter starves the search - same taxonomy lesson as the video games."""
+    for k in ("canon_ae1", "pentax_k1000", "polaroid_sx70",
+              "olympus_mju2", "stylus_epic_zoom"):
+        assert BY_KEY[k].comp_used_only is False, k
+    # digitals were measured WITH it and keep it
+    assert BY_KEY["g7x_mark2"].comp_used_only is True
+    assert BY_KEY["sony_cybershot"].comp_used_only is True
+
+
 def test_pricebook_has_no_literal_control_characters():
     """A patch once turned every \b word-boundary into a literal backspace
     (0x08), silently disabling the kids/dog/pants excludes on three models -

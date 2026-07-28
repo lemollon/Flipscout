@@ -46,7 +46,12 @@ ACCESSORY_EXCLUDE = (
     r"\bguide\b|\bbook\b|paperback|magazine|poster|\bposter\b|sticker|decal|"
     r"\bempty\b|box only|case only|cover only|manual only|insert only|label only|"
     r"shell only|display only|\breplica\b|\bpromo\b|advertisement|\bad\b|"
-    r"trading card|\bcard\b|keychain|plush|figure|pin\b|"
+    # `card` is bundle-aware: camera listings legitimately read "w/ SD Card" /
+    # "64GB Memory Card", and the cameras added 2026-07-28 were being silently
+    # rejected over their own bundled storage. A trading/promo card still trips.
+    r"trading card|(?<!sd )(?<!cf )(?<!xd )(?<!gb )(?<!memory )(?<!sim )"
+    r"(?<!& )(?<!, )(?<!and )(?<!w/ )(?<!with )(?<!\+ )(?<!\+)(?<!user )\bcards?\b|"
+    r"keychain|plush|figure|pin\b|"
     # Accessories FOR a tool, which read almost identically to the tool. These
     # MUST live in the universal guard, not on one model: per-model excludes do
     # not compose. "Starrett No 25R Dial Indicator Contact Point Set" was rejected
@@ -71,8 +76,25 @@ ACCESSORY_EXCLUDE = (
     #   "SCOVEE PS3 Charger Cable ... Compatible with TI-84 Plus CE" (a cable)
     # "compatible with" is the tell: nobody describes the actual device that way.
     r"compatible\s+with|\bfor\s+use\s+with\b|replacement\s+(cable|charger|battery)|"
-    r"charging\s+(cable|cord|dock|station)|\bcharger\b|usb\s+cable|"
-    r"screen\s+protector|(hard|soft|carrying|travel|storage)\s+case|\bsleeve\b"
+    r"charging\s+(cable|cord|dock|station)|usb\s+cable|"
+    # `charger` and `... case` are also bundle-aware (2026-07-28): a camera sold
+    # "w/ battery & Charger" or "With Hard Case" is the CAMERA, while a bare
+    # "Battery Charger", "Charger for ...", or leading "Hard Case ..." is the
+    # accessory sold alone. The old blanket \bcharger\b rejected half the real
+    # digicam listings over their own bundled charger.
+    r"\bcharger\s+(only|for)\b|\bcharger\s+(cable|cord|adapter)\b|"
+    r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )\b(battery|wall)\s+charger\b|"
+    r"screen\s+protector|"
+    r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )(hard|soft|carrying|travel|storage)\s+case|\bsleeve\b|"
+    # CAMERA accessories that carry the camera's model name (added 2026-07-28,
+    # all seen in the live comp sweep): lens shades "for SX-70", neck straps,
+    # leatherette skins, 3D-printed AE-1 battery doors, film twin-packs, and a
+    # $375 "CAMERA REPAIR SERVICE FOR CANON G7X" that would price as a camera.
+    # NOT `lens cap`: "w/ 50mm Lens w/ Lens Cap" is how a real K1000 was titled,
+    # and a cap sold alone can't name a model without saying "for ..." anyway.
+    r"lens\s+(only|hoods?|shades?)\b|\bnd\s+filter|flash\s+diffuser|"
+    r"close\s+up\s+lens|neck\s+strap|\bleatherette\b|replacement\s+cover|"
+    r"battery\s+door|door\s+cover|repair\s+service|film\s+(twin\s+|double\s+)?packs?\b"
 )
 
 
@@ -482,6 +504,206 @@ MODELS: list[Model] = [
              "Patagonia sits at $9.99 with 78% of listings drawing zero bids.",
     ),
 
+    # === Cameras: film + digital + camcorders (measured 2026-07-28) ===========
+    # Leron's ask. The Y2K digicam / film-revival trend is real and measured:
+    # a Canon G7X Mark II sells for $1,149 all-in, a 20-year-old ELPH for $184,
+    # and an Olympus mju-II film point-&-shoot for $485. Estate auctions and
+    # Goodwill are FULL of cameras marked untested - and for digicams "untested"
+    # usually means "no battery/charger on the shelf", the same commodity-part
+    # discount as the iPods. Film SLRs are riskier (shutter/meter are mechanical),
+    # so treat film alerts as "verify", like the Pokemon carts.
+    #
+    # FILM comps (AE-1, K1000, SX-70, Stylus Epic) are measured WITHOUT eBay's
+    # Used filter: vintage film cameras get listed under every condition bucket
+    # and the filter starves the search - same taxonomy lesson as video games.
+    #
+    # BRAND-LINE models (Cyber-shot / Coolpix / FinePix / ELPH) carry a
+    # CONSERVATIVE FLOOR, not the median, fluke_generic-style: the spread inside
+    # each line is 10x (a 2002 DSC-P10 sells $16, a DSC-W830 $189) and we often
+    # can't tell the sub-model from an auction title. The named models above
+    # them (G7X, RX100) carry their own measured medians.
+    Model(
+        key="g7x_mark3",
+        label="Canon PowerShot G7X Mark III",
+        comp=1145.90, measured="2026-07-28", sample=11,
+        include=r"g7\s*x.{0,25}mark\s*(iii\b|3\b)",
+        exclude=r"for parts|parts only|not working|broken|\brepair\b",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="canon powershot g7x mark iii", specificity=66,
+        note="Vlogger-boom pricing - verify it powers on; a broken pop-up flash "
+             "unit still sold for $606.",
+    ),
+    Model(
+        key="g7x_mark2",
+        label="Canon PowerShot G7X Mark II",
+        comp=1149.35, measured="2026-07-28", sample=27,
+        include=r"g7\s*x.{0,25}mark\s*(ii\b|2\b)",
+        exclude=r"for parts|parts only|not working|broken|\brepair\b",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="canon powershot g7x mark ii", specificity=65,
+        note="The single most valuable item in the book. TikTok made this THE "
+             "camera; it sold for $699 new in 2016.",
+    ),
+    Model(
+        key="g7x",
+        label="Canon PowerShot G7X (Mark I / unspecified)",
+        comp=708.18, measured="2026-07-28", sample=13,
+        include=r"g7\s*x",
+        exclude=r"for parts|parts only|not working|broken|\brepair\b",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="canon powershot g7x", specificity=60,
+        note="Mark I / unmarked floor. A Mark II/III is worth $440 more - read "
+             "the photos before settling for this number.",
+    ),
+    Model(
+        key="sony_rx100",
+        label="Sony RX100 / ZV-1 (1-inch compact)",
+        comp=541.99, measured="2026-07-28", sample=5,
+        include=r"rx\s*-?\s*100|\bzv\s*-?\s*1\b|\bhx99\b",
+        exclude=r"for parts|parts only|not working|broken",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="sony rx100 camera", specificity=62,
+        note="n=5 - thin sample, and later marks (M3-M7) comp higher than the "
+             "original. Re-measure before bidding near the max.",
+    ),
+    Model(
+        key="powershot_elph",
+        label="Canon PowerShot ELPH / IXUS (digital)",
+        comp=120.00, measured="2026-07-28", sample=52,
+        include=r"\belph\b|\bixus\b|\bixy\b",
+        # The 1990s APS-film Elph (Elph 2/Jr/LT/260Z/370Z) shares the name and
+        # sells for $6 - one sold mid-sweep. "film camera" kills those.
+        exclude=r"\baps\b|film camera|\belph\s*(2|jr|lt)\b|\b(260z?|370z?|490z?)\b|"
+                r"for parts|parts only|not working|broken",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="canon powershot elph", specificity=55,
+        note="CONSERVATIVE FLOOR below the $184.03 median (n=52, range $72-365): "
+             "early SD-series sell $65-140, named-ELPH models $150-350. Confirm "
+             "the sub-model before bidding near the max.",
+    ),
+    Model(
+        key="sony_cybershot",
+        label="Sony Cyber-shot compact (non-RX)",
+        comp=75.00, measured="2026-07-28", sample=47,
+        include=r"cyber\s*-?\s*shot|\bdsc\s*-?\s*[a-z]{1,2}\d",
+        # The 2001-2005 P-series and single-digit H-series are measured-cheap:
+        # every P-series sold in the sweep went for $10-42 all-in, below what
+        # the $75 floor would bid. Exclude rather than overbid.
+        exclude=r"\bdsc\s*-?\s*p\d|\bdsc\s*-?\s*h\d\b|"
+                r"for parts|parts only|not working|broken",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="sony cyber-shot camera", specificity=50,
+        note="CONSERVATIVE FLOOR below the $118.86 median (n=47, range $16-229): "
+             "W/T-series sell $90-190. Confirm the sub-model before bidding "
+             "near the max.",
+    ),
+    Model(
+        key="nikon_coolpix",
+        label="Nikon Coolpix compact",
+        comp=55.00, measured="2026-07-28", sample=51,
+        include=r"coolpix",
+        exclude=r"for parts|parts only|not working|broken",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="nikon coolpix camera", specificity=50,
+        note="CONSERVATIVE FLOOR below the $97.98 median (n=51, range $30-368), "
+             "set under the AA-battery L-series ($40-70) so their tail can't "
+             "lose money; S/P-series sell $100-180.",
+    ),
+    Model(
+        key="fujifilm_finepix",
+        label="Fujifilm FinePix compact",
+        comp=45.00, measured="2026-07-28", sample=53,
+        include=r"finepix",
+        exclude=r"for parts|parts only|not working|broken",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="fujifilm finepix camera", specificity=50,
+        note="THINNEST margin in the book: floor below the $66.06 median (n=53). "
+             "Only worth it under ~$12 all-in - a $5 Goodwill shelf find, "
+             "nothing more.",
+    ),
+    Model(
+        key="sony_handycam",
+        label="Sony Handycam camcorder",
+        comp=120.00, measured="2026-07-28", sample=53,
+        include=r"handycam|\bdcr\s*-|\bccd\s*-\s*tr|\bhdr\s*-\s*(cx|xr|pj|sr)",
+        # Tape lots borrow the name ("Hi8 tapes for Sony Handycam"), and the
+        # DVD-era models are the measured-cheap end ($15-71) - excluded.
+        exclude=r"\btapes?\b|cassette|\bdvd\b|for parts|parts only|not working|broken",
+        outbound_shipping=10.00, category="cameras",
+        comp_query="sony handycam camcorder", specificity=50,
+        note="CONSERVATIVE FLOOR below the $163.18 median (n=53). Tape-era "
+             "(Video8/Hi8/MiniDV) units sell $90-200 for tape-transfer use; "
+             "include the charger in the photo check - proprietary batteries.",
+    ),
+    # --- film cameras (comps measured WITHOUT the Used filter) ----------------
+    Model(
+        key="olympus_mju2",
+        label="Olympus mju-II / Stylus Epic (non-zoom)",
+        comp=484.85, measured="2026-07-28", sample=12, comp_used_only=False,
+        # The fixed-lens f/2.8 Epic IS the mju-II and sells 2.8x the Zoom
+        # variants. "Zoom" in the title demotes it to the model below.
+        include=r"mju\s*-?\s*(ii\b|2\b)|stylus\s+epic\b",
+        exclude=r"\bzoom\b|for parts|parts only|not working|broken|damaged",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="olympus stylus epic mju", specificity=62,
+        note="The model IS the trade: fixed-lens f/2.8 sells $485 (n=12, range "
+             "$300-690), the Zoom versions $176. Confirm NO 'Zoom' on the body.",
+    ),
+    Model(
+        key="stylus_epic_zoom",
+        label="Olympus Stylus Epic Zoom 80/115/170",
+        comp=175.68, measured="2026-07-28", sample=28, comp_used_only=False,
+        include=r"stylus\s+(epic\s+)?zoom\s*(80|115|170)|epic\s+zoom",
+        exclude=r"for parts|parts only|not working|broken|damaged",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="olympus stylus epic zoom", specificity=58,
+        note="Film-revival pricing on a 90s drugstore camera. Untested units "
+             "sold $15-40, so the working comp only applies if it powers on.",
+    ),
+    Model(
+        key="canon_ae1",
+        label="Canon AE-1 / AE-1 Program (35mm SLR)",
+        comp=150.20, measured="2026-07-28", sample=31, comp_used_only=False,
+        # `can+on` also catches the constant "Cannon" misspelling - one sold
+        # for full price under it during the sweep.
+        include=r"can+on.{0,50}\bae\s*-?\s*1\b|\bae\s*-?\s*1\b.{0,50}can+on|"
+                r"\bae\s*-?\s*1\s*program\b",
+        exclude=r"for parts|parts only|not working|broken",
+        outbound_shipping=9.00, category="cameras",
+        comp_query="canon ae-1 camera", specificity=55,
+        note="Comp is body+lens (how they're found and sold). 1/3 of solds are "
+             "Japan imports at a discount. Mechanical: listen for the 'AE-1 "
+             "squeal' note in the listing; 'film tested' is the magic phrase.",
+    ),
+    Model(
+        key="pentax_k1000",
+        label="Pentax K1000 (35mm SLR)",
+        comp=139.99, measured="2026-07-28", sample=45, comp_used_only=False,
+        include=r"k\s*-?\s*1000\b",
+        # The Pentax KM/ME/MX read almost identically and comp differently.
+        exclude=r"\bkm\b|\bme\s+super\b|\bmx\b|for parts|parts only|not working|broken",
+        outbound_shipping=9.00, category="cameras",
+        comp_query="pentax k1000 camera", specificity=55,
+        note="The perpetual photo-class camera - demand never dies. Comp is "
+             "body+50mm; body-only sold $49-85.",
+    ),
+    Model(
+        key="polaroid_sx70",
+        label="Polaroid SX-70 (folding)",
+        comp=99.99, measured="2026-07-28", sample=35, comp_used_only=False,
+        include=r"\bsx\s*-?\s*70\b",
+        # The plastic OneStep/Rainbow box cameras share the SX-70 film format
+        # and sell for $11-30; only the folding SLR (and its Sonar/Alpha
+        # variants) carries the value.
+        exclude=r"rainbow|(?<!sonar )one\s*-?\s*step|for parts|parts only|"
+                r"not working|broken|damaged",
+        outbound_shipping=9.00, category="cameras",
+        comp_query="polaroid sx-70 camera", specificity=55,
+        note="33% of solds are parts/untested - the folding mechanism and rollers "
+             "die. Working sells $100 (Sonar $120-200, Alpha 1 $160-300); "
+             "untested only $40-85, so bid the condition you're actually buying.",
+    ),
+
     Model(
         key="tinspire_cx",
         label="TI-Nspire CX",
@@ -588,4 +810,12 @@ def search_terms() -> list[str]:
         "littmann", "stethoscope",
         # technical outerwear - the unglamorous end, where nobody is bidding
         "arcteryx", "arc'teryx", "patagonia", "patagonia jacket", "gore-tex jacket",
+        # cameras - estate sales and thrift shelves are full of them, and the
+        # junk-titled boxes ("vintage camera lot") are where the mju-II hides
+        "canon powershot", "canon g7x", "canon elph", "sony cybershot",
+        "sony cyber-shot", "nikon coolpix", "fujifilm finepix",
+        "digital camera", "digital camera lot", "camera lot", "vintage camera lot",
+        "canon ae-1", "pentax k1000", "olympus stylus", "polaroid sx-70",
+        "35mm film camera", "point and shoot camera",
+        "sony handycam", "camcorder",
     ]
