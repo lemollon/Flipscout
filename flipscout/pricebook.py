@@ -94,7 +94,15 @@ ACCESSORY_EXCLUDE = (
     # and a cap sold alone can't name a model without saying "for ..." anyway.
     r"lens\s+(only|hoods?|shades?)\b|\bnd\s+filter|flash\s+diffuser|"
     r"close\s+up\s+lens|neck\s+strap|\bleatherette\b|replacement\s+cover|"
-    r"battery\s+door|door\s+cover|repair\s+service|film\s+(twin\s+|double\s+)?packs?\b"
+    r"battery\s+door|door\s+cover|repair\s+service|film\s+(twin\s+|double\s+)?packs?\b|"
+    # "for <camera brand>" is the same accessory tell as "compatible with" -
+    # nobody titles the actual camera that way. Caught LIVE on the first
+    # post-merge run: "NB-13L Battery(2 Pack) and Charger(2CH) Set,Camera
+    # Accessories for Canon G9..." was quoted a $970.66 max bid as a G7X Mark
+    # II. Camera brands ONLY - "Donkey Kong 64 Games For Nintendo N64" is why
+    # this must never grow a console name.
+    r"\bfor\s+(canon|nikon|sony|fuji(film)?|olympus|panasonic|pentax|polaroid|kodak|gopro)\b|"
+    r"\(\s*\d+\s*(pack|pcs|ch)\s*\)"
 )
 
 

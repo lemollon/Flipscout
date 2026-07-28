@@ -765,6 +765,9 @@ def test_camera_models_match(title, expected):
     "CANON ELPH 2 / Point & Shoot Film Camera Untested Read",
     # a charger that names the camera it charges is still just a charger
     "Canon PowerShot ELPH Battery Charger CB-2LV OEM",
+    # caught LIVE on the first post-merge run with a $970.66 max bid: an
+    # accessory kit that names the camera it fits. "for <brand>" is the tell.
+    "NB-13L Battery(2 Pack) and Charger(2CH) Set,Camera Accessories for Canon G9X G7X G7X Mark II",
     "Sony Hi8 Video Tapes for Handycam Lot of 10",
     # the Pentax KM is not a K1000, even when the title mentions one
     "Pentax Asahi KM Camera w/ 50mm lens - what Pentax K1000 should have been!",
