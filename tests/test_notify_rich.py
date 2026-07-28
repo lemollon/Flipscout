@@ -128,3 +128,25 @@ def test_small_images_can_be_opted_into(monkeypatch):
     e = build_embed(CAND)
     assert e["thumbnail"]["url"] == CAND["image"]
     assert "image" not in e
+
+
+def test_overlong_content_is_truncated_not_rejected():
+    """Discord 400s the ENTIRE message when content > 2000 chars - a caller
+    composing header + digest hit this live on 2026-07-28 and the whole
+    delivery silently died. Truncate instead."""
+    import flipscout.notify as notify
+    posted = {}
+
+    class Sess:
+        def post(self, url, json=None, timeout=None):
+            posted.update(json)
+            class R:
+                def raise_for_status(self):
+                    assert len(json["content"]) <= 2000
+            return R()
+
+    sent = notify.notify_rich([], content="x" * 5000,
+                              env={"FLIPSCOUT_ALERT_WEBHOOK": "https://h"},
+                              session=Sess())
+    assert sent == ["webhook"]
+    assert len(posted["content"]) <= 2000
