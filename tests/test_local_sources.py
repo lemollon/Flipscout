@@ -247,3 +247,48 @@ def test_accessories_for_a_device_are_not_priced_as_the_device():
     assert match("Screen Protector for TI-84 Plus CE Graphing Calculator") is None
     # The calculator itself still prices.
     assert match("Texas Instruments TI-84 Plus CE Graphing Calculator Teal") is not None
+
+
+# --- ShopGoodwill Buy-It-Now (2026-07-28): buy outright, no bidding war ------
+
+def test_goodwill_merges_buynow_and_auction_passes(monkeypatch):
+    from flipscout.hunters import ShopGoodwill
+    g = ShopGoodwill()
+    calls = []
+
+    def fake_query(query, limit, buy_now_only):
+        calls.append(buy_now_only)
+        if buy_now_only:
+            return [{"itemId": 1, "title": "Gunne Sax Dress", "buyNowPrice": 12.99,
+                     "currentPrice": 12.99, "imageURL": "i", "endTime": "", "startTime": ""},
+                    {"itemId": 3, "title": "No-price glitch row", "buyNowPrice": 0,
+                     "currentPrice": 0, "imageURL": "", "endTime": "", "startTime": ""}]
+        return [{"itemId": 1, "title": "Gunne Sax Dress", "currentPrice": 5.00,
+                 "minimumBid": 6.00, "numBids": 2, "imageURL": "i", "endTime": "", "startTime": ""},
+                {"itemId": 2, "title": "TI-84 Plus CE", "currentPrice": 9.99,
+                 "minimumBid": 10.99, "numBids": 0, "imageURL": "i", "endTime": "", "startTime": ""}]
+
+    monkeypatch.setattr(g, "_query", fake_query)
+    rows = {r["id"]: r for r in g.search("x")}
+    assert calls == [True, False]
+    # item 1 exists in both passes: the BUY-NOW row wins (you can just buy it)
+    assert rows["1"]["listing_type"] == "fixed"
+    assert rows["1"]["price"] == 12.99 and rows["1"]["min_bid"] == 12.99
+    # auction-only item keeps auction semantics
+    assert "listing_type" not in rows["2"] and rows["2"]["bids"] == 0 or rows["2"].get("listing_type") != "fixed"
+    # zero-priced buy-now rows are dropped, not priced at $0
+    assert "3" not in rows
+
+
+def test_goodwill_buynow_rows_price_as_fixed_through_the_book():
+    from flipscout import hunt
+    row = {"source": "goodwill", "id": "9", "title": "Gunne Sax by Jessica McClintock Prairie Dress",
+           "url": "u", "price": 12.99, "min_bid": 12.99, "increment": 1.0, "bids": 0,
+           "handling": 0.0, "image": "i", "ends": "", "listing_type": "fixed"}
+    cfg = {"sources": ["goodwill"], "target_profit": 20.0, "inbound_shipping": 9.0,
+           "top": 10, "state_file": "nonexistent.json"}
+    got = hunt.evaluate([row], cfg, hunters=[])
+    assert got and got[0]["model"].key == "gunne_sax"
+    a = hunt.to_alert(got[0])
+    assert a["listing_type"] == "fixed"
+    assert "Asking" in a["reason"]
