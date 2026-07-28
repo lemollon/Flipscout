@@ -741,10 +741,15 @@ MODELS: list[Model] = [
         label="Gunne Sax vintage dress",
         comp=122.00, measured="2026-07-28", sample=48,
         include=r"gunne\s+sax",
-        # comp is the DRESS median - a live Goodwill sweep surfaced a Gunne Sax
-        # CLUTCH and skirts under the same brand
+        # comp is the DRESS median - live sweeps surfaced a Gunne Sax CLUTCH,
+        # an evening BAG, a 3.4oz EDP PERFUME (Jessica McClintock licenses the
+        # name), a "Gunne Sax STYLE" Contempo lookalike and a HANDMADE repro,
+        # all of which would have been quoted the $122 dress comp
         exclude=r"\bgirls?\b|\bkids?\b|children|\bpattern\b|sewing|"
-                r"\bclutch\b|\bpurse\b|handbag|\bskirts?\b",
+                r"\bclutch\b|\bpurse\b|handbag|\bskirts?\b|\bbag\b|"
+                r"\bedp\b|\bedt\b|perfume|parfum|cologne|fragrance|\bspray\b|"
+                r"\d+(\.\d+)?\s*oz\b|gunne\s+sax\s+(style|inspired|esque|type)|"
+                r"handmade|\bhand\s*made\b",
         outbound_shipping=6.00, category="womens-apparel",
         comp_query="gunne sax dress", specificity=60,
         note="1970s-80s prairie/cottagecore revival: sold median $122, p75 $210, "
@@ -778,9 +783,12 @@ MODELS: list[Model] = [
         # walked straight past the first version of this exclude. And the comp
         # is knit JACKETS - pants/cardigans matched via bare "knit" and sell
         # $40-60, so they're excluded rather than overbid.
+        # `top\S*` not `tops?\b`: a live listing wrote "Mock Neck TopSize 14"
+        # with no space and the word boundary never fired.
         exclude=r"st\.?\s*john'?s\s*bay|virgin\s+islands|\busvi\b|\bkids?\b|"
                 r"\bpants?\b|\bskirts?\b(?!\s*suit)|cardigan|\bsweater\b|"
-                r"\btops?\b|\bcami|\btank\b|\bshorts?\b",
+                r"\btops?(ize)?\b|\bcami|\btank\b|\bshorts?\b|\bshells?\b|"
+                r"perfume|parfum|cologne|fragrance|\bedp\b|\bedt\b",
         outbound_shipping=7.00, category="womens-apparel",
         comp_query="st john knit jacket", specificity=60,
         note="Sold median $99.50, p75 $140, Santana-knit suits to $600 (Poshmark "
@@ -795,7 +803,7 @@ MODELS: list[Model] = [
         # comp is dresses/embroidered tops - the HiBid estate lots also carry
         # JW shoes, leggings and the cheaper Pete & Greta subline
         exclude=r"\bscarf\b|\bkids?\b|\bshoes?\b|sneaker|legging|\bsocks?\b|"
-                r"pete\s*&?\s*greta",
+                r"pete\s*&?\s*greta|\bshorts?\b|perfume|parfum|cologne|fragrance",
         outbound_shipping=6.00, category="womens-apparel",
         comp_query="johnny was dress", specificity=55,
         note="Sold median $65, p75 $95 (Poshmark n=48). Goodwill is CROWDED for "
@@ -855,7 +863,11 @@ class Match:
 # Fluke 175 True RMS Digital Multimeter" is ONE meter, and counting it as two
 # doubled the ceiling to $522 on a $323 item.
 MULTI_EVIDENCE = re.compile(
-    r"\blot\b|\bpair\b|\bset of\b|\bbundle\b|\bboth\b|\bx\s*[2-9]\b|\b[2-9]\s*x\b|"
+    # "3X Zoom" / "5x Optical" is a LENS SPEC, not a lot of three - the camera
+    # models added 2026-07-28 put a zoom spec in nearly every title, and
+    # "DSC-W70 3X Zoom" was counted as two cameras (see count_units below).
+    r"\blot\b|\bpair\b|\bset of\b|\bbundle\b|\bboth\b|\bx\s*[2-9]\b|"
+    r"\b[2-9]\s*x\b(?!\s*(optical|zoom|digital|wide|telephoto))|"
     r"\(\s*[2-9]\s*\)|\b[2-9]\s*(pc|pcs|piece|pieces|units?|calculators?|meters?|games?)\b|"
     r"\bqty\s*[2-9]\b|\btwo\b|\bthree\b|\bfour\b"
 )
@@ -870,7 +882,17 @@ def count_units(title: str, model: Model) -> int:
     directly, which is the expensive direction to be wrong in.
     """
     t = normalize(title)
-    hits = len(re.findall(model.include, t))
+    # Count repeats of the SAME matched text, not total alternation hits. An
+    # include like `cyber-?shot|dsc-\w+` matches "Sony Cybershot DSC-W70"
+    # TWICE - two different words naming ONE camera - and with any lot word in
+    # the title that doubled the ceiling on a single unit ($85 max bid on a
+    # $75-comp camera, caught on the live board 2026-07-28). Only the same
+    # string appearing again ("TI-84 Plus CE & TI-84 Plus CE") is a repeat.
+    counts: dict[str, int] = {}
+    for m in re.finditer(model.include, t):
+        s = " ".join(m.group(0).split())
+        counts[s] = counts.get(s, 0) + 1
+    hits = max(counts.values(), default=0)
     if hits <= 1:
         return 1
     return hits if MULTI_EVIDENCE.search(t) else 1

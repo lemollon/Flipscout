@@ -436,6 +436,35 @@ def test_units_need_multi_item_evidence(title, units):
     assert m and m.units == units
 
 
+@pytest.mark.parametrize("title", [
+    # caught on the LIVE board 2026-07-28 with 2x-inflated max bids: the
+    # include's brand + model-code alternations both hit ONE camera, and a
+    # zoom spec ("3X"/"5x") read as lot evidence
+    "Sony Cybershot DSC-W70 7.2MP 3X Zoom Digital Camera Powers On Untested",
+    "Sony Cyber-shot DSC-W810 Digital Camera, 20.1MP, 6x Optical Zoom",
+    "Sony HDR-CX100 Handycam Camcorder Bundle",
+    "Sony Handycam Vision CCD-TRV22 Video8 Camcorder Bundle w/ Remote & Case",
+])
+def test_one_camera_with_a_zoom_spec_or_bundle_word_is_one_unit(title):
+    m = match(title)
+    assert m and m.units == 1, f"{title} -> units={m.units if m else None}"
+
+
+@pytest.mark.parametrize("title", [
+    # live HiBid/Goodwill rows that were quoted the $122 Gunne Sax dress comp
+    "Jessica McClintock Gunne Sax 3.4 Oz EDP Spray",
+    "Vintage Gunne Sax by Jessica McClintock Evening Bag w/ Chain",
+    "Vintage 70s Contempo Casuals Pink Voile Lace Gunne Sax Style Dress",
+    "Handmade Vintage Gunne Sax Dress",
+    # and the St. John / Johnny Was garment types outside their comps
+    "St John Knit Sleeveless Mock Neck TopSize 14",
+    "St John knit shell Size large",
+    "Johnny Was Workshop Women's Linen Floral Shorts Medium Navy",
+])
+def test_live_apparel_lookalikes_rejected(title):
+    assert match(title) is None, title
+
+
 def test_over_counting_units_inflates_the_ceiling():
     """Guards the direction that costs money: more units => higher max bid."""
     from flipscout.bidding import advise
