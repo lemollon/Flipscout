@@ -89,39 +89,66 @@ class ShopGoodwill:
     def __init__(self, session: Optional[requests.Session] = None):
         self.session = session or requests.Session()
 
-    def search(self, query: str, limit: int = 40) -> list[dict]:
+    def _query(self, query: str, limit: int, buy_now_only: bool) -> list[dict]:
+        body = _gw_body(query, size=limit)
+        if buy_now_only:
+            # The form field was sitting there empty the whole time. Set to
+            # "true" it returns Goodwill's Buy-It-Now inventory: FIXED prices,
+            # no bidding war, buy outright. Measured 2026-07-28: 40 items per
+            # broad term, including a $12.99 Gunne Sax against a $122 comp.
+            body["searchBuyNowOnly"] = "true"
         try:
-            r = self.session.post(_GW_SEARCH, json=_gw_body(query, size=limit),
+            r = self.session.post(_GW_SEARCH, json=body,
                                   headers=_GW_HEADERS, timeout=_TIMEOUT)
             r.raise_for_status()
-            items = ((r.json() or {}).get("searchResults") or {}).get("items") or []
+            return ((r.json() or {}).get("searchResults") or {}).get("items") or []
         except Exception:
             return []                      # fail-soft: one dead source never kills a run
-        out = []
-        for it in items:
-            try:
-                price = float(it.get("currentPrice") or it.get("minimumBid") or 0)
-            except (TypeError, ValueError):
-                continue
-            iid = str(it.get("itemId") or "")
-            out.append({
-                "source": self.name, "id": iid, "title": (it.get("title") or "").strip(),
-                "url": f"https://shopgoodwill.com/item/{iid}",
-                "price": price,
-                "min_bid": float(it.get("minimumBid") or 0) or None,
-                "increment": 1.0,
-                "bids": it.get("numBids"),
-                # NOTE: search results report shippingPrice 0 / unpopulated. Real
-                # handling only comes from the detail endpoint - see enrich().
-                "handling": None,
-                "image": (it.get("imageURL") or "").replace("\\", "/"),
-                "ends": (it.get("endTime") or "")[:16],
-                # When it was LISTED. Goodwill is the only source that exposes
-                # this: Craigslist's search JSON has no date field at all, and
-                # HiBid gives auction dates rather than per-lot listing dates.
-                "listed": (it.get("startTime") or "")[:16],
-            })
-        return out
+
+    def search(self, query: str, limit: int = 40) -> list[dict]:
+        # TWO passes, merged: the auction inventory this hunter always had,
+        # plus the Buy-It-Now shelf. Buy-now first so that when an item shows
+        # up in both, the row that survives is the one you can buy outright.
+        out: dict[str, dict] = {}
+        for buy_now in (True, False):
+            for it in self._query(query, limit, buy_now):
+                buy_price = it.get("buyNowPrice")
+                try:
+                    if buy_now:
+                        price = float(buy_price or it.get("currentPrice") or 0)
+                    else:
+                        price = float(it.get("currentPrice") or it.get("minimumBid") or 0)
+                except (TypeError, ValueError):
+                    continue
+                if buy_now and price <= 0:
+                    continue
+                iid = str(it.get("itemId") or "")
+                if iid in out:
+                    continue
+                row = {
+                    "source": self.name, "id": iid, "title": (it.get("title") or "").strip(),
+                    "url": f"https://shopgoodwill.com/item/{iid}",
+                    "price": price,
+                    "min_bid": (price if buy_now
+                                else float(it.get("minimumBid") or 0) or None),
+                    "increment": 1.0,
+                    "bids": 0 if buy_now else it.get("numBids"),
+                    # NOTE: search results report shippingPrice 0 / unpopulated. Real
+                    # handling only comes from the detail endpoint - see enrich().
+                    "handling": None,
+                    "image": (it.get("imageURL") or "").replace("\\", "/"),
+                    "ends": (it.get("endTime") or "")[:16],
+                    # When it was LISTED. Goodwill is the only source that exposes
+                    # this: Craigslist's search JSON has no date field at all, and
+                    # HiBid gives auction dates rather than per-lot listing dates.
+                    "listed": (it.get("startTime") or "")[:16],
+                }
+                if buy_now:
+                    # fixed-price semantics: the ask IS the number, alerts read
+                    # "Asking / Don't pay over" and there is no proxy-bid walk-up
+                    row["listing_type"] = "fixed"
+                out[iid] = row
+        return list(out.values())
 
     def enrich(self, row: dict) -> dict:
         """Fetch handling + full-res photos. Costs a request, so only call it on
