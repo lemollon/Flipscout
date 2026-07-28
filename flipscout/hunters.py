@@ -451,7 +451,11 @@ class Poshmark:
     # Each search page is ~5MB. Throwing the full 25-term watchlist at it is
     # 125MB a run and gets throttled to zero results - and asking a fashion
     # resale site for "fluke multimeter" was never going to return anything.
-    TERMS = ("arcteryx", "arc'teryx", "patagonia", "patagonia jacket")
+    # Women's-apparel terms added 2026-07-28 with that category - this IS the
+    # native channel for them.
+    TERMS = ("arcteryx", "arc'teryx", "patagonia", "patagonia jacket",
+             "gunne sax", "st john knit", "johnny was", "veronica beard",
+             "reformation dress")
 
     def relevant_terms(self, terms: list) -> list:
         want = {t.lower() for t in self.TERMS}

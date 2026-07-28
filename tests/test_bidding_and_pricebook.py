@@ -843,6 +843,66 @@ def test_film_camera_comps_do_not_use_the_used_filter():
     assert BY_KEY["sony_cybershot"].comp_used_only is True
 
 
+# --- women's apparel (measured 2026-07-28): only the lines that pass ---------
+
+@pytest.mark.parametrize("title,expected", [
+    ("Gunne Sax by Jessica McClintock Vintage Prairie Dress Floral Lace", "gunne_sax"),
+    ("Veronica Beard Scuba Dickey Blazer Navy Size 8", "veronica_beard"),
+    ("St. John Collection Santana Knit Jacket Black Womens 10", "st_john_knit"),
+    ("St John Knit Blazer Marie Gray Size M", "st_john_knit"),
+    ("Johnny Was Embroidered Tunic Dress Womens L", "johnny_was"),
+    ("Reformation Scottie Silk Midi Dress 4 Purple", "reformation_dress"),
+])
+def test_womens_apparel_models_match(title, expected):
+    m = match(title)
+    assert m and m.model.key == expected, f"{title} -> {m.model.key if m else None}"
+
+
+@pytest.mark.parametrize("title", [
+    # St John's Bay is JCPenney (~$8); the islands are a vacation
+    "St John's Bay Womens Knit Jacket Size XL",
+    "St John USVI Virgin Islands Souvenir Knit Jacket",
+    # bare Veronica Beard without a blazer noun is the $16 tee end
+    "Veronica Beard Womens Tee Shirt Small",
+    # girls' Gunne Sax is a different (cheaper) population
+    "Gunne Sax Girls Vintage Dress Size 7",
+    "Vintage Gunne Sax Sewing Pattern 1978",
+    "Johnny Was Silk Scarf Floral",
+    # every one of these matched in the first live validation sweep
+    "St. JohnsBay leather full zip jacket mens (L)",
+    "St. John Women's Stretch Knit High Rise Black Size M Pants",
+    "St. John Collection Women's Knit Cardigan, Size 10",
+    "Biya by Johnny Was Embroidered Shoes 8",
+    "Johnny Was Los Angeles Camo Floral Leggings Sz S",
+    "Pete & Greta by Johnny Was Corduroy Cargo Pants",
+    "Gunne Sax Black Size 10\" x 4.5\" Clutch",
+])
+def test_womens_apparel_lookalikes_rejected(title):
+    assert match(title) is None, title
+
+
+def test_generic_boutique_dress_brands_are_deliberately_absent():
+    """Measured 2026-07-28: Free People / Anthropologie / Lilly Pulitzer sold
+    medians are $39-41 (n=60 each) -> ~$7 a flip after the buy + inbound. They
+    fail the $20 bar, so alerting on them only generates work. Farm Rio and
+    LoveShackFancy draw 6 bids median on Goodwill - crowded. None are models."""
+    for title in ("Free People Boho Maxi Dress Size M",
+                  "Anthropologie Maeve Floral Dress 8",
+                  "Lilly Pulitzer Shift Dress Medium",
+                  "Farm Rio Banana Print Maxi Dress",
+                  "LoveShackFancy Ruffle Mini Dress"):
+        assert match(title) is None, title
+
+
+def test_poshmark_gets_the_womens_apparel_terms():
+    """Poshmark is the native channel for these brands; its term filter must
+    let them through or the source never sees them."""
+    from flipscout.hunters import Poshmark
+    from flipscout.pricebook import search_terms
+    terms = Poshmark().relevant_terms(search_terms())
+    assert "gunne sax" in terms and "johnny was" in terms
+
+
 def test_pricebook_has_no_literal_control_characters():
     """A patch once turned every \b word-boundary into a literal backspace
     (0x08), silently disabling the kids/dog/pants excludes on three models -
