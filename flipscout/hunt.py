@@ -362,8 +362,11 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
             # Post what's ON the board, not just "nothing changed". Saying
             # "nothing new right now" while 164 items sit there buyable is how
             # a working watcher reads as a dead one.
-            body = _board.digest(_board.build(cands))
-            notifier([], content=(body or (
+            board_data = _board.build(cands)
+            body = _board.digest(board_data)
+            # Top rows ride along as embeds with OUR image urls - Discord's
+            # unfurler was producing blank cards for Craigslist search links.
+            notifier(_board.top_items(board_data) if body else [], content=(body or (
                 f"**Flipscout daily check-in** - still running, nothing new right now.\n"
                 f"Swept **{len(rows):,}** listings across {len(config['sources'])} "
                 f"sources; nothing currently clears your "

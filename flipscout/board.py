@@ -79,8 +79,8 @@ def build(cands: list, now: Optional[_dt.datetime] = None) -> dict:
 
 
 def write(cands: list, path: str, now: Optional[_dt.datetime] = None) -> Optional[str]:
-    """Write the board, creating the directory if needed. Returns the path, or
-    None on failure - publishing must never take the watcher down."""
+    """Write the board (JSON + a browsable BOARD.md next to it). Returns the
+    path, or None on failure - publishing must never take the watcher down."""
     board = build(cands, now=now)
     try:
         parent = os.path.dirname(path)
@@ -88,10 +88,66 @@ def write(cands: list, path: str, now: Optional[_dt.datetime] = None) -> Optiona
             os.makedirs(parent, exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(board, f, indent=1)
+        # The human-readable twin. Discord can only ever show a digest (2000
+        # chars, 10 embeds), so "...and 398 more" needs somewhere clickable to
+        # point. GitHub renders this for the repo owner with zero hosting.
+        md = os.path.join(parent or ".", "BOARD.md")
+        with open(md, "w", encoding="utf-8") as f:
+            f.write(render_markdown(board))
         return path
     except Exception as e:
         print(f"[hunt] couldn't write the deals board: {e}")
         return None
+
+
+def board_page_url() -> str:
+    """Where the full BOARD.md is browsable. Derived from the Actions-provided
+    repo name so nothing is hardcoded; empty when running locally."""
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    return f"https://github.com/{repo}/blob/main/docs/BOARD.md" if repo else ""
+
+
+def render_markdown(board_data: dict) -> str:
+    """The ENTIRE qualifying set as one markdown page, best profit first.
+
+    This is the answer to "why am I not seeing a list for all 398" - a Discord
+    message can't carry it, a GitHub-rendered table can."""
+    items = sorted(board_data.get("items") or [],
+                   key=lambda i: (i.get("profit_at_open") or -1e9), reverse=True)
+    L = [f"# Flipscout board - {len(items)} buyable now",
+         f"_Generated {board_data.get('generated', '')} - best profit first. "
+         f"'Open' is what it costs to enter; never bid past 'Max'._", "",
+         "| # | Item | Model | Open | Max bid | Clears | Source | Where | Ends |",
+         "|---|------|-------|-----:|--------:|-------:|--------|-------|------|"]
+    for n, i in enumerate(items, 1):
+        title = (i.get("title") or "").replace("|", "/")[:60]
+        profit = i.get("profit_at_open")
+        tags = " 📍" if i.get("nearby") else ""
+        where = (i.get("where") or i.get("house") or "")[:24]
+        L.append(
+            f"| {n} | [{title}]({i.get('url')}) | {i.get('model')} "
+            f"| ${(i.get('open_bid') or 0):,.2f} | ${(i.get('max_bid') or 0):,.2f} "
+            f"| {'$%s' % format(profit, ',.2f') if profit is not None else '-'} "
+            f"| {i.get('source')}{tags} | {where} | {i.get('ends') or '-'} |")
+    L.append("")
+    L.append("_Regenerated every run; sold/expired lots simply disappear._")
+    return "\n".join(L)
+
+
+def top_items(board_data: dict, top: int = 5) -> list[dict]:
+    """The digest's top rows shaped for notify.build_embed, so the daily post
+    carries OUR image urls instead of whatever Discord's link unfurler can
+    scrape (a Craigslist search page unfurls to a blank card - the row itself
+    has a real photo)."""
+    best = sorted(board_data.get("items") or [],
+                  key=lambda i: (i.get("profit_at_open") or -1e9), reverse=True)[:top]
+    out = []
+    for i in best:
+        c = dict(i)
+        c["verdict"] = "buy"
+        c["buy_url"] = i.get("url")
+        out.append(c)
+    return out
 
 
 def digest(board_data: dict, top: int = 5) -> str:
@@ -123,8 +179,12 @@ def digest(board_data: dict, top: int = 5) -> str:
         if i.get("pickup_only"):
             tags.append("pickup only")
         where = " - ".join(x for x in (i.get("house"), i.get("where")) if x)
+        # <url> suppresses Discord's link unfurler: it produced a mismatched
+        # strip of preview cards under the digest (blank for Craigslist search
+        # pages, images for some sources only). The top rows now go out as
+        # proper embeds with our own photos instead - see top_items().
         lines.append(
-            f"**[{(i.get('title') or '')[:70]}]({i.get('url')})** "
+            f"**[{(i.get('title') or '')[:70]}](<{i.get('url')}>)** "
             f"({i.get('source')}{', ' + ', '.join(tags) if tags else ''})")
         profit = i.get("profit_at_open")
         lines.append(
@@ -132,9 +192,16 @@ def digest(board_data: dict, top: int = 5) -> str:
             + (f" -> clear **${profit:,.2f}**" if profit is not None else "")
             + f", {cap_label} **${i.get('max_bid'):,.2f}**"
             + (f"  _{where}_" if where else ""))
+    body = "\n".join(lines)[:1780]
+    tail = []
     if len(items) > top:
-        lines.append(f"\n_...and {len(items) - top} more on the board._")
-    return "\n".join(lines)[:1900]
+        tail.append(f"\n_...and {len(items) - top} more._")
+    url = board_page_url()
+    if url:
+        # Appended AFTER the truncation so the pointer to the full list can
+        # never be the thing the 2000-char limit eats.
+        tail.append(f"\n**Full list (all {len(items)}): <{url}>**")
+    return body + "".join(tail)
 
 
 def load(path: str) -> dict:
