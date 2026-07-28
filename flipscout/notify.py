@@ -139,6 +139,10 @@ def notify_rich(candidates: list, content: str = "", env=None, session=None) -> 
     """
     env = env if env is not None else os.environ
     url = env.get("FLIPSCOUT_ALERT_WEBHOOK")
+    # Discord hard-rejects the WHOLE message when content exceeds 2000 chars -
+    # a caller composing header + digest busted the cap on 2026-07-28 and the
+    # delivery died with a 400. A truncated post beats a silently dropped one.
+    content = (content or "")[:1990]
     embeds = [build_embed(c) for c in candidates]
     if not url:
         print(content or "")
