@@ -410,7 +410,18 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
              else "NO ZIP SET - HiBid is searching nationally only")
           + " | estates: " + (config.get("estate_area") or "OFF"))
     hunters = hunters if hunters is not None else build_hunters(config["sources"])
+    # The eBay hunter fails soft per-search, so say up front whether its keys
+    # actually authenticate — a wrong secret otherwise looks like a quiet market.
+    for h in hunters:
+        if hasattr(h, "auth_probe"):
+            print(f"[hunt] {h.auth_probe()}")
     rows = sweep(config, hunters=hunters)
+    # Per-source counts: a blocked/broken source shows up as =0 here instead of
+    # hiding inside the grand total.
+    counts: dict[str, int] = {getattr(h, "name", "?"): 0 for h in hunters}
+    for r in rows:
+        counts[r.get("source", "?")] = counts.get(r.get("source", "?"), 0) + 1
+    print("[hunt] per-source: " + " ".join(f"{k}={v}" for k, v in counts.items()))
 
     # Estate catalogs, swept IN FULL. The digest used to hand over links and
     # leave the reading to Leron ("its you job to go to the links and find me

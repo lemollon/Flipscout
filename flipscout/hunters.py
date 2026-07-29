@@ -962,6 +962,21 @@ class EbayBrowse:
             })
         return out
 
+    def auth_probe(self) -> str:
+        """One-line health check for the run log. search() fails soft, so a bad
+        or mispasted key is otherwise indistinguishable from an empty market —
+        which is exactly how a wrong EBAY_CLIENT_SECRET hid on go-live day.
+        The OAuth error body ('invalid_client', 'unsupported_grant_type', ...)
+        never contains the credentials, so it is safe to print."""
+        if self._api is None:
+            return "ebay: keys absent - hunter asleep"
+        try:
+            self._api._auth_header()
+            return "ebay: auth OK"
+        except Exception as e:
+            body = getattr(getattr(e, "response", None), "text", "") or ""
+            return f"ebay: AUTH FAILED - {e} {body[:200]}"
+
     def search(self, query: str, limit: int = 50) -> list[dict]:
         if self._api is None:
             return []
