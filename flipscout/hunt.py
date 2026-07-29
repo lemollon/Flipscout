@@ -60,6 +60,10 @@ def load_config(env=None) -> dict:
         # code default (knob fail-safe rule).
         "max_ask_ratio": (float(env["FLIPSCOUT_MAX_ASK_RATIO"])
                           if env.get("FLIPSCOUT_MAX_ASK_RATIO") else None),
+        # Second alert tier: re-alert once when a qualifying lot ends inside
+        # this window with its price still at/under half the ceiling. The buy
+        # decision happens in the last hour, not when the lot is first seen.
+        "ending_soon_hours": float(env.get("FLIPSCOUT_ENDING_SOON_HOURS", "2")),
         # Quiet is the NORMAL state - most runs find nothing new - but silence
         # reads as breakage. Once a day, say so out loud even with zero finds.
         "heartbeat_file": env.get("FLIPSCOUT_HEARTBEAT_FILE", "flipscout_heartbeat.json"),
@@ -322,6 +326,54 @@ def to_alert(c: dict) -> dict:
     }
 
 
+def hours_until(ends: Optional[str], now: Optional[_dt.datetime] = None) -> Optional[float]:
+    """Hours until an `ends` timestamp, or None when unparseable/absent.
+
+    Source timestamps are naive local-ish strings ("2026-07-29T18:30") with no
+    timezone - HiBid sends none at all. Treated as runner-local time, which is
+    fuzzy by a few hours; the window is deliberately generous to absorb that."""
+    if not ends:
+        return None
+    try:
+        end = _dt.datetime.fromisoformat(str(ends)[:16])
+    except ValueError:
+        return None
+    now = now or _dt.datetime.now()
+    return (end - now).total_seconds() / 3600.0
+
+
+# Re-alert only while the price still sits at or under this share of the
+# ceiling - an ending lot already bid to 90% of max is not news you can use.
+ENDING_SOON_PRICE_SHARE = 0.5
+
+
+def ending_soon_alerts(cands: list, config: dict, seen: set,
+                       now: Optional[_dt.datetime] = None) -> list:
+    """(seen_key, alert) pairs for qualifying lots in their final window."""
+    window = config.get("ending_soon_hours")
+    if not window:
+        return []
+    out = []
+    for c in cands:
+        row, adv = c["row"], c["advice"]
+        if row.get("listing_type") == "fixed":
+            continue                      # nothing "ends" on a buy-now ask
+        left = hours_until(row.get("ends"), now=now)
+        if left is None or left < 0 or left > window:
+            continue
+        if (adv.open_bid or 0) > ENDING_SOON_PRICE_SHARE * adv.max_bid:
+            continue
+        key = f"endsoon:{row['source']}:{row['id']}"
+        if key in seen:
+            continue
+        a = to_alert(c)
+        a["reason"] = (f":alarm_clock: ENDS in ~{left:.1f}h and still at "
+                       f"${(adv.open_bid or 0):,.2f} vs your ${adv.max_bid:,.2f} "
+                       f"ceiling. " + (a.get("reason") or ""))
+        out.append((key, a))
+    return out
+
+
 def estate_catalog_rows(config: dict, hunters=None, feed=None) -> list[dict]:
     """Every lot of every nearby ONLINE estate auction that turns out to be a
     HiBid catalog. Returns [] quietly when estates are off or nothing resolves."""
@@ -410,6 +462,28 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
         post_estate_digest(config, notifier)
     except Exception as e:
         print(f"[hunt] estate digest failed (non-fatal): {e}")
+
+    # SECOND ALERT TIER: the buy decision happens in the last hour, not when
+    # a lot is first seen days out - a $5 find can quietly become $80 without
+    # another word. Re-alert ONCE (its own seen-namespace) when a qualifying
+    # lot ends inside the window and its price still sits at or under half
+    # the ceiling. Runs on the quiet path too - ending lots don't wait for a
+    # fresh find to show up.
+    try:
+        endsoon = ending_soon_alerts(cands, config, seen)
+        if endsoon:
+            es_sent = notifier(
+                [a for _, a in endsoon],
+                content=(f":alarm_clock: **ENDING SOON** - {len(endsoon)} "
+                         f"lot(s) close within "
+                         f"{config['ending_soon_hours']:g}h still at or under "
+                         f"HALF your max bid. Last call."))
+            if es_sent:
+                seen |= {k for k, _ in endsoon}
+                _save_seen(config["state_file"], seen)
+                print(f"[hunt] ENDING SOON: {len(endsoon)} re-alert(s) delivered.")
+    except Exception as e:
+        print(f"[hunt] ending-soon pass failed (non-fatal): {e}")
 
     if not fresh:
         if _due_for_heartbeat(config["heartbeat_file"]):
