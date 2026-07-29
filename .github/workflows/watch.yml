@@ -84,6 +84,10 @@ jobs:
           FLIPSCOUT_INBOUND_SHIP: ${{ vars.FLIPSCOUT_INBOUND_SHIP || '9' }}
           FLIPSCOUT_MAX_ASK_RATIO: ${{ vars.FLIPSCOUT_MAX_ASK_RATIO || '' }}
           FLIPSCOUT_ENDING_SOON_HOURS: ${{ vars.FLIPSCOUT_ENDING_SOON_HOURS || '2' }}
+          # eBay Browse hunter: sleeps until these secrets exist (the env-trap
+          # rule - mapped NOW so approval day is `gh secret set` x2, nothing else)
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
           FLIPSCOUT_TOP: ${{ vars.FLIPSCOUT_TOP || '10' }}
           FLIPSCOUT_STATE_FILE: flipscout_seen.json
           # Anything NOT listed here is invisible to the run, however carefully
