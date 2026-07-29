@@ -1,5 +1,5 @@
-# Flipscout board - 417 buyable now
-_Generated 2026-07-29T11:12:29+00:00 - best profit first. 'Open' is what it costs to enter; never bid past 'Max'._
+# Flipscout board - 415 buyable now
+_Generated 2026-07-29T12:25:18+00:00 - best profit first. 'Open' is what it costs to enter; never bid past 'Max'._
 
 | # | Item | Model | Open | Max bid | Clears | Source | Where | Ends |
 |---|------|-------|-----:|--------:|-------:|--------|-------|------|
@@ -81,8 +81,8 @@ _Generated 2026-07-29T11:12:29+00:00 - best profit first. 'Open' is what it cost
 | 76 | [SONY MINI DV HANDYCAM](https://hibid.com/lot/314205244) | Sony Handycam camcorder | $2.00 | $64.70 | $82.70 | hibid | Knoxville, TN | - |
 | 77 | [SONY HANDYCAM](https://hibid.com/lot/314107409) | Sony Handycam camcorder | $3.00 | $64.70 | $81.70 | hibid | Lebanon, MO | - |
 | 78 | [Starrett magnetic base indicator holder,](https://hibid.com/lot/313395891) | Dial / test indicator (brand-name) | $8.00 | $68.87 | $80.87 | hibid | Clinton, IL | - |
-| 79 | [Sony Handycam & Accessories In Case](https://hibid.com/lot/314217289) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Annville, PA | - |
-| 80 | [Sony DCR-DVD100 Handycam and Electrical Fitt](https://hibid.com/lot/314031906) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Conway, SC | - |
+| 79 | [Sony DCR-DVD100 Handycam and Electrical Fitt](https://hibid.com/lot/314031906) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Conway, SC | - |
+| 80 | [Sony Handycam & Accessories In Case](https://hibid.com/lot/314217289) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Annville, PA | - |
 | 81 | [Sony Handycam Video 8 Camcorder Bundle](https://hibid.com/lot/313760471) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Mesa, AZ | - |
 | 82 | [Vintage Gunne Sax Jessica McClintock Royal Blue Satin Twist ](https://shopgoodwill.com/item/272140985) | Gunne Sax vintage dress | $7.99 | $67.44 | $79.44 | goodwill |  | 2026-08-01T19:18 |
 | 83 | [Canon AE-1 Film Camera](https://shopgoodwill.com/item/271490124) | Canon AE-1 / AE-1 Program (35mm SLR) | $29.00 | $87.95 | $78.95 | goodwill |  | 2026-07-29T18:58 |
@@ -95,15 +95,15 @@ _Generated 2026-07-29T11:12:29+00:00 - best profit first. 'Open' is what it cost
 | 90 | [Veronica Beard Women's Navy Blazer Jacket Size 12 Wool Blend](https://shopgoodwill.com/item/271876284) | Veronica Beard blazer/jacket | $32.00 | $89.97 | $77.97 | goodwill |  | 2026-08-02T18:33 |
 | 91 | [Sony Handycam Camcorder Lot With Accessories](https://hibid.com/lot/313759798) | Sony Handycam camcorder | $7.50 | $64.70 | $77.20 | hibid | Mesa, AZ | - |
 | 92 | [Sony Handycam Video8 and Canon Camcorder Set](https://hibid.com/lot/313759802) | Sony Handycam camcorder | $7.50 | $64.70 | $77.20 | hibid | Mesa, AZ | - |
-| 93 | [6th gen apple ipod classic 120gb mp3 player](https://shopgoodwill.com/item/272122588) | iPod Classic 120GB | $22.00 | $79.14 | $77.14 | goodwill |  | 2026-08-04T18:39 |
-| 94 | [Starrett Dial Indicator No. 25 0-5-0 W/ Starrett](https://hibid.com/lot/311686355) | Dial / test indicator (brand-name) | $12.00 | $68.87 | $76.87 | hibid | Baldwin, WI | - |
-| 95 | [Federal Dial Indicator W/ Lufkin Micrometer Head](https://hibid.com/lot/314269279) | Dial / test indicator (brand-name) | $12.00 | $68.87 | $76.87 | hibid | Baldwin, WI | - |
-| 96 | [Mitutoyo .001"-2" Dial Indicator W/ 0-1"Micrometer](https://hibid.com/lot/314269271) | Dial / test indicator (brand-name) | $12.00 | $68.87 | $76.87 | hibid | Baldwin, WI | - |
-| 97 | [Veronica Beard Blue Linen Blend Blazer Size 12](https://shopgoodwill.com/item/272075721) | Veronica Beard blazer/jacket | $34.00 | $90.72 | $76.72 | goodwill |  | 2026-08-04T16:08 |
-| 98 | [Vintage Canon AE-1 35mm SLR Film Camera with FD 50mm f/1.8 P](https://shopgoodwill.com/item/271680862) | Canon AE-1 / AE-1 Program (35mm SLR) | $32.00 | $88.55 | $76.55 | goodwill |  | 2026-07-29T19:33 |
-| 99 | [Pentax K1000 Camera](https://shopgoodwill.com/item/271922311) | Pentax K1000 (35mm SLR) | $26.99 | $83.04 | $76.05 | goodwill |  | 2026-08-01T18:06 |
-| 100 | [Vintage Canon AE-1 Camera w/ Flash (NOT TESTED)](https://shopgoodwill.com/item/271611320) | Canon AE-1 / AE-1 Program (35mm SLR) | $32.00 | $87.95 | $75.95 | goodwill |  | 2026-07-30T20:26 |
-| 101 | [Jessica McClintock for Gunne Sax Women's Black Strapless Dre](https://shopgoodwill.com/item/271430042) | Gunne Sax vintage dress | $14.95 | $70.44 | $75.48 | goodwill |  | 2026-08-05T18:22 |
+| 93 | [Starrett Dial Indicator No. 25 0-5-0 W/ Starrett](https://hibid.com/lot/311686355) | Dial / test indicator (brand-name) | $12.00 | $68.87 | $76.87 | hibid | Baldwin, WI | - |
+| 94 | [Federal Dial Indicator W/ Lufkin Micrometer Head](https://hibid.com/lot/314269279) | Dial / test indicator (brand-name) | $12.00 | $68.87 | $76.87 | hibid | Baldwin, WI | - |
+| 95 | [Mitutoyo .001"-2" Dial Indicator W/ 0-1"Micrometer](https://hibid.com/lot/314269271) | Dial / test indicator (brand-name) | $12.00 | $68.87 | $76.87 | hibid | Baldwin, WI | - |
+| 96 | [Veronica Beard Blue Linen Blend Blazer Size 12](https://shopgoodwill.com/item/272075721) | Veronica Beard blazer/jacket | $34.00 | $90.72 | $76.72 | goodwill |  | 2026-08-04T16:08 |
+| 97 | [Vintage Canon AE-1 35mm SLR Film Camera with FD 50mm f/1.8 P](https://shopgoodwill.com/item/271680862) | Canon AE-1 / AE-1 Program (35mm SLR) | $32.00 | $88.55 | $76.55 | goodwill |  | 2026-07-29T19:33 |
+| 98 | [Pentax K1000 Camera](https://shopgoodwill.com/item/271922311) | Pentax K1000 (35mm SLR) | $26.99 | $83.04 | $76.05 | goodwill |  | 2026-08-01T18:06 |
+| 99 | [Vintage Canon AE-1 Camera w/ Flash (NOT TESTED)](https://shopgoodwill.com/item/271611320) | Canon AE-1 / AE-1 Program (35mm SLR) | $32.00 | $87.95 | $75.95 | goodwill |  | 2026-07-30T20:26 |
+| 100 | [Jessica McClintock for Gunne Sax Women's Black Strapless Dre](https://shopgoodwill.com/item/271430042) | Gunne Sax vintage dress | $14.95 | $70.44 | $75.48 | goodwill |  | 2026-08-05T18:22 |
+| 101 | [Jessica McClintock Gunne Sax Satin Maxi Dress Size 5/6](https://shopgoodwill.com/item/271471672) | Gunne Sax vintage dress | $14.99 | $70.44 | $75.44 | goodwill |  | 2026-07-29T16:32 |
 | 102 | [Vintage Canon IX 240 ELPH Ultra-Compact Camera w/ Accessorie](https://shopgoodwill.com/item/271510151) | Canon PowerShot ELPH / IXUS (digital) | $10.99 | $65.70 | $74.71 | goodwill |  | 2026-07-29T16:00 |
 | 103 | [Red Sony Handycam DCR-SR47 Camcorder](https://hibid.com/lot/314539766) | Sony Handycam camcorder | $10.00 | $64.70 | $74.70 | hibid | Pomona, CA | - |
 | 104 | [Canon AE-1 35mm SLR Film Camera w/Canon FD 50mm f/1.8 Lens](https://shopgoodwill.com/item/271710140) | Canon AE-1 / AE-1 Program (35mm SLR) | $34.50 | $88.91 | $74.41 | goodwill |  | 2026-07-31T19:17 |
@@ -112,17 +112,17 @@ _Generated 2026-07-29T11:12:29+00:00 - best profit first. 'Open' is what it cost
 | 107 | [Sony Video 8 Handycam Camera Recorder CCD-TR21 (UNTESTED)](https://shopgoodwill.com/item/271747266) | Sony Handycam camcorder | $7.99 | $61.70 | $73.71 | goodwill |  | 2026-07-29T18:01 |
 | 108 | [Sony Handycam Dcr Dvd203 Camcorder](https://shopgoodwill.com/item/271890235) | Sony Handycam camcorder | $6.99 | $60.70 | $73.71 | goodwill |  | 2026-07-29T18:23 |
 | 109 | [Sony Handycam Video 8 Camera Recorder Model CCD-F33 (UNTESTE](https://shopgoodwill.com/item/271747259) | Sony Handycam camcorder | $7.99 | $61.70 | $73.71 | goodwill |  | 2026-07-29T18:34 |
-| 110 | [Vintage Canon Film Camera w/Strap - AE-1 - Untested](https://shopgoodwill.com/item/271611697) | Canon AE-1 / AE-1 Program (35mm SLR) | $35.88 | $88.91 | $73.03 | goodwill |  | 2026-07-30T20:52 |
-| 111 | [Vintage Sony Handycam Video 8 Camera Camcorder CCD-FX410 - N](https://shopgoodwill.com/item/271539670) | Sony Handycam camcorder | $9.99 | $62.70 | $72.71 | goodwill |  | 2026-07-29T19:02 |
-| 112 | [Sony Panasonic JVC Digital Camcorder Lot 3 Piece Handycam Ev](https://shopgoodwill.com/item/271464409) | Sony Handycam camcorder | $9.99 | $62.70 | $72.71 | goodwill |  | 2026-07-29T19:17 |
-| 113 | [Sony Video 8 Handycam Camcorder](https://shopgoodwill.com/item/271533556) | Sony Handycam camcorder | $10.99 | $62.70 | $71.71 | goodwill |  | 2026-07-29T18:01 |
-| 114 | [Canon AE-1 Program 35mm SLR Film Camera with Canon FD 50mm 1](https://shopgoodwill.com/item/271714598) | Canon AE-1 / AE-1 Program (35mm SLR) | $37.00 | $88.15 | $71.15 | goodwill |  | 2026-07-31T20:06 |
-| 115 | [Sony DCR-DVD105 Handycam (NOT TESTED)](https://shopgoodwill.com/item/272157000) | Sony Handycam camcorder | $9.99 | $60.75 | $70.76 | goodwill |  | 2026-07-31T19:24 |
-| 116 | [Vintage Sony Video 8 Handycam Camcorder with Case and Access](https://shopgoodwill.com/item/271751954) | Sony Handycam camcorder | $9.99 | $60.71 | $70.72 | goodwill |  | 2026-07-29T20:05 |
-| 117 | [Jessica McClintock Gunne Sax Black Velvet Dress with Sheer O](https://shopgoodwill.com/item/272119266) | Gunne Sax vintage dress | $19.93 | $70.44 | $70.50 | goodwill |  | 2026-08-04T19:10 |
-| 118 | [Gunne Sax by Jessica McClintock Purple Dress, Size 7/8](https://shopgoodwill.com/item/271957523) | Gunne Sax vintage dress | $19.95 | $70.44 | $70.48 | goodwill |  | 2026-08-03T19:03 |
-| 119 | [Gunne Sax by Jessica McClintock Juniors Size 7 Dress](https://shopgoodwill.com/item/272115664) | Gunne Sax vintage dress | $19.95 | $70.44 | $70.48 | goodwill |  | 2026-08-04T19:01 |
-| 120 | [Jessica McClintock Gunne Sax Satin Maxi Dress Size 5/6](https://shopgoodwill.com/item/271471672) | Gunne Sax vintage dress | $16.99 | $67.44 | $70.45 | goodwill |  | 2026-07-29T16:32 |
+| 110 | [6th gen apple ipod classic 120gb mp3 player](https://shopgoodwill.com/item/272122588) | iPod Classic 120GB | $26.00 | $79.14 | $73.14 | goodwill |  | 2026-08-04T18:39 |
+| 111 | [Vintage Canon Film Camera w/Strap - AE-1 - Untested](https://shopgoodwill.com/item/271611697) | Canon AE-1 / AE-1 Program (35mm SLR) | $35.88 | $88.91 | $73.03 | goodwill |  | 2026-07-30T20:52 |
+| 112 | [Vintage Sony Handycam Video 8 Camera Camcorder CCD-FX410 - N](https://shopgoodwill.com/item/271539670) | Sony Handycam camcorder | $9.99 | $62.70 | $72.71 | goodwill |  | 2026-07-29T19:02 |
+| 113 | [Sony Panasonic JVC Digital Camcorder Lot 3 Piece Handycam Ev](https://shopgoodwill.com/item/271464409) | Sony Handycam camcorder | $9.99 | $62.70 | $72.71 | goodwill |  | 2026-07-29T19:17 |
+| 114 | [Sony Video 8 Handycam Camcorder](https://shopgoodwill.com/item/271533556) | Sony Handycam camcorder | $10.99 | $62.70 | $71.71 | goodwill |  | 2026-07-29T18:01 |
+| 115 | [Canon AE-1 Program 35mm SLR Film Camera with Canon FD 50mm 1](https://shopgoodwill.com/item/271714598) | Canon AE-1 / AE-1 Program (35mm SLR) | $37.00 | $88.15 | $71.15 | goodwill |  | 2026-07-31T20:06 |
+| 116 | [Sony DCR-DVD105 Handycam (NOT TESTED)](https://shopgoodwill.com/item/272157000) | Sony Handycam camcorder | $9.99 | $60.75 | $70.76 | goodwill |  | 2026-07-31T19:24 |
+| 117 | [Vintage Sony Video 8 Handycam Camcorder with Case and Access](https://shopgoodwill.com/item/271751954) | Sony Handycam camcorder | $9.99 | $60.71 | $70.72 | goodwill |  | 2026-07-29T20:05 |
+| 118 | [Jessica McClintock Gunne Sax Black Velvet Dress with Sheer O](https://shopgoodwill.com/item/272119266) | Gunne Sax vintage dress | $19.93 | $70.44 | $70.50 | goodwill |  | 2026-08-04T19:10 |
+| 119 | [Gunne Sax by Jessica McClintock Purple Dress, Size 7/8](https://shopgoodwill.com/item/271957523) | Gunne Sax vintage dress | $19.95 | $70.44 | $70.48 | goodwill |  | 2026-08-03T19:03 |
+| 120 | [Gunne Sax by Jessica McClintock Juniors Size 7 Dress](https://shopgoodwill.com/item/272115664) | Gunne Sax vintage dress | $19.95 | $70.44 | $70.48 | goodwill |  | 2026-08-04T19:01 |
 | 121 | [Sony Handycam DCR-TRV280 Digital8 Camcorder 20x Optical Zoom](https://shopgoodwill.com/item/271724391) | Sony Handycam camcorder | $10.99 | $61.35 | $70.36 | goodwill |  | 2026-07-29T19:49 |
 | 122 | [Sony Handycam CCD-TR517 Video 8 XR Camcorder 200x Digital Zo](https://shopgoodwill.com/item/271704102) | Sony Handycam camcorder | $10.99 | $61.35 | $70.36 | goodwill |  | 2026-07-29T20:16 |
 | 123 | [Sony Handycam Mega Pixel 12x Wide Lcd Dcr Hc46](https://shopgoodwill.com/item/271714809) | Sony Handycam camcorder | $14.99 | $64.70 | $69.71 | goodwill |  | 2026-07-29T18:58 |
@@ -170,197 +170,197 @@ _Generated 2026-07-29T11:12:29+00:00 - best profit first. 'Open' is what it cost
 | 165 | [Fluke Digital Multimeter](https://hibid.com/lot/312693570) | Fluke meter (unspecified model) | $2.00 | $39.67 | $57.67 | hibid | Prague, OK | - |
 | 166 | [TAAOKA Digital Camera Case, Protective & Lightweight Camera ](https://www.nellisauction.com/p/120321196) | Sony Cyber-shot compact (non-RX) | $1.00 | $38.66 | $57.66 | nellis 📍 | Katy | 2026-07-29T23:34 |
 | 167 | [Vintage Polaroid SX-70 Film Land Camera](https://shopgoodwill.com/item/271719516) | Polaroid SX-70 (folding) | $8.99 | $45.34 | $56.35 | goodwill |  | 2026-07-31T18:17 |
-| 168 | [Mitutoyo Micrometer and caliper](https://hibid.com/lot/314282895) | Mitutoyo micrometer/caliper/indicator | $2.00 | $38.12 | $56.12 | hibid | Galion, OH | - |
-| 169 | [Mitutoyo 2”-3” micrometer](https://hibid.com/lot/313395887) | Mitutoyo micrometer/caliper/indicator | $2.00 | $38.12 | $56.12 | hibid | Clinton, IL | - |
-| 170 | [Mitutoyo micrometer as seen in the photos](https://hibid.com/lot/313215941) | Mitutoyo micrometer/caliper/indicator | $2.00 | $38.12 | $56.12 | hibid | Lawrence, KS | - |
-| 171 | [Mitutoyo micrometer as seen in the photos](https://hibid.com/lot/313215944) | Mitutoyo micrometer/caliper/indicator | $2.00 | $38.12 | $56.12 | hibid | Lawrence, KS | - |
-| 172 | [Jessica McClintock Gunne Sax Strapless Black Gold Stripe Coc](https://shopgoodwill.com/item/272060413) | Gunne Sax vintage dress | $34.95 | $70.44 | $55.48 | goodwill |  | 2026-08-01T18:03 |
-| 173 | [3 Sony Handycam Camcorders with Accessories](https://hibid.com/lot/313759733) | Sony Handycam camcorder | $30.00 | $64.70 | $54.70 | hibid | Mesa, AZ | - |
-| 174 | [Fluke Volt Meter](https://hibid.com/lot/311423602) | Fluke meter (unspecified model) | $5.00 | $39.67 | $54.67 | hibid | Nicholls, GA | - |
-| 175 | [Fluke 789 ProcessMeter: 4-20 mA, DMM, 24V](https://hibid.com/lot/314852197) | Fluke meter (unspecified model) | $5.00 | $39.67 | $54.67 | hibid | Salt Lake City, UT | - |
-| 176 | [LOT STARRETT, SPI & MITUTOYO INDICATORS](https://hibid.com/lot/308252329) | Dial / test indicator (brand-name) | $35.00 | $68.87 | $53.87 | hibid | Agawam, MA | - |
-| 177 | [Veronica Beard Navy Blazer Jacket](https://poshmark.com/listing/Veronica-Beard-Navy-Blazer-Jacket-6a692401006e43ba8c64077a) | Veronica Beard blazer/jacket | $60.00 | $93.72 | $53.72 | poshmark |  | - |
-| 178 | [Fluke 773 Advanced Milliamp Process Clamp-Meter](https://hibid.com/lot/314852182) | Fluke meter (unspecified model) | $6.00 | $39.67 | $53.67 | hibid | Salt Lake City, UT | - |
-| 179 | [Mitutoyo Micrometer](https://hibid.com/lot/313367016) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
-| 180 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/311423283) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
-| 181 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/311423314) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
-| 182 | [Mitutoyo Vernier Caliper](https://hibid.com/lot/311423573) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
-| 183 | [Mitutoyo Metric Micrometer](https://hibid.com/lot/313367011) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
-| 184 | [1-2 Mitutoyo Micrometer](https://hibid.com/lot/313367000) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
-| 185 | [Mitutoyo 2-3 Micrometer](https://hibid.com/lot/313367033) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
-| 186 | [Mitutoyo Vernier Caliper](https://hibid.com/lot/311423577) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
-| 187 | [Mitutoyo Vernier Caliper](https://hibid.com/lot/313366951) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
-| 188 | [Mitutoyo Digital Caliper](https://hibid.com/lot/313367006) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
-| 189 | [1-2 Mitutoyo Micrometer](https://hibid.com/lot/313367002) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
-| 190 | [Large Mitutoyo Vernier Caliper](https://hibid.com/lot/311423255) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
-| 191 | [Vintage Mitutoyo Bore Guage](https://hibid.com/lot/311423285) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
-| 192 | [Mitutoyo Electric Micrometer & Content](https://hibid.com/lot/311423580) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
-| 193 | [Starrett Machinist Micrometer](https://hibid.com/lot/312516791) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Macon, MO | - |
-| 194 | [Starrett Machinist Planer Gage](https://hibid.com/lot/312516837) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Macon, MO | - |
-| 195 | [Starrett Machinist Micrometer Depth Gage](https://hibid.com/lot/312516790) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Macon, MO | - |
-| 196 | [Lot (2) Starrett Machinist Micrometers](https://hibid.com/lot/312516834) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Macon, MO | - |
-| 197 | [Fluke Model 32 Clamp Meter](https://hibid.com/lot/312365906) | Fluke meter (unspecified model) | $7.00 | $39.67 | $52.67 | hibid | Green Bay, WI | - |
-| 198 | [Starrett inside micrometer](https://hibid.com/lot/313395890) | Starrett precision tool | $2.00 | $33.69 | $51.69 | hibid | Clinton, IL | - |
-| 199 | [Starrett micrometer as seen in the photos](https://hibid.com/lot/313215940) | Starrett precision tool | $2.00 | $33.69 | $51.69 | hibid | Lawrence, KS | - |
-| 200 | [Canon PowerShot SD1100 IS Silver 8.0MP Digital Elph Camera B](https://shopgoodwill.com/item/271495841) | Canon PowerShot ELPH / IXUS (digital) | $35.00 | $66.45 | $51.45 | goodwill |  | 2026-07-29T19:14 |
-| 201 | [Starrett Precision Hammer](https://hibid.com/lot/313366859) | Starrett precision tool | $2.50 | $33.69 | $51.19 | hibid | Powell, WY | - |
-| 202 | [Starrett Small Die Square](https://hibid.com/lot/313366857) | Starrett precision tool | $2.50 | $33.69 | $51.19 | hibid | Powell, WY | - |
-| 203 | [Vintage 90s St. John Women's Black Pink Knit Button Front Co](https://shopgoodwill.com/item/271492961) | St. John knit jacket/suit | $19.00 | $49.92 | $50.92 | goodwill |  | 2026-07-29T19:08 |
-| 204 | [Sony Handycam DCR-SR68 80GB HDD 60x Optical Zoom Digital Cam](https://shopgoodwill.com/item/271461889) | Sony Handycam camcorder | $32.00 | $62.70 | $50.70 | goodwill |  | 2026-07-29T18:03 |
-| 205 | [Starrett Outside Micrometers](https://hibid.com/lot/314843228) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Denver, PA | - |
-| 206 | [Starrett Thickness Gage 66 EDP50314](https://hibid.com/lot/312252879) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Nicholls, GA | - |
-| 207 | [Starrett Thickness Gage 66 EDP50314](https://hibid.com/lot/312252935) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Nicholls, GA | - |
-| 208 | [Mitutoyo Micrometer](https://hibid.com/lot/313367031) | Mitutoyo micrometer/caliper/indicator | $7.50 | $38.12 | $50.62 | hibid | Powell, WY | - |
-| 209 | [Mitutoyo Dial Caliper](https://hibid.com/lot/313367034) | Mitutoyo micrometer/caliper/indicator | $7.50 | $38.12 | $50.62 | hibid | Powell, WY | - |
-| 210 | [Mitutoyo Hole To Hole Dial Caliper](https://hibid.com/lot/313367036) | Mitutoyo micrometer/caliper/indicator | $7.50 | $38.12 | $50.62 | hibid | Powell, WY | - |
-| 211 | [Jessica McClintock Gunne Sax Black Velvet Dress 24W](https://shopgoodwill.com/item/271966343) | Gunne Sax vintage dress | $39.99 | $70.44 | $50.45 | goodwill |  | 2026-08-04T17:00 |
-| 212 | [Vintage Gunne Sax Jessica McClintock Gunne Sax dress Size 11](https://poshmark.com/listing/Vintage-Gunne-Sax-Jessica-McClintock-Gunne-Sax-dress-Size-11-6a6202f7134ddb13bd32dad4) | Gunne Sax vintage dress | $40.00 | $70.44 | $50.44 | poshmark |  | - |
-| 213 | [Vintage Polaroid SX-70 Sonar OneStep Land Camera With Flash ](https://shopgoodwill.com/item/272084919) | Polaroid SX-70 (folding) | $15.99 | $46.34 | $50.35 | goodwill |  | 2026-08-02T18:43 |
-| 214 | [Sony Handycam Vision CCD-TRV67 Hi8 Camcorder 360x Zoom Stead](https://shopgoodwill.com/item/271981167) | Sony Handycam camcorder | $32.00 | $61.70 | $49.70 | goodwill |  | 2026-07-29T18:55 |
-| 215 | [Sony Video Hi8 XR Handycam Vision](https://hibid.com/lot/314241580) | Sony Handycam camcorder | $35.00 | $64.70 | $49.70 | hibid | Tucson, AZ | - |
-| 216 | [Starrett 1 Inch Micrometer](https://hibid.com/lot/313420093) | Starrett precision tool | $4.00 | $33.69 | $49.69 | hibid | Columbia, MO | - |
-| 217 | [Fluke Networks MicroScanner Pro Cable Tester Kit](https://hibid.com/lot/314865633) | Fluke meter (unspecified model) | $10.00 | $39.67 | $49.67 | hibid | Twin Falls, ID | - |
-| 218 | [Vivitar 2600-D Auto Thyristor & Lenmar PS-7 Polaroid SX-70 S](https://shopgoodwill.com/item/271829357) | Polaroid SX-70 (folding) | $14.99 | $44.59 | $49.60 | goodwill |  | 2026-08-01T20:23 |
-| 219 | [Sony Handycam CCD-TR940 Hi8 XR Video Camera SteadyShot Night](https://shopgoodwill.com/item/271206048) | Sony Handycam camcorder | $33.00 | $62.20 | $49.20 | goodwill |  | 2026-07-29T18:45 |
-| 220 | [Starrett Square](https://hibid.com/lot/313367082) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Powell, WY | - |
-| 221 | [Starrett #216 Micrometer](https://hibid.com/lot/313520886) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Madison, IN | - |
-| 222 | [Vintage Starrett Micrometer](https://hibid.com/lot/311423724) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
-| 223 | [Vintage Starrett Micrometer](https://hibid.com/lot/311423723) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
-| 224 | [Vintage Starrett Micrometer](https://hibid.com/lot/311423731) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
-| 225 | [Vintage Starrett Micrometer](https://hibid.com/lot/311423733) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
-| 226 | [Starrett Thread Gauges](https://hibid.com/lot/313366999) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Powell, WY | - |
-| 227 | [Vintage Starrett Electronic Caliper](https://hibid.com/lot/311423717) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
-| 228 | [Vintage Starrett Vernier Caliper](https://hibid.com/lot/311423251) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
-| 229 | [Starrett Satin Chrome Micrometer](https://hibid.com/lot/313894266) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Clearfield, UT | - |
-| 230 | [Starrett Pocket Slide Caliper](https://hibid.com/lot/313366943) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Powell, WY | - |
-| 231 | [Starrett No. 7 Precision Steel Rule](https://hibid.com/lot/313945441) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Calamus, IA | - |
-| 232 | [Nikon Coolpix 880 & Coolpix L4 Digital Cameras Bundle with C](https://shopgoodwill.com/item/272039610) | Nikon Coolpix compact | $24.95 | $53.62 | $48.67 | goodwill |  | 2026-08-03T19:54 |
-| 233 | [Vintage Polaroid SX-70 Land Camera Model 3 Instant Film Came](https://shopgoodwill.com/item/271687323) | Polaroid SX-70 (folding) | $19.99 | $48.34 | $48.35 | goodwill |  | 2026-07-31T20:23 |
-| 234 | [Mitutoyo Micrometers](https://hibid.com/lot/301352834) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
-| 235 | [Mitutoyo Micrometers](https://hibid.com/lot/301352833) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
-| 236 | [Vintage Mitutoyo Micrometers](https://hibid.com/lot/311423303) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 237 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/311423308) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 238 | [Mitutoyo Measuring Gauge](https://hibid.com/lot/311423200) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 239 | [Mitutoyo 3-Point Internal Micrometer](https://hibid.com/lot/311423798) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 240 | [Mitutoyo 500-197-30 8” Calipers](https://hibid.com/lot/301352831) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
-| 241 | [Fluke Multimeter](https://hibid.com/lot/311952583) | Fluke meter (unspecified model) | $12.50 | $39.67 | $47.17 | hibid | Las Vegas, NV | - |
-| 242 | [Sony Cyber-Shot Camera Case Black Blue](https://hibid.com/lot/313868717) | Sony Cyber-shot compact (non-RX) | $2.50 | $29.66 | $47.16 | hibid | Hot Springs, AR | - |
-| 243 | [Vintage Polaroid SX-70 Land Camera Folding SLR Instant Film ](https://shopgoodwill.com/item/271982220) | Polaroid SX-70 (folding) | $22.00 | $48.34 | $46.34 | goodwill |  | 2026-08-04T16:04 |
-| 244 | [Mitutoyo Depth Micrometer Set Metric with Wooden Case and Me](https://shopgoodwill.com/item/271970795) | Mitutoyo micrometer/caliper/indicator | $9.99 | $36.13 | $46.14 | goodwill |  | 2026-08-03T18:06 |
-| 245 | [Pentax K1000 Se 35mm Camera & Lenses Bulk Mixed Bundle](https://shopgoodwill.com/item/271978305) | Pentax K1000 (35mm SLR) | $54.00 | $80.05 | $46.05 | goodwill |  | 2026-08-01T20:49 |
-| 246 | [St John Women's Red Textured Knit Blazer Jacket Size 10](https://shopgoodwill.com/item/271718281) | St. John knit jacket/suit | $21.00 | $46.92 | $45.92 | goodwill |  | 2026-07-31T16:33 |
-| 247 | [DIAL INDICATORS; STARRETT, FEDERAL](https://hibid.com/lot/313342342) | Starrett precision tool | $8.00 | $33.69 | $45.69 | hibid | Boonville, IN | - |
-| 248 | [(2) Mitutoyo Dial Calipers](https://hibid.com/lot/313367032) | Mitutoyo micrometer/caliper/indicator | $12.50 | $38.12 | $45.62 | hibid | Powell, WY | - |
-| 249 | [Gunne sax black velvet and](https://poshmark.com/listing/Gunne-sax-black-velvet-and-6a68a266b94eb8937c8972fc) | Gunne Sax vintage dress | $45.00 | $70.44 | $45.44 | poshmark |  | - |
-| 250 | [Gunne sax black midi dress](https://poshmark.com/listing/Gunne-sax-black-midi-dress-6a5fc1fccc0a7394164aad57) | Gunne Sax vintage dress | $45.00 | $70.44 | $45.44 | poshmark |  | - |
-| 251 | [Mitutoyo English Standard Depth Micrometer Set Wooden Case P](https://shopgoodwill.com/item/271971323) | Mitutoyo micrometer/caliper/indicator | $10.99 | $36.13 | $45.14 | goodwill |  | 2026-08-03T18:22 |
-| 252 | [SONY CYBERSHOT CAMERA WITH CASE](https://hibid.com/lot/314678419) | Sony Cyber-shot compact (non-RX) | $5.00 | $29.66 | $44.66 | hibid | Mesquite, TX | - |
-| 253 | [Sony Samsung Canon Digital & Video Camera Lot 5 Piece Handyc](https://shopgoodwill.com/item/271498869) | Canon PowerShot ELPH / IXUS (digital) | $43.00 | $66.70 | $43.70 | goodwill |  | 2026-07-29T18:08 |
-| 254 | [Starrett usa micrometers](https://hibid.com/lot/314471721) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Saint Paris, OH | - |
-| 255 | [Starrett No. 604R Precision Steel Rule](https://hibid.com/lot/313945440) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Calamus, IA | - |
-| 256 | [Polaroid SX-70 Land Camera Model 3](https://hibid.com/lot/313798831) | Polaroid SX-70 (folding) | $25.00 | $48.34 | $43.34 | hibid | Allentown, PA | - |
-| 257 | [Mitutoyo Digital Caliper](https://hibid.com/lot/313367035) | Mitutoyo micrometer/caliper/indicator | $15.00 | $38.12 | $43.12 | hibid | Powell, WY | - |
-| 258 | [Vintage Canon Film Camera AE-1 W/ 52mm Lens, Strap, Bag, Fla](https://shopgoodwill.com/item/271599834) | Canon AE-1 / AE-1 Program (35mm SLR) | $67.00 | $89.90 | $42.90 | goodwill |  | 2026-07-30T12:33 |
-| 259 | [Sony Cybershot Camera, +](https://hibid.com/lot/313950320) | Sony Cyber-shot compact (non-RX) | $7.00 | $29.66 | $42.66 | hibid | Washington, IN | - |
-| 260 | [Vintage Canon AE-1 Program 35mm SLR Camera w/ Canon FD 50mm ](https://shopgoodwill.com/item/271170663) | Canon AE-1 / AE-1 Program (35mm SLR) | $67.00 | $89.40 | $42.40 | goodwill |  | 2026-07-29T18:51 |
-| 261 | [LOT OF ASSORTED CAMERAS - SONY CYBERSHOT, NIKON](https://hibid.com/lot/313659032) | Sony Cyber-shot compact (non-RX) | $7.50 | $29.66 | $42.16 | hibid | Fort Recovery, OH | - |
-| 262 | [Starrett 0-1" Micrometer W/ Starrett No. 258M 25-5](https://hibid.com/lot/314269192) | Starrett precision tool | $12.00 | $33.69 | $41.69 | hibid | Baldwin, WI | - |
-| 263 | [(3) Starrett Micrometers](https://hibid.com/lot/311686315) | Starrett precision tool | $12.00 | $33.69 | $41.69 | hibid | Baldwin, WI | - |
-| 264 | [(2) Starrett Micrometers](https://hibid.com/lot/311686338) | Starrett precision tool | $12.00 | $33.69 | $41.69 | hibid | Baldwin, WI | - |
-| 265 | [Starrett micrometer depth gage](https://hibid.com/lot/313389098) | Starrett precision tool | $12.00 | $33.69 | $41.69 | hibid | Peterborough, ON | - |
-| 266 | [Sony 3.2 Mega Pixels Cyber Shot](https://hibid.com/lot/314241549) | Sony Cyber-shot compact (non-RX) | $8.00 | $29.66 | $41.66 | hibid | Tucson, AZ | - |
-| 267 | [Camera Lot, Vivitar, Pentax Iqz, Sony, Cyber-shot](https://hibid.com/lot/314133084) | Sony Cyber-shot compact (non-RX) | $8.00 | $29.66 | $41.66 | hibid | Lincoln, DE | - |
-| 268 | [Minolta Maxxum 400Si & Sony Cyber Shot Cameras,](https://hibid.com/lot/314217290) | Sony Cyber-shot compact (non-RX) | $9.00 | $29.66 | $40.66 | hibid | Annville, PA | - |
-| 269 | [St. John Evening Knit Dress Size 12 Beige Embellished Sleeve](https://shopgoodwill.com/item/271483377) | St. John knit jacket/suit | $27.00 | $46.92 | $39.92 | goodwill |  | 2026-07-29T16:20 |
-| 270 | [Five St John Knit Items](https://hibid.com/lot/313812315) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
-| 271 | [Four St John Knit Items](https://hibid.com/lot/313812337) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
+| 168 | [Mitutoyo 2”-3” micrometer](https://hibid.com/lot/313395887) | Mitutoyo micrometer/caliper/indicator | $2.00 | $38.12 | $56.12 | hibid | Clinton, IL | - |
+| 169 | [Mitutoyo micrometer as seen in the photos](https://hibid.com/lot/313215941) | Mitutoyo micrometer/caliper/indicator | $2.00 | $38.12 | $56.12 | hibid | Lawrence, KS | - |
+| 170 | [Mitutoyo micrometer as seen in the photos](https://hibid.com/lot/313215944) | Mitutoyo micrometer/caliper/indicator | $2.00 | $38.12 | $56.12 | hibid | Lawrence, KS | - |
+| 171 | [Jessica McClintock Gunne Sax Strapless Black Gold Stripe Coc](https://shopgoodwill.com/item/272060413) | Gunne Sax vintage dress | $34.95 | $70.44 | $55.48 | goodwill |  | 2026-08-01T18:03 |
+| 172 | [3 Sony Handycam Camcorders with Accessories](https://hibid.com/lot/313759733) | Sony Handycam camcorder | $30.00 | $64.70 | $54.70 | hibid | Mesa, AZ | - |
+| 173 | [Fluke Volt Meter](https://hibid.com/lot/311423602) | Fluke meter (unspecified model) | $5.00 | $39.67 | $54.67 | hibid | Nicholls, GA | - |
+| 174 | [Fluke 789 ProcessMeter: 4-20 mA, DMM, 24V](https://hibid.com/lot/314852197) | Fluke meter (unspecified model) | $5.00 | $39.67 | $54.67 | hibid | Salt Lake City, UT | - |
+| 175 | [LOT STARRETT, SPI & MITUTOYO INDICATORS](https://hibid.com/lot/308252329) | Dial / test indicator (brand-name) | $35.00 | $68.87 | $53.87 | hibid | Agawam, MA | - |
+| 176 | [Fluke 773 Advanced Milliamp Process Clamp-Meter](https://hibid.com/lot/314852182) | Fluke meter (unspecified model) | $6.00 | $39.67 | $53.67 | hibid | Salt Lake City, UT | - |
+| 177 | [Mitutoyo Micrometer](https://hibid.com/lot/313367016) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
+| 178 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/311423283) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
+| 179 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/311423314) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
+| 180 | [Mitutoyo Vernier Caliper](https://hibid.com/lot/311423573) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
+| 181 | [Mitutoyo Metric Micrometer](https://hibid.com/lot/313367011) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
+| 182 | [1-2 Mitutoyo Micrometer](https://hibid.com/lot/313367000) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
+| 183 | [Mitutoyo 2-3 Micrometer](https://hibid.com/lot/313367033) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
+| 184 | [Mitutoyo Vernier Caliper](https://hibid.com/lot/311423577) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
+| 185 | [Mitutoyo Vernier Caliper](https://hibid.com/lot/313366951) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
+| 186 | [Mitutoyo Digital Caliper](https://hibid.com/lot/313367006) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
+| 187 | [1-2 Mitutoyo Micrometer](https://hibid.com/lot/313367002) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Powell, WY | - |
+| 188 | [Large Mitutoyo Vernier Caliper](https://hibid.com/lot/311423255) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
+| 189 | [Vintage Mitutoyo Bore Guage](https://hibid.com/lot/311423285) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
+| 190 | [Mitutoyo Electric Micrometer & Content](https://hibid.com/lot/311423580) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
+| 191 | [Starrett Machinist Micrometer](https://hibid.com/lot/312516791) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Macon, MO | - |
+| 192 | [Starrett Machinist Planer Gage](https://hibid.com/lot/312516837) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Macon, MO | - |
+| 193 | [Starrett Machinist Micrometer Depth Gage](https://hibid.com/lot/312516790) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Macon, MO | - |
+| 194 | [Lot (2) Starrett Machinist Micrometers](https://hibid.com/lot/312516834) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Macon, MO | - |
+| 195 | [Fluke Model 32 Clamp Meter](https://hibid.com/lot/312365906) | Fluke meter (unspecified model) | $7.00 | $39.67 | $52.67 | hibid | Green Bay, WI | - |
+| 196 | [Starrett inside micrometer](https://hibid.com/lot/313395890) | Starrett precision tool | $2.00 | $33.69 | $51.69 | hibid | Clinton, IL | - |
+| 197 | [Starrett micrometer as seen in the photos](https://hibid.com/lot/313215940) | Starrett precision tool | $2.00 | $33.69 | $51.69 | hibid | Lawrence, KS | - |
+| 198 | [Canon PowerShot SD1100 IS Silver 8.0MP Digital Elph Camera B](https://shopgoodwill.com/item/271495841) | Canon PowerShot ELPH / IXUS (digital) | $35.00 | $66.45 | $51.45 | goodwill |  | 2026-07-29T19:14 |
+| 199 | [Starrett Precision Hammer](https://hibid.com/lot/313366859) | Starrett precision tool | $2.50 | $33.69 | $51.19 | hibid | Powell, WY | - |
+| 200 | [Starrett Small Die Square](https://hibid.com/lot/313366857) | Starrett precision tool | $2.50 | $33.69 | $51.19 | hibid | Powell, WY | - |
+| 201 | [Vintage 90s St. John Women's Black Pink Knit Button Front Co](https://shopgoodwill.com/item/271492961) | St. John knit jacket/suit | $19.00 | $49.92 | $50.92 | goodwill |  | 2026-07-29T19:08 |
+| 202 | [Sony Handycam DCR-SR68 80GB HDD 60x Optical Zoom Digital Cam](https://shopgoodwill.com/item/271461889) | Sony Handycam camcorder | $32.00 | $62.70 | $50.70 | goodwill |  | 2026-07-29T18:03 |
+| 203 | [Starrett Outside Micrometers](https://hibid.com/lot/314843228) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Denver, PA | - |
+| 204 | [Starrett Thickness Gage 66 EDP50314](https://hibid.com/lot/312252879) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Nicholls, GA | - |
+| 205 | [Starrett Thickness Gage 66 EDP50314](https://hibid.com/lot/312252935) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Nicholls, GA | - |
+| 206 | [Mitutoyo Micrometer](https://hibid.com/lot/313367031) | Mitutoyo micrometer/caliper/indicator | $7.50 | $38.12 | $50.62 | hibid | Powell, WY | - |
+| 207 | [Mitutoyo Dial Caliper](https://hibid.com/lot/313367034) | Mitutoyo micrometer/caliper/indicator | $7.50 | $38.12 | $50.62 | hibid | Powell, WY | - |
+| 208 | [Mitutoyo Hole To Hole Dial Caliper](https://hibid.com/lot/313367036) | Mitutoyo micrometer/caliper/indicator | $7.50 | $38.12 | $50.62 | hibid | Powell, WY | - |
+| 209 | [Jessica McClintock Gunne Sax Black Velvet Dress 24W](https://shopgoodwill.com/item/271966343) | Gunne Sax vintage dress | $39.99 | $70.44 | $50.45 | goodwill |  | 2026-08-04T17:00 |
+| 210 | [Vintage Gunne Sax Jessica McClintock Gunne Sax dress Size 11](https://poshmark.com/listing/Vintage-Gunne-Sax-Jessica-McClintock-Gunne-Sax-dress-Size-11-6a6202f7134ddb13bd32dad4) | Gunne Sax vintage dress | $40.00 | $70.44 | $50.44 | poshmark |  | - |
+| 211 | [Vintage Polaroid SX-70 Sonar OneStep Land Camera With Flash ](https://shopgoodwill.com/item/272084919) | Polaroid SX-70 (folding) | $15.99 | $46.34 | $50.35 | goodwill |  | 2026-08-02T18:43 |
+| 212 | [Sony Handycam Vision CCD-TRV67 Hi8 Camcorder 360x Zoom Stead](https://shopgoodwill.com/item/271981167) | Sony Handycam camcorder | $32.00 | $61.70 | $49.70 | goodwill |  | 2026-07-29T18:55 |
+| 213 | [Sony Video Hi8 XR Handycam Vision](https://hibid.com/lot/314241580) | Sony Handycam camcorder | $35.00 | $64.70 | $49.70 | hibid | Tucson, AZ | - |
+| 214 | [Starrett 1 Inch Micrometer](https://hibid.com/lot/313420093) | Starrett precision tool | $4.00 | $33.69 | $49.69 | hibid | Columbia, MO | - |
+| 215 | [Fluke Networks MicroScanner Pro Cable Tester Kit](https://hibid.com/lot/314865633) | Fluke meter (unspecified model) | $10.00 | $39.67 | $49.67 | hibid | Twin Falls, ID | - |
+| 216 | [Vivitar 2600-D Auto Thyristor & Lenmar PS-7 Polaroid SX-70 S](https://shopgoodwill.com/item/271829357) | Polaroid SX-70 (folding) | $14.99 | $44.59 | $49.60 | goodwill |  | 2026-08-01T20:23 |
+| 217 | [Sony Handycam CCD-TR940 Hi8 XR Video Camera SteadyShot Night](https://shopgoodwill.com/item/271206048) | Sony Handycam camcorder | $33.00 | $62.20 | $49.20 | goodwill |  | 2026-07-29T18:45 |
+| 218 | [Starrett Square](https://hibid.com/lot/313367082) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Powell, WY | - |
+| 219 | [Starrett #216 Micrometer](https://hibid.com/lot/313520886) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Madison, IN | - |
+| 220 | [Vintage Starrett Micrometer](https://hibid.com/lot/311423723) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
+| 221 | [Vintage Starrett Micrometer](https://hibid.com/lot/311423731) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
+| 222 | [Vintage Starrett Micrometer](https://hibid.com/lot/311423733) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
+| 223 | [Starrett Thread Gauges](https://hibid.com/lot/313366999) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Powell, WY | - |
+| 224 | [Vintage Starrett Micrometer](https://hibid.com/lot/311423724) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
+| 225 | [Vintage Starrett Electronic Caliper](https://hibid.com/lot/311423717) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
+| 226 | [Vintage Starrett Vernier Caliper](https://hibid.com/lot/311423251) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
+| 227 | [Starrett Satin Chrome Micrometer](https://hibid.com/lot/313894266) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Clearfield, UT | - |
+| 228 | [Starrett Pocket Slide Caliper](https://hibid.com/lot/313366943) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Powell, WY | - |
+| 229 | [Starrett No. 7 Precision Steel Rule](https://hibid.com/lot/313945441) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Calamus, IA | - |
+| 230 | [Nikon Coolpix 880 & Coolpix L4 Digital Cameras Bundle with C](https://shopgoodwill.com/item/272039610) | Nikon Coolpix compact | $24.95 | $53.62 | $48.67 | goodwill |  | 2026-08-03T19:54 |
+| 231 | [Vintage Polaroid SX-70 Land Camera Model 3 Instant Film Came](https://shopgoodwill.com/item/271687323) | Polaroid SX-70 (folding) | $19.99 | $48.34 | $48.35 | goodwill |  | 2026-07-31T20:23 |
+| 232 | [Mitutoyo Micrometers](https://hibid.com/lot/301352834) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
+| 233 | [Mitutoyo Micrometers](https://hibid.com/lot/301352833) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
+| 234 | [Vintage Mitutoyo Micrometers](https://hibid.com/lot/311423303) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 235 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/311423308) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 236 | [Mitutoyo Measuring Gauge](https://hibid.com/lot/311423200) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 237 | [Mitutoyo 3-Point Internal Micrometer](https://hibid.com/lot/311423798) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 238 | [Mitutoyo 500-197-30 8” Calipers](https://hibid.com/lot/301352831) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
+| 239 | [Fluke Multimeter](https://hibid.com/lot/311952583) | Fluke meter (unspecified model) | $12.50 | $39.67 | $47.17 | hibid | Las Vegas, NV | - |
+| 240 | [Sony Cyber-Shot Camera Case Black Blue](https://hibid.com/lot/313868717) | Sony Cyber-shot compact (non-RX) | $2.50 | $29.66 | $47.16 | hibid | Hot Springs, AR | - |
+| 241 | [Vintage Polaroid SX-70 Land Camera Folding SLR Instant Film ](https://shopgoodwill.com/item/271982220) | Polaroid SX-70 (folding) | $22.00 | $48.34 | $46.34 | goodwill |  | 2026-08-04T16:04 |
+| 242 | [Mitutoyo Depth Micrometer Set Metric with Wooden Case and Me](https://shopgoodwill.com/item/271970795) | Mitutoyo micrometer/caliper/indicator | $9.99 | $36.13 | $46.14 | goodwill |  | 2026-08-03T18:06 |
+| 243 | [Pentax K1000 Se 35mm Camera & Lenses Bulk Mixed Bundle](https://shopgoodwill.com/item/271978305) | Pentax K1000 (35mm SLR) | $54.00 | $80.05 | $46.05 | goodwill |  | 2026-08-01T20:49 |
+| 244 | [St John Women's Red Textured Knit Blazer Jacket Size 10](https://shopgoodwill.com/item/271718281) | St. John knit jacket/suit | $21.00 | $46.92 | $45.92 | goodwill |  | 2026-07-31T16:33 |
+| 245 | [DIAL INDICATORS; STARRETT, FEDERAL](https://hibid.com/lot/313342342) | Starrett precision tool | $8.00 | $33.69 | $45.69 | hibid | Boonville, IN | - |
+| 246 | [(2) Mitutoyo Dial Calipers](https://hibid.com/lot/313367032) | Mitutoyo micrometer/caliper/indicator | $12.50 | $38.12 | $45.62 | hibid | Powell, WY | - |
+| 247 | [Gunne sax black velvet and](https://poshmark.com/listing/Gunne-sax-black-velvet-and-6a68a266b94eb8937c8972fc) | Gunne Sax vintage dress | $45.00 | $70.44 | $45.44 | poshmark |  | - |
+| 248 | [Gunne sax black midi dress](https://poshmark.com/listing/Gunne-sax-black-midi-dress-6a5fc1fccc0a7394164aad57) | Gunne Sax vintage dress | $45.00 | $70.44 | $45.44 | poshmark |  | - |
+| 249 | [Mitutoyo English Standard Depth Micrometer Set Wooden Case P](https://shopgoodwill.com/item/271971323) | Mitutoyo micrometer/caliper/indicator | $10.99 | $36.13 | $45.14 | goodwill |  | 2026-08-03T18:22 |
+| 250 | [Mitutoyo Micrometer and caliper](https://hibid.com/lot/314282895) | Mitutoyo micrometer/caliper/indicator | $13.00 | $38.12 | $45.12 | hibid | Galion, OH | - |
+| 251 | [SONY CYBERSHOT CAMERA WITH CASE](https://hibid.com/lot/314678419) | Sony Cyber-shot compact (non-RX) | $5.00 | $29.66 | $44.66 | hibid | Mesquite, TX | - |
+| 252 | [Sony Samsung Canon Digital & Video Camera Lot 5 Piece Handyc](https://shopgoodwill.com/item/271498869) | Canon PowerShot ELPH / IXUS (digital) | $43.00 | $66.70 | $43.70 | goodwill |  | 2026-07-29T18:08 |
+| 253 | [Starrett usa micrometers](https://hibid.com/lot/314471721) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Saint Paris, OH | - |
+| 254 | [Starrett No. 604R Precision Steel Rule](https://hibid.com/lot/313945440) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Calamus, IA | - |
+| 255 | [Polaroid SX-70 Land Camera Model 3](https://hibid.com/lot/313798831) | Polaroid SX-70 (folding) | $25.00 | $48.34 | $43.34 | hibid | Allentown, PA | - |
+| 256 | [Mitutoyo Digital Caliper](https://hibid.com/lot/313367035) | Mitutoyo micrometer/caliper/indicator | $15.00 | $38.12 | $43.12 | hibid | Powell, WY | - |
+| 257 | [Vintage Canon Film Camera AE-1 W/ 52mm Lens, Strap, Bag, Fla](https://shopgoodwill.com/item/271599834) | Canon AE-1 / AE-1 Program (35mm SLR) | $67.00 | $89.90 | $42.90 | goodwill |  | 2026-07-30T12:33 |
+| 258 | [Sony Cybershot Camera, +](https://hibid.com/lot/313950320) | Sony Cyber-shot compact (non-RX) | $7.00 | $29.66 | $42.66 | hibid | Washington, IN | - |
+| 259 | [Vintage Canon AE-1 Program 35mm SLR Camera w/ Canon FD 50mm ](https://shopgoodwill.com/item/271170663) | Canon AE-1 / AE-1 Program (35mm SLR) | $67.00 | $89.40 | $42.40 | goodwill |  | 2026-07-29T18:51 |
+| 260 | [LOT OF ASSORTED CAMERAS - SONY CYBERSHOT, NIKON](https://hibid.com/lot/313659032) | Sony Cyber-shot compact (non-RX) | $7.50 | $29.66 | $42.16 | hibid | Fort Recovery, OH | - |
+| 261 | [Starrett 0-1" Micrometer W/ Starrett No. 258M 25-5](https://hibid.com/lot/314269192) | Starrett precision tool | $12.00 | $33.69 | $41.69 | hibid | Baldwin, WI | - |
+| 262 | [(3) Starrett Micrometers](https://hibid.com/lot/311686315) | Starrett precision tool | $12.00 | $33.69 | $41.69 | hibid | Baldwin, WI | - |
+| 263 | [(2) Starrett Micrometers](https://hibid.com/lot/311686338) | Starrett precision tool | $12.00 | $33.69 | $41.69 | hibid | Baldwin, WI | - |
+| 264 | [Starrett micrometer depth gage](https://hibid.com/lot/313389098) | Starrett precision tool | $12.00 | $33.69 | $41.69 | hibid | Peterborough, ON | - |
+| 265 | [Sony 3.2 Mega Pixels Cyber Shot](https://hibid.com/lot/314241549) | Sony Cyber-shot compact (non-RX) | $8.00 | $29.66 | $41.66 | hibid | Tucson, AZ | - |
+| 266 | [Camera Lot, Vivitar, Pentax Iqz, Sony, Cyber-shot](https://hibid.com/lot/314133084) | Sony Cyber-shot compact (non-RX) | $8.00 | $29.66 | $41.66 | hibid | Lincoln, DE | - |
+| 267 | [Minolta Maxxum 400Si & Sony Cyber Shot Cameras,](https://hibid.com/lot/314217290) | Sony Cyber-shot compact (non-RX) | $9.00 | $29.66 | $40.66 | hibid | Annville, PA | - |
+| 268 | [St. John Evening Knit Dress Size 12 Beige Embellished Sleeve](https://shopgoodwill.com/item/271483377) | St. John knit jacket/suit | $27.00 | $46.92 | $39.92 | goodwill |  | 2026-07-29T16:20 |
+| 269 | [Five St John Knit Items](https://hibid.com/lot/313812315) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
+| 270 | [Four St John Knit Items](https://hibid.com/lot/313812337) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
+| 271 | [Four St John Knit Items](https://hibid.com/lot/313812314) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
 | 272 | [Four St John Knit Items](https://hibid.com/lot/313812310) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
-| 273 | [Four St John Knit Items](https://hibid.com/lot/313812314) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
-| 274 | [Four St John Knit Items, Red](https://hibid.com/lot/313812313) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
-| 275 | [Iconic St John Black Knit Jumper](https://hibid.com/lot/313812342) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
-| 276 | [Four St John Knit Items, Black](https://hibid.com/lot/313812311) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
-| 277 | [Canon Ae-1 Program 35mm Slr Film Camera W/ Lens Strap Untest](https://shopgoodwill.com/item/271697228) | Canon AE-1 / AE-1 Program (35mm SLR) | $69.00 | $88.91 | $39.91 | goodwill |  | 2026-07-29T19:12 |
-| 278 | [Canon AE-1 Program 35mm SLR Film Camera](https://shopgoodwill.com/item/271726879) | Canon AE-1 / AE-1 Program (35mm SLR) | $67.00 | $86.91 | $39.91 | goodwill |  | 2026-07-29T19:41 |
-| 279 | [Sony HDR-CX100 Handycam Camcorder Bundle](https://hibid.com/lot/313759800) | Sony Handycam camcorder | $45.00 | $64.70 | $39.70 | hibid | Mesa, AZ | - |
-| 280 | [Canon PowerShot SD900 Digital ELPH Camera with Case - Untest](https://shopgoodwill.com/item/271340701) | Canon PowerShot ELPH / IXUS (digital) | $49.99 | $68.70 | $38.71 | goodwill |  | 2026-07-29T17:00 |
-| 281 | [SONY CyberShot DSC-S750 Camera w/ Charger & Case - Powers On](https://shopgoodwill.com/item/271587933) | Sony Cyber-shot compact (non-RX) | $10.99 | $29.66 | $38.67 | goodwill |  | 2026-07-30T19:55 |
-| 282 | [Sony Cybershot 5.1 Mega Pixels 3x Optical Zoom Digital Camer](https://shopgoodwill.com/item/272189664) | Sony Cyber-shot compact (non-RX) | $5.99 | $24.66 | $38.67 | goodwill |  | 2027-01-25T18:16 |
-| 283 | [Sony Cyber-shot DSC-W560 with Accessories](https://hibid.com/lot/314365475) | Sony Cyber-shot compact (non-RX) | $11.00 | $29.66 | $38.66 | hibid | Thunder Bay, ON | - |
-| 284 | [Polaroid Land Camera Sx-70](https://shopgoodwill.com/item/271981438) | Polaroid SX-70 (folding) | $27.87 | $46.34 | $38.47 | goodwill |  | 2026-08-03T18:17 |
-| 285 | [Sony Cybershot G Digital Camera W/ Battery](https://shopgoodwill.com/item/272153894) | Sony Cyber-shot compact (non-RX) | $7.99 | $25.66 | $37.67 | goodwill |  | 2026-07-31T18:19 |
-| 286 | [Sony Cybershot DSC-W55 7.2MP Digital Camera Tested](https://shopgoodwill.com/item/271930147) | Sony Cyber-shot compact (non-RX) | $8.99 | $26.66 | $37.67 | goodwill |  | 2026-08-01T19:33 |
-| 287 | [Sony Cybershot DSC-WX9 Digital Camera, No Charger (Tested)](https://shopgoodwill.com/item/272051744) | Sony Cyber-shot compact (non-RX) | $9.99 | $27.66 | $37.67 | goodwill |  | 2026-08-04T18:18 |
-| 288 | [Nintendo Gameboy Color Pokemon Crystal Version](https://hibid.com/lot/313990755) | Pokemon Crystal (GBC) | $74.00 | $91.63 | $37.63 | hibid | Sycamore, OH | - |
-| 289 | [Sony Cyber-shot DSC-V3 7.2MP Digital Camera 4x Optical Zoom ](https://shopgoodwill.com/item/271598641) | Sony Cyber-shot compact (non-RX) | $9.99 | $27.16 | $37.17 | goodwill |  | 2026-07-30T18:20 |
-| 290 | [Sony Cyber-shot DSC-W5 5.1MP Digital Camera 3x Optical Zoom ](https://shopgoodwill.com/item/271761142) | Sony Cyber-shot compact (non-RX) | $12.97 | $29.66 | $36.69 | goodwill |  | 2026-07-29T18:50 |
-| 291 | [Sony Cybershot DSC-S75 3.3MP Vintage Digital Camera Powers O](https://shopgoodwill.com/item/271893195) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.66 | $36.67 | goodwill |  | 2026-08-02T18:27 |
-| 292 | [Sony Cybershot DSC-HX300 20.4MP 50X Zoom Digital Camera Powe](https://shopgoodwill.com/item/271867609) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.66 | $36.67 | goodwill |  | 2026-08-02T18:42 |
-| 293 | [Starrett No. 269B Taper Gauge](https://hibid.com/lot/313945439) | Starrett precision tool | $17.50 | $33.69 | $36.19 | hibid | Calamus, IA | - |
-| 294 | [Fluke 77 & RadioShack 22-812 Digital Multimeters with Access](https://shopgoodwill.com/item/271706809) | Fluke meter (unspecified model) | $22.00 | $37.67 | $35.67 | goodwill |  | 2026-07-29T18:47 |
-| 295 | [Vintage Canon AE-1 35mm SLR Camera with FD 50mm f/1.4 Lens &](https://shopgoodwill.com/item/271613698) | Canon AE-1 / AE-1 Program (35mm SLR) | $74.12 | $89.40 | $35.28 | goodwill |  | 2026-07-30T18:10 |
-| 296 | [Mitutoyo Metric Outside Micrometer Set 0-75mm in Orange Case](https://shopgoodwill.com/item/271969499) | Mitutoyo micrometer/caliper/indicator | $21.00 | $36.13 | $35.13 | goodwill |  | 2026-08-03T18:34 |
-| 297 | [Sony CCD-FX525 Video 8 Handycam Camcorder with AC Adapter](https://shopgoodwill.com/item/271470785) | Sony Handycam camcorder | $49.96 | $64.70 | $34.74 | goodwill |  | 2026-07-29T19:09 |
-| 298 | [Black Sony Cyber Shot Dsc Hx5v Digital Camera](https://shopgoodwill.com/item/271714296) | Sony Cyber-shot compact (non-RX) | $14.99 | $29.66 | $34.67 | goodwill |  | 2026-07-29T20:11 |
-| 299 | [Sony Cybershot Digital Camera](https://shopgoodwill.com/item/271977902) | Sony Cyber-shot compact (non-RX) | $13.00 | $27.16 | $34.16 | goodwill |  | 2026-07-30T19:41 |
-| 300 | [Canon PowerShot ELPH 300 HS 12.1MP Digital Point & Shoot Cam](https://shopgoodwill.com/item/271490936) | Canon PowerShot ELPH / IXUS (digital) | $52.00 | $65.70 | $33.70 | goodwill |  | 2026-07-29T18:22 |
-| 301 | [Starrett Engineers Level](https://hibid.com/lot/310206313) | Starrett precision tool | $20.00 | $33.69 | $33.69 | hibid | Richmond, -- | - |
-| 302 | [Sony Cybershot DSC-W70 7.2MP 3X Zoom Digital Camera Powers O](https://shopgoodwill.com/item/271867639) | Sony Cyber-shot compact (non-RX) | $13.00 | $26.66 | $33.66 | goodwill |  | 2026-08-02T20:50 |
-| 303 | [AS IS Rare SONY Carl Zeiss Cybershot Camera*](https://hibid.com/lot/314048577) | Sony Cyber-shot compact (non-RX) | $16.00 | $29.66 | $33.66 | hibid | Mississauga, ON | - |
-| 304 | [Polaroid SX-70 Land Camera With Case](https://hibid.com/lot/313798827) | Polaroid SX-70 (folding) | $35.00 | $48.34 | $33.34 | hibid | Allentown, PA | - |
-| 305 | [(3) MITUTOYO MICROMETERS (*See Photo)](https://hibid.com/lot/313948709) | Mitutoyo micrometer/caliper/indicator | $25.00 | $38.12 | $33.12 | hibid | Agawam, MA | - |
-| 306 | [Patagonia 3-6 months coat](https://hibid.com/lot/314783513) | Patagonia (unspecified) | $1.00 | $13.68 | $32.68 | hibid | Anderson, IN | - |
-| 307 | [2 - Patagonia and Pineapple Hats](https://hibid.com/lot/312667162) | Patagonia (unspecified) | $1.00 | $13.68 | $32.68 | hibid | Raytown, MO | - |
-| 308 | [Sony CyberShot DSC H300 20.1MP Digital Camera 35x Optical Zo](https://shopgoodwill.com/item/271944835) | Sony Cyber-shot compact (non-RX) | $14.99 | $27.66 | $32.67 | goodwill |  | 2026-08-01T18:24 |
-| 309 | [Sony CyberShot DSC S650 7.2MP Digital Camera 3x Optical Zoom](https://shopgoodwill.com/item/272121498) | Sony Cyber-shot compact (non-RX) | $14.99 | $27.66 | $32.67 | goodwill |  | 2026-08-02T18:30 |
-| 310 | [Sony Cyber-Shot DSC-W5 5.1MP Digital Camera Silver With Case](https://shopgoodwill.com/item/271615385) | Sony Cyber-shot compact (non-RX) | $14.99 | $27.66 | $32.67 | goodwill |  | 2026-07-30T18:58 |
-| 311 | [SONY DSC-H55 & DSC-W300 CYBER-SHOT DIGITAL CAMERAS](https://hibid.com/lot/309992698) | Sony Cyber-shot compact (non-RX) | $17.50 | $29.66 | $32.16 | hibid | Fort Recovery, OH | - |
-| 312 | [Olympus Stylus Epic Zoom 170 Deluxe 35mm Compact Point and S](https://shopgoodwill.com/item/271500882) | Olympus Stylus Epic Zoom 80/115/170 | $105.00 | $117.00 | $32.00 | goodwill |  | 2026-07-29T18:37 |
-| 313 | [Vintage Starrett Transit Level No. 99F Surveying Instrument ](https://shopgoodwill.com/item/271787791) | Starrett precision tool | $19.99 | $31.69 | $31.70 | goodwill |  | 2026-07-29T18:45 |
-| 314 | [Sony CyberShot DSC H70 16.1MP Digital Still Camera 10x Optic](https://shopgoodwill.com/item/272122097) | Sony Cyber-shot compact (non-RX) | $15.99 | $27.66 | $31.67 | goodwill |  | 2026-08-02T18:28 |
-| 315 | [Sony Cyber-shot Model DSC-F707 Silver Black Digital Camera N](https://shopgoodwill.com/item/271887074) | Sony Cyber-shot compact (non-RX) | $12.99 | $24.66 | $31.67 | goodwill |  | 2026-07-29T19:00 |
-| 316 | [Arcteryx Mens Tee Size S](https://shopgoodwill.com/item/271977453) | Arc'teryx (unspecified model) | $10.99 | $22.33 | $31.34 | goodwill |  | 2026-07-31T19:31 |
-| 317 | [NIKON COOLPIX 990 DIGITAL CAMERA](https://hibid.com/lot/314205241) | Nikon Coolpix compact | $1.00 | $12.31 | $31.31 | hibid | Knoxville, TN | - |
-| 318 | [NIKON COOLPIX P530 CAMERA OUTFIT](https://hibid.com/lot/314865374) | Nikon Coolpix compact | $1.00 | $12.31 | $31.31 | hibid | Wind Ridge, PA | - |
-| 319 | [Nikon CoolPix Canon SureShot Digital Cameras See](https://hibid.com/lot/314322376) | Nikon Coolpix compact | $1.00 | $12.31 | $31.31 | hibid | Albuquerque, NM | - |
-| 320 | [Patagonia and LLBean pullovers](https://hibid.com/lot/314786285) | Patagonia (unspecified) | $2.50 | $13.68 | $31.18 | hibid | Bark River, MI | - |
-| 321 | [Arc'teryx Women's Red Skort - Size Medium](https://shopgoodwill.com/item/272022663) | Arc'teryx (unspecified model) | $8.50 | $19.33 | $30.83 | goodwill |  | 2026-08-03T16:06 |
-| 322 | [Patagonia Sz L 32 Heat Sz M Long Johns Base Layer](https://hibid.com/lot/311017419) | Patagonia (unspecified) | $3.00 | $13.68 | $30.68 | hibid | Detroit, MI | - |
-| 323 | [Polaroid SX-70 Land Camera -Untested](https://shopgoodwill.com/item/271709377) | Polaroid SX-70 (folding) | $34.99 | $45.34 | $30.35 | goodwill |  | 2026-07-31T20:22 |
-| 324 | [Two Cameras - Nikon Coolpix & Canon](https://hibid.com/lot/314890042) | Nikon Coolpix compact | $2.00 | $12.31 | $30.31 | hibid | Centre, AL | - |
-| 325 | [Apple Ipod Classic 160gb 7th Generation Silver Portable Medi](https://shopgoodwill.com/item/271587185) | iPod Classic 160GB | $84.00 | $93.72 | $29.72 | goodwill |  | 2026-07-30T20:54 |
-| 326 | [Vintage Sony Cyber-shot DSC-S30 1.3MP Digital Still Camera F](https://shopgoodwill.com/item/271452470) | Sony Cyber-shot compact (non-RX) | $19.99 | $29.66 | $29.67 | goodwill |  | 2026-07-29T19:41 |
-| 327 | [21lbs Untested Sony Cybershot and Handycam Camera Grab Bag L](https://shopgoodwill.com/item/271812213) | Sony Cyber-shot compact (non-RX) | $15.00 | $24.66 | $29.66 | goodwill |  | 2026-08-02T17:00 |
-| 328 | [Arc'Teryx / Black Logo Norvan LD 2 Sneakers / Trail Runners ](https://shopgoodwill.com/item/271717874) | Arc'teryx (unspecified model) | $10.99 | $20.33 | $29.34 | goodwill |  | 2026-07-29T18:33 |
-| 329 | [Arc'Teryx Sweater Size 4-6](https://shopgoodwill.com/item/271720857) | Arc'teryx (unspecified model) | $9.99 | $19.33 | $29.34 | goodwill |  | 2026-07-31T18:16 |
-| 330 | [Arc'teryx Men's Large 1/4-Zip Orange Pullover/Sweater](https://shopgoodwill.com/item/271977286) | Arc'teryx (unspecified model) | $10.99 | $20.33 | $29.34 | goodwill |  | 2026-08-01T18:44 |
-| 331 | [Blackskin Agate, Patagonia, Polished](https://hibid.com/lot/314882141) | Patagonia (unspecified) | $5.00 | $13.68 | $28.68 | hibid | Monticello, MN | - |
-| 332 | [Patagonia 1987 Ceramic Vase With Floral Relief](https://hibid.com/lot/314758694) | Patagonia (unspecified) | $5.00 | $13.68 | $28.68 | hibid | New Haven, IN | - |
-| 333 | [Patagonia Infant to 1 yr old Snow Suit  S-69](https://hibid.com/lot/314920136) | Patagonia (unspecified) | $5.00 | $13.68 | $28.68 | hibid | North Pole, AK | - |
-| 334 | [Sony Cyber-shot DSC-W55 7.2MP Digital Compact Camera Silver ](https://shopgoodwill.com/item/271452804) | Sony Cyber-shot compact (non-RX) | $20.99 | $29.66 | $28.67 | goodwill |  | 2026-07-29T19:06 |
-| 335 | [Canon AE-1 Program 35mm SLR Film Camera w/ Canon FD 50mm f/1](https://shopgoodwill.com/item/271710290) | Canon AE-1 / AE-1 Program (35mm SLR) | $80.50 | $88.91 | $28.41 | goodwill |  | 2026-07-31T18:18 |
-| 336 | [Orange Arc'teryx Women's Hooded Zip Jacket, Size L](https://shopgoodwill.com/item/271614795) | Arc'teryx (unspecified model) | $10.99 | $19.33 | $28.34 | goodwill |  | 2026-07-31T17:00 |
-| 337 | [Vintage Polaroid SX-70 Film Land Camera](https://shopgoodwill.com/item/271972341) | Polaroid SX-70 (folding) | $37.00 | $45.34 | $28.34 | goodwill |  | 2026-08-03T18:36 |
-| 338 | [Nikon Coolpix 4500 digital camera kit](https://hibid.com/lot/307620008) | Nikon Coolpix compact | $4.00 | $12.31 | $28.31 | hibid | Oakbank, MB | - |
-| 339 | [Patagonia Nano Puff Jacket Mens Size M](https://shopgoodwill.com/item/271683442) | Patagonia Nano Puff / Down Sweater | $22.01 | $30.25 | $28.24 | goodwill |  | 2026-07-29T18:32 |
-| 340 | [2-Sony Cybershot Digital Cameras](https://shopgoodwill.com/item/272157426) | Sony Cyber-shot compact (non-RX) | $17.99 | $26.16 | $28.17 | goodwill |  | 2026-08-04T18:20 |
-| 341 | [Patagonia Atom Sling - Vintage Collection](https://hibid.com/lot/313842100) | Patagonia (unspecified) | $6.00 | $13.68 | $27.68 | hibid | Wolfforth, TX | - |
-| 342 | [Sony Cyber-shot DSC-S70 Digital Camera with Charger - Powers](https://shopgoodwill.com/item/272044516) | Sony Cyber-shot compact (non-RX) | $19.99 | $27.66 | $27.67 | goodwill |  | 2026-08-01T18:12 |
-| 343 | [Sony Cyber-shot DSC-S75 3.3MP Digital Camera Carl Zeiss Lens](https://shopgoodwill.com/item/272167819) | Sony Cyber-shot compact (non-RX) | $19.99 | $27.66 | $27.67 | goodwill |  | 2026-08-02T18:46 |
-| 344 | [Arc'teryx Women's Black Sleeveless Dress XS Polyester](https://shopgoodwill.com/item/272009763) | Arc'teryx (unspecified model) | $14.99 | $22.33 | $27.34 | goodwill |  | 2026-08-01T18:54 |
-| 345 | [Nikon Coolpix B500](https://hibid.com/lot/313012691) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Wellesley, ON | - |
-| 346 | [NIKON COOLPIX AND POLAROID IS048](https://hibid.com/lot/314664940) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Fillmore, NY | - |
-| 347 | [Nikon Coolpix 4300 with case & charger](https://hibid.com/lot/314234890) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Maacungie, PA | - |
-| 348 | [Nikon Coolpix 5700 5.0MP 8x Zoom ED](https://hibid.com/lot/314820771) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Brevard, NC | - |
-| 349 | [Patagonia Gray Heather Better Sweater 1/4 Zip Pullover Fleec](https://shopgoodwill.com/item/271753767) | Patagonia (unspecified) | $6.99 | $13.68 | $26.69 | goodwill |  | 2026-07-29T18:26 |
-| 350 | [Patagonia and Ralph Lauren Clothing Items](https://hibid.com/lot/314247516) | Patagonia (unspecified) | $7.00 | $13.68 | $26.68 | hibid | Ozark, MO | - |
-| 351 | [Sony Cyber-shot DSC-W90 8.1MP Digital Camera Carl Zeiss Vari](https://shopgoodwill.com/item/271811551) | Sony Cyber-shot compact (non-RX) | $20.99 | $27.66 | $26.67 | goodwill |  | 2026-07-30T18:55 |
-| 352 | [Arc'teryx Women's Lanora Full Zip Hoody Velvet Sand Wool Ble](https://shopgoodwill.com/item/271737850) | Arc'teryx (unspecified model) | $15.99 | $22.33 | $26.34 | goodwill |  | 2026-07-31T17:07 |
-| 353 | [Nikon COOLPIX Camera, Charger & Case
+| 273 | [Four St John Knit Items, Red](https://hibid.com/lot/313812313) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
+| 274 | [Iconic St John Black Knit Jumper](https://hibid.com/lot/313812342) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
+| 275 | [Four St John Knit Items, Black](https://hibid.com/lot/313812311) | St. John knit jacket/suit | $30.00 | $49.92 | $39.92 | hibid | Carmel, IN | - |
+| 276 | [Canon Ae-1 Program 35mm Slr Film Camera W/ Lens Strap Untest](https://shopgoodwill.com/item/271697228) | Canon AE-1 / AE-1 Program (35mm SLR) | $69.00 | $88.91 | $39.91 | goodwill |  | 2026-07-29T19:12 |
+| 277 | [Canon AE-1 Program 35mm SLR Film Camera](https://shopgoodwill.com/item/271726879) | Canon AE-1 / AE-1 Program (35mm SLR) | $67.00 | $86.91 | $39.91 | goodwill |  | 2026-07-29T19:41 |
+| 278 | [Sony HDR-CX100 Handycam Camcorder Bundle](https://hibid.com/lot/313759800) | Sony Handycam camcorder | $45.00 | $64.70 | $39.70 | hibid | Mesa, AZ | - |
+| 279 | [Canon PowerShot SD900 Digital ELPH Camera with Case - Untest](https://shopgoodwill.com/item/271340701) | Canon PowerShot ELPH / IXUS (digital) | $49.99 | $68.70 | $38.71 | goodwill |  | 2026-07-29T17:00 |
+| 280 | [SONY CyberShot DSC-S750 Camera w/ Charger & Case - Powers On](https://shopgoodwill.com/item/271587933) | Sony Cyber-shot compact (non-RX) | $10.99 | $29.66 | $38.67 | goodwill |  | 2026-07-30T19:55 |
+| 281 | [Sony Cybershot 5.1 Mega Pixels 3x Optical Zoom Digital Camer](https://shopgoodwill.com/item/272189664) | Sony Cyber-shot compact (non-RX) | $5.99 | $24.66 | $38.67 | goodwill |  | 2027-01-25T18:16 |
+| 282 | [Sony Cyber-shot DSC-W560 with Accessories](https://hibid.com/lot/314365475) | Sony Cyber-shot compact (non-RX) | $11.00 | $29.66 | $38.66 | hibid | Thunder Bay, ON | - |
+| 283 | [Polaroid Land Camera Sx-70](https://shopgoodwill.com/item/271981438) | Polaroid SX-70 (folding) | $27.87 | $46.34 | $38.47 | goodwill |  | 2026-08-03T18:17 |
+| 284 | [Sony Cybershot G Digital Camera W/ Battery](https://shopgoodwill.com/item/272153894) | Sony Cyber-shot compact (non-RX) | $7.99 | $25.66 | $37.67 | goodwill |  | 2026-07-31T18:19 |
+| 285 | [Sony Cybershot DSC-W55 7.2MP Digital Camera Tested](https://shopgoodwill.com/item/271930147) | Sony Cyber-shot compact (non-RX) | $8.99 | $26.66 | $37.67 | goodwill |  | 2026-08-01T19:33 |
+| 286 | [Sony Cybershot DSC-WX9 Digital Camera, No Charger (Tested)](https://shopgoodwill.com/item/272051744) | Sony Cyber-shot compact (non-RX) | $9.99 | $27.66 | $37.67 | goodwill |  | 2026-08-04T18:18 |
+| 287 | [Nintendo Gameboy Color Pokemon Crystal Version](https://hibid.com/lot/313990755) | Pokemon Crystal (GBC) | $74.00 | $91.63 | $37.63 | hibid | Sycamore, OH | - |
+| 288 | [Sony Cyber-shot DSC-V3 7.2MP Digital Camera 4x Optical Zoom ](https://shopgoodwill.com/item/271598641) | Sony Cyber-shot compact (non-RX) | $9.99 | $27.16 | $37.17 | goodwill |  | 2026-07-30T18:20 |
+| 289 | [Sony Cyber-shot DSC-W5 5.1MP Digital Camera 3x Optical Zoom ](https://shopgoodwill.com/item/271761142) | Sony Cyber-shot compact (non-RX) | $12.97 | $29.66 | $36.69 | goodwill |  | 2026-07-29T18:50 |
+| 290 | [Sony Cybershot DSC-S75 3.3MP Vintage Digital Camera Powers O](https://shopgoodwill.com/item/271893195) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.66 | $36.67 | goodwill |  | 2026-08-02T18:27 |
+| 291 | [Sony Cybershot DSC-HX300 20.4MP 50X Zoom Digital Camera Powe](https://shopgoodwill.com/item/271867609) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.66 | $36.67 | goodwill |  | 2026-08-02T18:42 |
+| 292 | [Starrett No. 269B Taper Gauge](https://hibid.com/lot/313945439) | Starrett precision tool | $17.50 | $33.69 | $36.19 | hibid | Calamus, IA | - |
+| 293 | [Fluke 77 & RadioShack 22-812 Digital Multimeters with Access](https://shopgoodwill.com/item/271706809) | Fluke meter (unspecified model) | $22.00 | $37.67 | $35.67 | goodwill |  | 2026-07-29T18:47 |
+| 294 | [Vintage Canon AE-1 35mm SLR Camera with FD 50mm f/1.4 Lens &](https://shopgoodwill.com/item/271613698) | Canon AE-1 / AE-1 Program (35mm SLR) | $74.12 | $89.40 | $35.28 | goodwill |  | 2026-07-30T18:10 |
+| 295 | [Mitutoyo Metric Outside Micrometer Set 0-75mm in Orange Case](https://shopgoodwill.com/item/271969499) | Mitutoyo micrometer/caliper/indicator | $21.00 | $36.13 | $35.13 | goodwill |  | 2026-08-03T18:34 |
+| 296 | [Sony CCD-FX525 Video 8 Handycam Camcorder with AC Adapter](https://shopgoodwill.com/item/271470785) | Sony Handycam camcorder | $49.96 | $64.70 | $34.74 | goodwill |  | 2026-07-29T19:09 |
+| 297 | [Black Sony Cyber Shot Dsc Hx5v Digital Camera](https://shopgoodwill.com/item/271714296) | Sony Cyber-shot compact (non-RX) | $14.99 | $29.66 | $34.67 | goodwill |  | 2026-07-29T20:11 |
+| 298 | [Sony Cybershot Digital Camera](https://shopgoodwill.com/item/271977902) | Sony Cyber-shot compact (non-RX) | $13.00 | $27.16 | $34.16 | goodwill |  | 2026-07-30T19:41 |
+| 299 | [Canon PowerShot ELPH 300 HS 12.1MP Digital Point & Shoot Cam](https://shopgoodwill.com/item/271490936) | Canon PowerShot ELPH / IXUS (digital) | $52.00 | $65.70 | $33.70 | goodwill |  | 2026-07-29T18:22 |
+| 300 | [Starrett Engineers Level](https://hibid.com/lot/310206313) | Starrett precision tool | $20.00 | $33.69 | $33.69 | hibid | Richmond, -- | - |
+| 301 | [Sony Cybershot DSC-W70 7.2MP 3X Zoom Digital Camera Powers O](https://shopgoodwill.com/item/271867639) | Sony Cyber-shot compact (non-RX) | $13.00 | $26.66 | $33.66 | goodwill |  | 2026-08-02T20:50 |
+| 302 | [AS IS Rare SONY Carl Zeiss Cybershot Camera*](https://hibid.com/lot/314048577) | Sony Cyber-shot compact (non-RX) | $16.00 | $29.66 | $33.66 | hibid | Mississauga, ON | - |
+| 303 | [Polaroid SX-70 Land Camera With Case](https://hibid.com/lot/313798827) | Polaroid SX-70 (folding) | $35.00 | $48.34 | $33.34 | hibid | Allentown, PA | - |
+| 304 | [(3) MITUTOYO MICROMETERS (*See Photo)](https://hibid.com/lot/313948709) | Mitutoyo micrometer/caliper/indicator | $25.00 | $38.12 | $33.12 | hibid | Agawam, MA | - |
+| 305 | [Patagonia 3-6 months coat](https://hibid.com/lot/314783513) | Patagonia (unspecified) | $1.00 | $13.68 | $32.68 | hibid | Anderson, IN | - |
+| 306 | [2 - Patagonia and Pineapple Hats](https://hibid.com/lot/312667162) | Patagonia (unspecified) | $1.00 | $13.68 | $32.68 | hibid | Raytown, MO | - |
+| 307 | [Sony CyberShot DSC H300 20.1MP Digital Camera 35x Optical Zo](https://shopgoodwill.com/item/271944835) | Sony Cyber-shot compact (non-RX) | $14.99 | $27.66 | $32.67 | goodwill |  | 2026-08-01T18:24 |
+| 308 | [Sony CyberShot DSC S650 7.2MP Digital Camera 3x Optical Zoom](https://shopgoodwill.com/item/272121498) | Sony Cyber-shot compact (non-RX) | $14.99 | $27.66 | $32.67 | goodwill |  | 2026-08-02T18:30 |
+| 309 | [Sony Cyber-Shot DSC-W5 5.1MP Digital Camera Silver With Case](https://shopgoodwill.com/item/271615385) | Sony Cyber-shot compact (non-RX) | $14.99 | $27.66 | $32.67 | goodwill |  | 2026-07-30T18:58 |
+| 310 | [SONY DSC-H55 & DSC-W300 CYBER-SHOT DIGITAL CAMERAS](https://hibid.com/lot/309992698) | Sony Cyber-shot compact (non-RX) | $17.50 | $29.66 | $32.16 | hibid | Fort Recovery, OH | - |
+| 311 | [Olympus Stylus Epic Zoom 170 Deluxe 35mm Compact Point and S](https://shopgoodwill.com/item/271500882) | Olympus Stylus Epic Zoom 80/115/170 | $105.00 | $117.00 | $32.00 | goodwill |  | 2026-07-29T18:37 |
+| 312 | [Vintage Starrett Transit Level No. 99F Surveying Instrument ](https://shopgoodwill.com/item/271787791) | Starrett precision tool | $19.99 | $31.69 | $31.70 | goodwill |  | 2026-07-29T18:45 |
+| 313 | [Sony CyberShot DSC H70 16.1MP Digital Still Camera 10x Optic](https://shopgoodwill.com/item/272122097) | Sony Cyber-shot compact (non-RX) | $15.99 | $27.66 | $31.67 | goodwill |  | 2026-08-02T18:28 |
+| 314 | [Sony Cyber-shot Model DSC-F707 Silver Black Digital Camera N](https://shopgoodwill.com/item/271887074) | Sony Cyber-shot compact (non-RX) | $12.99 | $24.66 | $31.67 | goodwill |  | 2026-07-29T19:00 |
+| 315 | [Arcteryx Mens Tee Size S](https://shopgoodwill.com/item/271977453) | Arc'teryx (unspecified model) | $10.99 | $22.33 | $31.34 | goodwill |  | 2026-07-31T19:31 |
+| 316 | [NIKON COOLPIX 990 DIGITAL CAMERA](https://hibid.com/lot/314205241) | Nikon Coolpix compact | $1.00 | $12.31 | $31.31 | hibid | Knoxville, TN | - |
+| 317 | [NIKON COOLPIX P530 CAMERA OUTFIT](https://hibid.com/lot/314865374) | Nikon Coolpix compact | $1.00 | $12.31 | $31.31 | hibid | Wind Ridge, PA | - |
+| 318 | [Nikon CoolPix Canon SureShot Digital Cameras See](https://hibid.com/lot/314322376) | Nikon Coolpix compact | $1.00 | $12.31 | $31.31 | hibid | Albuquerque, NM | - |
+| 319 | [Patagonia and LLBean pullovers](https://hibid.com/lot/314786285) | Patagonia (unspecified) | $2.50 | $13.68 | $31.18 | hibid | Bark River, MI | - |
+| 320 | [Arc'teryx Women's Red Skort - Size Medium](https://shopgoodwill.com/item/272022663) | Arc'teryx (unspecified model) | $8.50 | $19.33 | $30.83 | goodwill |  | 2026-08-03T16:06 |
+| 321 | [Patagonia Sz L 32 Heat Sz M Long Johns Base Layer](https://hibid.com/lot/311017419) | Patagonia (unspecified) | $3.00 | $13.68 | $30.68 | hibid | Detroit, MI | - |
+| 322 | [Polaroid SX-70 Land Camera -Untested](https://shopgoodwill.com/item/271709377) | Polaroid SX-70 (folding) | $34.99 | $45.34 | $30.35 | goodwill |  | 2026-07-31T20:22 |
+| 323 | [Two Cameras - Nikon Coolpix & Canon](https://hibid.com/lot/314890042) | Nikon Coolpix compact | $2.00 | $12.31 | $30.31 | hibid | Centre, AL | - |
+| 324 | [Apple Ipod Classic 160gb 7th Generation Silver Portable Medi](https://shopgoodwill.com/item/271587185) | iPod Classic 160GB | $84.00 | $93.72 | $29.72 | goodwill |  | 2026-07-30T20:54 |
+| 325 | [Vintage Sony Cyber-shot DSC-S30 1.3MP Digital Still Camera F](https://shopgoodwill.com/item/271452470) | Sony Cyber-shot compact (non-RX) | $19.99 | $29.66 | $29.67 | goodwill |  | 2026-07-29T19:41 |
+| 326 | [21lbs Untested Sony Cybershot and Handycam Camera Grab Bag L](https://shopgoodwill.com/item/271812213) | Sony Cyber-shot compact (non-RX) | $15.00 | $24.66 | $29.66 | goodwill |  | 2026-08-02T17:00 |
+| 327 | [Arc'Teryx / Black Logo Norvan LD 2 Sneakers / Trail Runners ](https://shopgoodwill.com/item/271717874) | Arc'teryx (unspecified model) | $10.99 | $20.33 | $29.34 | goodwill |  | 2026-07-29T18:33 |
+| 328 | [Arc'Teryx Sweater Size 4-6](https://shopgoodwill.com/item/271720857) | Arc'teryx (unspecified model) | $9.99 | $19.33 | $29.34 | goodwill |  | 2026-07-31T18:16 |
+| 329 | [Arc'teryx Men's Large 1/4-Zip Orange Pullover/Sweater](https://shopgoodwill.com/item/271977286) | Arc'teryx (unspecified model) | $10.99 | $20.33 | $29.34 | goodwill |  | 2026-08-01T18:44 |
+| 330 | [Blackskin Agate, Patagonia, Polished](https://hibid.com/lot/314882141) | Patagonia (unspecified) | $5.00 | $13.68 | $28.68 | hibid | Monticello, MN | - |
+| 331 | [Patagonia 1987 Ceramic Vase With Floral Relief](https://hibid.com/lot/314758694) | Patagonia (unspecified) | $5.00 | $13.68 | $28.68 | hibid | New Haven, IN | - |
+| 332 | [Patagonia Infant to 1 yr old Snow Suit  S-69](https://hibid.com/lot/314920136) | Patagonia (unspecified) | $5.00 | $13.68 | $28.68 | hibid | North Pole, AK | - |
+| 333 | [Sony Cyber-shot DSC-W55 7.2MP Digital Compact Camera Silver ](https://shopgoodwill.com/item/271452804) | Sony Cyber-shot compact (non-RX) | $20.99 | $29.66 | $28.67 | goodwill |  | 2026-07-29T19:06 |
+| 334 | [Canon AE-1 Program 35mm SLR Film Camera w/ Canon FD 50mm f/1](https://shopgoodwill.com/item/271710290) | Canon AE-1 / AE-1 Program (35mm SLR) | $80.50 | $88.91 | $28.41 | goodwill |  | 2026-07-31T18:18 |
+| 335 | [Orange Arc'teryx Women's Hooded Zip Jacket, Size L](https://shopgoodwill.com/item/271614795) | Arc'teryx (unspecified model) | $10.99 | $19.33 | $28.34 | goodwill |  | 2026-07-31T17:00 |
+| 336 | [Vintage Polaroid SX-70 Film Land Camera](https://shopgoodwill.com/item/271972341) | Polaroid SX-70 (folding) | $37.00 | $45.34 | $28.34 | goodwill |  | 2026-08-03T18:36 |
+| 337 | [Nikon Coolpix 4500 digital camera kit](https://hibid.com/lot/307620008) | Nikon Coolpix compact | $4.00 | $12.31 | $28.31 | hibid | Oakbank, MB | - |
+| 338 | [Patagonia Nano Puff Jacket Mens Size M](https://shopgoodwill.com/item/271683442) | Patagonia Nano Puff / Down Sweater | $22.01 | $30.25 | $28.24 | goodwill |  | 2026-07-29T18:32 |
+| 339 | [2-Sony Cybershot Digital Cameras](https://shopgoodwill.com/item/272157426) | Sony Cyber-shot compact (non-RX) | $17.99 | $26.16 | $28.17 | goodwill |  | 2026-08-04T18:20 |
+| 340 | [Patagonia Atom Sling - Vintage Collection](https://hibid.com/lot/313842100) | Patagonia (unspecified) | $6.00 | $13.68 | $27.68 | hibid | Wolfforth, TX | - |
+| 341 | [Sony Cyber-shot DSC-S70 Digital Camera with Charger - Powers](https://shopgoodwill.com/item/272044516) | Sony Cyber-shot compact (non-RX) | $19.99 | $27.66 | $27.67 | goodwill |  | 2026-08-01T18:12 |
+| 342 | [Sony Cyber-shot DSC-S75 3.3MP Digital Camera Carl Zeiss Lens](https://shopgoodwill.com/item/272167819) | Sony Cyber-shot compact (non-RX) | $19.99 | $27.66 | $27.67 | goodwill |  | 2026-08-02T18:46 |
+| 343 | [Arc'teryx Women's Black Sleeveless Dress XS Polyester](https://shopgoodwill.com/item/272009763) | Arc'teryx (unspecified model) | $14.99 | $22.33 | $27.34 | goodwill |  | 2026-08-01T18:54 |
+| 344 | [Nikon Coolpix B500](https://hibid.com/lot/313012691) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Wellesley, ON | - |
+| 345 | [NIKON COOLPIX AND POLAROID IS048](https://hibid.com/lot/314664940) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Fillmore, NY | - |
+| 346 | [Nikon Coolpix 4300 with case & charger](https://hibid.com/lot/314234890) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Maacungie, PA | - |
+| 347 | [Nikon Coolpix 5700 5.0MP 8x Zoom ED](https://hibid.com/lot/314820771) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Brevard, NC | - |
+| 348 | [Patagonia Gray Heather Better Sweater 1/4 Zip Pullover Fleec](https://shopgoodwill.com/item/271753767) | Patagonia (unspecified) | $6.99 | $13.68 | $26.69 | goodwill |  | 2026-07-29T18:26 |
+| 349 | [Patagonia and Ralph Lauren Clothing Items](https://hibid.com/lot/314247516) | Patagonia (unspecified) | $7.00 | $13.68 | $26.68 | hibid | Ozark, MO | - |
+| 350 | [Sony Cyber-shot DSC-W90 8.1MP Digital Camera Carl Zeiss Vari](https://shopgoodwill.com/item/271811551) | Sony Cyber-shot compact (non-RX) | $20.99 | $27.66 | $26.67 | goodwill |  | 2026-07-30T18:55 |
+| 351 | [Arc'teryx Women's Lanora Full Zip Hoody Velvet Sand Wool Ble](https://shopgoodwill.com/item/271737850) | Arc'teryx (unspecified model) | $15.99 | $22.33 | $26.34 | goodwill |  | 2026-07-31T17:07 |
+| 352 | [Nikon COOLPIX Camera, Charger & Case
 Nikon](https://hibid.com/lot/313996006) | Nikon Coolpix compact | $6.00 | $12.31 | $26.31 | hibid | Petitcodiac, NB | - |
-| 354 | [Nikon COOLPIX S630 Digital Camera](https://hibid.com/lot/314438794) | Nikon Coolpix compact | $6.00 | $12.31 | $26.31 | hibid | Leslie, MI | - |
-| 355 | [Apple Ipod Classic 160gb Black 7th Generation Portable Media](https://shopgoodwill.com/item/271474772) | iPod Classic 160GB | $88.00 | $93.72 | $25.72 | goodwill |  | 2026-07-29T18:43 |
-| 356 | [Mitutoyo Digital Micrometer Set 0-3 Inch Range in Wooden Cas](https://shopgoodwill.com/item/271969938) | Mitutoyo micrometer/caliper/indicator | $31.00 | $36.13 | $25.13 | goodwill |  | 2026-08-03T18:14 |
-| 357 | [Johnny Was Womens XS Quilted Beige Vest](https://shopgoodwill.com/item/271623400) | Johnny Was embroidered top/dress | $12.99 | $17.99 | $25.00 | goodwill |  | 2026-07-30T16:00 |
+| 353 | [Nikon COOLPIX S630 Digital Camera](https://hibid.com/lot/314438794) | Nikon Coolpix compact | $6.00 | $12.31 | $26.31 | hibid | Leslie, MI | - |
+| 354 | [Apple Ipod Classic 160gb Black 7th Generation Portable Media](https://shopgoodwill.com/item/271474772) | iPod Classic 160GB | $88.00 | $93.72 | $25.72 | goodwill |  | 2026-07-29T18:43 |
+| 355 | [Mitutoyo Digital Micrometer Set 0-3 Inch Range in Wooden Cas](https://shopgoodwill.com/item/271969938) | Mitutoyo micrometer/caliper/indicator | $31.00 | $36.13 | $25.13 | goodwill |  | 2026-08-03T18:14 |
+| 356 | [Johnny Was Womens XS Quilted Beige Vest](https://shopgoodwill.com/item/271623400) | Johnny Was embroidered top/dress | $12.99 | $17.99 | $25.00 | goodwill |  | 2026-07-30T16:00 |
+| 357 | [Johnny Was Mimi Maternity Navy LongSleeve Scoop Neck Top wit](https://poshmark.com/listing/Johnny-Was-Mimi-Maternity-Navy-LongSleeve-Scoop-Neck-Top-with-Front-Tie-Size-Sm-6a59711f006e4322b976fe0a) | Johnny Was embroidered top/dress | $16.00 | $20.99 | $24.99 | poshmark |  | - |
 | 358 | [Nikon Coolpix L840 Digital Camera - Works!](https://hibid.com/lot/314169223) | Nikon Coolpix compact | $7.50 | $12.31 | $24.81 | hibid | Knightdale, NC | - |
 | 359 | [Sony Cyber-shot DSC-S75 Digital Camera with Accessories - Un](https://shopgoodwill.com/item/272105092) | Sony Cyber-shot compact (non-RX) | $24.94 | $29.66 | $24.72 | goodwill |  | 2026-08-04T19:12 |
 | 360 | [Sony Cyber-shot DSC-S75 Digital Camera with Carrying Case](https://shopgoodwill.com/item/271952474) | Sony Cyber-shot compact (non-RX) | $24.95 | $29.66 | $24.71 | goodwill |  | 2026-08-03T19:06 |
@@ -393,33 +393,31 @@ Nikon](https://hibid.com/lot/313996006) | Nikon Coolpix compact | $6.00 | $12.31
 | 387 | [Patagonia Women's XS Grey Fleece Sweatpants Waistband Side P](https://shopgoodwill.com/item/271512342) | Patagonia (unspecified) | $8.99 | $10.68 | $21.69 | goodwill |  | 2026-07-29T15:27 |
 | 388 | [Patagonia Black Puffer Jacket Women's Size S](https://shopgoodwill.com/item/271523476) | Patagonia (unspecified) | $11.99 | $13.68 | $21.69 | goodwill |  | 2026-07-29T18:25 |
 | 389 | [Patagonia; Blue Quarter Button Up Jacket; Women’s M](https://shopgoodwill.com/item/271736263) | Patagonia (unspecified) | $9.99 | $11.68 | $21.69 | goodwill |  | 2026-07-29T18:41 |
-| 390 | [Patagonia 2X Pullover](https://hibid.com/lot/313327147) | Patagonia (unspecified) | $12.00 | $13.68 | $21.68 | hibid | Chouteau, OK | - |
-| 391 | [Patagonia White Athletic Tank Top with Navy Trim](https://poshmark.com/listing/Patagonia-White-Athletic-Tank-Top-with-Navy-Trim-6a4c022bb7f0ac354cc0fc06) | Patagonia (unspecified) | $12.00 | $13.68 | $21.68 | poshmark |  | - |
-| 392 | [Gunne Sax Black Taffeta Dress with Lace Collar 8](https://poshmark.com/listing/Gunne-Sax-Black-Taffeta-Dress-with-Lace-Collar-8-6a36c8f9d6ab5d873e5b8440) | Gunne Sax vintage dress | $69.00 | $70.44 | $21.44 | poshmark |  | - |
-| 393 | [Arc'teryx Men's Medium Grey Full-Zip Jacket](https://shopgoodwill.com/item/271386662) | Arc'teryx (unspecified model) | $18.00 | $19.33 | $21.33 | goodwill |  | 2026-07-29T17:00 |
-| 394 | [Nikon Coolpix L11 6 Megapixels Digital Camera Powers On Rese](https://shopgoodwill.com/item/271549025) | Nikon Coolpix compact | $8.99 | $10.31 | $21.32 | goodwill |  | 2026-07-29T19:11 |
-| 395 | [Reformation White Black Spaghetti Strap Scoop Neck Mini Wome](https://shopgoodwill.com/item/271632814) | Reformation dress | $11.99 | $13.24 | $21.25 | goodwill |  | 2026-07-30T18:06 |
-| 396 | [Patagonia Men's Medium Dark Gray Softshell Jacket Worn Wear ](https://shopgoodwill.com/item/271384388) | Patagonia (unspecified) | $9.50 | $10.68 | $21.18 | goodwill |  | 2026-07-29T16:21 |
-| 397 | [Fujifilm FinePix AR-FX3 55mm Lens Adapter Ring](https://hibid.com/lot/314312529) | Fujifilm FinePix compact | $2.50 | $3.64 | $21.14 | hibid | Hot Springs, AR | - |
-| 398 | [Johnny Was Women's Mid Rise Jeans - Size 31](https://shopgoodwill.com/item/271807727) | Johnny Was embroidered top/dress | $15.99 | $17.00 | $21.01 | goodwill |  | 2026-07-30T18:45 |
-| 399 | [Johnny Was Women's Mid Rise Jeans - Size 31](https://shopgoodwill.com/item/271807747) | Johnny Was embroidered top/dress | $15.99 | $17.00 | $21.01 | goodwill |  | 2026-07-30T18:53 |
-| 400 | [Johnny Was Women's Multicolor Floral Patchwork 100% Silk But](https://shopgoodwill.com/item/271747397) | Johnny Was embroidered top/dress | $17.00 | $17.99 | $20.99 | goodwill |  | 2026-07-31T18:43 |
-| 401 | [Johnny Was Embroidered Net Floral Dress S](https://hibid.com/lot/314539840) | Johnny Was embroidered top/dress | $20.00 | $20.99 | $20.99 | hibid | Pomona, CA | - |
-| 402 | [Patagonia Women's Grey Quarter Zip Jacket](https://shopgoodwill.com/item/271746474) | Patagonia (unspecified) | $9.99 | $10.69 | $20.70 | goodwill |  | 2026-07-29T17:00 |
-| 403 | [Patagonia Women's White Quarter Zip Fuzzy Jacket](https://shopgoodwill.com/item/271745889) | Patagonia (unspecified) | $9.99 | $10.69 | $20.70 | goodwill |  | 2026-07-29T18:16 |
-| 404 | [Patagonia Men's Grey Zip Jacket](https://shopgoodwill.com/item/271747072) | Patagonia (unspecified) | $9.99 | $10.69 | $20.70 | goodwill |  | 2026-07-29T18:18 |
-| 405 | [Patagonia Women's Purple Zip Hooded jacket](https://shopgoodwill.com/item/271747076) | Patagonia (unspecified) | $9.99 | $10.69 | $20.70 | goodwill |  | 2026-07-29T19:18 |
-| 406 | [Patagonia Women's Small Brown Full-Zip Fleece Jacket 100% Po](https://shopgoodwill.com/item/271906132) | Patagonia (unspecified) | $12.99 | $13.68 | $20.69 | goodwill |  | 2026-07-31T18:43 |
-| 407 | [AC Women's Black Leather Jacket Medium EU 52 + Patagonia Wom](https://shopgoodwill.com/item/271385321) | Patagonia (unspecified) | $9.99 | $10.68 | $20.69 | goodwill |  | 2026-07-29T16:30 |
-| 408 | [Texas Instruments TI-84 Plus CE Graphing Calculator Not Test](https://shopgoodwill.com/item/271733939) | TI-84 Plus CE | $10.99 | $11.50 | $20.51 | goodwill |  | 2026-07-31T20:35 |
-| 409 | [Texas Instruments TI-84 Plus CE Graphing Calculator](https://shopgoodwill.com/item/271871483) | TI-84 Plus CE | $10.99 | $11.50 | $20.51 | goodwill |  | 2026-08-02T18:48 |
-| 410 | [Nikon Coolpix L820 Camera in Original Box](https://hibid.com/lot/314429666) | Nikon Coolpix compact | $12.00 | $12.31 | $20.31 | hibid | Harrisville, PA | - |
-| 411 | [Johnny Was Workshop Plaid and Leopard Print Button - Up Shir](https://shopgoodwill.com/item/271726337) | Johnny Was embroidered top/dress | $16.99 | $17.29 | $20.30 | goodwill |  | 2026-07-31T18:26 |
-| 412 | [Reformation Women's Size 4 Burgundy Viscose Dress Puff Sleev](https://shopgoodwill.com/item/271760445) | Reformation dress | $12.99 | $13.24 | $20.25 | goodwill |  | 2026-07-29T18:03 |
-| 413 | [Patagonia Women's Black Full Zip Fleece Jacket Made in Usa V](https://shopgoodwill.com/item/271535626) | Patagonia (unspecified) | $9.99 | $10.18 | $20.19 | goodwill |  | 2026-07-29T19:24 |
-| 414 | [Patagonia Women's Lunette Jacket Sage Green High Pile Shag F](https://shopgoodwill.com/item/271541450) | Patagonia (unspecified) | $9.99 | $10.18 | $20.19 | goodwill |  | 2026-07-29T19:41 |
-| 415 | [Patagonia Women's Purple Two Tone Full Zip Fleece Hooded Jac](https://shopgoodwill.com/item/271541470) | Patagonia (unspecified) | $9.99 | $10.18 | $20.19 | goodwill |  | 2026-07-29T19:41 |
-| 416 | [Johnny Was Women's Joya Relaxed Drape White Blouse - Size L](https://shopgoodwill.com/item/271733699) | Johnny Was embroidered top/dress | $16.99 | $17.00 | $20.01 | goodwill |  | 2026-07-29T19:24 |
-| 417 | [Johnny Was Women's Yama Bee Active Mesh Tank - Size M](https://shopgoodwill.com/item/271807676) | Johnny Was embroidered top/dress | $16.99 | $17.00 | $20.01 | goodwill |  | 2026-07-30T20:35 |
+| 390 | [Gunne Sax Black Taffeta Dress with Lace Collar 8](https://poshmark.com/listing/Gunne-Sax-Black-Taffeta-Dress-with-Lace-Collar-8-6a36c8f9d6ab5d873e5b8440) | Gunne Sax vintage dress | $69.00 | $70.44 | $21.44 | poshmark |  | - |
+| 391 | [Arc'teryx Men's Medium Grey Full-Zip Jacket](https://shopgoodwill.com/item/271386662) | Arc'teryx (unspecified model) | $18.00 | $19.33 | $21.33 | goodwill |  | 2026-07-29T17:00 |
+| 392 | [Nikon Coolpix L11 6 Megapixels Digital Camera Powers On Rese](https://shopgoodwill.com/item/271549025) | Nikon Coolpix compact | $8.99 | $10.31 | $21.32 | goodwill |  | 2026-07-29T19:11 |
+| 393 | [Reformation White Black Spaghetti Strap Scoop Neck Mini Wome](https://shopgoodwill.com/item/271632814) | Reformation dress | $11.99 | $13.24 | $21.25 | goodwill |  | 2026-07-30T18:06 |
+| 394 | [Patagonia Men's Medium Dark Gray Softshell Jacket Worn Wear ](https://shopgoodwill.com/item/271384388) | Patagonia (unspecified) | $9.50 | $10.68 | $21.18 | goodwill |  | 2026-07-29T16:21 |
+| 395 | [Fujifilm FinePix AR-FX3 55mm Lens Adapter Ring](https://hibid.com/lot/314312529) | Fujifilm FinePix compact | $2.50 | $3.64 | $21.14 | hibid | Hot Springs, AR | - |
+| 396 | [Johnny Was Women's Mid Rise Jeans - Size 31](https://shopgoodwill.com/item/271807727) | Johnny Was embroidered top/dress | $15.99 | $17.00 | $21.01 | goodwill |  | 2026-07-30T18:45 |
+| 397 | [Johnny Was Women's Mid Rise Jeans - Size 31](https://shopgoodwill.com/item/271807747) | Johnny Was embroidered top/dress | $15.99 | $17.00 | $21.01 | goodwill |  | 2026-07-30T18:53 |
+| 398 | [Johnny Was Women's Multicolor Floral Patchwork 100% Silk But](https://shopgoodwill.com/item/271747397) | Johnny Was embroidered top/dress | $17.00 | $17.99 | $20.99 | goodwill |  | 2026-07-31T18:43 |
+| 399 | [Johnny Was Embroidered Net Floral Dress S](https://hibid.com/lot/314539840) | Johnny Was embroidered top/dress | $20.00 | $20.99 | $20.99 | hibid | Pomona, CA | - |
+| 400 | [Patagonia Women's Grey Quarter Zip Jacket](https://shopgoodwill.com/item/271746474) | Patagonia (unspecified) | $9.99 | $10.69 | $20.70 | goodwill |  | 2026-07-29T17:00 |
+| 401 | [Patagonia Women's White Quarter Zip Fuzzy Jacket](https://shopgoodwill.com/item/271745889) | Patagonia (unspecified) | $9.99 | $10.69 | $20.70 | goodwill |  | 2026-07-29T18:16 |
+| 402 | [Patagonia Men's Grey Zip Jacket](https://shopgoodwill.com/item/271747072) | Patagonia (unspecified) | $9.99 | $10.69 | $20.70 | goodwill |  | 2026-07-29T18:18 |
+| 403 | [Patagonia Women's Purple Zip Hooded jacket](https://shopgoodwill.com/item/271747076) | Patagonia (unspecified) | $9.99 | $10.69 | $20.70 | goodwill |  | 2026-07-29T19:18 |
+| 404 | [Patagonia Women's Small Brown Full-Zip Fleece Jacket 100% Po](https://shopgoodwill.com/item/271906132) | Patagonia (unspecified) | $12.99 | $13.68 | $20.69 | goodwill |  | 2026-07-31T18:43 |
+| 405 | [AC Women's Black Leather Jacket Medium EU 52 + Patagonia Wom](https://shopgoodwill.com/item/271385321) | Patagonia (unspecified) | $9.99 | $10.68 | $20.69 | goodwill |  | 2026-07-29T16:30 |
+| 406 | [Patagonia 2X Pullover](https://hibid.com/lot/313327147) | Patagonia (unspecified) | $13.00 | $13.68 | $20.68 | hibid | Chouteau, OK | - |
+| 407 | [Texas Instruments TI-84 Plus CE Graphing Calculator Not Test](https://shopgoodwill.com/item/271733939) | TI-84 Plus CE | $10.99 | $11.50 | $20.51 | goodwill |  | 2026-07-31T20:35 |
+| 408 | [Texas Instruments TI-84 Plus CE Graphing Calculator](https://shopgoodwill.com/item/271871483) | TI-84 Plus CE | $10.99 | $11.50 | $20.51 | goodwill |  | 2026-08-02T18:48 |
+| 409 | [Nikon Coolpix L820 Camera in Original Box](https://hibid.com/lot/314429666) | Nikon Coolpix compact | $12.00 | $12.31 | $20.31 | hibid | Harrisville, PA | - |
+| 410 | [Johnny Was Workshop Plaid and Leopard Print Button - Up Shir](https://shopgoodwill.com/item/271726337) | Johnny Was embroidered top/dress | $16.99 | $17.29 | $20.30 | goodwill |  | 2026-07-31T18:26 |
+| 411 | [Patagonia Women's Black Full Zip Fleece Jacket Made in Usa V](https://shopgoodwill.com/item/271535626) | Patagonia (unspecified) | $9.99 | $10.18 | $20.19 | goodwill |  | 2026-07-29T19:24 |
+| 412 | [Patagonia Women's Lunette Jacket Sage Green High Pile Shag F](https://shopgoodwill.com/item/271541450) | Patagonia (unspecified) | $9.99 | $10.18 | $20.19 | goodwill |  | 2026-07-29T19:41 |
+| 413 | [Patagonia Women's Purple Two Tone Full Zip Fleece Hooded Jac](https://shopgoodwill.com/item/271541470) | Patagonia (unspecified) | $9.99 | $10.18 | $20.19 | goodwill |  | 2026-07-29T19:41 |
+| 414 | [Johnny Was Women's Joya Relaxed Drape White Blouse - Size L](https://shopgoodwill.com/item/271733699) | Johnny Was embroidered top/dress | $16.99 | $17.00 | $20.01 | goodwill |  | 2026-07-29T19:24 |
+| 415 | [Johnny Was Women's Yama Bee Active Mesh Tank - Size M](https://shopgoodwill.com/item/271807676) | Johnny Was embroidered top/dress | $16.99 | $17.00 | $20.01 | goodwill |  | 2026-07-30T20:35 |
 
 _Regenerated every run; sold/expired lots simply disappear._
