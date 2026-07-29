@@ -241,6 +241,38 @@ def cmd_csv(args) -> int:
     return 0
 
 
+def cmd_bought(args) -> int:
+    from .ledger import record_buy
+    e = record_buy(args.title, paid=args.paid, source=args.source,
+                   url=args.url, note=args.note)
+    tag = e["model_label"] if e["model"] else "NOT IN BOOK - no comp to check against"
+    comp = f" (comp ${e['comp_at_buy']:,.2f} at buy time)" if e.get("comp_at_buy") else ""
+    print(f"ledger #{e['id']}: {e['title'][:60]}\n  paid ${e['paid']:,.2f} | {tag}{comp}")
+    print(f"  close it later with: flipscout sold {e['id']} --gross <sale> --shipping <post>")
+    return 0
+
+
+def cmd_sold(args) -> int:
+    from .ledger import record_sale
+    e = record_sale(args.id, gross=args.gross, shipping=args.shipping)
+    if not e:
+        print(f"no open ledger entry #{args.id} - run `flipscout pnl` to list them")
+        return 1
+    print(f"ledger #{e['id']} SOLD: gross ${e['gross']:,.2f} -> net ${e['net']:,.2f} "
+          f"-> profit ${e['profit']:,.2f} (paid ${e['paid']:,.2f})")
+    if e.get("comp_at_buy"):
+        share = e["gross"] / e["comp_at_buy"]
+        print(f"  realized {share:.0%} of the ${e['comp_at_buy']:,.2f} comp"
+              + (" - re-measure this model" if share < 0.85 else ""))
+    return 0
+
+
+def cmd_pnl(args) -> int:
+    from .ledger import pnl
+    print(pnl())
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="flipscout",
@@ -338,6 +370,7 @@ def build_parser() -> argparse.ArgumentParser:
     ph.add_argument("--dry", action="store_true", help="print candidates, don't alert")
     ph.set_defaults(func=cmd_hunt)
 
+    # (ledger command handlers live near the parser tail; see below)
     pr = sub.add_parser("remember", help="save a comp to your price book")
     pr.add_argument("title")
     pr.add_argument("--sold", type=float, required=True, help="median eBay SOLD price")
@@ -353,6 +386,24 @@ def build_parser() -> argparse.ArgumentParser:
     pc.add_argument("--ebay", action="store_true",
                     help="fetch sold prices live from the eBay API")
     pc.set_defaults(func=cmd_csv)
+
+    # --- purchase ledger: realized P&L vs the book's comps -------------------
+    pb = sub.add_parser("bought", help="record a purchase in the ledger")
+    pb.add_argument("title", help="listing title (matched against the book)")
+    pb.add_argument("--paid", type=float, required=True, help="all-in cost incl. fees/shipping")
+    pb.add_argument("--source", default="", help="where it was bought")
+    pb.add_argument("--url", default="")
+    pb.add_argument("--note", default="")
+    pb.set_defaults(func=cmd_bought)
+
+    psold = sub.add_parser("sold", help="close a ledger entry with the real sale")
+    psold.add_argument("id", type=int, help="ledger entry id (see `flipscout pnl`)")
+    psold.add_argument("--gross", type=float, required=True, help="what the buyer paid, all-in")
+    psold.add_argument("--shipping", type=float, default=0.0, help="your outbound postage")
+    psold.set_defaults(func=cmd_sold)
+
+    sub.add_parser("pnl", help="realized P&L and comp-vs-realized drift") \
+       .set_defaults(func=cmd_pnl)
 
     return p
 

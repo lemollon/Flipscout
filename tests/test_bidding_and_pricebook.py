@@ -975,3 +975,92 @@ def test_gate_off_by_default_keeps_old_behaviour():
 def test_gate_reads_the_env_knob():
     assert hunt.load_config({"FLIPSCOUT_MAX_ASK_RATIO": "0.6"})["max_ask_ratio"] == 0.6
     assert hunt.load_config({"FLIPSCOUT_MAX_ASK_RATIO": ""})["max_ask_ratio"] is None
+
+
+# --- cordless tools + Featherweight (measured 2026-07-29) --------------------
+
+@pytest.mark.parametrize("title,expected", [
+    ("Milwaukee M18 FUEL 1/2 Hammer Drill/Driver 2804-20", "m18_fuel_tool"),
+    ("Milwaukee M18 Fuel Combo Kit 2-Tool Drill Impact w/ Batteries", "m18_combo"),
+    ("DeWalt 20V MAX XR Brushless Drill Driver DCD791", "dewalt_20v_drill"),
+    ("Antique 1939 Singer 221 Featherweight Sewing Machine w/ Case", "singer_featherweight"),
+    ("Singer Featherweight 222K Free Arm Sewing Machine", "singer_featherweight"),
+])
+def test_tool_and_sewing_models_match(title, expected):
+    m = match(title)
+    assert m and m.model.key == expected, f"{title} -> {m.model.key if m else None}"
+
+
+@pytest.mark.parametrize("title", [
+    # batteries/chargers/accessories that carry the line name
+    "Milwaukee M18 FUEL Battery 5.0Ah 2 Pack",
+    "Milwaukee M18 Charger Only Genuine",
+    "DeWalt 20V MAX Battery and Charger Only",
+    # the Featherweight accessory tail that sat at the $56 p25
+    "Singer Featherweight 221 Attachments Lot Bobbins Feet",
+    "Singer Featherweight Manual 221 Reproduction",
+    "Singer Featherweight 221 Case Only with Key",
+    "Singer 221 Featherweight For Parts Not Working",
+    # LEGO measured and rejected - a lot must never price
+    "LEGO Lot of 8 Tan 2x2 Slopes Bricks",
+    "Huge Lego Lot 5 lbs Bulk Bricks Minifigures",
+])
+def test_tool_sewing_lookalikes_and_lego_rejected(title):
+    assert match(title) is None, title
+
+
+def test_m18_combo_outranks_the_single_tool():
+    m = match("Milwaukee M18 FUEL Combo Kit 5-Tool w/ Drill Impact Sawzall")
+    assert m and m.model.key == "m18_combo"
+    assert BY_KEY["m18_combo"].comp > BY_KEY["m18_fuel_tool"].comp
+
+
+# --- ending-soon re-alerts (2026-07-29) --------------------------------------
+# The buy decision happens in the last hour; a $5 find quietly becomes $80
+# without another word. Second alert tier, once per lot, own seen-namespace.
+
+def _endsoon_cand(ends, price=4.99, listing_type="auction"):
+    # ceiling here is ~$11.50 (comp $56.37 minus fees, $9 inbound, $3 handling)
+    # so the default $4.99 sits under half of it and $8 sits over half.
+    row = {**CE_ROW, "id": "es1", "ends": ends, "listing_type": listing_type,
+           "price": price, "min_bid": price}
+    return hunt.evaluate([row], CFG, hunters=[FakeHunter([])])[0]
+
+
+def test_ending_soon_fires_inside_window_under_half_ceiling():
+    import datetime as dt
+    soon = (dt.datetime.now() + dt.timedelta(hours=1)).isoformat()[:16]
+    c = _endsoon_cand(soon)
+    got = hunt.ending_soon_alerts([c], {**CFG, "ending_soon_hours": 2.0}, set())
+    assert len(got) == 1
+    key, alert = got[0]
+    assert key == "endsoon:goodwill:es1"
+    assert "ENDS in ~" in alert["reason"]
+
+
+def test_ending_soon_respects_window_price_dedup_and_fixed():
+    import datetime as dt
+    now = dt.datetime.now()
+    soon = (now + dt.timedelta(hours=1)).isoformat()[:16]
+    late = (now + dt.timedelta(hours=30)).isoformat()[:16]
+    cfg = {**CFG, "ending_soon_hours": 2.0}
+    # outside the window -> no
+    assert hunt.ending_soon_alerts([_endsoon_cand(late)], cfg, set()) == []
+    # already re-alerted -> no (once per lot, ever)
+    assert hunt.ending_soon_alerts([_endsoon_cand(soon)], cfg,
+                                   {"endsoon:goodwill:es1"}) == []
+    # bid up past half the ceiling -> not news you can use
+    c = _endsoon_cand(soon, price=8.0)
+    assert c["advice"].open_bid > 0.5 * c["advice"].max_bid
+    assert hunt.ending_soon_alerts([c], cfg, set()) == []
+    # fixed-price asks never "end"
+    assert hunt.ending_soon_alerts([_endsoon_cand(soon, listing_type="fixed")],
+                                   cfg, set()) == []
+    # unparseable/absent timestamps fail soft (HiBid sends none)
+    assert hunt.ending_soon_alerts([_endsoon_cand("")], cfg, set()) == []
+    assert hunt.ending_soon_alerts([_endsoon_cand("not-a-date")], cfg, set()) == []
+
+
+def test_ending_soon_window_knob_reads_env():
+    assert hunt.load_config({})["ending_soon_hours"] == 2.0
+    assert hunt.load_config({"FLIPSCOUT_ENDING_SOON_HOURS": "4"})["ending_soon_hours"] == 4.0

@@ -826,6 +826,74 @@ MODELS: list[Model] = [
              "on a church/book title is not the brand; excludes catch some.",
     ),
 
+    # === Cordless tools + vintage sewing (measured 2026-07-29) ================
+    # The ORIGINAL 7/12 watchlist had dewalt/milwaukee/makita drills and they
+    # never made it into the book. Estate and surplus auctions are full of
+    # them, model lines are printed on the tool, and buyers are tradespeople.
+    # LEGO was measured the same session and REJECTED: "lego lot" sold median
+    # $32.98 (n=60) with contents-driven 10x variance and a p25 at the fee
+    # floor - a per-listing comp would be a guess, same verdict as junk lots.
+    Model(
+        key="m18_combo",
+        label="Milwaukee M18 combo kit",
+        comp=180.00, measured="2026-07-29", sample=60,
+        include=r"m18.{0,40}combo\s*kit|m18.{0,40}\d\s*-?\s*tool\b|"
+                r"combo\s*kit.{0,30}m18",
+        exclude=r"batter(y|ies)\s+only|charger only|\bcase only\b|tool bag only|"
+                r"for parts|parts only|not working|broken",
+        outbound_shipping=15.00, category="tools",
+        comp_query="milwaukee m18 combo kit", specificity=60,
+        note="CONSERVATIVE FLOOR below the $226.65 median (n=60, p75 $279): "
+             "kit value scales with piece count and battery count - count them "
+             "in the photos.",
+    ),
+    Model(
+        key="m18_fuel_tool",
+        label="Milwaukee M18 FUEL tool",
+        comp=85.00, measured="2026-07-29", sample=60,
+        # FUEL is the premium brushless line; corroborating tool noun required
+        # (the Fluke rule) so M18 batteries/chargers alone never price as one.
+        include=r"m18\s*fuel.{0,50}(drill|driver|impact|saw|sawzall|grinder|"
+                r"hammer|multi\s*tool|ratchet|router|blower)|"
+                r"(drill|driver|impact|sawzall)\b.{0,40}m18\s*fuel",
+        exclude=r"batter(y|ies)\s+only|charger only|\bcase only\b|"
+                r"for parts|parts only|not working|broken",
+        outbound_shipping=10.00, category="tools",
+        comp_query="milwaukee m18 fuel drill", specificity=58,
+        note="CONSERVATIVE FLOOR below the $95 median (n=60, p25 $66 bare-tool, "
+             "p75 $114 w/ battery). A battery in the photos adds ~$40.",
+    ),
+    Model(
+        key="dewalt_20v_drill",
+        label="DeWalt 20V MAX drill/driver",
+        comp=60.00, measured="2026-07-29", sample=60,
+        include=r"dewalt.{0,40}(20\s*v|20v|xr).{0,40}(drill|driver|impact)|"
+                r"dewalt.{0,40}(drill|driver|impact).{0,30}(20\s*v|20v|xr)",
+        exclude=r"batter(y|ies)\s+only|charger only|\bcase only\b|"
+                r"for parts|parts only|not working|broken|\b12v\b|atomic",
+        outbound_shipping=10.00, category="tools",
+        comp_query="dewalt 20v max drill", specificity=58,
+        note="CONSERVATIVE FLOOR below the $69.98 median (n=60): the thinnest "
+             "tool margin - only worth it under ~$15 at auction.",
+    ),
+    Model(
+        key="singer_featherweight",
+        label="Singer Featherweight 221/222",
+        comp=200.00, measured="2026-07-29", sample=60, comp_used_only=False,
+        include=r"singer.{0,40}featherweight|featherweight.{0,30}(221|222)|"
+                r"singer\s*22[12]\b",
+        # The $56 p25 tail is attachments, cases, manuals and parts machines
+        # sold under the same name - the classic accessory trap.
+        exclude=r"\bmanual\b|attachments?\s+(only|lot)|bobbins?|\bcase only\b|"
+                r"foot only|pedal only|motor only|light only|"
+                r"for parts|parts only|not working|\bscroll\s*plate",
+        outbound_shipping=14.00, category="sewing",
+        comp_query="singer featherweight 221", specificity=60,
+        note="THE estate-sale machine: floor below the $238.71 median (n=60, "
+             "clean machines $250-400, the rare white/222 free-arm $400+). "
+             "Photo check: case, pedal and bobbin case present; decals uncracked.",
+    ),
+
     Model(
         key="tinspire_cx",
         label="TI-Nspire CX",
@@ -958,4 +1026,8 @@ def search_terms() -> list[str]:
         # specifically live in HiBid estate lots)
         "gunne sax", "st john knit", "johnny was", "veronica beard",
         "reformation dress", "womens dress lot",
+        # cordless tools + vintage sewing - estate/surplus staples
+        "milwaukee m18", "m18 fuel", "milwaukee combo kit",
+        "dewalt 20v", "dewalt drill", "cordless drill", "power tool lot",
+        "singer featherweight", "vintage sewing machine",
     ]
