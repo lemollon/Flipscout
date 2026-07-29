@@ -322,6 +322,28 @@ def to_alert(c: dict) -> dict:
     }
 
 
+def estate_catalog_rows(config: dict, hunters=None, feed=None) -> list[dict]:
+    """Every lot of every nearby ONLINE estate auction that turns out to be a
+    HiBid catalog. Returns [] quietly when estates are off or nothing resolves."""
+    area = config.get("estate_area")
+    if not area:
+        return []
+    hib = next((h for h in (hunters or []) if getattr(h, "name", "") == "hibid"), None)
+    if hib is None or not hasattr(hib, "catalog_lots"):
+        return []
+    from .estates import EstateSalesNet
+    feed = feed if feed is not None else EstateSalesNet(area=area)
+    sales = feed.sales()
+    ids = feed.hibid_catalog_ids(sales)
+    rows: list[dict] = []
+    for aid in ids[:6]:                      # politeness cap per run
+        rows += hib.catalog_lots(aid)
+    if ids:
+        print(f"[hunt] estate catalogs: {len(ids)} resolved to HiBid, "
+              f"{len(rows)} lots swept in full.")
+    return rows
+
+
 def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> dict:
     config = config or load_config()
     # Print the DESTINATION every run. Delivery success has repeatedly meant
@@ -335,7 +357,20 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
              if config.get("zip") and config.get("radius_miles")
              else "NO ZIP SET - HiBid is searching nationally only")
           + " | estates: " + (config.get("estate_area") or "OFF"))
+    hunters = hunters if hunters is not None else build_hunters(config["sources"])
     rows = sweep(config, hunters=hunters)
+
+    # Estate catalogs, swept IN FULL. The digest used to hand over links and
+    # leave the reading to Leron ("its you job to go to the links and find me
+    # deals", 2026-07-29). Online estate sales that resolve to HiBid catalogs
+    # now feed every lot through the same book + gate as everything else.
+    try:
+        extra = estate_catalog_rows(config, hunters=hunters)
+        known = {f"{r['source']}:{r['id']}" for r in rows}
+        rows += [r for r in extra if f"{r['source']}:{r['id']}" not in known]
+    except Exception as e:
+        print(f"[hunt] estate catalog sweep failed (non-fatal): {e}")
+
     cands = evaluate(rows, config, hunters=hunters)
 
     seen = _load_seen(config["state_file"])

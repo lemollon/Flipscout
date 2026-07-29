@@ -109,6 +109,31 @@ class EstateSalesNet:
         except Exception:
             return []
 
+    def hibid_catalog_ids(self, sales: list[dict]) -> list[int]:
+        """Which of these sales are HiBid catalogs in disguise.
+
+        Measured 2026-07-29 from Fulshear: 3 of the 6 online estate auctions
+        in the digest linked straight to hibid.com catalogs - lots that never
+        surface in HiBid's own keyword search unless the title happens to hit
+        a term. Resolving the ids lets the watcher sweep EVERY lot of every
+        nearby online estate auction through the book, which is the difference
+        between handing Leron links and doing the work for him."""
+        ids: list[int] = []
+        for s in sales:
+            if not s.get("online"):
+                continue
+            try:
+                r = self.session.get(s["url"], headers={"User-Agent": _UA},
+                                     timeout=_TIMEOUT)
+                r.raise_for_status()
+                for m in re.findall(r"hibid\.com/catalog/(\d+)", r.text, re.I):
+                    aid = int(m)
+                    if aid not in ids:
+                        ids.append(aid)
+            except Exception:
+                continue                     # one dead page never kills the sweep
+        return ids
+
 
 def digest(sales: list[dict], area_label: str = "you") -> str:
     """Render the sales as one Discord message. Returns "" when there's nothing,
