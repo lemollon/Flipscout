@@ -54,6 +54,12 @@ def load_config(env=None) -> dict:
         # nearly final. Only Goodwill exposes a listing date at all.
         "max_age_hours": (float(env["FLIPSCOUT_MAX_AGE_HOURS"])
                           if env.get("FLIPSCOUT_MAX_AGE_HOURS") else None),
+        # Deep-discount gate: only surface items costing under this fraction of
+        # their net resale (0.6 = "pay at most 60 cents on the resale dollar").
+        # None = off; the live value comes from the repo variable, never a
+        # code default (knob fail-safe rule).
+        "max_ask_ratio": (float(env["FLIPSCOUT_MAX_ASK_RATIO"])
+                          if env.get("FLIPSCOUT_MAX_ASK_RATIO") else None),
         # Quiet is the NORMAL state - most runs find nothing new - but silence
         # reads as breakage. Once a day, say so out loud even with zero finds.
         "heartbeat_file": env.get("FLIPSCOUT_HEARTBEAT_FILE", "flipscout_heartbeat.json"),
@@ -192,6 +198,19 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
         )
         if not adv.has_room:
             continue
+
+        # DEEP-DISCOUNT GATE (Leron, 2026-07-29): only surface items whose
+        # entry price is well under what they net on resale. has_room alone
+        # lets a $500 open on a $560-net item through with a technical $20 of
+        # headroom - retail-priced, not underpriced. Ratio of open cost to net
+        # resale must stay below the knob (repo var FLIPSCOUT_MAX_ASK_RATIO,
+        # e.g. 0.6 = "only alert when it costs under 60% of what it nets").
+        # None/unset = gate off, so an unconfigured install behaves as before.
+        ratio_cap = config.get("max_ask_ratio")
+        if ratio_cap is not None and adv.net_resale:
+            entry = (adv.open_bid or 0)
+            if entry > 0 and entry / adv.net_resale > ratio_cap:
+                continue
 
         max_age = config.get("max_age_hours")
         if max_age is not None:

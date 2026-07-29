@@ -947,3 +947,31 @@ def test_pricebook_has_no_literal_control_characters():
     for m in pb.MODELS:
         for field in (m.include, m.exclude):
             assert not any(ord(c) < 32 for c in field), m.key
+
+
+# --- deep-discount gate (2026-07-29): underpriced only, not merely has-room ---
+
+def test_max_ask_ratio_drops_retail_priced_items():
+    """Leron: sources kept surfacing items at max value. has_room lets a $500
+    open on a $560-net item through with $20 of technical headroom - the gate
+    requires the entry price to sit well UNDER net resale."""
+    h = FakeHunter([])
+    cheap = {**CE_ROW, "id": "cheap"}                      # $9.99 on ~$43 net
+    rich = {**CE_ROW, "id": "rich", "price": 38.0, "min_bid": 38.0}
+    cfg = {**CFG, "max_ask_ratio": 0.6}
+    got = {c["row"]["id"] for c in hunt.evaluate([cheap, rich], cfg, hunters=[h])}
+    assert got == {"cheap"}
+
+
+def test_gate_off_by_default_keeps_old_behaviour():
+    assert hunt.load_config({})["max_ask_ratio"] is None
+    h = FakeHunter([])
+    rich = {**CE_ROW, "id": "rich", "price": 38.0, "min_bid": 38.0}
+    # has_room may still admit it without the gate - and that's the old shape
+    ids = {c["row"]["id"] for c in hunt.evaluate([rich], CFG, hunters=[h])}
+    assert ids in ({"rich"}, set())
+
+
+def test_gate_reads_the_env_knob():
+    assert hunt.load_config({"FLIPSCOUT_MAX_ASK_RATIO": "0.6"})["max_ask_ratio"] == 0.6
+    assert hunt.load_config({"FLIPSCOUT_MAX_ASK_RATIO": ""})["max_ask_ratio"] is None
