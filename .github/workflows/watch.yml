@@ -82,6 +82,7 @@ jobs:
           FLIPSCOUT_SOURCES: ${{ vars.FLIPSCOUT_SOURCES || 'goodwill,hibid' }}
           FLIPSCOUT_TARGET_PROFIT: ${{ vars.FLIPSCOUT_TARGET_PROFIT || '20' }}
           FLIPSCOUT_INBOUND_SHIP: ${{ vars.FLIPSCOUT_INBOUND_SHIP || '9' }}
+          FLIPSCOUT_MAX_ASK_RATIO: ${{ vars.FLIPSCOUT_MAX_ASK_RATIO || '' }}
           FLIPSCOUT_TOP: ${{ vars.FLIPSCOUT_TOP || '10' }}
           FLIPSCOUT_STATE_FILE: flipscout_seen.json
           # Anything NOT listed here is invisible to the run, however carefully
