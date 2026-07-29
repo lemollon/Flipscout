@@ -920,6 +920,8 @@ class EbayBrowse:
     def __init__(self, session: Optional[requests.Session] = None):
         self.session = session or requests.Session()
         self._api = None
+        self._err_count = 0
+        self._err_last = ""
         try:
             from .ebay_api import EbayApiComps, EbayConfig
             self._api = EbayApiComps(EbayConfig.from_env(), session=self.session)
@@ -959,6 +961,11 @@ class EbayBrowse:
                 "ends": "",
                 "listing_type": "fixed",
                 "local": False,
+                # Downstream pricing needs both of these: a for-parts item must
+                # not be bid at working-item comps, and a Best Offer listing's
+                # ask isn't its floor.
+                "condition": (it.get("condition") or "").strip(),
+                "best_offer": "BEST_OFFER" in (it.get("buyingOptions") or []),
             })
         return out
 
@@ -983,13 +990,34 @@ class EbayBrowse:
         try:
             r = self.session.get(
                 f"{self._api.cfg.host}/buy/browse/v1/item_summary/search",
-                params={"q": query, "limit": min(limit, 50),
-                        "filter": "buyingOptions:{FIXED_PRICE},conditions:{USED}"},
+                # conditionIds instead of conditions:{USED}: the named USED
+                # bucket excludes 7000 ("For parts or not working"), which for
+                # cameras is exactly the discounted cohort the book was measured
+                # to exploit (untested SX-70s at $40-85 vs $100 working). The id
+                # list is every not-new grade: refurbs, Used, media grades, parts.
+                # newlyListed sort: underpriced BINs die in minutes, so fresh
+                # listings beat best-match popularity for deal-hunting.
+                params={"q": query, "limit": min(limit, 50), "sort": "newlyListed",
+                        "filter": ("buyingOptions:{FIXED_PRICE},"
+                                   "conditionIds:{2000|2500|2750|3000|4000|5000|6000|7000}")},
                 headers=self._api._auth_header(), timeout=_TIMEOUT)
             r.raise_for_status()
             return self.parse(r.json() or {})[:limit]
-        except Exception:
+        except Exception as e:
+            # Still fail-soft per search, but COUNT it: 71 terms x 48 runs/day is
+            # ~68% of the default 5k/day Browse quota, and a 429 storm would
+            # otherwise be indistinguishable from a quiet market (the same trap
+            # the auth probe closed for bad keys).
+            self._err_count += 1
+            resp = getattr(e, "response", None)
+            self._err_last = (f"HTTP {resp.status_code}" if resp is not None else str(e))[:120]
             return []
+
+    def error_summary(self) -> Optional[str]:
+        """Non-None when searches failed this run - printed by hunt.run()."""
+        if not self._err_count:
+            return None
+        return f"ebay: {self._err_count} search error(s) this run (last: {self._err_last})"
 
 
 # --- GSA Auctions: federal surplus ------------------------------------------

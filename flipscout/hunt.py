@@ -60,6 +60,13 @@ def load_config(env=None) -> dict:
         # code default (knob fail-safe rule).
         "max_ask_ratio": (float(env["FLIPSCOUT_MAX_ASK_RATIO"])
                           if env.get("FLIPSCOUT_MAX_ASK_RATIO") else None),
+        # For-parts/not-working listings are priced against a HAIRCUT comp, not
+        # the working-item comp - measured on cameras, untested sells at roughly
+        # half of working (SX-70: $40-85 vs $99.99). Ratio of working comp.
+        "parts_comp_ratio": float(env.get("FLIPSCOUT_PARTS_COMP_RATIO") or "0.5"),
+        # Best Offer listings routinely clear 10-20% under ask, so the
+        # deep-discount gate judges them a shade looser: cap x (1 + bonus).
+        "best_offer_bonus": float(env.get("FLIPSCOUT_BEST_OFFER_BONUS") or "0.15"),
         # Second alert tier: re-alert once when a qualifying lot ends inside
         # this window with its price still at/under half the ceiling. The buy
         # decision happens in the last hour, not when the lot is first seen.
@@ -188,8 +195,16 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
         # to you on Craigslist than in a shipped auction.
         inbound = 0.0 if row.get("local") else config["inbound_shipping"]
 
+        # A for-parts listing must never be bid at working-item comps - haircut
+        # the comp before advising, so max_bid/net_resale all scale with it.
+        comp = m.model.comp
+        cond = (row.get("condition") or "").lower()
+        is_parts = "parts" in cond or "not working" in cond
+        if is_parts:
+            comp *= config.get("parts_comp_ratio", 0.5)
+
         adv = advise(
-            m.model.comp,
+            comp,
             units=m.units,
             handling=float(row.get("handling") or 0),
             inbound_shipping=inbound,
@@ -213,7 +228,11 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
         ratio_cap = config.get("max_ask_ratio")
         if ratio_cap is not None and adv.net_resale:
             entry = (adv.open_bid or 0)
-            if entry > 0 and entry / adv.net_resale > ratio_cap:
+            # Best Offer: the ask isn't the floor - offers clear 10-20% under it,
+            # so near-misses on the ratio gate are still buyable via an offer.
+            cap = (ratio_cap * (1 + config.get("best_offer_bonus", 0.15))
+                   if row.get("best_offer") else ratio_cap)
+            if entry > 0 and entry / adv.net_resale > cap:
                 continue
 
         max_age = config.get("max_age_hours")
@@ -304,6 +323,14 @@ def to_alert(c: dict) -> dict:
         else:
             bits.append(":warning: Auctioneer offers **no shipping** - local "
                         "pickup only; check the lot terms.")
+    cond = (row.get("condition") or "").lower()
+    if "parts" in cond or "not working" in cond:
+        bits.append(":wrench: **FOR PARTS / NOT WORKING** - the numbers here are "
+                    "priced at the parts-grade haircut, NOT working-item comps. "
+                    "Buy for repair/resale-as-is only.")
+    if row.get("best_offer"):
+        bits.append(":handshake: **Best Offer accepted** - don't pay the ask; "
+                    "open 15-20% under it.")
     if adv.note:
         bits.append(f"_{adv.note}_")
 
@@ -422,6 +449,11 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     for r in rows:
         counts[r.get("source", "?")] = counts.get(r.get("source", "?"), 0) + 1
     print("[hunt] per-source: " + " ".join(f"{k}={v}" for k, v in counts.items()))
+    for h in hunters:
+        if hasattr(h, "error_summary"):
+            s = h.error_summary()
+            if s:
+                print(f"[hunt] {s}")
 
     # Estate catalogs, swept IN FULL. The digest used to hand over links and
     # leave the reading to Leron ("its you job to go to the links and find me

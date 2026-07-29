@@ -64,6 +64,8 @@ def item(c: dict) -> dict:
         "bids": row.get("bids"),
         "ends": row.get("ends") or "",
         "warnings": list(m.dead_also_present or []),
+        "condition": row.get("condition") or "",
+        "best_offer": bool(row.get("best_offer")),
     }
 
 

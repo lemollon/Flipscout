@@ -451,6 +451,32 @@ def test_ebay_parse_builds_fixed_price_rows():
     assert r["handling"] == 8.5 and r["image"].endswith("1.jpg")
 
 
+def test_ebay_parse_carries_condition_and_best_offer():
+    from flipscout.hunters import EbayBrowse
+    body = {"itemSummaries": [
+        {"itemId": "v1|125|0", "title": "Polaroid SX-70 Land Camera untested",
+         "price": {"value": "45.00"}, "itemWebUrl": "https://ebay.com/itm/125",
+         "condition": "For parts or not working",
+         "buyingOptions": ["FIXED_PRICE", "BEST_OFFER"]},
+    ]}
+    r = EbayBrowse.parse(body)[0]
+    assert r["condition"] == "For parts or not working"
+    assert r["best_offer"] is True
+    # Rows without the fields stay safe defaults (no condition, no best offer).
+    r2 = EbayBrowse.parse(EBAY_BODY)[0]
+    assert r2["condition"] == "" and r2["best_offer"] is False
+
+
+def test_ebay_search_includes_parts_grade_and_newly_listed():
+    # The named USED bucket excludes conditionId 7000 (for-parts) - the exact
+    # discounted cohort the camera book was measured on. Pin the filter.
+    import inspect
+    from flipscout import hunters
+    src = inspect.getsource(hunters.EbayBrowse.search)
+    assert "7000" in src and "conditionIds" in src
+    assert "newlyListed" in src
+
+
 def test_ebay_hunter_sleeps_without_keys(monkeypatch):
     from flipscout.hunters import EbayBrowse
     monkeypatch.delenv("EBAY_CLIENT_ID", raising=False)
