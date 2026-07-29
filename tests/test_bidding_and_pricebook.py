@@ -977,6 +977,46 @@ def test_gate_reads_the_env_knob():
     assert hunt.load_config({"FLIPSCOUT_MAX_ASK_RATIO": ""})["max_ask_ratio"] is None
 
 
+# --- for-parts haircut + Best Offer gate bonus (eBay, 2026-07-29) ------------
+
+def test_for_parts_condition_haircuts_the_comp():
+    """A for-parts listing must never be bid at working-item comps: max_bid on
+    an identical row drops when condition says parts/not working."""
+    h = FakeHunter([])
+    working = {**CE_ROW, "id": "w"}
+    parts = {**CE_ROW, "id": "p", "condition": "For parts or not working"}
+    cfg = {**CFG, "parts_comp_ratio": 0.5}
+    got = {c["row"]["id"]: c["advice"] for c in
+           hunt.evaluate([working, parts], cfg, hunters=[h])}
+    assert "w" in got
+    if "p" in got:  # may drop out entirely once the comp halves - also correct
+        assert got["p"].max_bid < got["w"].max_bid
+
+
+def test_best_offer_loosens_the_ratio_gate():
+    """Best Offer listings clear under ask, so a near-miss on the deep-discount
+    gate passes when (and only when) best_offer is set."""
+    h = FakeHunter([])
+    # net_resale for this fixture is $43.50; target_profit 5 keeps has_room
+    # alive up to ~$26.50. $23 sits just over the 0.5 cap ($21.75) but inside
+    # 0.5 * 1.15 ($25.01) - passable only via the Best Offer bonus.
+    near = {**CE_ROW, "id": "near", "price": 23.0, "min_bid": 23.0}
+    near_bo = {**near, "id": "near_bo", "best_offer": True}
+    cfg = {**CFG, "target_profit": 5.0, "max_ask_ratio": 0.5, "best_offer_bonus": 0.15}
+    got = {c["row"]["id"] for c in hunt.evaluate([near, near_bo], cfg, hunters=[h])}
+    assert "near_bo" in got and "near" not in got
+
+
+def test_parts_and_best_offer_knobs_have_safe_defaults():
+    cfg = hunt.load_config({})
+    assert cfg["parts_comp_ratio"] == 0.5
+    assert cfg["best_offer_bonus"] == 0.15
+    # Empty-string env (an unset repo variable mapped into env:) must not crash.
+    cfg2 = hunt.load_config({"FLIPSCOUT_PARTS_COMP_RATIO": "",
+                             "FLIPSCOUT_BEST_OFFER_BONUS": ""})
+    assert cfg2["parts_comp_ratio"] == 0.5 and cfg2["best_offer_bonus"] == 0.15
+
+
 # --- cordless tools + Featherweight (measured 2026-07-29) --------------------
 
 @pytest.mark.parametrize("title,expected", [
