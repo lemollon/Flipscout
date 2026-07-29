@@ -322,6 +322,50 @@ class HiBid:
                 out[row["id"]] = row
         return list(out.values())
 
+    _CATALOG_QUERY = _HIBID_QUERY.replace(
+        "$searchText: String,", "$auctionId: Int,").replace(
+        "searchText: $searchText,", "auctionId: $auctionId,")
+
+    def catalog_lots(self, auction_id: int, max_lots: int = 1000) -> list[dict]:
+        """EVERY open lot of one auction, by catalog id.
+
+        The keyword search only surfaces a lot when its title matches a term;
+        an estate catalog resolved from EstateSales.NET should be swept in
+        full - the junk-titled lot hiding the mju-II is the entire edge. Lots
+        are flagged nearby: catalogs only come from the estate digest, which
+        is already area-filtered. Capped because consignment houses run
+        2,000-lot catalogs (measured) and 20 pages per catalog per run is
+        the polite ceiling."""
+        out: list[dict] = []
+        page = 1
+        while len(out) < max_lots:
+            payload = {
+                "operationName": "LotSearch", "query": self._CATALOG_QUERY,
+                "variables": {"auctionId": int(auction_id), "pageNumber": page,
+                              "pageLength": 100, "status": "OPEN",
+                              "sortOrder": "NO_ORDER", "zip": None, "miles": None},
+            }
+            try:
+                r = self.session.post(_HIBID_GQL, json=payload,
+                                      headers=_HIBID_HEADERS, timeout=_TIMEOUT)
+                r.raise_for_status()
+                d = r.json() or {}
+                if d.get("errors"):
+                    break
+                pr = (((d.get("data") or {}).get("lotSearch") or {})
+                      .get("pagedResults") or {})
+                results = pr.get("results") or []
+            except Exception:
+                break
+            for L in results:
+                row = self._row(L, nearby=True)
+                if row:
+                    out.append(row)
+            if not results or len(out) >= (pr.get("totalCount") or 0):
+                break
+            page += 1
+        return out[:max_lots]
+
 
 # --- Craigslist -------------------------------------------------------------
 

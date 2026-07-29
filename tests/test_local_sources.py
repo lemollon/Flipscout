@@ -351,3 +351,80 @@ def test_unclaimedbaggage_is_registered_with_book_terms():
     # spans luggage-plausible categories, not just outerwear
     assert any("coolpix" in t for t in terms)
     assert any("patagonia" in t for t in terms)
+
+
+# --- estate catalogs swept in full (2026-07-29) ------------------------------
+# "its you job to go to the links and find me deals i dont want to do the
+# manual work" - online estate sales that resolve to HiBid catalogs now feed
+# every lot through the book instead of arriving as bare links.
+
+def test_estate_pages_resolve_to_hibid_catalog_ids(monkeypatch):
+    from flipscout.estates import EstateSalesNet
+    es = EstateSalesNet(area="TX/Fulshear/77441")
+
+    class Sess:
+        def get(self, url, headers=None, timeout=None):
+            class R:
+                status_code = 200
+                text = ('<a href="https://hibid.com/catalog/762712">bid</a>'
+                        '<a href="https://www.hibid.com/catalog/762712">dup</a>'
+                        if "online" in url else "<p>house sale, no catalog</p>")
+                def raise_for_status(self): pass
+            return R()
+
+    es.session = Sess()
+    sales = [{"url": "https://x/online-sale", "online": True},
+             {"url": "https://x/house-sale", "online": False}]
+    assert es.hibid_catalog_ids(sales) == [762712]
+
+
+def test_estate_catalog_rows_feed_the_pipeline(monkeypatch):
+    from flipscout import hunt
+
+    class FakeHiBid:
+        name = "hibid"
+        def catalog_lots(self, aid, max_lots=1000):
+            assert aid == 762712
+            return [{"source": "hibid", "id": "L1",
+                     "title": "Canon AE-1 Program 35mm Film Camera w/ 50mm Lens",
+                     "url": "u", "price": 5.0, "min_bid": 6.0, "increment": 1.0,
+                     "bids": 0, "handling": None, "image": "i", "ends": "",
+                     "nearby": True, "local": True}]
+
+    class FakeFeed:
+        def sales(self): return [{"url": "s", "online": True}]
+        def hibid_catalog_ids(self, sales): return [762712]
+
+    cfg = {"estate_area": "TX/Fulshear/77441"}
+    rows = hunt.estate_catalog_rows(cfg, hunters=[FakeHiBid()], feed=FakeFeed())
+    assert len(rows) == 1 and rows[0]["nearby"] is True
+
+
+def test_estate_catalog_sweep_is_off_without_area_or_hibid():
+    from flipscout import hunt
+    assert hunt.estate_catalog_rows({"estate_area": ""}, hunters=[]) == []
+    assert hunt.estate_catalog_rows({"estate_area": "TX/X/1"}, hunters=[]) == []
+
+
+def test_hibid_catalog_lots_paginate_and_stop(monkeypatch):
+    from flipscout.hunters import HiBid
+    h = HiBid()
+    pages = []
+
+    class Sess:
+        def post(self, url, json=None, headers=None, timeout=None):
+            pages.append(json["variables"]["pageNumber"])
+            class R:
+                def raise_for_status(self): pass
+                def json(self):
+                    return {"data": {"lotSearch": {"pagedResults": {
+                        "totalCount": 2,
+                        "results": [{"id": 10 + len(pages), "lead": "Lot",
+                                     "lotState": {"bidCount": 0, "highBid": 0,
+                                                  "minBid": 1, "isClosed": False},
+                                     "featuredPicture": {}, "auction": {}}]}}}}
+            return R()
+
+    h.session = Sess()
+    rows = h.catalog_lots(762712)
+    assert len(rows) == 2 and pages == [1, 2]
