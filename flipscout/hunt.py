@@ -323,6 +323,10 @@ def to_alert(c: dict) -> dict:
         else:
             bits.append(":warning: Auctioneer offers **no shipping** - local "
                         "pickup only; check the lot terms.")
+    if row.get("source") == "ebay" and row.get("listing_type") == "auction":
+        bits.append(":dart: **eBay auction - snipe, don't chase.** Place ONE "
+                    "bid at your max in the closing minutes; if it's outbid, "
+                    "walk away.")
     cond = (row.get("condition") or "").lower()
     if "parts" in cond or "not working" in cond:
         bits.append(":wrench: **FOR PARTS / NOT WORKING** - the numbers here are "
