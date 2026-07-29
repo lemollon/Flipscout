@@ -428,3 +428,37 @@ def test_hibid_catalog_lots_paginate_and_stop(monkeypatch):
     h.session = Sess()
     rows = h.catalog_lots(762712)
     assert len(rows) == 2 and pages == [1, 2]
+
+
+# --- eBay Browse hunter (2026-07-29): wired now, sleeps until approval -------
+
+EBAY_BODY = {"itemSummaries": [
+    {"itemId": "v1|123|0", "title": "Canon PowerShot G7X Mark II Digital Camera",
+     "price": {"value": "650.00"}, "itemWebUrl": "https://ebay.com/itm/123",
+     "image": {"imageUrl": "https://i.ebayimg.com/1.jpg"},
+     "shippingOptions": [{"shippingCost": {"value": "8.50"}}]},
+    {"itemId": "v1|124|0", "title": "Broken price row", "price": {}},
+]}
+
+
+def test_ebay_parse_builds_fixed_price_rows():
+    from flipscout.hunters import EbayBrowse
+    rows = EbayBrowse.parse(EBAY_BODY)
+    assert len(rows) == 1
+    r = rows[0]
+    assert r["source"] == "ebay" and r["listing_type"] == "fixed"
+    assert r["price"] == 650.0 and r["min_bid"] == 650.0
+    assert r["handling"] == 8.5 and r["image"].endswith("1.jpg")
+
+
+def test_ebay_hunter_sleeps_without_keys(monkeypatch):
+    from flipscout.hunters import EbayBrowse
+    monkeypatch.delenv("EBAY_CLIENT_ID", raising=False)
+    monkeypatch.delenv("EBAY_CLIENT_SECRET", raising=False)
+    h = EbayBrowse()
+    assert h.search("canon g7x") == []      # silent, not raising - approval-gated
+
+
+def test_ebay_hunter_is_registered():
+    from flipscout.hunters import HUNTERS
+    assert "ebay" in HUNTERS

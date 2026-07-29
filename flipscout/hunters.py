@@ -902,6 +902,81 @@ def _unclaimedbaggage():
     return ShopifyStore("unclaimedbaggage", "www.unclaimedbaggage.com", _LUGGAGE_TERMS)
 
 
+# --- eBay Browse: fixed-price BIN, the big pool ------------------------------
+
+class EbayBrowse:
+    """eBay Buy-It-Now listings via the official Browse API.
+
+    Sleeps until the developer account is approved: without EBAY_CLIENT_ID /
+    EBAY_CLIENT_SECRET in the environment every search returns [] and the
+    sweep carries on - the hunter is wired NOW so approval day is a
+    two-secret change, not a code change. Fixed-price only on purpose
+    (Leron: buy outright, no bidding war); the book + deep-discount gate
+    decide what's actually underpriced.
+    """
+
+    name = "ebay"
+
+    def __init__(self, session: Optional[requests.Session] = None):
+        self.session = session or requests.Session()
+        self._api = None
+        try:
+            from .ebay_api import EbayApiComps, EbayConfig
+            self._api = EbayApiComps(EbayConfig.from_env(), session=self.session)
+        except Exception:
+            self._api = None            # keys absent: stay wired, stay silent
+
+    @staticmethod
+    def parse(body: dict) -> list[dict]:
+        out = []
+        for it in (body or {}).get("itemSummaries") or []:
+            price = (it.get("price") or {}).get("value")
+            try:
+                price = float(price)
+            except (TypeError, ValueError):
+                continue
+            img = ((it.get("image") or {}).get("imageUrl")
+                   or (it.get("thumbnailImages") or [{}])[0].get("imageUrl") or "")
+            ship = None
+            for so in it.get("shippingOptions") or []:
+                cost = (so.get("shippingCost") or {}).get("value")
+                if cost is not None:
+                    try:
+                        ship = float(cost)
+                    except (TypeError, ValueError):
+                        pass
+                    break
+            out.append({
+                "source": "ebay", "id": str(it.get("itemId") or ""),
+                "title": (it.get("title") or "").strip(),
+                "url": it.get("itemWebUrl") or it.get("itemHref") or "",
+                "price": price,
+                "min_bid": price,           # fixed price: the ask IS the number
+                "increment": 0.0,
+                "bids": 0,
+                "handling": ship,           # shipping cost when the API states it
+                "image": img,
+                "ends": "",
+                "listing_type": "fixed",
+                "local": False,
+            })
+        return out
+
+    def search(self, query: str, limit: int = 50) -> list[dict]:
+        if self._api is None:
+            return []
+        try:
+            r = self.session.get(
+                f"{self._api.cfg.host}/buy/browse/v1/item_summary/search",
+                params={"q": query, "limit": min(limit, 50),
+                        "filter": "buyingOptions:{FIXED_PRICE},conditions:{USED}"},
+                headers=self._api._auth_header(), timeout=_TIMEOUT)
+            r.raise_for_status()
+            return self.parse(r.json() or {})[:limit]
+        except Exception:
+            return []
+
+
 # --- GSA Auctions: federal surplus ------------------------------------------
 
 class GSAAuctions:
@@ -986,7 +1061,8 @@ HUNTERS = {"goodwill": ShopGoodwill, "hibid": HiBid, "craigslist": Craigslist,
            "poshmark": Poshmark, "propertyroom": PropertyRoom,
            "nellis": NellisAuction,
            "outandback": _outandback, "geartrade": _geartrade,
-           "unclaimedbaggage": _unclaimedbaggage, "gsa": GSAAuctions}
+           "unclaimedbaggage": _unclaimedbaggage, "gsa": GSAAuctions,
+           "ebay": EbayBrowse}
 
 
 def build_hunters(names: Optional[list] = None, env=None) -> list:
