@@ -42,6 +42,8 @@ Every hunter returns dicts with a common shape:
 
 from __future__ import annotations
 
+import datetime as _dt
+import os
 import re
 import time
 from typing import Optional
@@ -922,6 +924,24 @@ class EbayBrowse:
         self._api = None
         self._err_count = 0
         self._err_last = ""
+        # AUCTION pass (Leron 2026-07-29: "bring this back" - ending-soon
+        # auctions with low bids are the biggest underpriced pool on eBay; a
+        # one-shot snipe at max bid is not a bidding war). QUOTA MATH: the
+        # fixed-price pass is 71 terms x 48 runs = ~3.4k of the 5k/day Browse
+        # default. A second call per term on EVERY run would be ~6.8k and blow
+        # the cap, so auctions sweep once per hour: only on runs in the first
+        # half of the hour (the :17 cron; the :47 run skips). ~1.7k extra
+        # calls/day = ~5.1k total, close enough to the cap that the last few
+        # end-of-UTC-day terms may 429 (visible in error_summary) until the
+        # Application Growth Check raises the limit.
+        #   FLIPSCOUT_EBAY_AUCTIONS: "always" | "off" | unset (= hourly gate)
+        mode = (os.environ.get("FLIPSCOUT_EBAY_AUCTIONS") or "").strip().lower()
+        if mode == "always":
+            self._auction_pass = True
+        elif mode == "off":
+            self._auction_pass = False
+        else:
+            self._auction_pass = _dt.datetime.utcnow().minute < 30
         try:
             from .ebay_api import EbayApiComps, EbayConfig
             self._api = EbayApiComps(EbayConfig.from_env(), session=self.session)
@@ -929,12 +949,26 @@ class EbayBrowse:
             self._api = None            # keys absent: stay wired, stay silent
 
     @staticmethod
+    def bid_increment(price: float) -> float:
+        """eBay's published bid increment for a current price (USD bands)."""
+        for cap, inc in ((1, 0.05), (5, 0.25), (25, 0.50), (100, 1.00),
+                         (250, 2.50), (500, 5.00), (1000, 10.00),
+                         (2500, 25.00), (5000, 50.00)):
+            if price < cap:
+                return inc
+        return 100.00
+
+    @staticmethod
     def parse(body: dict) -> list[dict]:
         out = []
         for it in (body or {}).get("itemSummaries") or []:
-            price = (it.get("price") or {}).get("value")
+            buying = it.get("buyingOptions") or []
+            is_auction = "AUCTION" in buying and "FIXED_PRICE" not in buying
+            # Auctions carry the live bid in currentBidPrice; fixed-price in price.
+            raw = ((it.get("currentBidPrice") or {}).get("value") if is_auction
+                   else (it.get("price") or {}).get("value"))
             try:
-                price = float(price)
+                price = float(raw)
             except (TypeError, ValueError):
                 continue
             img = ((it.get("image") or {}).get("imageUrl")
@@ -953,19 +987,24 @@ class EbayBrowse:
                 "title": (it.get("title") or "").strip(),
                 "url": it.get("itemWebUrl") or it.get("itemHref") or "",
                 "price": price,
-                "min_bid": price,           # fixed price: the ask IS the number
-                "increment": 0.0,
-                "bids": 0,
+                # Fixed price: the ask IS the number. Auction: the next bid is
+                # current + eBay's published increment for that price band.
+                "min_bid": (price + EbayBrowse.bid_increment(price)
+                            if is_auction and int(it.get("bidCount") or 0) > 0
+                            else price),
+                "increment": EbayBrowse.bid_increment(price) if is_auction else 0.0,
+                "bids": int(it.get("bidCount") or 0),
                 "handling": ship,           # shipping cost when the API states it
                 "image": img,
-                "ends": "",
-                "listing_type": "fixed",
+                # itemEndDate feeds the existing ending-soon alert tier.
+                "ends": (it.get("itemEndDate") or "") if is_auction else "",
+                "listing_type": "auction" if is_auction else "fixed",
                 "local": False,
                 # Downstream pricing needs both of these: a for-parts item must
                 # not be bid at working-item comps, and a Best Offer listing's
                 # ask isn't its floor.
                 "condition": (it.get("condition") or "").strip(),
-                "best_offer": "BEST_OFFER" in (it.get("buyingOptions") or []),
+                "best_offer": "BEST_OFFER" in buying,
             })
         return out
 
@@ -984,34 +1023,48 @@ class EbayBrowse:
             body = getattr(getattr(e, "response", None), "text", "") or ""
             return f"ebay: AUTH FAILED - {e} {body[:200]}"
 
+    _NOT_NEW = "conditionIds:{2000|2500|2750|3000|4000|5000|6000|7000}"
+
+    def _one_search(self, query: str, limit: int, buying: str, sort: str) -> list[dict]:
+        r = self.session.get(
+            f"{self._api.cfg.host}/buy/browse/v1/item_summary/search",
+            params={"q": query, "limit": min(limit, 50), "sort": sort,
+                    "filter": f"buyingOptions:{{{buying}}},{self._NOT_NEW}"},
+            headers=self._api._auth_header(), timeout=_TIMEOUT)
+        r.raise_for_status()
+        return self.parse(r.json() or {})[:limit]
+
     def search(self, query: str, limit: int = 50) -> list[dict]:
         if self._api is None:
             return []
-        try:
-            r = self.session.get(
-                f"{self._api.cfg.host}/buy/browse/v1/item_summary/search",
-                # conditionIds instead of conditions:{USED}: the named USED
-                # bucket excludes 7000 ("For parts or not working"), which for
-                # cameras is exactly the discounted cohort the book was measured
-                # to exploit (untested SX-70s at $40-85 vs $100 working). The id
-                # list is every not-new grade: refurbs, Used, media grades, parts.
-                # newlyListed sort: underpriced BINs die in minutes, so fresh
-                # listings beat best-match popularity for deal-hunting.
-                params={"q": query, "limit": min(limit, 50), "sort": "newlyListed",
-                        "filter": ("buyingOptions:{FIXED_PRICE},"
-                                   "conditionIds:{2000|2500|2750|3000|4000|5000|6000|7000}")},
-                headers=self._api._auth_header(), timeout=_TIMEOUT)
-            r.raise_for_status()
-            return self.parse(r.json() or {})[:limit]
-        except Exception as e:
-            # Still fail-soft per search, but COUNT it: 71 terms x 48 runs/day is
-            # ~68% of the default 5k/day Browse quota, and a 429 storm would
-            # otherwise be indistinguishable from a quiet market (the same trap
-            # the auth probe closed for bad keys).
-            self._err_count += 1
-            resp = getattr(e, "response", None)
-            self._err_last = (f"HTTP {resp.status_code}" if resp is not None else str(e))[:120]
-            return []
+        # conditionIds instead of conditions:{USED}: the named USED bucket
+        # excludes 7000 ("For parts or not working"), which for cameras is
+        # exactly the discounted cohort the book was measured to exploit
+        # (untested SX-70s at $40-85 vs $100 working). The id list is every
+        # not-new grade: refurbs, Used, media grades, parts.
+        # newlyListed sort: underpriced BINs die in minutes, so fresh listings
+        # beat best-match popularity for deal-hunting.
+        passes = [("FIXED_PRICE", "newlyListed")]
+        # Ending-soon auctions with low bids - swept hourly (see __init__ quota
+        # math), sorted by soonest close so the 50-row window holds the lots
+        # whose price is nearly final.
+        if self._auction_pass:
+            passes.append(("AUCTION", "endingSoonest"))
+        rows: list[dict] = []
+        for buying, sort in passes:
+            try:
+                rows += self._one_search(query, limit, buying, sort)
+            except Exception as e:
+                # Fail-soft PER PASS (an auction-pass 429 must not discard the
+                # fixed-price rows), but COUNT it: the two passes together run
+                # ~5.1k calls/day against the 5k default Browse quota, and a
+                # 429 storm would otherwise be indistinguishable from a quiet
+                # market (the same trap the auth probe closed for bad keys).
+                self._err_count += 1
+                resp = getattr(e, "response", None)
+                self._err_last = (f"HTTP {resp.status_code}" if resp is not None
+                                  else str(e))[:120]
+        return rows
 
     def error_summary(self) -> Optional[str]:
         """Non-None when searches failed this run - printed by hunt.run()."""

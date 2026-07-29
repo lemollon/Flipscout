@@ -477,6 +477,53 @@ def test_ebay_search_includes_parts_grade_and_newly_listed():
     assert "newlyListed" in src
 
 
+def test_ebay_parse_builds_auction_rows():
+    from flipscout.hunters import EbayBrowse
+    body = {"itemSummaries": [
+        {"itemId": "v1|126|0", "title": "Canon AE-1 35mm Film Camera w/ 50mm",
+         "currentBidPrice": {"value": "26.00"}, "bidCount": 3,
+         "itemWebUrl": "https://ebay.com/itm/126",
+         "itemEndDate": "2026-07-29T21:15:00.000Z",
+         "buyingOptions": ["AUCTION"]},
+    ]}
+    r = EbayBrowse.parse(body)[0]
+    assert r["listing_type"] == "auction"
+    assert r["price"] == 26.0
+    assert r["min_bid"] == 27.0          # $25-99.99 band -> $1.00 increment
+    assert r["increment"] == 1.0
+    assert r["bids"] == 3
+    assert r["ends"].startswith("2026-07-29T21:15")
+
+
+def test_ebay_auction_with_no_bids_opens_at_current_price():
+    from flipscout.hunters import EbayBrowse
+    body = {"itemSummaries": [
+        {"itemId": "v1|127|0", "title": "Pentax K1000 body",
+         "currentBidPrice": {"value": "9.99"}, "bidCount": 0,
+         "itemWebUrl": "https://ebay.com/itm/127",
+         "buyingOptions": ["AUCTION"]},
+    ]}
+    r = EbayBrowse.parse(body)[0]
+    assert r["min_bid"] == 9.99          # nobody bid: the open IS the number
+
+
+def test_ebay_bid_increment_bands():
+    from flipscout.hunters import EbayBrowse
+    assert EbayBrowse.bid_increment(0.50) == 0.05
+    assert EbayBrowse.bid_increment(12.00) == 0.50
+    assert EbayBrowse.bid_increment(26.00) == 1.00
+    assert EbayBrowse.bid_increment(150.00) == 2.50
+    assert EbayBrowse.bid_increment(700.00) == 10.00
+
+
+def test_ebay_auction_pass_env_override(monkeypatch):
+    from flipscout.hunters import EbayBrowse
+    monkeypatch.setenv("FLIPSCOUT_EBAY_AUCTIONS", "always")
+    assert EbayBrowse()._auction_pass is True
+    monkeypatch.setenv("FLIPSCOUT_EBAY_AUCTIONS", "off")
+    assert EbayBrowse()._auction_pass is False
+
+
 def test_ebay_hunter_sleeps_without_keys(monkeypatch):
     from flipscout.hunters import EbayBrowse
     monkeypatch.delenv("EBAY_CLIENT_ID", raising=False)
