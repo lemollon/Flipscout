@@ -1104,3 +1104,48 @@ def test_ending_soon_respects_window_price_dedup_and_fixed():
 def test_ending_soon_window_knob_reads_env():
     assert hunt.load_config({})["ending_soon_hours"] == 2.0
     assert hunt.load_config({"FLIPSCOUT_ENDING_SOON_HOURS": "4"})["ending_soon_hours"] == 4.0
+
+
+# --- Craigslist re-enabled (2026-07-30): pickup-only + the scam guard -------
+# The $50 G7X "find" was bait. On a fixed-price LOCAL source, an ask far under
+# resale is scam-shaped: real underprices vanish in minutes, the ones that sit
+# are the trap.
+
+def _cl_row(price):
+    return {**CE_ROW, "id": f"cl{price}", "source": "craigslist", "price": price,
+            "min_bid": price, "local": True, "listing_type": "fixed",
+            "handling": 0.0}
+
+
+def test_scam_shaped_craigslist_ask_is_flagged_and_demoted():
+    h = FakeHunter([])
+    c = hunt.evaluate([_cl_row(4.99)], CFG, hunters=[h])[0]
+    assert c["advice"].open_bid < hunt.SCAM_ASK_SHARE * c["advice"].net_resale
+    a = hunt.to_alert(c)
+    assert "SCAM-SHAPED" in a["reason"]
+    assert a["verdict"] == "watch"          # never a green "buy" on bait
+
+
+def test_normal_craigslist_ask_is_not_flagged_but_says_never_ship():
+    h = FakeHunter([])
+    a = hunt.to_alert(hunt.evaluate([_cl_row(15.0)], CFG, hunters=[h])[0])
+    assert "SCAM-SHAPED" not in a["reason"]
+    assert "NEVER ship" in a["reason"]      # pickup-only standing rule
+
+
+def test_goodwill_auctions_never_trip_the_scam_guard():
+    # Auction opens near $0 are NORMAL - the guard is for fixed asks only.
+    h = FakeHunter([])
+    row = {**CE_ROW, "price": 0.99, "min_bid": 0.99}
+    assert "SCAM-SHAPED" not in hunt.to_alert(
+        hunt.evaluate([row], CFG, hunters=[h])[0])["reason"]
+
+
+def test_hx99_is_deliberately_unpriced():
+    # It rode the RX100 include with no measured comp - a 1/2.3" travel zoom
+    # priced as a 1-inch RX100 told the bid sentry to raise toward $434 on a
+    # $150 auction (2026-07-30). No comp beats a wrong comp.
+    assert match("Sony CyberShot DSC-HX99 Camera") is None
+    # ...and the RX100/W-series still price where they always did.
+    assert match("Sony Cyber Shot DSC-RX100 Zeiss").model.key == "sony_rx100"
+    assert match("Sony CyberShot DSC W830 Digital Camera").model.key == "sony_cybershot"

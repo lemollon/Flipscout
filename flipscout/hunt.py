@@ -263,10 +263,21 @@ def age_hours(listed: Optional[str], now: Optional[_dt.datetime] = None) -> Opti
     return max(0.0, (now - t).total_seconds() / 3600.0)
 
 
+# A fixed-price ask this far under resale on a LOCAL source is bait, not a
+# deal: real Craigslist underprices vanish in minutes, and the ones that sit
+# are scams. The board's #1 "find" - a $50 G7X Mark II vs a $1,149 comp - was
+# one (Leron confirmed, 2026-07-28). Auction opens near $0 are normal; fixed
+# asks near $0 are not.
+SCAM_ASK_SHARE = 0.15
+
+
 def to_alert(c: dict) -> dict:
     """One evaluated candidate -> the Discord embed payload."""
     row, model, adv, m = c["row"], c["model"], c["advice"], c["match"]
     units = f" x{adv.units}" if adv.units > 1 else ""
+    scam_shaped = (row.get("listing_type") == "fixed" and row.get("local")
+                   and (adv.open_bid or 0) > 0
+                   and adv.open_bid < SCAM_ASK_SHARE * adv.net_resale)
 
     # Both links, every time: where to BUY it, and the eBay solds that back the
     # "sells for more" claim. The comp link reproduces the exact search that
@@ -291,6 +302,12 @@ def to_alert(c: dict) -> dict:
         if row.get("local"):
             bits.append("_Local pickup - no inbound shipping, so this is worth "
                         "~$9 more to you than the same thing in a shipped auction._")
+        if row.get("source") == "craigslist":
+            # Standing rule (Leron, 2026-07-30): local sources are PICKUP ONLY.
+            # A seller who offers to "just ship it" is running the other classic
+            # CL scam - you pay, nothing arrives.
+            bits.append(":handshake: **Meet in person, test it, pay on pickup. "
+                        "NEVER ship, never deposit, never pay ahead.**")
     else:
         if adv.profit_at_open is not None:
             bits.append(f"Win at the opening bid -> **${adv.profit_at_open:,.2f}** profit.")
@@ -338,11 +355,21 @@ def to_alert(c: dict) -> dict:
     if adv.note:
         bits.append(f"_{adv.note}_")
 
+    if scam_shaped:
+        bits.insert(0, (f":triangular_flag_on_post: **SCAM-SHAPED PRICE** - a "
+                        f"fixed ask of ${adv.open_bid:,.2f} on an item that nets "
+                        f"${adv.net_resale:,.2f} is bait more often than a deal "
+                        f"(the $50 G7X lesson). Real underprices sell in minutes; "
+                        f"the ones that SIT are the trap. Verify in person before "
+                        f"believing it."))
+
     return {
         "title": (row.get("title") or "")[:240],
         "url": row.get("url"),
         "image": row.get("image"),
-        "verdict": "buy" if (adv.profit_at_open or 0) >= adv.profit_at_max else "watch",
+        "verdict": ("watch" if scam_shaped else
+                    "buy" if (adv.profit_at_open or 0) >= adv.profit_at_max
+                    else "watch"),
         "all_in": None,
         "comp": model.comp,
         "max_bid": adv.max_bid,

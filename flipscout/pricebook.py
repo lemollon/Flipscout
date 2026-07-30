@@ -567,7 +567,11 @@ MODELS: list[Model] = [
         key="sony_rx100",
         label="Sony RX100 / ZV-1 (1-inch compact)",
         comp=541.99, measured="2026-07-28", sample=5,
-        include=r"rx\s*-?\s*100|\bzv\s*-?\s*1\b|\bhx99\b",
+        # HX99 used to ride along here; it's a 1/2.3-inch travel zoom, NOT an
+        # RX100-class 1-inch, and no HX99 comp was ever measured - the sentry
+        # nearly advised raising toward $434 on one (2026-07-30). Unpriced
+        # until someone measures it; a missing comp beats a wrong one.
+        include=r"rx\s*-?\s*100|\bzv\s*-?\s*1\b",
         exclude=r"for parts|parts only|not working|broken",
         outbound_shipping=6.00, category="cameras",
         comp_query="sony rx100 camera", specificity=62,
@@ -597,7 +601,9 @@ MODELS: list[Model] = [
         # The 2001-2005 P-series and single-digit H-series are measured-cheap:
         # every P-series sold in the sweep went for $10-42 all-in, below what
         # the $75 floor would bid. Exclude rather than overbid.
-        exclude=r"\bdsc\s*-?\s*p\d|\bdsc\s*-?\s*h\d\b|"
+        # HX99 is deliberately UNPRICED (see the RX100 note): it outsells this
+        # $75 floor by a lot, so the floor would misprice it in both directions.
+        exclude=r"\bdsc\s*-?\s*p\d|\bdsc\s*-?\s*h\d\b|\bhx\s*-?\s*99\b|"
                 r"for parts|parts only|not working|broken",
         outbound_shipping=6.00, category="cameras",
         comp_query="sony cyber-shot camera", specificity=50,

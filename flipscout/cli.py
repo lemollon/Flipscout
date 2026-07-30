@@ -273,6 +273,16 @@ def cmd_pnl(args) -> int:
     return 0
 
 
+def cmd_mybids(args) -> int:
+    """Watch MY active ShopGoodwill bids; alert on outbid + the final-90min window."""
+    from .mybids import load_env_file, run
+    load_env_file()  # Scheduled Tasks get no shell profile; the webhook lives in .env
+    res = run(csv_path=args.csv, window_min=args.window_min, dry=args.dry)
+    print(f"{res['tracked']} tracked | {res['alerts']} alert(s)"
+          + (f" via {', '.join(res['sent'])}" if res["sent"] else ""))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="flipscout",
@@ -404,6 +414,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("pnl", help="realized P&L and comp-vs-realized drift") \
        .set_defaults(func=cmd_pnl)
+
+    pmb = sub.add_parser("mybids",
+        help="watch YOUR ShopGoodwill bids: outbid alerts + final-90min siren")
+    pmb.add_argument("--csv", default=None,
+                     help="bids CSV (default: newest 'Auctions in Progress*.csv' in Downloads)")
+    pmb.add_argument("--window-min", type=float, default=90.0,
+                     help="endgame window in minutes (default 90)")
+    pmb.add_argument("--dry", action="store_true", help="print alerts, don't send")
+    pmb.set_defaults(func=cmd_mybids)
 
     return p
 

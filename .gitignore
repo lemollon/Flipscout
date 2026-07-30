@@ -14,3 +14,7 @@ flipscout/comps_memory.json
 
 # Secrets / local env (eBay keys live here, never commit them)
 .env
+
+# Bid-sentry local state + Scheduled Task log (per-machine, not code)
+flipscout_mybids_state.json
+mybids_run.log
