@@ -115,8 +115,10 @@ def test_winning_above_the_book_ceiling_warns_exactly_once():
     assert "ABOVE the book ceiling" in a["reason"]
 
 
-def test_winning_under_the_ceiling_stays_quiet():
-    kind, _ = decide(BID, _live(15.0, left_min=2000), {"status": "WINNING"},
+def test_winning_with_a_hardened_max_stays_quiet():
+    # Max already at/above the ceiling and price under it: nothing to say.
+    hardened = Bid("1", BID.title, 24.0)
+    kind, _ = decide(hardened, _live(15.0, left_min=2000), {"status": "WINNING"},
                      book_max=23.5)
     assert kind is None
 
@@ -221,3 +223,28 @@ def test_run_without_a_csv_reports_instead_of_crashing(tmp_path, monkeypatch):
     monkeypatch.delenv("FLIPSCOUT_BIDS_CSV", raising=False)
     res = mybids.run()
     assert res == {"tracked": 0, "alerts": 0, "sent": []}
+
+
+def test_winning_below_the_ceiling_says_harden_your_max():
+    # The measured leak: Featherweight lost by $1, SX-70 by $0.12 - maxes set
+    # below the ceiling donate wins to whoever bids $1 more.
+    low = Bid("1", BID.title, 15.0)                 # winning at 10, ceiling ~23
+    kind, st = decide(low, _live(10.0, left_min=2000), {"status": "WINNING"},
+                      book_max=23.5)
+    assert kind == "raise_max"
+    # Once per (item, max): same max stays quiet...
+    kind2, st2 = decide(low, _live(11.0, left_min=2000), st, book_max=23.5)
+    assert kind2 is None
+    # ...but a re-exported CSV with a raised (still-low) max re-arms it.
+    raised = Bid("1", BID.title, 18.0)
+    kind3, _ = decide(raised, _live(11.0, left_min=2000), st2, book_max=23.5)
+    assert kind3 == "raise_max"
+
+
+def test_raise_max_alert_names_the_ceiling():
+    live = _live(10.0, left_min=2000)
+    model, adv = book_advice(BID.title, live)
+    a = to_alert("raise_max", Bid("1", BID.title, 15.0), live, model=model, adv=adv)
+    assert "Harden your max" in a["reason"]
+    assert f"${adv.max_bid:,.2f}" in a["reason"]
+    assert "Room to raise" not in a["reason"]        # no duplicate tail

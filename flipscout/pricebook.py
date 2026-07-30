@@ -159,7 +159,9 @@ MODELS: list[Model] = [
         exclude=r"\bcase only\b|\bcover only\b|charger only|for parts|parts only",
         outbound_shipping=5.00, category="calculators", comp_query="TI-84 Plus CE graphing calculator",
         specificity=10,
-        note="CE Python variant comps higher; treat this as the floor.",
+        note="CE Python variant comps higher; treat this as the floor. "
+             "SEASONAL HOLD: back-to-school demand peaks Aug 10 - Sep 5; "
+             "calculators bought in July should be LISTED then, not now.",
     ),
     Model(
         key="ti84ce_python",
@@ -169,7 +171,8 @@ MODELS: list[Model] = [
         exclude=r"\bcase only\b|for parts|parts only",
         outbound_shipping=5.00, category="calculators", comp_query="TI-84 Plus CE Python",
         specificity=20,
-        note="ESTIMATE, not measured - verify with `flipscout comp` before trusting.",
+        note="ESTIMATE, not measured - verify with `flipscout comp` before trusting. "
+             "SEASONAL HOLD: list Aug 10 - Sep 5 for the back-to-school peak.",
     ),
     # --- iPods (measured 2026-07-25, eBay used solds, n=58 overall) -----------
     # Far better economics than the calculators: you can pay ~4x more per unit
@@ -245,7 +248,7 @@ MODELS: list[Model] = [
         key="pkmn_emerald",
         label="Pokemon Emerald (GBA)",
         comp=108.75, measured="2026-07-25", sample=36, comp_used_only=False,
-        include=r"pokemon\s*emerald",
+        include=r"(pok[eé]mon|pokeman)\s*emerald",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
         outbound_shipping=5.00, category="pokemon", comp_query="pokemon emerald gameboy advance",
@@ -257,7 +260,7 @@ MODELS: list[Model] = [
         key="pkmn_crystal",
         label="Pokemon Crystal (GBC)",
         comp=145.28, measured="2026-07-25", sample=37, comp_used_only=False,
-        include=r"pokemon\s*crystal",
+        include=r"(pok[eé]mon|pokeman)\s*crystal",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
         outbound_shipping=5.00, category="pokemon", comp_query="pokemon crystal gameboy color",
@@ -268,7 +271,7 @@ MODELS: list[Model] = [
         key="pkmn_firered_leafgreen",
         label="Pokemon FireRed / LeafGreen (GBA)",
         comp=76.49, measured="2026-07-25", sample=0, comp_used_only=False,
-        include=r"pokemon\s*(fire\s*red|leaf\s*green)",
+        include=r"(pok[eé]mon|pokeman)\s*(fire\s*red|leaf\s*green)",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
         outbound_shipping=5.00, category="pokemon", comp_query="pokemon fire red gameboy advance",
@@ -279,7 +282,7 @@ MODELS: list[Model] = [
         key="pkmn_ruby_sapphire",
         label="Pokemon Ruby / Sapphire (GBA)",
         comp=71.99, measured="2026-07-25", sample=0, comp_used_only=False,
-        include=r"pokemon\s*(ruby|sapphire)",
+        include=r"(pok[eé]mon|pokeman)\s*(ruby|sapphire)",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
         outbound_shipping=5.00, category="pokemon", comp_query="pokemon ruby gameboy advance",
@@ -290,7 +293,7 @@ MODELS: list[Model] = [
         key="pkmn_rby",
         label="Pokemon Red / Blue / Yellow (GB)",
         comp=50.15, measured="2026-07-25", sample=0, comp_used_only=False,
-        include=r"pokemon\s*(red|blue|yellow)\b",
+        include=r"(pok[eé]mon|pokeman)\s*(red|blue|yellow)\b",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
         outbound_shipping=5.00, category="pokemon", comp_query="pokemon yellow gameboy",
@@ -363,9 +366,12 @@ MODELS: list[Model] = [
         key="mitutoyo",
         label="Mitutoyo micrometer/caliper/indicator",
         comp=87.05, measured="2026-07-25", sample=44,
-        include=r"mitutoyo.{0,40}(micrometer|caliper|indicator|gage|gauge|height|depth|"
+        # `mit[aiu]t[ou]yo` folds the common misspellings (Mitatoyo, Mititoyo,
+        # Mitutuyo) - typo'd titles get no search traffic, which is exactly why
+        # they close cheap. The instrument-noun requirement still applies.
+        include=r"mit[aiu]t[ou]yo.{0,40}(micrometer|caliper|indicator|gage|gauge|height|depth|"
                 r"bore|dial|scale|protractor)|(micrometer|caliper|indicator|gage|gauge)"
-                r".{0,40}mitutoyo",
+                r".{0,40}mit[aiu]t[ou]yo",
         exclude=r"\bcase only\b|box only|anvil only|spindle only|\bstand only\b",
         outbound_shipping=8.00, category="metrology", comp_query="mitutoyo micrometer",
         specificity=50,
@@ -376,9 +382,11 @@ MODELS: list[Model] = [
         comp=81.95, measured="2026-07-25", sample=43,
         # Same rule as Fluke: Starrett also sells $5 hacksaw blades and tape
         # measures, which the bare brand would have priced at $81.95.
-        include=r"starrett.{0,40}(micrometer|caliper|indicator|gage|gauge|square|level|"
+        # `starr?ett?` folds the single-letter typos (Starret, Starett) that
+        # kill a listing's search traffic - same trade, cheaper entry.
+        include=r"starr?ett?\b.{0,40}(micrometer|caliper|indicator|gage|gauge|square|level|"
                 r"protractor|dial|height|depth|precision|toolmaker|surface plate)|"
-                r"(micrometer|caliper|indicator|gage|gauge).{0,40}starrett",
+                r"(micrometer|caliper|indicator|gage|gauge).{0,40}starr?ett?\b",
         exclude=r"\bcase only\b|box only|anvil only|spindle only|\bstand only\b|"
                 r"hacksaw|saw blade|bandsaw|band saw|tape measure|blade only|\bblades\b",
         outbound_shipping=8.00, category="metrology", comp_query="starrett precision tool",
@@ -390,7 +398,7 @@ MODELS: list[Model] = [
         comp=122.50, measured="2026-07-25", sample=13,
         # `.` not `[^.]` - real titles read "Starrett No. 25 Dial Indicator", and
         # excluding periods made the brand and the noun unreachable from each other.
-        include=r"(starrett|mitutoyo|brown\s*&?\s*sharpe|interapid|federal).{0,40}indicator",
+        include=r"(starr?ett?\b|mit[aiu]t[ou]yo|brown\s*&?\s*sharpe|interapid|federal).{0,40}indicator",
         # Live catch: "Starrett No 25R Dial Indicator Contact Point Set" is a bag
         # of ~$15 tips, not a $122 indicator. Accessories FOR the tool read almost
         # identically to the tool.
@@ -1036,4 +1044,13 @@ def search_terms() -> list[str]:
         "milwaukee m18", "m18 fuel", "milwaukee combo kit",
         "dewalt 20v", "dewalt drill", "cordless drill", "power tool lot",
         "singer featherweight", "vintage sewing machine",
+        # MISSPELLINGS, on purpose (2026-07-30): typo'd titles get no search
+        # traffic, so they close cheap - the classic dead-listing edge. Each
+        # term here has a book include that still matches the typo'd title
+        # (brand-agnostic patterns like "sx-70"/"stylus"/"coolpix", `can+on`,
+        # `mit[aiu]t[ou]yo`, `starr?ett?`, `(pok[eé]mon|pokeman)`).
+        "cannon ae-1", "cannon camera", "olympis stylus", "olimpus stylus",
+        "mitatoyo", "mititoyo", "starret", "polariod sx-70", "polariod camera",
+        "nikkon coolpix", "pokeman", "gameboy advanced pokemon",
+        "cybershot camera", "handy cam sony",
     ]
