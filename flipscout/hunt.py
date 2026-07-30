@@ -154,6 +154,24 @@ def post_estate_digest(config: dict, notifier, feed=None) -> bool:
     return True
 
 
+def post_garage_digest(config: dict, notifier, feed=None) -> bool:
+    """Once a day: the garage/yard sales worth a drive. Like the estate digest,
+    these carry no item prices, so it's a go-look list, never a max bid.
+    Keyed off FLIPSCOUT_ZIP - no zip, no digest."""
+    zip_code = config.get("zip")
+    if not zip_code or not _due_for_heartbeat(config["heartbeat_file"], key="garage"):
+        return False
+    from .garagesales import YardSaleSearch, digest
+    feed = feed if feed is not None else YardSaleSearch(zip_code)
+    sales = feed.sales()
+    if not sales:
+        return False
+    notifier([], content=digest(sales, zip_code))
+    _mark_heartbeat(config["heartbeat_file"], key="garage")
+    print(f"[hunt] garage digest: {len(sales)} sale(s) near {zip_code}.")
+    return True
+
+
 def sweep(config: dict, hunters=None) -> list[dict]:
     """Every source x every term -> deduped raw listings."""
     hunters = hunters if hunters is not None else build_hunters(config["sources"])
@@ -290,6 +308,10 @@ def to_alert(c: dict) -> dict:
     else:
         bits[-1] += "  :warning: *estimate, not measured*"
     bits.append(f"Sale side nets **${adv.net_resale:,.2f}** after fees + postage.")
+    # The model's own caveat (conservative floor, seasonal hold window, thin
+    # sample). Written into the book once, surfaced on every alert.
+    if model.note:
+        bits.append(f"_{model.note}_")
 
     if row.get("listing_type") == "fixed":
         # No auction to win: it's asking price vs your ceiling, and the price is
@@ -536,6 +558,10 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
         post_estate_digest(config, notifier)
     except Exception as e:
         print(f"[hunt] estate digest failed (non-fatal): {e}")
+    try:
+        post_garage_digest(config, notifier)
+    except Exception as e:
+        print(f"[hunt] garage digest failed (non-fatal): {e}")
 
     # SECOND ALERT TIER: the buy decision happens in the last hour, not when
     # a lot is first seen days out - a $5 find can quietly become $80 without

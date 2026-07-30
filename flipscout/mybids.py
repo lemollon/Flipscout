@@ -225,6 +225,17 @@ def decide(bid: Bid, live: dict, st: dict,
         new["over_notified"] = True
         return "over_ceiling", new
 
+    # The measured leak (2026-07-30 closed CSV): Featherweight lost by $1,
+    # SX-70 by $0.12, both Mitutoyos at exact ties - every one had $20+ of
+    # ceiling headroom above his max. A max below the ceiling donates the win
+    # to whoever bids $1 more; proxy bidding means hardening it costs nothing
+    # unless contested. Once per (item, current max) - a re-exported CSV with
+    # a raised max re-arms it.
+    if (status == "WINNING" and book_max is not None and bid.my_max < book_max
+            and st.get("raise_max_at") != bid.my_max):
+        new["raise_max_at"] = bid.my_max
+        return "raise_max", new
+
     in_window = left is not None and left <= window_min
     if in_window:
         if status in ("OUTBID", "AT_CAP"):
@@ -261,7 +272,16 @@ def to_alert(kind: str, bid: Bid, live: dict, model=None, adv=None) -> dict:
                          live["increment"], live["bids"])
 
     bits = []
-    if kind == "over_ceiling":
+    if kind == "raise_max":
+        ceiling = adv.max_bid if adv is not None else 0
+        bits.append(f":shield: **Harden your max NOW.** You're winning at "
+                    f"${live['current']:,.2f} but your ${bid.my_max:,.2f} max "
+                    f"is below the **${ceiling:,.2f}** book ceiling - a sniper "
+                    f"bidding ${bid.my_max + 1:,.0f} takes it. Raise your max "
+                    f"TO the ceiling: proxy bidding means you still only pay "
+                    f"one increment over the second bidder. You lost the "
+                    f"Featherweight by $1 and the SX-70 by 12 cents this way.")
+    elif kind == "over_ceiling":
         bits.append(f":money_with_wings: **You're WINNING at "
                     f"${live['current']:,.2f} - and that's already ABOVE the "
                     f"book ceiling.** Every further dollar comes out of the "
@@ -286,8 +306,12 @@ def to_alert(kind: str, bid: Bid, live: dict, model=None, adv=None) -> dict:
             bits.append(f"To retake the lead bid **${nxt:,.2f}**.")
 
     # The raise/walk call, from the book. Without this an outbid alert is just
-    # an invitation to chase.
-    if model is not None and adv is not None:
+    # an invitation to chase. (raise_max IS the raise call - no tail needed.)
+    if kind == "raise_max":
+        if model is not None:
+            bits.append(f"_{model.label} comps ${model.comp:,.2f}"
+                        + (f" - {model.note}_" if model.note else "_"))
+    elif model is not None and adv is not None:
         if bid.my_max >= adv.max_bid:
             bits.append(f":no_entry: **Book says WALK AWAY.** {model.label} "
                         f"comps ${model.comp:,.2f}; the ceiling that still "
@@ -303,6 +327,8 @@ def to_alert(kind: str, bid: Bid, live: dict, model=None, adv=None) -> dict:
                         f"Next valid bid ${nxt:,.2f} > book max "
                         f"${adv.max_bid:,.2f} ({model.label} comps "
                         f"${model.comp:,.2f}). Let it go.")
+        if model.note:
+            bits.append(f"_{model.note}_")
     elif model is None:
         bits.append("_Not in the price book - no comp to judge a raise against._")
 
