@@ -301,6 +301,95 @@ MODELS: list[Model] = [
         note="Save battery is usually dead - it does not stop a sale but mention it.",
     ),
 
+    # --- Game consoles (measured 2026-07-30, eBay solds, all-in). Leron asked
+    # for video games beyond the carts, with budget past $100. Consoles beat
+    # rare carts here: no repro risk (the #1 loss risk on Pokemon), condition
+    # is testable in person, and estate/thrift sources are full of them.
+    # Comps are CONSERVATIVE FLOORS below the raw medians because every console
+    # search population carries a cheaper cohort (tablet-only Switches, Wii
+    # bundles in the GameCube search, game carts in the N64 search).
+    Model(
+        key="switch_oled",
+        label="Nintendo Switch OLED console",
+        comp=175.00, measured="2026-07-30", sample=60,
+        include=r"switch\s*oled",
+        # "for switch"/"for nintendo" is the accessory tell, scoped to THIS
+        # model - console names must never enter the universal camera-brand
+        # guard (the Donkey Kong lesson).
+        exclude=r"\bfor\s+(the\s+)?(nintendo|switch)\b|joy.?cons?\s+only|dock only|"
+                r"\bcase\b|\bskin\b|screen protector|\bstand\b|\bgrip\b|charger only|"
+                r"tablet only|console only|\blite\b|game only|for parts|parts only|"
+                r"not working|broken",
+        outbound_shipping=10.00, category="videogames",
+        comp_query="nintendo switch oled console", specificity=40,
+        note="FLOOR below the $201.73 median (n=60): tablet-only units sell "
+             "$150-170 and are EXCLUDED - complete console w/ dock+joycons only.",
+    ),
+    Model(
+        key="gba_sp_101",
+        label="Game Boy Advance SP AGS-101 (backlit)",
+        comp=130.00, measured="2026-07-30", sample=47,
+        include=r"ags\s*-?\s*101|backlit\s*(game\s*boy|gba|sp)|(gba|sp)\s*backlit",
+        exclude=r"\bips\b|modded|custom|shell|housing|repro|for parts|parts only|"
+                r"not working|broken|box only|charger only",
+        outbound_shipping=5.00, category="videogames",
+        comp_query="gameboy advance sp ags-101", specificity=30,
+        note="FLOOR below the $136.58 median (n=47, AGS-001 bleed in the tail). "
+             "The BACKLIT screen is the trade: AGS-101 vs 001 is 1.6x. Verify "
+             "the label says AGS-101 in the photo.",
+    ),
+    Model(
+        key="gba_sp",
+        label="Game Boy Advance SP (AGS-001/unspecified)",
+        comp=80.00, measured="2026-07-30", sample=51,
+        include=r"game\s*boy\s*advance\s*sp|gameboy\s*advance\s*sp|\bags\s*-?\s*001\b",
+        exclude=r"ags\s*-?\s*101|backlit|\bips\b|modded|custom|shell|housing|repro|"
+                r"for parts|parts only|not working|broken|box only|charger only",
+        outbound_shipping=5.00, category="videogames",
+        comp_query="gameboy advance sp", specificity=25,
+        note="FLOOR below the $84.59 median (n=51). If the photo shows AGS-101 "
+             "on the label, it's the $130+ backlit model - re-check.",
+    ),
+    Model(
+        key="n3ds_xl",
+        label="Nintendo 3DS XL / New 3DS XL",
+        comp=145.00, measured="2026-07-30", sample=59,
+        include=r"3ds\s*(xl|ll)",
+        exclude=r"\b2ds\b|circle pad|cradle only|stylus only|charger only|"
+                r"\bcase\b|for parts|parts only|not working|broken|box only",
+        outbound_shipping=6.00, category="videogames",
+        comp_query="nintendo 3ds xl console", specificity=28,
+        note="FLOOR at p25 of a $209.02 median (n=59) - Japanese 'New 3DS LL' "
+             "imports inflate the top. US 'New 3DS XL' sells $250+.",
+    ),
+    Model(
+        key="gamecube_console",
+        label="Nintendo GameCube console",
+        comp=85.00, measured="2026-07-30", sample=50,
+        # Require the console/system noun or a DOL model number so games
+        # titled "... GameCube" never price as the console.
+        include=r"game\s*cube\s*(console|system)|\bdol\s*-?\s*0?01\b|"
+                r"\bdol\s*-?\s*101\b",
+        exclude=r"\bwii\b|controller only|memory card|\bcase\b|for parts|"
+                r"parts only|not working|broken|box only|cover|door",
+        outbound_shipping=10.00, category="videogames",
+        comp_query="gamecube console", specificity=26,
+        note="FLOOR below the $94.49 median (n=50, Wii-bundle contamination "
+             "excluded). Orange/spice and boxed units sell well over $130.",
+    ),
+    Model(
+        key="n64_console",
+        label="Nintendo 64 console",
+        comp=95.00, measured="2026-07-30", sample=53,
+        include=r"(nintendo\s*64|\bn\s*-?64\b)\s*(console|system)",
+        exclude=r"controller only|expansion pak only|jumper pak|\bcase\b|"
+                r"for parts|parts only|not working|broken|box only|cover|door",
+        outbound_shipping=10.00, category="videogames",
+        comp_query="nintendo 64 console", specificity=26,
+        note="FLOOR at ~p25 of a $152.83 median (n=53, game-cart bleed in the "
+             "search). Funtastic colors and boxed bundles sell $180+.",
+    ),
+
     # === MY PICKS, chosen to exploit the CHANNEL rather than a fandom ==========
     # HiBid aggregates estate, industrial and government surplus. So the best
     # categories are professional tools that FLOOD those auctions, carry a model
@@ -570,6 +659,82 @@ MODELS: list[Model] = [
         comp_query="canon powershot g7x", specificity=60,
         note="Mark I / unmarked floor. A Mark II/III is worth $440 more - read "
              "the photos before settling for this number.",
+    ),
+    # --- High-ticket cameras (measured 2026-07-30). Leron's budget goes past
+    # $100/item, so the book now carries the models where a single flip clears
+    # $100-400. Same hype driver as the G7X: compact "vibe" cameras boom.
+    Model(
+        key="fuji_x100v",
+        label="Fujifilm X100V",
+        comp=1300.00, measured="2026-07-30", sample=8,
+        include=r"x100v\b",        # \b keeps the newer X100VI out of this comp
+        exclude=r"for parts|parts only|not working|broken|repair",
+        outbound_shipping=8.00, category="cameras",
+        comp_query="fujifilm x100v", specificity=64,
+        note="FLOOR below the $1,580.82 used median - n=8 THIN because used "
+             "X100Vs are scarce (that scarcity is the edge). The single most "
+             "valuable compact in the book; verify it powers on.",
+    ),
+    Model(
+        key="fuji_x100f",
+        label="Fujifilm X100F",
+        comp=800.00, measured="2026-07-30", sample=60,
+        include=r"x100f\b",
+        exclude=r"for parts|parts only|not working|broken|repair",
+        outbound_shipping=8.00, category="cameras",
+        comp_query="fujifilm x100f", specificity=63,
+        note="FLOOR below the $879.99 used median (n=60). X100S/T lookalikes "
+             "sell ~$500-700 and deliberately do NOT match.",
+    ),
+    Model(
+        key="contax_t2",
+        label="Contax T2 (35mm compact)",
+        comp=1100.00, measured="2026-07-30", sample=44,
+        include=r"contax\s*t2\b",
+        exclude=r"for parts|parts only|not working|broken|repair|data back only",
+        outbound_shipping=8.00, category="cameras",
+        comp_query="contax t2 camera", comp_used_only=False, specificity=62,
+        note="FLOOR below the $1,296.49 median (n=44). THE estate-sale grail - "
+             "a film point-and-shoot relatives donate for nothing. Untested "
+             "units still clear $800+; T3 comps even higher (unmeasured).",
+    ),
+    Model(
+        key="canon_5d3",
+        label="Canon EOS 5D Mark III",
+        comp=400.00, measured="2026-07-30", sample=57,
+        include=r"5d\s*mark\s*iii|5d\s*mk\s*iii|\b5d3\b",
+        # \b after ii keeps this from swallowing Mark II ($250) titles; the
+        # include's explicit iii keeps Mark IV ($900) from matching either.
+        exclude=r"mark\s*ii\b|mk\s*ii\b|mark\s*iv|mk\s*iv|for parts|parts only|"
+                r"not working|broken|repair|shutter assembly|focusing screen|"
+                r"body cap|battery grip only",
+        outbound_shipping=10.00, category="cameras",
+        comp_query="canon 5d mark iii", specificity=56,
+        note="$416.07 used median (n=57), floored to $400. Check shutter count "
+             "if stated; body-only is the normal sale.",
+    ),
+    Model(
+        key="sony_a6000",
+        label="Sony a6000 (mirrorless)",
+        comp=350.00, measured="2026-07-30", sample=55,
+        include=r"\ba6000\b|ilce\s*-?\s*6000",
+        exclude=r"lens only|body cap|for parts|parts only|not working|broken|repair",
+        outbound_shipping=8.00, category="cameras",
+        comp_query="sony a6000 camera", specificity=55,
+        note="FLOOR below the $406.07 median (n=55, mostly WITH kit lens). "
+             "Body-only sells lower - price the kit, not the bare body.",
+    ),
+    Model(
+        key="gopro_hero11",
+        label="GoPro HERO 11 Black",
+        comp=160.00, measured="2026-07-30", sample=17,
+        include=r"hero\s*-?\s*11\b",
+        exclude=r"session|mount|frame only|housing only|lens cover|door|"
+                r"battery only|charger only|for parts|parts only|not working|broken",
+        outbound_shipping=6.00, category="cameras",
+        comp_query="gopro hero 11 black", specificity=52,
+        note="FLOOR covering the Mini variant (~$158); full-size medians "
+             "$204.63 (n=17). Hero 9/10/12 are unmeasured - do not assume.",
     ),
     Model(
         key="sony_rx100",
@@ -1044,6 +1209,14 @@ def search_terms() -> list[str]:
         "milwaukee m18", "m18 fuel", "milwaukee combo kit",
         "dewalt 20v", "dewalt drill", "cordless drill", "power tool lot",
         "singer featherweight", "vintage sewing machine",
+        # game consoles (added 2026-07-30 - "add video games", budget past $100)
+        "nintendo switch oled", "gameboy advance sp", "game boy advance sp",
+        "nintendo 3ds xl", "gamecube console", "nintendo 64 console",
+        "video game console", "game console lot", "nintendo console",
+        # high-ticket cameras (added 2026-07-30 - single flips clearing $100-400)
+        "fujifilm x100", "fuji x100", "contax t2", "contax camera",
+        "canon 5d", "sony a6000", "sony alpha camera", "gopro hero",
+        "mirrorless camera", "dslr camera",
         # MISSPELLINGS, on purpose (2026-07-30): typo'd titles get no search
         # traffic, so they close cheap - the classic dead-listing edge. Each
         # term here has a book include that still matches the typo'd title
