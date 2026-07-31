@@ -1,6 +1,7 @@
 """Bid sentry: the CSV is the bid list, proxy math is the outbid detector, and
 the final 90 minutes is when it's allowed to get loud."""
 
+import datetime as dt
 import json
 import os
 import time
@@ -220,10 +221,11 @@ class FakeSession:
 
 
 def test_run_alerts_once_then_stays_quiet_on_no_change(tmp_path, monkeypatch):
-    # Sandbox the watchlist lookup too, or this test starts tracking the REAL
-    # Downloads\flipscout_watchlist.txt the day it exists.
+    # Sandbox the watchlist AND board lookups, or this test starts tracking
+    # the REAL Downloads\flipscout_watchlist.txt / docs\deals.json.
     monkeypatch.setenv("FLIPSCOUT_BIDS_DIR", str(tmp_path))
     monkeypatch.delenv("FLIPSCOUT_WATCHLIST_FILE", raising=False)
+    monkeypatch.setenv("FLIPSCOUT_BOARD_FILE", str(tmp_path / "no-board.json"))
     csv_path = tmp_path / "Auctions in Progress-Shopgoodwill.com.csv"
     _write_csv(csv_path, [
         '"1","TI-84 Plus CE Color Graphing Calculator","GW","$25.00","$20.00","5","08/01/2026 12:00:00 PM ",""',
@@ -258,6 +260,7 @@ def test_run_without_a_csv_reports_instead_of_crashing(tmp_path, monkeypatch):
     monkeypatch.setenv("FLIPSCOUT_BIDS_DIR", str(tmp_path))
     monkeypatch.delenv("FLIPSCOUT_BIDS_CSV", raising=False)
     monkeypatch.delenv("FLIPSCOUT_WATCHLIST_FILE", raising=False)
+    monkeypatch.setenv("FLIPSCOUT_BOARD_FILE", str(tmp_path / "no-board.json"))
     res = mybids.run()
     assert res == {"tracked": 0, "alerts": 0, "sent": []}
 
@@ -312,6 +315,59 @@ def test_watch_alert_names_the_snipe_number_not_a_max():
     assert "never bid" in closed["reason"]
 
 
+# --- auto-watch off the deals board (7/31: "that too much manual work") -----
+
+AUTO = mybids.Bid(item_id="9", title="Singer Featherweight", my_max=0.0, auto=True)
+
+
+def _board(tmp_path, items):
+    p = tmp_path / "deals.json"
+    p.write_text(json.dumps({"items": items}), encoding="utf-8")
+    return str(p)
+
+
+def test_load_autowatch_takes_goodwill_deals_closing_in_the_window(tmp_path):
+    now = dt.datetime(2026, 7, 31, 19, 0)
+    path = _board(tmp_path, [
+        {"source": "goodwill", "url": "https://shopgoodwill.com/item/1",
+         "ends": "2026-07-31T20:19", "profit_at_open": 110.0, "title": "Featherweight"},
+        {"source": "goodwill", "url": "https://shopgoodwill.com/item/2",
+         "ends": "2026-08-03T18:44", "profit_at_open": 156.0, "title": "Arcteryx"},
+        {"source": "craigslist", "url": "https://x/item/3",
+         "ends": "2026-07-31T19:30", "profit_at_open": 900.0, "title": "G7X"},
+        {"source": "goodwill", "url": "https://shopgoodwill.com/item/4",
+         "ends": "2026-07-31T19:30", "profit_at_open": 40.0, "title": "TI-84"},
+    ])
+    got = mybids.load_autowatch(board_path=path, now_pt=now)
+    # Item 2 is days out, item 3 isn't goodwill; best profit first.
+    assert [b.item_id for b in got] == ["1", "4"]
+    assert all(b.auto and b.watching for b in got)
+
+
+def test_load_autowatch_caps_at_top_and_survives_a_missing_board(tmp_path):
+    now = dt.datetime(2026, 7, 31, 19, 0)
+    items = [{"source": "goodwill", "url": f"https://shopgoodwill.com/item/{i}",
+              "ends": "2026-07-31T19:30", "profit_at_open": i, "title": f"t{i}"}
+             for i in range(20)]
+    got = mybids.load_autowatch(board_path=_board(tmp_path, items), now_pt=now, top=5)
+    assert len(got) == 5 and got[0].item_id == "19"      # best profit first
+    assert mybids.load_autowatch(board_path=str(tmp_path / "gone.json"),
+                                 now_pt=now) == []
+
+
+def test_auto_watch_fires_exactly_one_snipe_call_at_thirty():
+    kind, st = decide(AUTO, _live(25.0, left_min=80), {})
+    assert kind is None                        # no entry alert - board churn
+    kind2, st = decide(AUTO, _live(25.0, left_min=55), st)
+    assert kind2 is None                       # no 60-min ping either
+    kind3, st = decide(AUTO, _live(25.0, left_min=28), st)
+    assert kind3 == "endgame_watch"            # THE snipe call
+    kind4, st = decide(AUTO, _live(26.0, left_min=12), st)
+    assert kind4 is None                       # once means once
+    kind5, _ = decide(AUTO, _live(26.0, left_min=-1, expired=True), st)
+    assert kind5 is None                       # and no closed note
+
+
 def test_run_merges_watchlist_and_prefers_the_real_bid(tmp_path, monkeypatch):
     csv_path = tmp_path / "Auctions in Progress-Shopgoodwill.com.csv"
     _write_csv(csv_path, [
@@ -321,6 +377,7 @@ def test_run_merges_watchlist_and_prefers_the_real_bid(tmp_path, monkeypatch):
     wl.write_text("https://shopgoodwill.com/item/1\n"    # already bid: CSV wins
                   "https://shopgoodwill.com/item/2\n", encoding="utf-8")
     monkeypatch.setenv("FLIPSCOUT_WATCHLIST_FILE", str(wl))
+    monkeypatch.setenv("FLIPSCOUT_BOARD_FILE", str(tmp_path / "no-board.json"))
     session = FakeSession({
         "title": "TI-84 Plus CE Color Graphing Calculator",
         "currentPrice": 25.0, "minimumBid": 26.0, "bidIncrement": 1.0,

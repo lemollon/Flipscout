@@ -82,6 +82,11 @@ class Bid:
     item_id: str
     title: str
     my_max: float
+    # True for items pulled automatically off the deals board rather than
+    # named by Leron. They get exactly ONE alert (the 30-minute snipe call)
+    # and no closed note - board turnover would otherwise bury the alerts
+    # about auctions he actually chose to follow.
+    auto: bool = False
 
     @property
     def watching(self) -> bool:
@@ -144,6 +149,65 @@ def load_watchlist(path: str) -> list[Bid]:
     except OSError:
         return []
     return out
+
+
+# Auto-watch: the hunter already publishes every qualifying deal to
+# docs/deals.json hourly (the board), with the goodwill end times on the rows.
+# Anything closing inside the sentry window is a snipe candidate nobody had to
+# paste anywhere - Leron, 7/31, on the watchlist file: "that too much manual
+# work". Top-N by profit keeps a busy board from turning into a siren.
+BOARD_FILE_ENV = "FLIPSCOUT_BOARD_FILE"
+DEFAULT_BOARD_FILE = os.path.join("docs", "deals.json")
+
+
+def _now_pacific() -> Optional[_dt.datetime]:
+    """Board `ends` stamps are naive Pacific (endTime[:16] from the same API
+    the sentry calls). Compare them ONLY to a Pacific clock - raw wall-clock
+    across zones is the FLASHPOINT class of bug."""
+    try:
+        from zoneinfo import ZoneInfo
+        return _dt.datetime.now(ZoneInfo("America/Los_Angeles")).replace(tzinfo=None)
+    except Exception:
+        return None
+
+
+def load_autowatch(board_path: Optional[str] = None,
+                   window_min: float = DEFAULT_WINDOW_MIN,
+                   top: int = 10,
+                   now_pt: Optional[_dt.datetime] = None) -> list[Bid]:
+    """Goodwill board deals closing within the window, best profit first.
+
+    This is only a cheap PRE-filter to bound API calls; the alert itself still
+    times off serverTime-vs-endTime from the live detail call. [] on any
+    failure - a broken board must not take down the bid watching."""
+    board_path = board_path or os.environ.get(BOARD_FILE_ENV, DEFAULT_BOARD_FILE)
+    now_pt = now_pt or _now_pacific()
+    if now_pt is None:
+        return []
+    try:
+        with open(board_path, encoding="utf-8") as f:
+            items = (json.load(f) or {}).get("items") or []
+    except Exception:
+        return []
+    keep = []
+    for r in items:
+        if r.get("source") != "goodwill" or not r.get("ends"):
+            continue
+        m = re.search(r"/item/(\d+)", r.get("url") or "")
+        if not m:
+            continue
+        try:
+            left = (_dt.datetime.fromisoformat(r["ends"]) - now_pt).total_seconds() / 60.0
+        except ValueError:
+            continue
+        # Small negative slack: a board built an hour ago may be slightly
+        # stale; the live call decides whether it's really over.
+        if -10 <= left <= window_min:
+            keep.append((float(r.get("profit_at_open") or 0), m.group(1),
+                         (r.get("title") or "").strip()))
+    keep.sort(key=lambda t: -t[0])
+    return [Bid(item_id=iid, title=title, my_max=0.0, auto=True)
+            for _, iid, title in keep[:top]]
 
 
 def load_bids(path: str) -> list[Bid]:
@@ -270,10 +334,19 @@ def decide(bid: Bid, live: dict, st: dict,
     new["last_price"] = live["current"]
 
     if live.get("expired"):
-        if st.get("closed_notified"):
+        if bid.auto or st.get("closed_notified"):
             return None, new
         new["closed_notified"] = True
         return "closed", new
+
+    # Auto-watched board deals: exactly one alert, the 30-minute snipe call.
+    # More would drown the auctions he chose himself under board churn.
+    if bid.auto:
+        if (left is not None and left <= MILESTONES_MIN[-1]
+                and not st.get("auto_notified")):
+            new["auto_notified"] = True
+            return "endgame_watch", new
+        return None, new
 
     # Watch-only: no proxy to defend and no cap to guard, so the ONLY news is
     # the countdown - entry heads-up plus the 60/30 pings, then the close.
@@ -471,11 +544,10 @@ def run(csv_path: Optional[str] = None, window_min: float = DEFAULT_WINDOW_MIN,
         dry: bool = False) -> dict:
     csv_path = csv_path or find_bids_csv()
     watch_path = find_watchlist()
-    if not csv_path and not watch_path:
+    if not csv_path:
         print("[mybids] no 'Auctions in Progress*.csv' found in Downloads - "
               "export it from shopgoodwill.com/shopgoodwill/inprogress-auctions"
               f" (watch-only items go in Downloads\\{WATCHLIST_NAME})")
-        return {"tracked": 0, "alerts": 0, "sent": []}
     bids, age_h = [], 0.0
     if csv_path:
         age_h = max(0.0, (_now_ts() - os.path.getmtime(csv_path)) / 3600.0)
@@ -490,6 +562,16 @@ def run(csv_path: Optional[str] = None, window_min: float = DEFAULT_WINDOW_MIN,
         bids += extra
         print(f"[mybids] {len(extra)} watch-only item(s) from "
               f"{os.path.basename(watch_path)}")
+    if os.environ.get("FLIPSCOUT_AUTOWATCH", "1").lower() not in ("0", "false"):
+        have = {b.item_id for b in bids}
+        auto = [a for a in load_autowatch(window_min=window_min,
+                                          top=int(os.environ.get(
+                                              "FLIPSCOUT_AUTOWATCH_TOP", "10")))
+                if a.item_id not in have]
+        bids += auto
+        if auto:
+            print(f"[mybids] {len(auto)} board deal(s) auto-watched into the "
+                  f"closing window")
 
     state_file = state_file or os.environ.get(STATE_FILE_ENV, DEFAULT_STATE_FILE)
     state = _load_state(state_file)
