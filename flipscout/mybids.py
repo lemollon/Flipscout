@@ -28,6 +28,9 @@ webhook as the hunter):
     * <=90 min:   losing -> re-alert on EVERY price move (this is the window
                   the whole module exists for)
     * <=90 min:   winning -> one heads-up to watch the close
+    * 60 and 30:  countdown ping for winners AND losers, price move or not -
+                  one per threshold (Leron kept getting sniped after the
+                  single early heads-up)
     * ended:      one closing note - likely won or lost, and at what price
 """
 
@@ -49,9 +52,17 @@ from .hunters import _GW_DETAIL, _GW_HEADERS, _TIMEOUT
 from .notify import notify_rich
 from .pricebook import match
 
-# The endgame window. 90 minutes per Leron ("an hour and 30 mins left"), and the
-# sentry should run every ~5 min so a snipe still leaves time to counter.
+# The endgame window. The sentry runs every ~5 min so a snipe still leaves
+# time to counter.
 DEFAULT_WINDOW_MIN = 90.0
+
+# Guaranteed countdown pings inside the window, whether or not the price has
+# moved. Leron, 7/31: "I need to know when there is an hour and then 30 mins
+# left ... you tell with hours left and I always get outbid" - the original
+# "an hour and 30 mins left" was one 90-minute warning when he meant TWO
+# checkpoints. One alert per threshold per item; jumping straight past both
+# (sentry was off) fires once, not twice.
+MILESTONES_MIN = (60.0, 30.0)
 
 STATE_FILE_ENV = "FLIPSCOUT_MYBIDS_STATE"
 DEFAULT_STATE_FILE = "flipscout_mybids_state.json"
@@ -238,6 +249,17 @@ def decide(bid: Bid, live: dict, st: dict,
 
     in_window = left is not None and left <= window_min
     if in_window:
+        # Countdown checkpoints fire for winners AND losers: the once-only
+        # entry alert meant a winner heard "closes in 1.5h", nothing more,
+        # and then the snipe. These re-ping at 60 and 30 regardless of price.
+        passed = [m for m in MILESTONES_MIN if left <= m]
+        fresh = [m for m in passed if m not in st.get("milestones", [])]
+        if fresh:
+            new["milestones"] = sorted(set(st.get("milestones", [])) | set(passed))
+            new["endgame_notified"] = True
+            new["endgame_price"] = live["current"]
+            return ("endgame_losing" if status in ("OUTBID", "AT_CAP")
+                    else "endgame_winning"), new
         if status in ("OUTBID", "AT_CAP"):
             # Every price move inside the window is news you can still act on.
             if st.get("endgame_price") != live["current"]:

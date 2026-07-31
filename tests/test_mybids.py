@@ -94,10 +94,42 @@ def test_endgame_losing_realerts_on_every_price_move_but_not_without_one():
     assert kind3 == "endgame_losing"
 
 
-def test_endgame_winning_heads_up_fires_exactly_once():
+def test_endgame_winning_heads_up_then_countdown_pings():
+    # 7/31 Leron: the single early heads-up ("closes in 1.5h") was the LAST
+    # thing he heard before losing to a snipe. Winners now get pinged again
+    # at 60 and 30 - and only there.
     kind, st = decide(BID, _live(15.0, left_min=85), {"status": "WINNING"})
     assert kind == "endgame_winning"
-    kind2, _ = decide(BID, _live(15.0, left_min=40), st)
+    kind2, st = decide(BID, _live(15.0, left_min=70), st)
+    assert kind2 is None                       # between checkpoints: quiet
+    kind3, st = decide(BID, _live(15.0, left_min=58), st)
+    assert kind3 == "endgame_winning"          # the 1-hour ping
+    kind4, st = decide(BID, _live(15.0, left_min=45), st)
+    assert kind4 is None                       # 60 already fired, 30 not reached
+    kind5, st = decide(BID, _live(15.0, left_min=28), st)
+    assert kind5 == "endgame_winning"          # the 30-minute ping
+    kind6, _ = decide(BID, _live(15.0, left_min=10), st)
+    assert kind6 is None                       # both spent - no wallpaper
+
+
+def test_countdown_pings_fire_for_losers_even_without_a_price_move():
+    st = {"status": "OUTBID", "last_price": 25.0}
+    kind, st = decide(BID, _live(25.0, left_min=80), st)
+    assert kind == "endgame_losing"            # window entry
+    kind2, st = decide(BID, _live(25.0, left_min=59), st)
+    assert kind2 == "endgame_losing"           # 1-hour ping, price unchanged
+    kind3, st = decide(BID, _live(25.0, left_min=29), st)
+    assert kind3 == "endgame_losing"           # 30-minute ping
+    kind4, _ = decide(BID, _live(25.0, left_min=15), st)
+    assert kind4 is None
+
+
+def test_jumping_past_both_checkpoints_pings_once_not_twice():
+    # Sentry was off (laptop asleep); first sight of the item is at 20 min.
+    kind, st = decide(BID, _live(15.0, left_min=20), {"status": "WINNING"})
+    assert kind == "endgame_winning"
+    assert sorted(st["milestones"]) == [30.0, 60.0]  # both marked spent
+    kind2, _ = decide(BID, _live(15.0, left_min=12), st)
     assert kind2 is None
 
 
