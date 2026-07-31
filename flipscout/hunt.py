@@ -167,17 +167,24 @@ def post_garage_digest(config: dict, notifier, feed=None) -> bool:
     if not zip_code or not _due_for_heartbeat(config["heartbeat_file"], key="garage"):
         return False
     from .garagesales import (YardSaleSearch, Gsalr, GarageSaleFinder,
-                              merged_sales, digest)
+                              merged_sales, digest, expand_desc,
+                              split_for_discord)
     if feed is not None:
         feeds = [feed]
+        expand = None
     else:
         feeds = [YardSaleSearch(zip_code), GarageSaleFinder(zip_code)]
         feeds += [Gsalr(c.strip()) for c in
                   (config.get("gsalr_cities") or "").split(",") if c.strip()]
+        expand = expand_desc
     sales = merged_sales(feeds)
     if not sales:
         return False
-    notifier([], content=digest(sales, zip_code))
+    # Leron, 7/31: a list of titles+links is useless - the digest must show
+    # WHAT each sale has. Descriptions push past Discord's 2000-char cap, so
+    # the digest goes out in sale-boundary parts instead of being truncated.
+    for part in split_for_discord(digest(sales, zip_code, expand=expand)):
+        notifier([], content=part)
     _mark_heartbeat(config["heartbeat_file"], key="garage")
     print(f"[hunt] garage digest: {len(sales)} sale(s) near {zip_code} "
           f"from {len(feeds)} feed(s).")

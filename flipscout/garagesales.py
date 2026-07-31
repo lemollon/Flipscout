@@ -54,6 +54,7 @@ _FIELD = {
     "city": re.compile(r'itemprop="addressLocality">([^<]+)<'),
     "start": re.compile(r'itemprop="startDate" content="([^"]+)"'),
     "end": re.compile(r'itemprop="endDate" content="([^"]+)"'),
+    "desc": re.compile(r'itemprop="description"[^>]*>\s*(.*?)\s*</', re.S),
 }
 
 
@@ -83,6 +84,8 @@ class YardSaleSearch:
             chunk = chunk[:4000]         # a card is ~2KB; don't scan the page tail
             row = {k: (_html.unescape(p.search(chunk).group(1)).strip()
                        if p.search(chunk) else "") for k, p in _FIELD.items()}
+            row["desc"] = _clean_desc(row.get("desc", ""))
+            row["source"] = self.name
             if not row["title"] or not row["url"]:
                 continue
             try:
@@ -93,6 +96,13 @@ class YardSaleSearch:
             out.append(row)
         out.sort(key=lambda r: r.get("start") or "9999")
         return out
+
+
+def _clean_desc(s: str) -> str:
+    """Strip markup and list-page chrome ("Read More →") out of a description."""
+    s = re.sub(r"<[^>]+>", " ", s)
+    s = re.sub(r"(read\s*more\s*→?|…)\s*$", "", s.strip(), flags=re.I)
+    return re.sub(r"\s+", " ", s).strip()[:500]
 
 
 class Gsalr:
@@ -171,7 +181,7 @@ def _parse_cards(src, html: Optional[str], today: Optional[_dt.date]) -> list[di
         row = {k: (_html.unescape(p.search(chunk).group(1)).strip()
                    if p.search(chunk) else "") for k, p in src._F.items()}
         row.setdefault("street", ""); row.setdefault("city", "")
-        row["desc"] = re.sub(r"<[^>]+>", " ", row.get("desc", ""))[:500].strip()
+        row["desc"] = _clean_desc(row.get("desc", ""))
         row["source"] = src.name
         if not row["title"] or not row["url"]:
             continue
@@ -235,7 +245,29 @@ def hot(row: dict) -> str:
     return kw.group(1).lower() if kw else ""
 
 
-def digest(sales: list[dict], zip_code: str, cap: int = 12) -> str:
+def expand_desc(row: dict, session: Optional[requests.Session] = None) -> None:
+    """Fetch the sale's own page for the full description. All three sites
+    mark it itemprop="description" there too. Fail-soft: the list-page desc
+    stays if anything goes wrong. Only called for sales the digest will
+    actually show, so this is ~a dozen fetches once a day."""
+    try:
+        r = (session or requests).get(row["url"], headers={"User-Agent": _UA},
+                                      timeout=_TIMEOUT)
+        m = re.search(r'itemprop="description"[^>]*>\s*(.*?)\s*</(div|span|p)>',
+                      r.text, re.S)
+        full = _clean_desc(_html.unescape(m.group(1))) if m else ""
+        if len(full) > len(row.get("desc", "")):
+            row["desc"] = full
+    except Exception:
+        pass
+
+
+def digest(sales: list[dict], zip_code: str, cap: int = 12,
+           expand=None) -> str:
+    """The drive-by list WITH what each sale says it has - the title alone
+    ("Garage Sale Friday") tells you nothing worth driving for. `expand` is
+    called on each shown row to pull the full description (expand_desc live,
+    None in tests)."""
     if not sales:
         return ""
     flagged = [(hot(s), s) for s in sales]
@@ -243,6 +275,12 @@ def digest(sales: list[dict], zip_code: str, cap: int = 12) -> str:
     # come from the book, keywords are lowercase - no ordering needed beyond
     # hot-before-cold), each group still soonest-first.
     flagged.sort(key=lambda p: (not p[0],))
+    if expand is not None:
+        for _, s in flagged[:cap]:
+            expand(s)
+        # A fuller description can surface a book model the truncated one hid.
+        flagged = [(hot(s), s) for _, s in flagged]
+        flagged.sort(key=lambda p: (not p[0],))
     n_hot = sum(1 for r, _ in flagged if r)
     lines = [f"🏡 **Garage sales near {zip_code}** - {len(sales)} upcoming"
              + (f", {n_hot} mention book territory" if n_hot else "") + ". "
@@ -257,6 +295,26 @@ def digest(sales: list[dict], zip_code: str, cap: int = 12) -> str:
         tag = f" 🎯 {reason}" if reason else ""
         lines.append(f"• **{s['title'][:70]}**{tag} ({when})")
         lines.append(f"  {where}  <{s['url']}>")
+        if s.get("desc"):
+            lines.append(f"  ↳ {s['desc'][:240]}")
     if len(sales) > cap:
         lines.append(f"…and {len(sales) - cap} more.")
     return "\n".join(lines)
+
+
+def split_for_discord(body: str, limit: int = 1900) -> list[str]:
+    """Discord hard-rejects messages over 2000 chars and notify() truncates at
+    1990 - which would silently eat the descriptions this digest now carries.
+    Split on sale boundaries so each part stands alone."""
+    if len(body) <= limit:
+        return [body] if body else []
+    parts, cur = [], ""
+    for block in re.split(r"\n(?=• )", body):
+        if cur and len(cur) + len(block) + 1 > limit:
+            parts.append(cur)
+            cur = block
+        else:
+            cur = f"{cur}\n{block}" if cur else block
+    if cur:
+        parts.append(cur)
+    return parts

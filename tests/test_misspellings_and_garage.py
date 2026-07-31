@@ -4,7 +4,7 @@ import datetime as dt
 
 from flipscout import hunt
 from flipscout.garagesales import (YardSaleSearch, Gsalr, GarageSaleFinder,
-                                   merged_sales, hot, digest)
+                                   merged_sales, hot, digest, split_for_discord)
 from flipscout.pricebook import match, search_terms
 
 
@@ -177,6 +177,57 @@ def test_digest_floats_hot_sales_to_the_top():
     assert "🎯" in body
     assert body.index("Nerd Estate Sale") < body.index("Plain Clothes Sale")
     assert "1 mention book territory" in body
+
+
+def test_digest_shows_what_each_sale_has():
+    # Leron, 7/31: titles+links alone are useless - the digest must carry the
+    # description so he can judge the drive from Discord.
+    sales = [{"title": "Estate Sale", "url": "u1", "street": "1 A St", "city": "Katy",
+              "start": "2026-08-01", "end": "", "desc": "Tools, furniture, old cameras"}]
+    body = digest(sales, "77441")
+    assert "↳ Tools, furniture, old cameras" in body
+
+
+def test_digest_expand_hook_refreshes_hot_flags():
+    # The truncated list-page desc hides the TI-84; the detail page names it.
+    sales = [{"title": "Boring Sale", "url": "u1", "street": "", "city": "Katy",
+              "start": "2026-08-01", "end": "", "desc": "misc household"}]
+
+    def expand(row):
+        row["desc"] = "misc household plus a TI-84 Plus CE calculator"
+
+    body = digest(sales, "77441", expand=expand)
+    assert "🎯" in body and "TI-84" in body
+
+
+def test_split_for_discord_keeps_sale_blocks_whole():
+    body = digest(
+        [{"title": f"Sale number {i} with a fairly long name attached", "url": f"https://x/{i}",
+          "street": f"{i} Long Street Name Dr", "city": "Houston",
+          "start": "2026-08-01", "end": "2026-08-02",
+          "desc": "furniture, clothes, kitchenware, books, toys, tools, "
+                  "holiday decorations and a whole lot of other things"}
+         for i in range(12)], "77441")
+    parts = split_for_discord(body, limit=1900)
+    assert len(parts) > 1                       # it genuinely needed splitting
+    for p in parts:
+        assert len(p) <= 1900                   # every part clears notify's cap
+    # No sale got cut in half: every bullet still has its ↳ items line.
+    joined = "\n".join(parts)
+    assert joined.count("• ") == joined.count("↳ ")
+
+
+def test_yss_desc_is_parsed_and_cleaned():
+    card = '''<h2 itemprop="name">
+<a itemprop="url" href="https://www.yardsalesearch.com/x?id=1">Sale</a></h2>
+<span itemprop="addressLocality">Katy</span>,
+<meta itemprop="startDate" content="2026-08-01" />
+<meta itemprop="endDate" content="2026-08-02" />
+<span itemprop="description" class="eventdesc">Cypress TWO DAY SALE! tools and cameras&hellip;&nbsp;<a href="https://x">Read&nbsp;More&nbsp;&rarr;</a></span>
+'''
+    got = YardSaleSearch("77441").sales(html=card, today=dt.date(2026, 7, 31))
+    assert got[0]["desc"].startswith("Cypress TWO DAY SALE")
+    assert "Read" not in got[0]["desc"]
 
 
 def test_garage_digest_posts_once_a_day_and_needs_a_zip(tmp_path):
