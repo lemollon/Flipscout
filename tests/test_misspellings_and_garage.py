@@ -3,7 +3,8 @@
 import datetime as dt
 
 from flipscout import hunt
-from flipscout.garagesales import YardSaleSearch, digest
+from flipscout.garagesales import (YardSaleSearch, Gsalr, GarageSaleFinder,
+                                   merged_sales, hot, digest)
 from flipscout.pricebook import match, search_terms
 
 
@@ -76,6 +77,106 @@ def test_digest_reads_as_a_drive_list_not_bids():
     body = digest(got, "77441")
     assert "77441" in body and "123 Oak Ln" in body
     assert "max bid" not in body.lower().replace("no max bids", "")
+
+
+# --- gsalr + garagesalefinder (added 2026-07-31) ----------------------------
+# Trimmed from the LIVE pages the day they shipped; if either site reshapes
+# its markup, these fixtures say what the parser was built against.
+
+GSALR_CARD = '''
+<div id="l-38855171" class="listing"><span itemscope itemtype="http://schema.org/Event">
+<div class="title"><h2 itemprop="name"><a href="https://gsalr.com/tomball-estate-sale-tomball-tx-38855171.html" target="_blank" class="sale-title" itemprop="url">Tomball Estate Sale!</a></h2></div>
+<span itemprop="addressLocality">Tomball</span>,&nbsp;<span itemprop="addressRegion">TX</span>
+<meta itemprop="startDate" content="2026-08-08"><meta itemprop="endDate" content="2026-08-09">
+<div class="description" itemprop="description">Furniture, sewing machines, and a Fluke 87 multimeter.</div>
+</span>
+<span itemscope itemtype="http://schema.org/Event">
+<div class="title"><h2 itemprop="name"><a href="https://gsalr.com/old-sale-tx-1.html" target="_blank" class="sale-title" itemprop="url">Long Gone Sale</a></h2></div>
+<span itemprop="addressLocality">Katy</span>
+<meta itemprop="startDate" content="2026-07-01"><meta itemprop="endDate" content="2026-07-02">
+<div class="description" itemprop="description">nothing</div>
+</span>
+'''
+
+GSF_CARD = '''
+<div id="d-21693135" class="row collapse record">
+<meta itemprop="startDate" content="2026-08-01"><meta itemprop="endDate" content="2026-08-02">
+<div class="sale-address"><strong><span itemprop="address" class="sale-click">19222 TX-249, Houston, TX 77070</span></strong></div>
+<div class="sale-title text-left" itemprop="name"><h2><a class="sale-url" href="https://garagesalefinder.com/s/N9N0G/19222-tx249" target="_blank">Prince of Peace Back to School Garage Sale</a></h2></div>
+<div class="clearfix sale-desc text-left hide" itemprop="description">
+Clothes, toys, and lots of misc.
+</div></div>
+'''
+
+
+def test_gsalr_parses_and_drops_already_over():
+    got = Gsalr("katy-tx").sales(html=GSALR_CARD, today=dt.date(2026, 7, 31))
+    assert len(got) == 1
+    assert got[0]["title"] == "Tomball Estate Sale!"
+    assert got[0]["city"] == "Tomball"
+    assert got[0]["start"] == "2026-08-08"
+    assert "Fluke 87" in got[0]["desc"]
+    assert got[0]["source"] == "gsalr"
+
+
+def test_garagesalefinder_parses_zip_page():
+    got = GarageSaleFinder("77441").sales(html=GSF_CARD, today=dt.date(2026, 7, 31))
+    assert len(got) == 1
+    assert got[0]["title"].startswith("Prince of Peace")
+    assert got[0]["street"] == "19222 TX-249, Houston, TX 77070"
+    assert got[0]["end"] == "2026-08-02"
+
+
+class _Fixed:
+    def __init__(self, name, rows):
+        self.name, self.rows = name, rows
+
+    def sales(self):
+        return [dict(r) for r in self.rows]
+
+
+def test_merged_sales_dedupes_the_shared_backend():
+    # gsalr and garagesalefinder are the same EstateSales.NET family: the
+    # Richmond estate sale appeared on BOTH the day this shipped. One line in
+    # the digest, and the copy WITH the street wins.
+    a = _Fixed("gsalr", [{"title": "Richmond Estate Sale!", "url": "g1",
+                          "street": "", "city": "Richmond", "start": "2026-08-01", "end": ""}])
+    b = _Fixed("garagesalefinder", [{"title": "Richmond Estate Sale!", "url": "f1",
+                                     "street": "11011 Brighton Gardens Dr", "city": "",
+                                     "start": "2026-08-01", "end": ""}])
+    got = merged_sales([a, b])
+    assert len(got) == 1
+    assert got[0]["street"] == "11011 Brighton Gardens Dr"
+
+
+def test_merged_sales_keeps_distinct_generic_titles():
+    # "Garage Sale" is too generic to dedupe on alone - different city or
+    # weekend means a different sale.
+    a = _Fixed("gsalr", [{"title": "Garage Sale", "url": "g1", "street": "",
+                          "city": "Katy", "start": "2026-08-01", "end": ""}])
+    b = _Fixed("gsalr", [{"title": "Garage Sale", "url": "g2", "street": "",
+                          "city": "Spring", "start": "2026-08-01", "end": ""}])
+    assert len(merged_sales([a, b])) == 2
+
+
+def test_hot_prefers_book_model_over_category_word():
+    row = {"title": "Estate sale", "desc": "Fluke 87 multimeter, cameras, tools"}
+    assert "Fluke 87" in hot(row)           # exact book model, not just "cameras"
+    assert hot({"title": "Moving sale", "desc": "computers and laptops"}) == "computers"
+    assert hot({"title": "Yard sale", "desc": "clothes and toys"}) == ""
+
+
+def test_digest_floats_hot_sales_to_the_top():
+    sales = [
+        {"title": "Plain Clothes Sale", "url": "u1", "street": "1 A St", "city": "Katy",
+         "start": "2026-08-01", "end": "", "desc": "clothes"},
+        {"title": "Nerd Estate Sale", "url": "u2", "street": "2 B St", "city": "Fulshear",
+         "start": "2026-08-02", "end": "", "desc": "TI-84 Plus CE calculators and cameras"},
+    ]
+    body = digest(sales, "77441")
+    assert "🎯" in body
+    assert body.index("Nerd Estate Sale") < body.index("Plain Clothes Sale")
+    assert "1 mention book territory" in body
 
 
 def test_garage_digest_posts_once_a_day_and_needs_a_zip(tmp_path):
