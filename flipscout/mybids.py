@@ -12,6 +12,11 @@ Re-export it after placing new bids - the newest matching file wins, so just
 downloading again is the whole update flow. (There is no way to read "my bids"
 anonymously from the API; the CSV is the source of truth for MY max.)
 
+Watch-only items (no bid yet - waiting to snipe) have no export at all, so
+they come from Downloads\flipscout_watchlist.txt: paste one shopgoodwill item
+link per line. They get the same countdown pings plus the book's snipe
+ceiling; bidding on one later just moves it to the CSV side automatically.
+
 Outbid detection is inferred from proxy-bid math, no login required:
     current > my max  -> OUTBID, definitively (proxy would have defended below it)
     current == my max -> AT CAP: either a tie I lost or my proxy pinned at its
@@ -78,6 +83,13 @@ class Bid:
     title: str
     my_max: float
 
+    @property
+    def watching(self) -> bool:
+        """No bid placed - he's waiting to snipe (Leron, 7/31: "if i bid or
+        not sometimes im just waiting til the last minute"). No proxy math
+        applies; these get the countdown pings and the book's snipe number."""
+        return self.my_max <= 0
+
 
 def _money(s: str) -> float:
     try:
@@ -97,6 +109,41 @@ def find_bids_csv(directory: Optional[str] = None) -> Optional[str]:
     if not paths:
         return None
     return max(paths, key=os.path.getmtime)
+
+
+# Watch-only items: one shopgoodwill link (or bare item id) per line, pasted
+# into this file next to where the CSV lands. Unlike bids there is no export
+# for "things I might snipe", so the file IS the list; lines starting with #
+# are comments, and deleting a line stops the watching.
+WATCHLIST_NAME = "flipscout_watchlist.txt"
+
+
+def find_watchlist(directory: Optional[str] = None) -> Optional[str]:
+    explicit = os.environ.get("FLIPSCOUT_WATCHLIST_FILE")
+    if explicit:
+        return explicit if os.path.exists(explicit) else None
+    directory = directory or os.environ.get(
+        "FLIPSCOUT_BIDS_DIR", os.path.join(os.path.expanduser("~"), "Downloads"))
+    path = os.path.join(directory, WATCHLIST_NAME)
+    return path if os.path.exists(path) else None
+
+
+def load_watchlist(path: str) -> list[Bid]:
+    """Item ids from pasted links or bare ids. my_max=0 marks them watch-only."""
+    out, seen = [], set()
+    try:
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                m = re.search(r"/item/(\d+)", line) or re.fullmatch(r"(\d+)", line)
+                if m and m.group(1) not in seen:
+                    seen.add(m.group(1))
+                    out.append(Bid(item_id=m.group(1), title="", my_max=0.0))
+    except OSError:
+        return []
+    return out
 
 
 def load_bids(path: str) -> list[Bid]:
@@ -214,9 +261,9 @@ def decide(bid: Bid, live: dict, st: dict,
            book_max: Optional[float] = None) -> tuple[Optional[str], dict]:
     """(alert_kind, new_state) for one item. alert_kind None = stay quiet.
 
-    Kinds: 'closed', 'endgame_losing', 'endgame_winning', 'status_flip',
-    'over_ceiling'."""
-    status = classify(live["current"], bid.my_max)
+    Kinds: 'closed', 'endgame_losing', 'endgame_winning', 'endgame_watch',
+    'status_flip', 'over_ceiling', 'raise_max'."""
+    status = "WATCHING" if bid.watching else classify(live["current"], bid.my_max)
     left = live.get("left_min")
     new = dict(st)
     new["status"] = status
@@ -227,6 +274,23 @@ def decide(bid: Bid, live: dict, st: dict,
             return None, new
         new["closed_notified"] = True
         return "closed", new
+
+    # Watch-only: no proxy to defend and no cap to guard, so the ONLY news is
+    # the countdown - entry heads-up plus the 60/30 pings, then the close.
+    if bid.watching:
+        in_window = left is not None and left <= window_min
+        if not in_window:
+            return None, new
+        passed = [m for m in MILESTONES_MIN if left <= m]
+        fresh = [m for m in passed if m not in st.get("milestones", [])]
+        if fresh:
+            new["milestones"] = sorted(set(st.get("milestones", [])) | set(passed))
+            new["endgame_notified"] = True
+            return "endgame_watch", new
+        if not st.get("endgame_notified"):
+            new["endgame_notified"] = True
+            return "endgame_watch", new
+        return None, new
 
     # WINNING can still be losing money: the live sweep caught a $91 lead on a
     # camera whose book ceiling was ~$28. Losing an auction costs nothing;
@@ -310,9 +374,20 @@ def to_alert(kind: str, bid: Bid, live: dict, model=None, adv=None) -> dict:
                     f"resale profit. Losing this one is free; winning it here "
                     f"is not. Consider letting the snipers have it.")
     elif kind == "closed":
-        likely = "likely **WON**" if status == "WINNING" else "**LOST**"
-        bits.append(f"Auction ended at **${live['current']:,.2f}** vs your "
-                    f"${bid.my_max:,.2f} max - {likely}. Check My Account to confirm.")
+        if bid.watching:
+            bits.append(f"Auction ended at **${live['current']:,.2f}** - you "
+                        f"were watching and never bid. Gone either way; "
+                        f"removing it from the watchlist file stops this.")
+        else:
+            likely = "likely **WON**" if status == "WINNING" else "**LOST**"
+            bits.append(f"Auction ended at **${live['current']:,.2f}** vs your "
+                        f"${bid.my_max:,.2f} max - {likely}. Check My Account to confirm.")
+    elif kind == "endgame_watch":
+        bits.append(f":dart: **Closes in {left}** - you're WATCHING, no bid "
+                    f"in. Price **${live['current']:,.2f}** ({live['bids']} "
+                    f"bids).")
+        if nxt is not None:
+            bits.append(f"To take it, bid **${nxt:,.2f}**.")
     elif kind == "endgame_winning":
         bits.append(f":hourglass: **Closes in {left}** and you're WINNING at "
                     f"${live['current']:,.2f} (your max ${bid.my_max:,.2f}). "
@@ -333,6 +408,19 @@ def to_alert(kind: str, bid: Bid, live: dict, model=None, adv=None) -> dict:
         if model is not None:
             bits.append(f"_{model.label} comps ${model.comp:,.2f}"
                         + (f" - {model.note}_" if model.note else "_"))
+    elif kind == "endgame_watch" and model is not None and adv is not None:
+        # The snipe number: what the book says the whole thing is worth.
+        if nxt is not None and nxt <= adv.max_bid:
+            bits.append(f":white_check_mark: {model.label} comps "
+                        f"${model.comp:,.2f} -> snipe anywhere up to the "
+                        f"**${adv.max_bid:,.2f}** ceiling.")
+        else:
+            bits.append(f":no_entry: Already past the book ceiling "
+                        f"**${adv.max_bid:,.2f}** ({model.label} comps "
+                        f"${model.comp:,.2f}). Watching is free; bidding "
+                        f"here isn't.")
+        if model.note:
+            bits.append(f"_{model.note}_")
     elif model is not None and adv is not None:
         if bid.my_max >= adv.max_bid:
             bits.append(f":no_entry: **Book says WALK AWAY.** {model.label} "
@@ -354,8 +442,12 @@ def to_alert(kind: str, bid: Bid, live: dict, model=None, adv=None) -> dict:
     elif model is None:
         bits.append("_Not in the price book - no comp to judge a raise against._")
 
-    verdict = {"closed": "watch", "endgame_winning": "buy"}.get(
-        kind, "pass" if kind == "endgame_losing" else "watch")
+    if kind == "endgame_watch":
+        verdict = ("buy" if adv is not None and nxt is not None
+                   and nxt <= adv.max_bid else "watch")
+    else:
+        verdict = {"closed": "watch", "endgame_winning": "buy"}.get(
+            kind, "pass" if kind == "endgame_losing" else "watch")
     out = {
         "title": (live.get("title") or bid.title)[:240],
         "url": live["url"],
@@ -378,14 +470,26 @@ def run(csv_path: Optional[str] = None, window_min: float = DEFAULT_WINDOW_MIN,
         notifier=notify_rich, session=None, state_file: Optional[str] = None,
         dry: bool = False) -> dict:
     csv_path = csv_path or find_bids_csv()
-    if not csv_path:
+    watch_path = find_watchlist()
+    if not csv_path and not watch_path:
         print("[mybids] no 'Auctions in Progress*.csv' found in Downloads - "
-              "export it from shopgoodwill.com/shopgoodwill/inprogress-auctions")
+              "export it from shopgoodwill.com/shopgoodwill/inprogress-auctions"
+              f" (watch-only items go in Downloads\\{WATCHLIST_NAME})")
         return {"tracked": 0, "alerts": 0, "sent": []}
-    age_h = max(0.0, (_now_ts() - os.path.getmtime(csv_path)) / 3600.0)
-    bids = load_bids(csv_path)
-    print(f"[mybids] {len(bids)} tracked bid(s) from {os.path.basename(csv_path)} "
-          f"(exported {age_h:.1f}h ago)")
+    bids, age_h = [], 0.0
+    if csv_path:
+        age_h = max(0.0, (_now_ts() - os.path.getmtime(csv_path)) / 3600.0)
+        bids = load_bids(csv_path)
+        print(f"[mybids] {len(bids)} tracked bid(s) from "
+              f"{os.path.basename(csv_path)} (exported {age_h:.1f}h ago)")
+    if watch_path:
+        # An item he then bids on shows up in both; the bid (with its real
+        # max) wins, so a stale watchlist line can't mask proxy math.
+        have = {b.item_id for b in bids}
+        extra = [w for w in load_watchlist(watch_path) if w.item_id not in have]
+        bids += extra
+        print(f"[mybids] {len(extra)} watch-only item(s) from "
+              f"{os.path.basename(watch_path)}")
 
     state_file = state_file or os.environ.get(STATE_FILE_ENV, DEFAULT_STATE_FILE)
     state = _load_state(state_file)
@@ -401,7 +505,8 @@ def run(csv_path: Optional[str] = None, window_min: float = DEFAULT_WINDOW_MIN,
         kind, new_st = decide(bid, live, state.get(bid.item_id, {}), window_min,
                               book_max=adv.max_bid if adv is not None else None)
         state[bid.item_id] = new_st
-        status = classify(live["current"], bid.my_max)
+        status = ("WATCHING" if bid.watching
+                  else classify(live["current"], bid.my_max))
         print(f"[mybids] {bid.item_id} {status:8s} ${live['current']:>8,.2f} / "
               f"max ${bid.my_max:,.2f} | {_fmt_left(live.get('left_min'))} left"
               + (f" -> ALERT {kind}" if kind else ""))

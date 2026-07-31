@@ -219,7 +219,11 @@ class FakeSession:
         return FakeResp(self.payload)
 
 
-def test_run_alerts_once_then_stays_quiet_on_no_change(tmp_path):
+def test_run_alerts_once_then_stays_quiet_on_no_change(tmp_path, monkeypatch):
+    # Sandbox the watchlist lookup too, or this test starts tracking the REAL
+    # Downloads\flipscout_watchlist.txt the day it exists.
+    monkeypatch.setenv("FLIPSCOUT_BIDS_DIR", str(tmp_path))
+    monkeypatch.delenv("FLIPSCOUT_WATCHLIST_FILE", raising=False)
     csv_path = tmp_path / "Auctions in Progress-Shopgoodwill.com.csv"
     _write_csv(csv_path, [
         '"1","TI-84 Plus CE Color Graphing Calculator","GW","$25.00","$20.00","5","08/01/2026 12:00:00 PM ",""',
@@ -253,8 +257,83 @@ def test_run_alerts_once_then_stays_quiet_on_no_change(tmp_path):
 def test_run_without_a_csv_reports_instead_of_crashing(tmp_path, monkeypatch):
     monkeypatch.setenv("FLIPSCOUT_BIDS_DIR", str(tmp_path))
     monkeypatch.delenv("FLIPSCOUT_BIDS_CSV", raising=False)
+    monkeypatch.delenv("FLIPSCOUT_WATCHLIST_FILE", raising=False)
     res = mybids.run()
     assert res == {"tracked": 0, "alerts": 0, "sent": []}
+
+
+# --- watch-only items: no bid yet, waiting to snipe (7/31) -------------------
+
+WATCH = mybids.Bid(item_id="7", title="", my_max=0.0)
+
+
+def test_load_watchlist_takes_links_bare_ids_and_skips_comments(tmp_path):
+    p = tmp_path / "flipscout_watchlist.txt"
+    p.write_text(
+        "# things to snipe\n"
+        "https://shopgoodwill.com/item/230012345\n"
+        "shopgoodwill.com/item/230067890?queryband=x\n"
+        "230099999\n"
+        "https://shopgoodwill.com/item/230012345\n"   # dupe folds
+        "not a link at all\n",
+        encoding="utf-8")
+    got = mybids.load_watchlist(str(p))
+    assert [b.item_id for b in got] == ["230012345", "230067890", "230099999"]
+    assert all(b.watching for b in got)
+
+
+def test_watch_item_gets_entry_alert_and_countdown_pings():
+    kind, st = decide(WATCH, _live(25.0, left_min=80), {})
+    assert kind == "endgame_watch"             # window entry
+    kind2, st = decide(WATCH, _live(25.0, left_min=70), st)
+    assert kind2 is None
+    kind3, st = decide(WATCH, _live(26.0, left_min=58), st)
+    assert kind3 == "endgame_watch"            # 1-hour ping
+    kind4, st = decide(WATCH, _live(26.0, left_min=29), st)
+    assert kind4 == "endgame_watch"            # 30-minute ping
+    kind5, _ = decide(WATCH, _live(26.0, left_min=10), st)
+    assert kind5 is None
+
+
+def test_watch_item_quiet_outside_the_window_and_closes_once():
+    kind, _ = decide(WATCH, _live(25.0, left_min=2000), {})
+    assert kind is None                        # days out: watching is silent
+    kind2, st = decide(WATCH, _live(33.0, left_min=-1, expired=True), {})
+    assert kind2 == "closed"
+    kind3, _ = decide(WATCH, _live(33.0, left_min=-1, expired=True), st)
+    assert kind3 is None
+
+
+def test_watch_alert_names_the_snipe_number_not_a_max():
+    a = to_alert("endgame_watch", WATCH, _live(25.0, left_min=28))
+    assert "WATCHING" in a["reason"] and "no bid" in a["reason"]
+    assert "$0.00" not in a["reason"]          # a watcher has no max to print
+    closed = to_alert("closed", WATCH, _live(33.0, left_min=-1, expired=True))
+    assert "never bid" in closed["reason"]
+
+
+def test_run_merges_watchlist_and_prefers_the_real_bid(tmp_path, monkeypatch):
+    csv_path = tmp_path / "Auctions in Progress-Shopgoodwill.com.csv"
+    _write_csv(csv_path, [
+        '"1","TI-84 Plus CE Color Graphing Calculator","GW","$25.00","$20.00","5","08/01/2026 12:00:00 PM ",""',
+    ])
+    wl = tmp_path / "flipscout_watchlist.txt"
+    wl.write_text("https://shopgoodwill.com/item/1\n"    # already bid: CSV wins
+                  "https://shopgoodwill.com/item/2\n", encoding="utf-8")
+    monkeypatch.setenv("FLIPSCOUT_WATCHLIST_FILE", str(wl))
+    session = FakeSession({
+        "title": "TI-84 Plus CE Color Graphing Calculator",
+        "currentPrice": 25.0, "minimumBid": 26.0, "bidIncrement": 1.0,
+        "numberOfBids": 5, "handlingPrice": 0.0,
+        "endTime": "2026-08-01T12:00:00", "serverTime": "2026-08-01T11:00:00",
+        "isItemEndTimeExpire": False, "imageServer": "", "imageUrlString": "",
+    })
+    res = mybids.run(csv_path=str(csv_path), notifier=lambda a, content="": ["w"],
+                     session=session, state_file=str(tmp_path / "s.json"))
+    assert res["tracked"] == 2                 # item 1 once (as a bid) + item 2
+    state = json.loads((tmp_path / "s.json").read_text())
+    assert state["1"]["status"] == "OUTBID"    # proxy math, not WATCHING
+    assert state["2"]["status"] == "WATCHING"
 
 
 def test_winning_below_the_ceiling_says_harden_your_max():
