@@ -55,9 +55,18 @@ def next_valid_bid(current_price: Optional[float], min_bid: Optional[float],
     Sources disagree on what they expose, so prefer an explicit `min_bid` and fall
     back to current + increment. With no bids yet the starting price IS the minimum
     (you don't add an increment to open).
+
+    A `min_bid` AT OR BELOW a known current price is impossible in a live
+    auction and means one upstream endpoint is serving cached data (Leron,
+    8/1: ShopGoodwill's detail API said "minimum bid $14.99" while search
+    showed the lot at $61 with 6 bids - the alert then advertised a $40
+    profit that did not exist). Distrust it and fall through to
+    current + increment.
     """
     if min_bid is not None and min_bid > 0:
-        return round(float(min_bid), 2)
+        mb = float(min_bid)
+        if current_price is None or mb > float(current_price):
+            return round(mb, 2)
     if current_price is None:
         return None
     cur = float(current_price)

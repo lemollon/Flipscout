@@ -31,6 +31,18 @@ def test_explicit_min_bid_from_the_site_wins():
     assert next_valid_bid(0.0, 1.0, bid_count=0) == 1.00
 
 
+def test_stale_min_bid_below_the_current_price_is_distrusted():
+    # Leron, 8/1: ShopGoodwill's detail API served "minimum bid $14.99" for a
+    # lot the search showed at $61 with 6 bids - the alert then advertised a
+    # $40 profit that didn't exist. A min_bid <= current price is impossible
+    # live; fall through to current + increment.
+    assert next_valid_bid(61.0, 14.99, increment=1.0, bid_count=6) == 62.0
+    # equal is just as impossible once contested
+    assert next_valid_bid(61.0, 61.0, increment=1.0, bid_count=6) == 62.0
+    # but an unbid lot whose start price IS the minimum stays as-is
+    assert next_valid_bid(14.99, 14.99, increment=1.0, bid_count=0) == 14.99
+
+
 # --- the core money math ----------------------------------------------------
 
 def test_max_bid_matches_the_measured_ce_number():
