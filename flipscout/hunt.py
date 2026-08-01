@@ -406,19 +406,45 @@ def to_alert(c: dict) -> dict:
     }
 
 
-def hours_until(ends: Optional[str], now: Optional[_dt.datetime] = None) -> Optional[float]:
+# Each source's naive `ends` stamp lives in a KNOWN zone: ShopGoodwill sends
+# Pacific, Nellis sends UTC (the trailing Z is stripped to [:16] at parse).
+# The old code compared them to runner-local time - "fuzzy by a few hours" per
+# its own docstring - and the GitHub runner is UTC, so every goodwill lot
+# looked 7 hours closer to ending than it was. Leron, 8/1: an "ENDS in ~0.1h"
+# alert for a lot the site showed with 6 hours left. Same clock-bug family as
+# FLASHPOINT: never raw-compare timestamps across zones.
+_ENDS_TZ = {"goodwill": "America/Los_Angeles", "nellis": "UTC"}
+
+
+def hours_until(ends: Optional[str], now: Optional[_dt.datetime] = None,
+                source: Optional[str] = None) -> Optional[float]:
     """Hours until an `ends` timestamp, or None when unparseable/absent.
 
-    Source timestamps are naive local-ish strings ("2026-07-29T18:30") with no
-    timezone - HiBid sends none at all. Treated as runner-local time, which is
-    fuzzy by a few hours; the window is deliberately generous to absorb that."""
+    When the source's zone is known, both sides are compared timezone-aware;
+    unknown sources (HiBid sends nothing) keep the legacy runner-local guess
+    and the generous window absorbs the fuzz."""
     if not ends:
         return None
     try:
         end = _dt.datetime.fromisoformat(str(ends)[:16])
     except ValueError:
         return None
-    now = now or _dt.datetime.now()
+    tzname = _ENDS_TZ.get(source or "")
+    if tzname:
+        try:
+            from zoneinfo import ZoneInfo
+            end = end.replace(tzinfo=ZoneInfo(tzname))
+            if now is None:
+                now = _dt.datetime.now(_dt.timezone.utc)
+            elif now.tzinfo is None:
+                # Tests hand in a naive `now` meant as same-zone wall clock.
+                now = now.replace(tzinfo=ZoneInfo(tzname))
+        except Exception:
+            end = end.replace(tzinfo=None)
+            now = (now.replace(tzinfo=None) if now is not None
+                   else _dt.datetime.now())
+    else:
+        now = now or _dt.datetime.now()
     return (end - now).total_seconds() / 3600.0
 
 
@@ -438,7 +464,7 @@ def ending_soon_alerts(cands: list, config: dict, seen: set,
         row, adv = c["row"], c["advice"]
         if row.get("listing_type") == "fixed":
             continue                      # nothing "ends" on a buy-now ask
-        left = hours_until(row.get("ends"), now=now)
+        left = hours_until(row.get("ends"), now=now, source=row.get("source"))
         if left is None or left < 0 or left > window:
             continue
         if (adv.open_bid or 0) > ENDING_SOON_PRICE_SHARE * adv.max_bid:
