@@ -118,6 +118,15 @@ def test_nellis_parses_a_houston_lot_as_local_pickup():
     assert "Houston" in r["house"]
 
 
+def test_nellis_url_carries_a_slug_because_bare_ids_404():
+    # Leron, 7/31: "all these nellisauction links are broken." Nellis routes
+    # are /p/<slug>/<id>; /p/<id> alone is a hard 404 (verified live). Any
+    # slug resolves, so the title slug keeps the link human-readable too.
+    r = NellisAuction.parse(NELLIS_PAYLOAD, want_city="houston")[0]
+    assert r["url"] == ("https://www.nellisauction.com/p/"
+                        "fluke-87v-industrial-multimeter/119993402")
+
+
 def test_nellis_refuses_to_call_another_state_local():
     """If the location cookie doesn't take, Nellis serves Las Vegas. Calling
     that "local pickup, $0 inbound" would quietly mis-price every row."""

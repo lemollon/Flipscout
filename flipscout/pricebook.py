@@ -85,7 +85,14 @@ ACCESSORY_EXCLUDE = (
     r"\bcharger\s+(only|for)\b|\bcharger\s+(cable|cord|adapter)\b|"
     r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )\b(battery|wall)\s+charger\b|"
     r"screen\s+protector|"
-    r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )(hard|soft|carrying|travel|storage)\s+case|\bsleeve\b|"
+    # `protective`/`camera` joined the adjective list and `case for` became its
+    # own tell (2026-07-31): a $6.17 "Digital Camera Case for AbergBest .../
+    # Canon PowerShot ELPH 180/190/Sony..." priced as a $120 ELPH - "for" sat
+    # before AbergBest (unlisted brand) and neither "protective case" nor
+    # "camera case" was in the alternation. `case for sale` stays legal: that's
+    # how real "Game Boy w/ case for sale" titles end.
+    r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )(hard|soft|carrying|travel|storage|protective|camera)\s+case|"
+    r"\bcase\s+for\b(?!\s+sale)|\bsleeve\b|"
     # CAMERA accessories that carry the camera's model name (added 2026-07-28,
     # all seen in the live comp sweep): lens shades "for SX-70", neck straps,
     # leatherette skins, 3D-printed AE-1 battery doors, film twin-packs, and a

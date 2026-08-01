@@ -681,6 +681,11 @@ class PropertyRoom:
 # --- Nellis Auction (local warehouses) --------------------------------------
 
 _NELLIS = "https://www.nellisauction.com"
+
+
+def _slug(title) -> str:
+    """Nellis-style URL slug from a listing title."""
+    return re.sub(r"-{2,}", "-", re.sub(r"[^a-z0-9]+", "-", (title or "").lower())).strip("-")[:80]
 # From the site's own location picker (POST /change-shopping-location).
 NELLIS_LOCATIONS = {"las vegas": 1, "phoenix": 2, "houston": 5,
                     "philadelphia": 6, "denver": 7, "dallas": 8}
@@ -772,7 +777,11 @@ class NellisAuction:
             out.append({
                 "source": "nellis", "id": str(p.get("id") or ""),
                 "title": (p.get("title") or "").strip(),
-                "url": f"{_NELLIS}/p/{p.get('id')}",
+                # Nellis 404s /p/<id> alone - the route is /p/<slug>/<id>, and
+                # ANY slug resolves (verified live 2026-07-31: /p/120603364 is
+                # a 404, /p/x/120603364 loads). Leron: "all these nellisauction
+                # links are broken" - every alert link was the bare-id form.
+                "url": f"{_NELLIS}/p/{_slug(p.get('title')) or 'item'}/{p.get('id')}",
                 "price": price,
                 # Nellis has no visible reserve: the next legal bid is $1 over.
                 "min_bid": price + 1.0,

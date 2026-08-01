@@ -839,6 +839,20 @@ def test_accessory_as_product_still_rejected_after_the_bundle_fix():
     assert match("Hard Case for iPod Classic 160GB") is None
 
 
+def test_camera_case_naming_every_camera_it_fits_is_not_a_camera():
+    # Live Nellis catch 2026-07-31: $6.17 retail case priced as a $120 ELPH.
+    # "for" preceded AbergBest (unlisted brand), so the brand tell missed, and
+    # neither "Protective Case" nor "Camera Case" was in the adjective list.
+    assert match('Digital Camera Case for AbergBest 21 Mega Pixels 2.7" LCD '
+                 "Rechargeable HD/Kodak Pixpro/Canon PowerShot ELPH 180/190/"
+                 "Sony DSCW800/DSCW830 Cameras, Travel Carrying Protective "
+                 "Case for Camera- Black") is None
+    # but a real device sold WITH its case, or titled "... case for sale",
+    # keeps pricing - the case tells must never eat the bundle listings
+    assert match("TI-84 Plus CE Graphing Calculator with hard case").model.key == "ti84ce"
+    assert match("Pokemon Emerald Version GBA w/ case for sale") is not None
+
+
 def test_camera_brand_lines_are_priced_at_a_conservative_floor():
     """Same rule as fluke_generic: the spread inside Cyber-shot/Coolpix/FinePix
     is ~10x and the sub-model rarely survives an auction title, so the book
@@ -1069,9 +1083,11 @@ def _endsoon_cand(ends, price=4.99, listing_type="auction"):
 
 def test_ending_soon_fires_inside_window_under_half_ceiling():
     import datetime as dt
-    soon = (dt.datetime.now() + dt.timedelta(hours=1)).isoformat()[:16]
+    now = dt.datetime.now()
+    soon = (now + dt.timedelta(hours=1)).isoformat()[:16]
     c = _endsoon_cand(soon)
-    got = hunt.ending_soon_alerts([c], {**CFG, "ending_soon_hours": 2.0}, set())
+    got = hunt.ending_soon_alerts([c], {**CFG, "ending_soon_hours": 2.0}, set(),
+                                  now=now)
     assert len(got) == 1
     key, alert = got[0]
     assert key == "endsoon:goodwill:es1"
@@ -1085,20 +1101,42 @@ def test_ending_soon_respects_window_price_dedup_and_fixed():
     late = (now + dt.timedelta(hours=30)).isoformat()[:16]
     cfg = {**CFG, "ending_soon_hours": 2.0}
     # outside the window -> no
-    assert hunt.ending_soon_alerts([_endsoon_cand(late)], cfg, set()) == []
+    assert hunt.ending_soon_alerts([_endsoon_cand(late)], cfg, set(), now=now) == []
     # already re-alerted -> no (once per lot, ever)
     assert hunt.ending_soon_alerts([_endsoon_cand(soon)], cfg,
-                                   {"endsoon:goodwill:es1"}) == []
+                                   {"endsoon:goodwill:es1"}, now=now) == []
     # bid up past half the ceiling -> not news you can use
     c = _endsoon_cand(soon, price=8.0)
     assert c["advice"].open_bid > 0.5 * c["advice"].max_bid
-    assert hunt.ending_soon_alerts([c], cfg, set()) == []
+    assert hunt.ending_soon_alerts([c], cfg, set(), now=now) == []
     # fixed-price asks never "end"
     assert hunt.ending_soon_alerts([_endsoon_cand(soon, listing_type="fixed")],
-                                   cfg, set()) == []
+                                   cfg, set(), now=now) == []
     # unparseable/absent timestamps fail soft (HiBid sends none)
-    assert hunt.ending_soon_alerts([_endsoon_cand("")], cfg, set()) == []
-    assert hunt.ending_soon_alerts([_endsoon_cand("not-a-date")], cfg, set()) == []
+    assert hunt.ending_soon_alerts([_endsoon_cand("")], cfg, set(), now=now) == []
+
+
+def test_ending_soon_never_compares_pacific_ends_to_a_utc_clock():
+    """Leron, 8/1: 'ENDS in ~0.1h' on a Gunne Sax the site showed with 6 hours
+    left. The GH runner's clock is UTC; goodwill `ends` stamps are Pacific.
+    A lot ending 7.1h from now must read ~7.1h - not 0.1h - when `now` is an
+    aware UTC datetime like production's."""
+    import datetime as dt
+    from zoneinfo import ZoneInfo
+    now_utc = dt.datetime(2026, 8, 1, 20, 0, tzinfo=dt.timezone.utc)
+    ends_pt = (now_utc.astimezone(ZoneInfo("America/Los_Angeles"))
+               + dt.timedelta(hours=7, minutes=6)).isoformat()[:16]
+    left = hunt.hours_until(ends_pt, now=now_utc, source="goodwill")
+    assert 7.0 < left < 7.2
+    # Nellis stamps are UTC (Z stripped at parse) - same aware now, no offset.
+    ends_utc = (now_utc + dt.timedelta(hours=3)).isoformat()[:16]
+    assert 2.9 < hunt.hours_until(ends_utc, now=now_utc, source="nellis") < 3.1
+    # Unknown-zone sources keep the legacy naive comparison.
+    naive_now = dt.datetime(2026, 8, 1, 12, 0)
+    ends = (naive_now + dt.timedelta(hours=2)).isoformat()[:16]
+    assert abs(hunt.hours_until(ends, now=naive_now, source="hibid") - 2.0) < 0.01
+    # garbage timestamps still fail soft
+    assert hunt.hours_until("not-a-date", now=now_utc, source="goodwill") is None
 
 
 def test_ending_soon_window_knob_reads_env():
