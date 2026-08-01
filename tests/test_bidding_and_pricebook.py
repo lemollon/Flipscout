@@ -839,6 +839,20 @@ def test_accessory_as_product_still_rejected_after_the_bundle_fix():
     assert match("Hard Case for iPod Classic 160GB") is None
 
 
+def test_camera_case_naming_every_camera_it_fits_is_not_a_camera():
+    # Live Nellis catch 2026-07-31: $6.17 retail case priced as a $120 ELPH.
+    # "for" preceded AbergBest (unlisted brand), so the brand tell missed, and
+    # neither "Protective Case" nor "Camera Case" was in the adjective list.
+    assert match('Digital Camera Case for AbergBest 21 Mega Pixels 2.7" LCD '
+                 "Rechargeable HD/Kodak Pixpro/Canon PowerShot ELPH 180/190/"
+                 "Sony DSCW800/DSCW830 Cameras, Travel Carrying Protective "
+                 "Case for Camera- Black") is None
+    # but a real device sold WITH its case, or titled "... case for sale",
+    # keeps pricing - the case tells must never eat the bundle listings
+    assert match("TI-84 Plus CE Graphing Calculator with hard case").model.key == "ti84ce"
+    assert match("Pokemon Emerald Version GBA w/ case for sale") is not None
+
+
 def test_camera_brand_lines_are_priced_at_a_conservative_floor():
     """Same rule as fluke_generic: the spread inside Cyber-shot/Coolpix/FinePix
     is ~10x and the sub-model rarely survives an auction title, so the book
