@@ -101,6 +101,7 @@ jobs:
           FLIPSCOUT_RADIUS_MILES: ${{ vars.FLIPSCOUT_RADIUS_MILES }}
           FLIPSCOUT_NELLIS_LOCATION: ${{ vars.FLIPSCOUT_NELLIS_LOCATION || 'houston' }}
           FLIPSCOUT_ESTATE_AREA: ${{ vars.FLIPSCOUT_ESTATE_AREA }}
+          FLIPSCOUT_GSALR_CITIES: ${{ vars.FLIPSCOUT_GSALR_CITIES || 'fulshear-tx,katy-tx' }}
           FLIPSCOUT_BOARD_FILE: docs/deals.json
           FLIPSCOUT_HEARTBEAT_FILE: flipscout_heartbeat.json
 

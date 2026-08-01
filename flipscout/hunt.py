@@ -16,6 +16,8 @@ Config (env):
     FLIPSCOUT_RADIUS_MILES    how far you'd drive               (e.g. 150)
     FLIPSCOUT_NELLIS_LOCATION nellis warehouse city             (default houston)
     FLIPSCOUT_ESTATE_AREA     estate-sale digest area  (e.g. TX/Fulshear/77441)
+    FLIPSCOUT_GSALR_CITIES    gsalr.com city slugs for the garage digest
+                              (default fulshear-tx,katy-tx)
     FLIPSCOUT_TARGET_PROFIT   dollars per flip        (default 20)
     FLIPSCOUT_INBOUND_SHIP    est. shipping to you    (default 9)
     FLIPSCOUT_TOP             max alerts per run      (default 10)
@@ -45,6 +47,9 @@ def load_config(env=None) -> dict:
         "radius_miles": (env.get("FLIPSCOUT_RADIUS_MILES") or "").strip(),
         # Estate sales are a digest, not an alert - they carry no item prices.
         "estate_area": (env.get("FLIPSCOUT_ESTATE_AREA") or "").strip(),
+        # gsalr.com has no zip endpoint, only per-city pages; nearby city slugs
+        # for the garage digest. Empty string turns the gsalr feeds off.
+        "gsalr_cities": (env.get("FLIPSCOUT_GSALR_CITIES", "fulshear-tx,katy-tx")).strip(),
         "target_profit": float(env.get("FLIPSCOUT_TARGET_PROFIT", "20")),
         "inbound_shipping": float(env.get("FLIPSCOUT_INBOUND_SHIP", "9")),
         "top": int(env.get("FLIPSCOUT_TOP", "10")),
@@ -161,14 +166,28 @@ def post_garage_digest(config: dict, notifier, feed=None) -> bool:
     zip_code = config.get("zip")
     if not zip_code or not _due_for_heartbeat(config["heartbeat_file"], key="garage"):
         return False
-    from .garagesales import YardSaleSearch, digest
-    feed = feed if feed is not None else YardSaleSearch(zip_code)
-    sales = feed.sales()
+    from .garagesales import (YardSaleSearch, Gsalr, GarageSaleFinder,
+                              merged_sales, digest, expand_desc,
+                              split_for_discord)
+    if feed is not None:
+        feeds = [feed]
+        expand = None
+    else:
+        feeds = [YardSaleSearch(zip_code), GarageSaleFinder(zip_code)]
+        feeds += [Gsalr(c.strip()) for c in
+                  (config.get("gsalr_cities") or "").split(",") if c.strip()]
+        expand = expand_desc
+    sales = merged_sales(feeds)
     if not sales:
         return False
-    notifier([], content=digest(sales, zip_code))
+    # Leron, 7/31: a list of titles+links is useless - the digest must show
+    # WHAT each sale has. Descriptions push past Discord's 2000-char cap, so
+    # the digest goes out in sale-boundary parts instead of being truncated.
+    for part in split_for_discord(digest(sales, zip_code, expand=expand)):
+        notifier([], content=part)
     _mark_heartbeat(config["heartbeat_file"], key="garage")
-    print(f"[hunt] garage digest: {len(sales)} sale(s) near {zip_code}.")
+    print(f"[hunt] garage digest: {len(sales)} sale(s) near {zip_code} "
+          f"from {len(feeds)} feed(s).")
     return True
 
 
