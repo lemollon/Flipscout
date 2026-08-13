@@ -96,3 +96,14 @@ def test_contax_t2_camera_and_bundle_still_price():
     assert match("Contax T2 35mm Point & Shoot Film Camera "
                  "Titanium").model.key == "contax_t2"
     assert match("Contax T2 w/ Leather Case From Japan").model.key == "contax_t2"
+
+
+def test_battery_grip_is_an_accessory_not_a_5d():
+    # "for EOS 5D" names the MODEL, not the brand, so the for-<brand> tell
+    # missed it - a $238 max bid on a grip, live board 2026-08-13.
+    assert match("Near Mint Canon Genuine BG-E11 Battery Grip for EOS 5D Mark III") is None
+
+
+def test_5d_with_battery_grip_bundle_still_matches():
+    m = match("Canon EOS 5D Mark III DSLR w/ Battery Grip")
+    assert m is not None and m.model.key == "canon_5d3"
