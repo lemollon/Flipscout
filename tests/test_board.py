@@ -118,6 +118,23 @@ def test_digest_words_fixed_price_rows_differently():
     assert "Asking" in board.digest(b) and "don't pay over" in board.digest(b)
 
 
+def test_digest_title_is_also_copyable_inline_code():
+    """The title in the digest lives inside a [name](url) link - Discord gives
+    no way to copy text out of a link, so it must also appear as plain,
+    selectable inline code."""
+    b = board.build([_cand(title="Fluke 87V True RMS Multimeter")])
+    body = board.digest(b)
+    assert "`Fluke 87V True RMS Multimeter`" in body
+    assert "[Fluke 87V True RMS Multimeter]" in body   # the link stays too
+
+
+def test_digest_copy_paste_title_is_truncated():
+    long_title = "Fluke 87V True RMS Multimeter " + "Professional " * 20
+    b = board.build([_cand(title=long_title)])
+    body = board.digest(b)
+    assert f"`{long_title[:150]}`" in body
+
+
 def test_checkin_posts_the_board_instead_of_nothing_new(tmp_path):
     """The old check-in said "you've already been sent all of them", which is
     misleading when the board is full. It should list what's buyable."""
