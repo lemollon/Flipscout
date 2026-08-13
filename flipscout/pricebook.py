@@ -222,6 +222,48 @@ MODELS: list[Model] = [
         outbound_shipping=6.00, category="ipods", comp_query="ipod classic 30gb",
         specificity=30,
     ),
+    # --- iPods beyond Classic (measured 2026-08-13, eBay used solds, n=123
+    # per query) -----------------------------------------------------------
+    # The digest was full of Starrett/Mitutoyo/film-camera alerts while live
+    # Goodwill listings that just say "iPod Classic" with no GB in the title
+    # went unpriced entirely - the capacity models above all REQUIRE a GB
+    # figure. This catch-all closes that leak. Specificity is deliberately
+    # below the capacity models' 30 so "iPod Classic 160GB" still prices as
+    # the $149.99 160GB model, not this $131.58 unknown-capacity floor.
+    #
+    # `\bipod\b` everywhere below, on purpose: "ipod" is a substring of
+    # "tripod", and a bare `ipod` (no word boundary) would silently price a
+    # camera tripod as an iPod.
+    Model(
+        key="ipod_classic_nocap",
+        label="iPod Classic/Video (capacity unknown)",
+        comp=131.58, measured="2026-07-25", sample=58,
+        include=r"\bipod\s*(classic|video)\b",
+        exclude=r"for parts|parts only|not working|broken|\bcase only\b|charger only",
+        outbound_shipping=6.00, category="ipods", comp_query="ipod classic",
+        comp_used_only=True, specificity=15,
+        note="capacity unknown - check photo; 160GB sells $150, 80GB $135",
+    ),
+    Model(
+        key="ipod_nano",
+        label="iPod Nano",
+        comp=49.00, measured="2026-08-13", sample=123,
+        include=r"\bipod\s*nano\b",
+        exclude=r"\barmband\b|\bdock\s*only\b|\bcable\s*only\b|\bcase\s*only\b|"
+                r"charger only|for parts|parts only|not working|broken",
+        outbound_shipping=5.00, category="ipods", comp_query="ipod nano",
+        comp_used_only=True, specificity=30,
+    ),
+    Model(
+        key="ipod_touch",
+        label="iPod Touch",
+        comp=39.99, measured="2026-08-13", sample=123,
+        include=r"\bipod\s*touch\b",
+        exclude=r"\bcase\s*only\b|charger only|for parts|parts only|not working|broken",
+        outbound_shipping=5.00, category="ipods", comp_query="ipod touch",
+        comp_used_only=True, specificity=30,
+        note="thin margin - only cheap lots qualify; 6th/7th gen sell higher",
+    ),
 
     # --- Pokemon Game Boy carts (measured 2026-07-25) ------------------------
     # The best margins in the book. TWO real dangers, both encoded below:
@@ -1080,6 +1122,99 @@ MODELS: list[Model] = [
              "Photo check: case, pedal and bobbin case present; decals uncracked.",
     ),
 
+    # === Breadth pack (measured 2026-08-13, eBay used solds, n=123 per query)
+    # ==========================================================================
+    # The Discord digest was dominated by a handful of high-volume models
+    # (Starrett/Mitutoyo/film cameras/camcorders, sorted by profit_at_open and
+    # released top-N) while whole categories with measured live supply went
+    # unpriced. Four new categories, all chosen for a reachable comp AND
+    # visible live supply on the same channels the watcher already sweeps.
+
+    # --- Watches -------------------------------------------------------------
+    # High variance, so both comps are floored at p25 rather than the sold
+    # median (the Fluke/Arc'teryx-generic convention) - a confident wrong
+    # number here is worse than a conservative one.
+    Model(
+        key="casio_gshock",
+        label="Casio G-Shock",
+        comp=55.00, measured="2026-08-13", sample=123,
+        include=r"g[- ]?shock",
+        # "bezel and band set" / "band only" are the accessory FOR a G-Shock,
+        # not the watch - same trap as the Starrett contact-point tips.
+        exclude=r"\bband\s+only\b|\bstrap\s+only\b|\bbezel\s+only\b|\bband\s+set\b|"
+                r"\bbezel\s+set\b|\bbezel\s+and\s+band\b|\bband\s+and\s+bezel\b|"
+                r"replacement\s+(band|strap|bezel)|watch\s+band\s+(for|only)|"
+                r"for parts|parts only|not working|broken",
+        outbound_shipping=5.00, category="watches", comp_query="casio g-shock",
+        comp_used_only=True, specificity=50,
+        note="sold median $81, floor priced at p25; verify authenticity from "
+             "caseback photo",
+    ),
+    Model(
+        key="seiko_automatic",
+        label="Seiko Automatic watch",
+        comp=67.00, measured="2026-08-13", sample=123,
+        # A BRAND IS NOT A MODEL - same rule as Fluke/Starrett. Bare "Seiko"
+        # is also quartz dress watches worth a fraction of this; the title
+        # must name the automatic movement or a model line.
+        include=r"seiko.{0,40}(automatic|divers?|5\b|presage|skx)|"
+                r"(automatic|divers?|presage|skx).{0,40}seiko",
+        exclude=r"\bband\s+only\b|\bbracelet\s+only\b|\bstrap\s+only\b|"
+                r"\bdial\s+only\b|\bmovement\s+only\b|\bcase\s+only\b|"
+                r"\bcrown\s+only\b|for parts|parts only|not working|broken",
+        outbound_shipping=5.00, category="watches", comp_query="seiko automatic watch",
+        comp_used_only=True, specificity=50,
+        note="sold median $102, floor at p25; untested movement is the "
+             "discount - winds/runs check; beware franken/mod dials",
+    ),
+
+    # --- Headphones ------------------------------------------------------------
+    Model(
+        key="bose_qc35",
+        label="Bose QuietComfort 35",
+        comp=59.95, measured="2026-08-13", sample=123,
+        include=r"quietcomfort\s*(35|ii)|qc\s*35",
+        # Ear pads are a flooded accessory market that shares the model name.
+        exclude=r"ear\s*pads?|earpads?|cushions?|replacement|\bcase\s*only\b|"
+                r"for parts|parts only|not working|broken",
+        outbound_shipping=5.00, category="headphones", comp_query="bose quietcomfort 35",
+        comp_used_only=True, specificity=50,
+    ),
+
+    # --- Lenses ------------------------------------------------------------
+    Model(
+        key="canon_fd_50_14",
+        label="Canon FD 50mm f/1.4",
+        comp=52.00, measured="2026-08-13", sample=123,
+        # Single continuous match (mm and f-stop in one span) so the pattern
+        # can't fire twice on one listing - the DSC-W70 double-count trap.
+        include=r"canon\s*fd[^a-z0-9]{0,12}50\s*mm[^a-z0-9]{0,15}"
+                r"(1[.:]\s*1?[.]?4|f\s*/?\s*1\.4)",
+        exclude=r"\bcap\s+only\b|body\s+cap|rear\s+cap|front\s+cap|"
+                r"for parts|parts only|not working|broken",
+        outbound_shipping=5.00, category="lenses", comp_query="canon fd 50mm 1.4",
+        comp_used_only=False, specificity=55,
+        note="check for fungus/haze in photos; SSC Aspherical variant is a "
+             "$500+ grail",
+    ),
+
+    # --- Walkman -----------------------------------------------------------
+    Model(
+        key="sony_walkman",
+        label="Sony Walkman",
+        comp=40.00, measured="2026-08-13", sample=123,
+        # A BRAND IS NOT A MODEL, and neither is a bare product noun -
+        # "walkman" needs the Sony brand or a WM- model number nearby.
+        include=r"walkman.{0,40}(sony|wm[- ]?\w+)|(sony|wm[- ]?\w+).{0,40}walkman",
+        exclude=r"\bcase\s*only\b|\bbelt\s*clip\s*only\b|\bheadphones\s*only\b|"
+                r"for parts|parts only|not working|broken",
+        outbound_shipping=5.00, category="walkman", comp_query="sony walkman wm",
+        comp_used_only=False, specificity=40,
+        note="model is the trade: WM-D6C/DD/pro units sell $200-550 - read "
+             "the model number off the photo before bidding; generic units "
+             "are $40",
+    ),
+
     Model(
         key="tinspire_cx",
         label="TI-Nspire CX",
@@ -1187,6 +1322,7 @@ def search_terms() -> list[str]:
         "scientific calculator lot",
         # ipods - the generic terms matter, sellers rarely put the capacity first
         "ipod classic", "ipod video", "apple ipod", "ipod lot",
+        "ipod nano", "ipod touch",
         # pokemon carts - include the junk-title phrasings, since a "game boy lot"
         # that happens to contain Emerald is the whole point
         "pokemon gameboy", "pokemon game boy advance", "pokemon gba",
@@ -1233,4 +1369,9 @@ def search_terms() -> list[str]:
         "mitatoyo", "mititoyo", "starret", "polariod sx-70", "polariod camera",
         "nikkon coolpix", "pokeman", "gameboy advanced pokemon",
         "cybershot camera", "handy cam sony",
+        # breadth pack (added 2026-08-13): watches, headphones, lenses, walkman -
+        # categories with measured live supply that the digest never priced
+        "sony walkman", "walkman lot", "bose quietcomfort", "casio g-shock",
+        "g shock watch", "seiko automatic", "seiko watch lot", "canon fd",
+        "vintage camera lens", "camera lens lot",
     ]

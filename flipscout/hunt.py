@@ -21,6 +21,7 @@ Config (env):
     FLIPSCOUT_TARGET_PROFIT   dollars per flip        (default 20)
     FLIPSCOUT_INBOUND_SHIP    est. shipping to you    (default 9)
     FLIPSCOUT_TOP             max alerts per run      (default 10)
+    FLIPSCOUT_MAX_PER_MODEL   max picks per model/run (default 3)
     FLIPSCOUT_STATE_FILE      seen-cache              (default flipscout_seen.json)
 """
 
@@ -53,6 +54,12 @@ def load_config(env=None) -> dict:
         "target_profit": float(env.get("FLIPSCOUT_TARGET_PROFIT", "20")),
         "inbound_shipping": float(env.get("FLIPSCOUT_INBOUND_SHIP", "9")),
         "top": int(env.get("FLIPSCOUT_TOP", "10")),
+        # A digest of top-N by profit_at_open let a handful of high-volume
+        # models (Starrett, Mitutoyo, film cameras, camcorders) monopolize
+        # every run while whole categories with measured live supply never
+        # surfaced. Cap how many picks any one model label gets per run;
+        # the rest stay unseen and queue for the next run.
+        "max_per_model": int(env.get("FLIPSCOUT_MAX_PER_MODEL", "3")),
         # Optional hard freshness filter, OFF by default on purpose: for auctions
         # "listed recently" is the wrong signal - a lot posted days ago that ends
         # in 30 minutes with no bids is the better buy, because its price is
@@ -569,12 +576,36 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     seen = _load_seen(config["state_file"])
     all_keys = {f"{c['row']['source']}:{c['row']['id']}" for c in cands}
     unseen = all_keys - seen
-    fresh = [c for c in cands
-             if f"{c['row']['source']}:{c['row']['id']}" not in seen][: config["top"]]
+    # PER-MODEL CAP: `cands` is already sorted best-profit-first, and a
+    # straight top-N slice let a handful of high-volume models (Starrett,
+    # Mitutoyo, film cameras, camcorders) monopolize every digest while whole
+    # categories with measured live supply never got a look-in. Walk the
+    # sorted list and skip any candidate whose model already has its
+    # FLIPSCOUT_MAX_PER_MODEL picks THIS RUN, still stopping at `top` total.
+    # Capped-out candidates are deliberately left OUT of `fresh` (never
+    # touched by `seen`) so they queue for the next run instead of being
+    # silently lost - only what's actually released/sent gets marked seen.
+    max_per_model = config.get("max_per_model", 3)
+    model_counts: dict[str, int] = {}
+    fresh: list[dict] = []
+    capped = 0
+    for c in cands:
+        key = f"{c['row']['source']}:{c['row']['id']}"
+        if key in seen:
+            continue
+        if len(fresh) >= config["top"]:
+            break
+        label = c["model"].label
+        if model_counts.get(label, 0) >= max_per_model:
+            capped += 1
+            continue
+        model_counts[label] = model_counts.get(label, 0) + 1
+        fresh.append(c)
     # Is the queue genuinely refilling, or are we just draining a backlog? This is
     # the difference between "new opportunities daily" and "one pool, dripped out".
     print(f"[hunt] already-alerted: {len(seen)} | qualifying now: {len(all_keys)} | "
-          f"never-alerted: {len(unseen)} | releasing: {min(len(unseen), config['top'])}")
+          f"never-alerted: {len(unseen)} | releasing: {min(len(unseen), config['top'])} | "
+          f"deferred by per-model cap ({max_per_model}/model): {capped}")
 
     print(f"[hunt] {len(rows)} listings across {len(config['sources'])} source(s); "
           f"{len(cands)} priced; {len(fresh)} new.")
