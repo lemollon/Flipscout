@@ -125,6 +125,11 @@ ACCESSORY_EXCLUDE = (
     # in case a future listing reads "w/ Titan Cover".
     r"data\s*back|"
     r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )(titan(ium)?|gold)\s+cover\b|"
+    # A battery GRIP is an accessory that names the body it fits ("BG-E11
+    # Battery Grip for EOS 5D Mark III" priced $238 as a 5D on the 2026-08-13
+    # board - "for EOS 5D" dodges the for-<brand> tell by naming the MODEL).
+    # Bundle-aware like `case`: "5D Mark III w/ Battery Grip" is a real camera.
+    r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )battery\s+grip\b|"
     r"\(\s*\d+\s*(pack|pcs|ch)\s*\)"
 )
 
