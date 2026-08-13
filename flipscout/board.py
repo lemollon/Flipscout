@@ -35,6 +35,13 @@ def item(c: dict) -> dict:
     """One evaluated candidate -> one board row."""
     row, model, adv, m = c["row"], c["model"], c["advice"], c["match"]
     where = ", ".join(x for x in (row.get("city"), row.get("state")) if x)
+    # `evaluate()` already flagged SCAM-SHAPED fixed-price local asks (a $50
+    # Craigslist "find" against a $1,149 comp) - carried straight through,
+    # never recomputed here, so the board can't drift from the alert copy.
+    scam = bool(c.get("scam_shaped"))
+    warnings = list(m.dead_also_present or [])
+    if scam and c.get("scam_warning"):
+        warnings.insert(0, c["scam_warning"])
     return {
         "title": (row.get("title") or "")[:200],
         "source": row.get("source"),
@@ -63,10 +70,20 @@ def item(c: dict) -> dict:
         "pickup_only": bool(row.get("pickup_risk")),
         "bids": row.get("bids"),
         "ends": row.get("ends") or "",
-        "warnings": list(m.dead_also_present or []),
+        "warnings": warnings,
+        "scam_shaped": scam,
         "condition": row.get("condition") or "",
         "best_offer": bool(row.get("best_offer")),
     }
+
+
+def _rank_key(i: dict):
+    """Best profit first, EXCEPT a SCAM-SHAPED ask never outranks a legit
+    item, however large its (often fake) profit number looks. `not scam`
+    sorts legit rows (True) ahead of bait (False) under reverse=True, then
+    each group is still ranked best-profit-first within itself - same trick
+    `hunt.evaluate()` uses to order `cands`."""
+    return (not i.get("scam_shaped"), i.get("profit_at_open") or -1e9)
 
 
 def build(cands: list, now: Optional[_dt.datetime] = None) -> dict:
@@ -113,9 +130,10 @@ def render_markdown(board_data: dict) -> str:
     """The ENTIRE qualifying set as one markdown page, best profit first.
 
     This is the answer to "why am I not seeing a list for all 398" - a Discord
-    message can't carry it, a GitHub-rendered table can."""
-    items = sorted(board_data.get("items") or [],
-                   key=lambda i: (i.get("profit_at_open") or -1e9), reverse=True)
+    message can't carry it, a GitHub-rendered table can. SCAM-SHAPED asks sink
+    to the bottom of the table regardless of profit, tagged loudly - see
+    `_rank_key`."""
+    items = sorted(board_data.get("items") or [], key=_rank_key, reverse=True)
     L = [f"# Flipscout board - {len(items)} buyable now",
          f"_Generated {board_data.get('generated', '')} - best profit first. "
          f"'Open' is what it costs to enter; never bid past 'Max'._", "",
@@ -125,6 +143,8 @@ def render_markdown(board_data: dict) -> str:
         title = (i.get("title") or "").replace("|", "/")[:60]
         profit = i.get("profit_at_open")
         tags = " 📍" if i.get("nearby") else ""
+        if i.get("scam_shaped"):
+            tags += " 🚩 **SCAM-SHAPED**"
         where = (i.get("where") or i.get("house") or "")[:24]
         L.append(
             f"| {n} | [{title}]({i.get('url')}) | {i.get('model')} "
@@ -140,9 +160,10 @@ def top_items(board_data: dict, top: int = 5) -> list[dict]:
     """The digest's top rows shaped for notify.build_embed, so the daily post
     carries OUR image urls instead of whatever Discord's link unfurler can
     scrape (a Craigslist search page unfurls to a blank card - the row itself
-    has a real photo)."""
-    best = sorted(board_data.get("items") or [],
-                  key=lambda i: (i.get("profit_at_open") or -1e9), reverse=True)[:top]
+    has a real photo). SCAM-SHAPED asks are dropped entirely, not just
+    demoted - they never go out as an embed, however good the profit looks."""
+    legit = [i for i in (board_data.get("items") or []) if not i.get("scam_shaped")]
+    best = sorted(legit, key=_rank_key, reverse=True)[:top]
     out = []
     for i in best:
         c = dict(i)
@@ -163,8 +184,11 @@ def digest(board_data: dict, top: int = 5) -> str:
     items = board_data.get("items") or []
     if not items:
         return ""
-    best = sorted(items, key=lambda i: (i.get("profit_at_open") or -1e9),
-                  reverse=True)[:top]
+    # SCAM-SHAPED asks never make the Discord digest's top rows - board.md
+    # (render_markdown) still lists them, demoted to the bottom with a
+    # warning; this message is Discord-bound and excludes them entirely.
+    legit = [i for i in items if not i.get("scam_shaped")]
+    best = sorted(legit, key=_rank_key, reverse=True)[:top]
     near = board_data.get("nearby_count") or 0
     lines = [f"**Flipscout board** - {len(items)} item(s) buyable right now"
              + (f", {near} drivable" if near else "")

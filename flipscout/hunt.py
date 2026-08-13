@@ -215,6 +215,42 @@ def sweep(config: dict, hunters=None) -> list[dict]:
     return list(found.values())
 
 
+# A fixed-price ask this far under resale on a LOCAL source is bait, not a
+# deal: real Craigslist underprices vanish in minutes, and the ones that sit
+# are scams. The board's #1 "find" - a $50 G7X Mark II vs a $1,149 comp - was
+# one (Leron confirmed, 2026-07-28). Auction opens near $0 are normal; fixed
+# asks near $0 are not.
+SCAM_ASK_SHARE = 0.15
+
+
+def scam_shaped(row: dict, adv) -> bool:
+    """True when this fixed-price LOCAL ask is bait, not a deal.
+
+    Computed once here, in `evaluate()`, and carried on the candidate dict as
+    `c["scam_shaped"]` - so the flag can never diverge between the board's
+    ranking and the Discord alert copy the way it used to. The bug: this used
+    to be recomputed from scratch inside `to_alert()` only, which is called
+    for Discord alerts alone. `evaluate()`'s output feeds `board.write()`
+    directly with no idea a row was scam-shaped, so a $50 Craigslist "find"
+    against a $1,149 comp ranked #1 on the board by raw profit_at_open even
+    though the SAME candidate would have shown a SCAM-SHAPED banner had it
+    ever reached a Discord alert.
+    """
+    return bool(row.get("listing_type") == "fixed" and row.get("local")
+                and (adv.open_bid or 0) > 0
+                and adv.open_bid < SCAM_ASK_SHARE * adv.net_resale)
+
+
+def scam_warning(adv) -> str:
+    """The loud banner text - shared verbatim between the Discord alert and
+    the board's per-item warnings, so the wording can't drift between them."""
+    return (f":triangular_flag_on_post: **SCAM-SHAPED PRICE** - a fixed ask of "
+            f"${adv.open_bid:,.2f} on an item that nets ${adv.net_resale:,.2f} "
+            f"is bait more often than a deal (the $50 G7X lesson). Real "
+            f"underprices sell in minutes; the ones that SIT are the trap. "
+            f"Verify in person before believing it.")
+
+
 def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
     """Price each listing that matches a model in the book."""
     by_name = {h.name: h for h in (hunters if hunters is not None
@@ -288,10 +324,18 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
             if age is not None and age > max_age:
                 continue
 
-        out.append({"row": row, "model": m.model, "match": m, "advice": adv})
+        is_scam = scam_shaped(row, adv)
+        out.append({"row": row, "model": m.model, "match": m, "advice": adv,
+                    "scam_shaped": is_scam,
+                    "scam_warning": scam_warning(adv) if is_scam else None})
 
     # Best headroom first: what you'd clear if you won at the current minimum.
-    out.sort(key=lambda c: (c["advice"].profit_at_open or 0), reverse=True)
+    # SCAM-SHAPED asks sort AFTER every legit candidate regardless of their
+    # (often huge, and fake) profit number - `not c["scam_shaped"]` puts the
+    # legit ones (True) ahead of the bait (False) under reverse=True, then
+    # each group is still ranked best-profit-first within itself.
+    out.sort(key=lambda c: (not c["scam_shaped"], c["advice"].profit_at_open or 0),
+              reverse=True)
     return out
 
 
@@ -307,21 +351,13 @@ def age_hours(listed: Optional[str], now: Optional[_dt.datetime] = None) -> Opti
     return max(0.0, (now - t).total_seconds() / 3600.0)
 
 
-# A fixed-price ask this far under resale on a LOCAL source is bait, not a
-# deal: real Craigslist underprices vanish in minutes, and the ones that sit
-# are scams. The board's #1 "find" - a $50 G7X Mark II vs a $1,149 comp - was
-# one (Leron confirmed, 2026-07-28). Auction opens near $0 are normal; fixed
-# asks near $0 are not.
-SCAM_ASK_SHARE = 0.15
-
-
 def to_alert(c: dict) -> dict:
     """One evaluated candidate -> the Discord embed payload."""
     row, model, adv, m = c["row"], c["model"], c["advice"], c["match"]
     units = f" x{adv.units}" if adv.units > 1 else ""
-    scam_shaped = (row.get("listing_type") == "fixed" and row.get("local")
-                   and (adv.open_bid or 0) > 0
-                   and adv.open_bid < SCAM_ASK_SHARE * adv.net_resale)
+    # Read the flag `evaluate()` already computed - never recompute it here,
+    # that duplication is exactly how the board and the alert copy drifted.
+    is_scam = c.get("scam_shaped", False)
 
     # Both links, every time: where to BUY it, and the eBay solds that back the
     # "sells for more" claim. The comp link reproduces the exact search that
@@ -403,19 +439,14 @@ def to_alert(c: dict) -> dict:
     if adv.note:
         bits.append(f"_{adv.note}_")
 
-    if scam_shaped:
-        bits.insert(0, (f":triangular_flag_on_post: **SCAM-SHAPED PRICE** - a "
-                        f"fixed ask of ${adv.open_bid:,.2f} on an item that nets "
-                        f"${adv.net_resale:,.2f} is bait more often than a deal "
-                        f"(the $50 G7X lesson). Real underprices sell in minutes; "
-                        f"the ones that SIT are the trap. Verify in person before "
-                        f"believing it."))
+    if is_scam:
+        bits.insert(0, c.get("scam_warning") or scam_warning(adv))
 
     return {
         "title": (row.get("title") or "")[:240],
         "url": row.get("url"),
         "image": row.get("image"),
-        "verdict": ("watch" if scam_shaped else
+        "verdict": ("watch" if is_scam else
                     "buy" if (adv.profit_at_open or 0) >= adv.profit_at_max
                     else "watch"),
         "all_in": None,
@@ -592,6 +623,10 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     for c in cands:
         key = f"{c['row']['source']}:{c['row']['id']}"
         if key in seen:
+            continue
+        # SCAM-SHAPED asks never go out as a new-find alert - board only,
+        # with a loud warning, sorted to the bottom. See scam_shaped().
+        if c.get("scam_shaped"):
             continue
         if len(fresh) >= config["top"]:
             break
