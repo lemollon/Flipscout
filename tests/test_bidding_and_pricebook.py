@@ -1191,6 +1191,59 @@ def test_goodwill_auctions_never_trip_the_scam_guard():
         hunt.evaluate([row], CFG, hunters=[h])[0])["reason"]
 
 
+# 2026-08-13: the flag existed but only lived inside to_alert(), which is
+# only called for Discord copy. evaluate()'s own output (what feeds the
+# board) had no idea a row was scam-shaped, so a $50 Craigslist "Canon
+# powerShot G7X mark ii" vs a $1,149 comp ranked #1 on the board purely on
+# its (fake) profit_at_open. Fixed by computing the flag once in evaluate()
+# and carrying it on every candidate.
+
+def test_scam_shaped_never_outranks_a_legit_row_on_the_board():
+    h = FakeHunter([])
+    scam_row = {**_cl_row(4.99), "url": "http://scam/1"}
+    legit_row = {**CE_ROW, "id": "legit1", "url": "http://legit/1"}
+    cands = hunt.evaluate([scam_row, legit_row], CFG, hunters=[h])
+    scam_c = next(c for c in cands if c["row"]["url"] == "http://scam/1")
+    legit_c = next(c for c in cands if c["row"]["url"] == "http://legit/1")
+    assert scam_c["scam_shaped"] is True
+    assert legit_c["scam_shaped"] is False
+    # the scam row's raw profit number is the bigger one...
+    assert scam_c["advice"].profit_at_open > legit_c["advice"].profit_at_open
+    # ...but evaluate() must still rank it BELOW the legit row
+    assert cands.index(legit_c) < cands.index(scam_c)
+
+    from flipscout import board
+    md = board.render_markdown(board.build(cands))
+    # the legit row still appears above the scam row on the rendered board,
+    # which is demoted to the bottom with a loud warning, not dropped
+    assert md.index("http://legit/1") < md.index("http://scam/1")
+    assert "SCAM-SHAPED" in md
+
+    tops = board.top_items(board.build(cands), top=5)
+    assert "http://scam/1" not in {t["url"] for t in tops}
+
+
+def test_scam_shaped_never_reaches_the_alert_release(monkeypatch, tmp_path):
+    scam_row = {**_cl_row(4.99), "url": "http://scam/2"}
+    legit_row = {**CE_ROW, "id": "legit2", "url": "http://legit/2"}
+
+    monkeypatch.setattr(hunt, "_load_seen", lambda p, **kw: set())
+    monkeypatch.setattr(hunt, "_save_seen", lambda path, seen: None)
+
+    sent = {}
+
+    def fake_notify(alerts, content="", **kw):
+        sent["alerts"] = alerts
+        return ["webhook"]
+
+    cfg = {**CFG, "state_file": str(tmp_path / "seen.json")}
+    hunt.run(cfg, hunters=[FakeHunter([scam_row, legit_row])], notifier=fake_notify)
+
+    urls = {a["url"] for a in sent["alerts"]}
+    assert "http://legit/2" in urls
+    assert "http://scam/2" not in urls
+
+
 def test_hx99_is_deliberately_unpriced():
     # It rode the RX100 include with no measured comp - a 1/2.3" travel zoom
     # priced as a 1-inch RX100 told the bid sentry to raise toward $434 on a

@@ -74,3 +74,25 @@ def test_console_and_camera_search_terms_are_swept():
     for t in ("nintendo switch oled", "gameboy advance sp", "gamecube console",
               "fujifilm x100", "contax t2", "sony a6000", "canon 5d"):
         assert t in terms
+
+
+# --- 2026-08-13: Contax T2 accessories were pricing as the $1,100 camera ----
+# `contax` was never added to the universal "for <camera brand>" tell when
+# the T2 model landed, and "data back" / a titan-or-gold "cover" / a leather
+# case weren't in the accessory-as-product list either. All three live
+# titles below carried $737-$837 max bids before this fix.
+
+def test_contax_t2_accessories_rejected():
+    assert match("[ Top MINT in Box ] Contax T2 Data Back Silver for T2D") is None
+    assert match("[Near MINT] Contax T2/T2D Semi Hard Leather Case From "
+                 "JAPAN") is None
+    assert match("Rare [UNUSED] Gold Titan Cover for Contax T2 Compact "
+                 "35mm") is None
+
+
+def test_contax_t2_camera_and_bundle_still_price():
+    # the camera itself, and a camera legitimately sold WITH its case, must
+    # both keep matching - the accessory guard must not overreach.
+    assert match("Contax T2 35mm Point & Shoot Film Camera "
+                 "Titanium").model.key == "contax_t2"
+    assert match("Contax T2 w/ Leather Case From Japan").model.key == "contax_t2"

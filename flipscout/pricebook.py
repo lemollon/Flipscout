@@ -91,7 +91,11 @@ ACCESSORY_EXCLUDE = (
     # before AbergBest (unlisted brand) and neither "protective case" nor
     # "camera case" was in the alternation. `case for sale` stays legal: that's
     # how real "Game Boy w/ case for sale" titles end.
-    r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )(hard|soft|carrying|travel|storage|protective|camera)\s+case|"
+    # `leather` joined the adjective list (2026-08-13): "Semi Hard Leather
+    # Case From JAPAN" and a bare "Leather Case for ..." are the accessory,
+    # sold alongside a Contax T2 that legitimately reads "w/ Leather Case" -
+    # same bundle trap as `hard`/`camera`, so it gets the same lookbehind.
+    r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )(hard|soft|carrying|travel|storage|protective|camera|leather)\s+case|"
     r"\bcase\s+for\b(?!\s+sale)|\bsleeve\b|"
     # CAMERA accessories that carry the camera's model name (added 2026-07-28,
     # all seen in the live comp sweep): lens shades "for SX-70", neck straps,
@@ -107,10 +111,35 @@ ACCESSORY_EXCLUDE = (
     # post-merge run: "NB-13L Battery(2 Pack) and Charger(2CH) Set,Camera
     # Accessories for Canon G9..." was quoted a $970.66 max bid as a G7X Mark
     # II. Camera brands ONLY - "Donkey Kong 64 Games For Nintendo N64" is why
-    # this must never grow a console name.
-    r"\bfor\s+(canon|nikon|sony|fuji(film)?|olympus|panasonic|pentax|polaroid|kodak|gopro)\b|"
+    # this must never grow a console name. `contax` joined 2026-08-13: it was
+    # missing when the T2 model landed, and "Contax T2 Data Back Silver for
+    # T2D" / "Gold Titan Cover for Contax T2" both matched contax_t2 at the
+    # full $1,100 comp with no accessory tell catching them.
+    r"\bfor\s+(canon|nikon|sony|fuji(film)?|olympus|panasonic|pentax|polaroid|kodak|gopro|contax)\b|"
+    # More accessory-as-product phrasings caught on the same Contax T2 sweep
+    # (2026-08-13): a data back is a part FOR the camera, no bundle case to
+    # protect. `cover` on its own is NOT safe as a bare word though - "TI-84
+    # Plus CE w/ cover" is a real bundled calculator listing - so the tell is
+    # scoped to a titanium/gold cover specifically (the actual accessory
+    # phrasing seen live) and gets the same bundle-aware lookbehind as `case`
+    # in case a future listing reads "w/ Titan Cover".
+    r"data\s*back|"
+    r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )(titan(ium)?|gold)\s+cover\b|"
     r"\(\s*\d+\s*(pack|pcs|ch)\s*\)"
 )
+
+# LOOKALIKE PHRASING - a knockoff advertising itself honestly still isn't the
+# product. Same failure mode as Gunne Sax STYLE (2026-07-28: "Vintage 70s
+# Contempo Casuals Pink Voile Lace Gunne Sax Style Dress" quoted the $122
+# comp on a lookalike), hit again in watches 2026-08-13: "Digital Gold And
+# Black G-Shock Style Digital Watch" is a $2.25 no-name WR50M digital with no
+# Casio branding, and matched purely because "g-shock" appeared in the title.
+# NOT universal (unlike ACCESSORY_EXCLUDE): "New Nintendo 3DS XL Galaxy
+# Style" is a real console color edition, so a blanket "style" ban across
+# every model in the book would misfire there. Each model that needs this
+# wires it into its OWN `exclude`, scoped to sit next to that model's brand
+# text, the same way `gunne_sax` already does it inline.
+LOOKALIKE_PHRASING = r"\bstyle\b|\bstyled\b|\binspired\b|\bhomage\b|\btype\b|look\s*alike|\breplica\b"
 
 
 @dataclass(frozen=True)
@@ -1141,10 +1170,15 @@ MODELS: list[Model] = [
         include=r"g[- ]?shock",
         # "bezel and band set" / "band only" are the accessory FOR a G-Shock,
         # not the watch - same trap as the Starrett contact-point tips.
+        # `g[- ]?shock` next to STYLE/INSPIRED/etc is the lookalike trap
+        # instead: a bare-brand include can't tell a real Casio from a $2.25
+        # no-name "G-Shock Style" digital.
         exclude=r"\bband\s+only\b|\bstrap\s+only\b|\bbezel\s+only\b|\bband\s+set\b|"
                 r"\bbezel\s+set\b|\bbezel\s+and\s+band\b|\bband\s+and\s+bezel\b|"
                 r"replacement\s+(band|strap|bezel)|watch\s+band\s+(for|only)|"
-                r"for parts|parts only|not working|broken",
+                r"for parts|parts only|not working|broken|"
+                r"g[- ]?shock.{0,20}(" + LOOKALIKE_PHRASING + r")|"
+                r"(" + LOOKALIKE_PHRASING + r").{0,20}g[- ]?shock",
         outbound_shipping=5.00, category="watches", comp_query="casio g-shock",
         comp_used_only=True, specificity=50,
         note="sold median $81, floor priced at p25; verify authenticity from "
@@ -1159,9 +1193,13 @@ MODELS: list[Model] = [
         # must name the automatic movement or a model line.
         include=r"seiko.{0,40}(automatic|divers?|5\b|presage|skx)|"
                 r"(automatic|divers?|presage|skx).{0,40}seiko",
+        # Same lookalike trap as G-Shock: "Seiko style automatic skeleton
+        # watch" reads as a Seiko-inspired no-name, not the brand.
         exclude=r"\bband\s+only\b|\bbracelet\s+only\b|\bstrap\s+only\b|"
                 r"\bdial\s+only\b|\bmovement\s+only\b|\bcase\s+only\b|"
-                r"\bcrown\s+only\b|for parts|parts only|not working|broken",
+                r"\bcrown\s+only\b|for parts|parts only|not working|broken|"
+                r"seiko.{0,20}(" + LOOKALIKE_PHRASING + r")|"
+                r"(" + LOOKALIKE_PHRASING + r").{0,20}seiko",
         outbound_shipping=5.00, category="watches", comp_query="seiko automatic watch",
         comp_used_only=True, specificity=50,
         note="sold median $102, floor at p25; untested movement is the "

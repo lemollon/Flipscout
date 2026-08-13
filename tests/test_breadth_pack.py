@@ -59,6 +59,21 @@ def test_seiko_automatic_needs_a_corroborating_noun():
     assert match("Seiko dress watch") is None
 
 
+def test_gshock_lookalike_phrasing_rejected():
+    # Same failure mode as Gunne Sax STYLE: a no-name knockoff that
+    # advertises itself honestly as "G-Shock STYLE" still matched on the
+    # bare brand text. Live catch: a $2.25 WR50M digital with no Casio
+    # branding at all.
+    assert match("Digital Gold And Black G-Shock Style Digital Watch") is None
+    # the real thing must still match
+    assert match("Casio G-Shock DW-5600E").model.key == "casio_gshock"
+
+
+def test_seiko_lookalike_phrasing_rejected():
+    assert match("Seiko style automatic skeleton watch") is None
+    assert match("Seiko 5 Automatic SNK809").model.key == "seiko_automatic"
+
+
 # --- headphones -----------------------------------------------------------
 
 def test_qc35_prices_and_rejects_replacement_ear_pads():
