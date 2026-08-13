@@ -26,7 +26,10 @@ def format_digest(hits, header: Optional[str] = None) -> str:
     for h in hits:
         vel = f" · ~{h.days_to_sell:.0f}d to sell" if getattr(h, "days_to_sell", None) is not None else ""
         lines.append(f"${h.per_hour:.0f}/hr · ${h.profit:.0f} profit ({h.roi:.0%} ROI){vel} [{h.source}]")
-        lines.append(f"{h.title[:70]}")
+        # Backticks -> Discord inline code: renders as plain, selectable text
+        # instead of markdown, so the exact title can be copied straight into
+        # an eBay search box.
+        lines.append(f"`{h.title[:70]}`")
         lines.append(f"buy ${h.buy_price:.0f} → sell ${h.sold_price:.0f}"
                      + (f"  ·  {h.url}" if h.url else ""))
         lines.append("")
@@ -57,6 +60,17 @@ def build_embed(c: dict) -> dict:
     and any of: all_in, comp, max_bid, bids, ends.
     """
     fields = []
+    # The embed title is the ONLY clickable link Discord shows - which means
+    # it's the only place the name lives, and Discord gives no way to copy
+    # text out of a link (mobile long-press just opens it). Inline code
+    # (`backticks`) renders as plain, selectable text instead, so the exact
+    # listing title can be pasted straight into an eBay search. Full-width
+    # (inline=False) so it rides on its own row above the money-field grid
+    # and never disturbs that grid's layout.
+    title = (c.get("title") or "").strip()
+    if title:
+        fields.append({"name": "📋 Copy-paste name",
+                       "value": f"`{title[:150]}`", "inline": False})
     if c.get("all_in") is not None:
         fields.append({"name": "Costs now", "value": f"${c['all_in']:,.2f}", "inline": True})
     if c.get("comp") is not None:

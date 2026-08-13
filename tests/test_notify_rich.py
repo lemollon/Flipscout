@@ -49,7 +49,8 @@ def test_no_room_is_stated_not_a_negative_number():
 
 def test_missing_fields_are_omitted_not_crashed():
     e = build_embed({"title": "x", "verdict": "buy"})
-    assert e["fields"] == []
+    # Only the copy-paste name field survives - everything else stays omitted.
+    assert [f["name"] for f in e["fields"]] == ["\U0001F4CB Copy-paste name"]
     assert "url" not in e and "thumbnail" not in e
 
 
@@ -128,6 +129,34 @@ def test_small_images_can_be_opted_into(monkeypatch):
     e = build_embed(CAND)
     assert e["thumbnail"]["url"] == CAND["image"]
     assert "image" not in e
+
+
+# --- copy-paste name (2026-08-13) --------------------------------------------
+# The embed title is Discord's ONLY clickable link - and Discord gives no way
+# to copy text out of a link, so the raw name has to exist somewhere as plain
+# text too.
+
+def test_embed_carries_the_title_as_copyable_inline_code():
+    e = build_embed(CAND)
+    vals = {f["name"]: f["value"] for f in e["fields"]}
+    assert vals["\U0001F4CB Copy-paste name"] == f"`{CAND['title']}`"
+    # It rides on its own row, not squeezed into the money grid.
+    assert next(f for f in e["fields"]
+                if f["name"] == "\U0001F4CB Copy-paste name")["inline"] is False
+
+
+def test_copy_paste_name_is_truncated_not_field_limit_busted():
+    long_title = "Craftsman " + "Professional " * 100 + "Socket Set"
+    assert len(long_title) > 1024
+    e = build_embed({**CAND, "title": long_title})
+    value = {f["name"]: f["value"] for f in e["fields"]}["\U0001F4CB Copy-paste name"]
+    assert len(value) < 1024
+    assert value == f"`{long_title[:150]}`"
+
+
+def test_copy_paste_name_field_is_absent_when_there_is_no_title():
+    e = build_embed({"verdict": "buy"})
+    assert e["fields"] == []
 
 
 def test_overlong_content_is_truncated_not_rejected():

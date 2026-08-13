@@ -188,6 +188,10 @@ def digest(board_data: dict, top: int = 5) -> str:
         lines.append(
             f"**[{(i.get('title') or '')[:70]}](<{i.get('url')}>)** "
             f"({i.get('source')}{', ' + ', '.join(tags) if tags else ''})")
+        # The title above is only reachable by clicking the link - Discord
+        # gives no way to copy text out of one. Inline code repeats it as
+        # plain, selectable text so it can be pasted into an eBay search.
+        lines.append(f"   `{(i.get('title') or '')[:150]}`")
         profit = i.get("profit_at_open")
         lines.append(
             f"   {i.get('model')} - {now_label} ${i.get('open_bid'):,.2f}"

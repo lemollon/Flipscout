@@ -21,6 +21,19 @@ def test_format_digest():
     assert "$339/hr" in text and "DeWalt drill" in text and "u1" in text
 
 
+def test_format_digest_title_is_copyable_inline_code():
+    """Discord inline code renders as plain, selectable text - so the exact
+    title can be pasted into an eBay search bar."""
+    text = format_digest([_hit(113, 339, title="DeWalt DCD791 20V Drill")])
+    assert "`DeWalt DCD791 20V Drill`" in text
+
+
+def test_format_digest_title_is_truncated_not_overlong():
+    long_title = "Vintage " * 30 + "Rolex"
+    text = format_digest([_hit(113, 339, title=long_title)])
+    assert f"`{long_title[:70]}`" in text
+
+
 def test_notify_webhook(monkeypatch):
     calls = {}
     class _Sess:
