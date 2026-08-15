@@ -18,3 +18,8 @@ flipscout/comps_memory.json
 # Bid-sentry local state + Scheduled Task log (per-machine, not code)
 flipscout_mybids_state.json
 mybids_run.log
+
+# Generated sweep state - seeded per machine, must not be shared or replayed.
+# Slipped into the tree on PR #39 via `git add -A`; the mybids/hunt state files
+# beside it were already ignored and this one was simply missed.
+fb_sweep_seen.json
