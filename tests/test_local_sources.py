@@ -290,14 +290,17 @@ def test_goodwill_merges_buynow_and_auction_passes(monkeypatch):
 
 
 def test_goodwill_buynow_rows_price_as_fixed_through_the_book():
+    # was Gunne Sax - womens-apparel is benched (BENCHED_CATEGORIES,
+    # active=False 2026-08-15) and no longer matches; swapped for an active
+    # ipods model to keep exercising the fixed-listing pricing path.
     from flipscout import hunt
-    row = {"source": "goodwill", "id": "9", "title": "Gunne Sax by Jessica McClintock Prairie Dress",
+    row = {"source": "goodwill", "id": "9", "title": "Apple iPod Classic 160GB MP3 Player",
            "url": "u", "price": 12.99, "min_bid": 12.99, "increment": 1.0, "bids": 0,
            "handling": 0.0, "image": "i", "ends": "", "listing_type": "fixed"}
     cfg = {"sources": ["goodwill"], "target_profit": 20.0, "inbound_shipping": 9.0,
            "top": 10, "state_file": "nonexistent.json"}
     got = hunt.evaluate([row], cfg, hunters=[])
-    assert got and got[0]["model"].key == "gunne_sax"
+    assert got and got[0]["model"].key == "ipod_classic_160"
     a = hunt.to_alert(got[0])
     assert a["listing_type"] == "fixed"
     assert "Asking" in a["reason"]
@@ -352,14 +355,24 @@ def test_gsa_one_fetch_serves_every_search_term():
 
 
 def test_unclaimedbaggage_is_registered_with_book_terms():
+    """_LUGGAGE_TERMS in hunters.py still lists arcteryx/patagonia/johnny was/
+    st john knit/gunne sax/reformation dress ("designer apparel" per its own
+    docstring), but womens-apparel/outerwear are benched (BENCHED_CATEGORIES,
+    2026-08-15) and those 11 terms were DELETED from search_terms() - so
+    relevant_terms(), which only keeps terms present in BOTH lists, can no
+    longer find them there. Only the electronics half of _LUGGAGE_TERMS still
+    intersects the book."""
     from flipscout.hunters import build_hunters
     from flipscout.pricebook import search_terms
     h = build_hunters(["unclaimedbaggage"])[0]
     assert h.name == "unclaimedbaggage"
     terms = h.relevant_terms(search_terms())
-    # spans luggage-plausible categories, not just outerwear
+    # electronics still come through
     assert any("coolpix" in t for t in terms)
-    assert any("patagonia" in t for t in terms)
+    assert any("ipod" in t for t in terms)
+    # apparel is gone from the book entirely - benched, not just excluded
+    assert not any("patagonia" in t or "arcteryx" in t or "johnny was" in t
+                   or "gunne sax" in t or "reformation" in t for t in terms)
 
 
 # --- estate catalogs swept in full (2026-07-29) ------------------------------

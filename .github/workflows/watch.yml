@@ -31,7 +31,15 @@ on:
     - cron: "17 * * * *"        # hourly at :17 (off the top-of-hour rush)
     - cron: "47 * * * *"        # and at :47, as insurance against skips
 
-  # --- history: why it was off ---------------------------------------------
+  # --- history: why it was off (BOTH REASONS RESOLVED - see below) ----------
+  # RESOLVED 1: the eBay developer account was APPROVED on 2026-07-29 (appeal
+  #   granted); keys are in this repo's Actions secrets and `ebay: auth OK`
+  #   appears in every run. Reason 1 below is history, not current state.
+  # RESOLVED 2: the $80-comp floor is now enforced by the price book itself -
+  #   nothing gets a Model entry unless it clears it (2026-08-15: stock Game
+  #   Boy Color measured $48.44 and went to DEAD_MODELS instead of the book).
+  # Everything under this line is kept as the record of WHY, not as status.
+  #
   # SCHEDULE DISABLED 2026-07-24. Two reasons, in order:
   #
   #  1. It was failing every run (~12 red runs/day) — the eBay developer account was

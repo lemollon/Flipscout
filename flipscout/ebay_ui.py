@@ -2,8 +2,20 @@
 
 Why this module exists
 ----------------------
-The eBay developer account was rejected, so Browse/Marketplace-Insights are closed
-to us (see ebay_api.py). The public site still shows everything we need. But it is
+STATUS, corrected 2026-08-15. This docstring used to open "the eBay developer
+account was rejected", which stopped being true on 2026-07-29 when the appeal was
+granted - and the stale sentence went on to mislead a later audit into reporting
+that Flipscout had no eBay API at all. Read this before you conclude the same:
+
+  * Browse API      - APPROVED and LIVE. Keys are in GitHub Actions secrets
+                      (NOT in the local .env, which is empty on purpose), and
+                      `hunt` sweeps it hourly. See hunters.EbayBrowse.
+  * Marketplace     - still closed, and not by our doing: it is a Limited
+    Insights          Release API and eBay's own docs say it is "restricted and
+                      not open to new users". Do not keep planning around it.
+
+So SOLD comps still come through this module, and that is now a permanent design
+choice rather than a stopgap. The public site shows everything we need, but it is
 not fetchable by a script:
 
   * `requests` + browser headers  -> WAF challenge after ~1 response.

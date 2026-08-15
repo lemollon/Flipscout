@@ -18,7 +18,7 @@ model and rejects on the cheap look-alikes.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Optional
 
 
@@ -172,8 +172,22 @@ class Model:
     # regex length is a tempting proxy and it is wrong (the base-CE pattern is
     # longer than the CE-Python one, so Python would get priced as a base CE).
     specificity: int = 0
+    # Benched, not deleted. Leron 2026-08-15: "i dont want to flip clothes, i
+    # like the cameras, watches video games and consoles". The apparel comps
+    # below are MEASURED and were expensive to get, so they stay in the file -
+    # an inactive model is skipped by the sweep and never alerts, but
+    # `flipscout item` / `comp` still price it if he checks one by hand. Flip
+    # this back to True to un-bench a whole category; nothing else to change.
+    #
+    # This is also a QUOTA decision, not just taste: the Browse pass is 71
+    # terms x 48 runs/day against a 5k/day cap (see hunters.EbayBrowse), so the
+    # apparel terms were spending ~15% of the daily call budget on a category
+    # he won't buy. Benching them buys that budget back for the four he wants.
+    active: bool = True
 
     def matches(self, title: str) -> bool:
+        if not self.active:
+            return False
         t = normalize(title)
         if not t:
             return False
@@ -353,13 +367,31 @@ MODELS: list[Model] = [
     Model(
         key="pkmn_firered_leafgreen",
         label="Pokemon FireRed / LeafGreen (GBA)",
-        comp=76.49, measured="2026-07-25", sample=0, comp_used_only=False,
-        include=r"(pok[eé]mon|pokeman)\s*(fire\s*red|leaf\s*green)",
+        comp=95.00, measured="2026-08-15", sample=102, comp_used_only=False,
+        include=r"(pok[eé]mon|pokeman)\s*(fire\s*red|firered|leaf\s*green|leafgreen)",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
         outbound_shipping=5.00, category="pokemon", comp_query="pokemon fire red gameboy advance",
         specificity=40,
-        note="Verify authenticity before bidding.",
+        # RE-MEASURED 2026-08-15. The old $76.49 was `sample=0` - an unmeasured
+        # guess carried since 7/25, and it was LOW, not high: both halves comp
+        # near $104 loose. Measured separately, no "authentic" keyword (that
+        # search skews toward sellers asserting legitimacy, which is exactly the
+        # population that prices high):
+        #     LeafGreen loose  $104.62  (n=50, p25 $80.62, p75 $125.17)
+        #     FireRed   loose  $103.77  (n=52, p25 $60.00, p75 $125.61)
+        #     boxed/CIB        $331-406 (n=3 - too thin to carry, and an auction
+        #                                find is a loose cart anyway)
+        #     Japanese import   $42-45  (n=9 - region-locked, cheap for a reason)
+        # Carried at $95, a FLOOR below both medians rather than the ~$104 pooled
+        # median: FireRed's p25 of $60 is a fatter cheap tail than LeafGreen's
+        # $80.62, and the two share one model here.
+        note="RE-MEASURED 2026-08-15: loose median ~$104 both halves (n=102), "
+             "carried at a $95 floor. HIGH VALUE = HIGH REPRO RISK - the $25-30 "
+             "band on eBay IS the reproduction tier, so a cheap US cart is a red "
+             "flag, not a deal. Verify before bidding: tri-wing screw (not "
+             "Phillips), AGB-BPGE-USA on the label, and it must hold a save. "
+             "Japanese carts are legitimately $42-45 - check the label for ESRB.",
     ),
     Model(
         key="pkmn_ruby_sapphire",
@@ -1268,6 +1300,71 @@ MODELS: list[Model] = [
         category="calculators",
         note="ESTIMATE, not measured - verify before trusting.",
     ),
+    # === Category pivot pack (measured 2026-08-15) ==========================
+    # Leron: "i dont want to flip clothes, i like the cameras, watches video
+    # games and consoles". Apparel got benched below; these three spend the
+    # freed Browse quota on the categories he actually wants. Every one was
+    # measured the same session against eBay solds and had to clear the ~$80
+    # floor to get in - a fourth candidate (stock Game Boy Color, $48.44) did
+    # not and is recorded in DEAD_MODELS instead.
+    Model(
+        key="ps_vita",
+        label="PlayStation Vita console",
+        comp=150.00, measured="2026-08-15", sample=28, comp_used_only=False,
+        include=r"ps\s*vita|playstation\s*vita|\bpch-?\s*[12]0\d\d\b",
+        exclude=r"\bgames?\b|\bcard\b|memory card|charger|\bcase\b|\bcover\b|"
+                r"screen protector|for parts|parts only|broken|not working|"
+                r"japan|japanese|\bjap\b|ntsc-j",
+        outbound_shipping=8.00, category="videogames", comp_query="playstation vita console",
+        specificity=40,
+        # FLOOR below the $192.93 median (n=28, p25 $169.95, p75 $219.80). The
+        # cheap tail is Japanese/region units and "console only Rank C" grades,
+        # both of which a thrift find can easily be, so the book carries $150.
+        note="Best comp of the three added 2026-08-15. Check the model: PCH-1000 "
+             "(OLED) sells above PCH-2000 (LCD). Proprietary memory card is NOT "
+             "included on most units and buyers know it - a bundled card is upside, "
+             "its absence is not a defect. Japanese units are region-fine but comp "
+             "lower; check the sticker.",
+    ),
+    Model(
+        key="dreamcast",
+        label="Sega Dreamcast console",
+        comp=95.00, measured="2026-08-15", sample=9, comp_used_only=False,
+        include=r"dreamcast|\bhkt-?\s*3020\b",
+        exclude=r"\bgames?\b|controller|\bvmu\b|\bdisc\b|memory card|"
+                r"for parts|parts only|broken|not working|japan|japanese|\bjap\b|"
+                r"ntsc-j|\bpal\b|region free|modded|modchip|\bgdemu\b",
+        outbound_shipping=14.00, category="videogames", comp_query="sega dreamcast console",
+        specificity=40,
+        # FLOOR below the $123.07 median (n=9 clean of 59 matched, p25 $83.99).
+        # n=9 is THIN because most Dreamcast sales are bundles - measure again
+        # before paying near the ceiling.
+        note="n=9 - THIN sample, re-measure before bidding near the max. Heavy: "
+             "outbound is $14, not the $5 a cart costs, and that eats a third of "
+             "the margin. GDEMU/modded units sell far higher and are a different "
+             "product. Check the disc drive spins - it is the common failure.",
+    ),
+    Model(
+        key="citizen_watch",
+        label="Citizen watch (Eco-Drive / quartz)",
+        comp=85.00, measured="2026-08-15", sample=56,
+        include=r"\bcitizen\b",
+        exclude=r"\bfor citizen\b|compatible\s+with|\bband\b|\bstrap\b|"
+                r"bracelet only|\bbezel\b|crystal only|movement only|dial only|"
+                r"for parts|parts only|broken|not working",
+        outbound_shipping=6.00, category="watches", comp_query="citizen eco-drive watch",
+        specificity=10,
+        # A BRAND IS NOT A MODEL - the same rule that put Fluke on a conservative
+        # $90 floor instead of its $194.99 median. Citizen solds run $70 to $501
+        # (n=56, median $124.31, p25 $77.99, p75 $230), so the median would
+        # routinely overbid a plain quartz. Carried near p25.
+        note="BRAND-LEVEL match, deliberately floored at $85 against a $124.31 "
+             "median (n=56) because the range is $70-$501 - Navihawk/Promaster/"
+             "titanium sell 2-4x a plain quartz and nothing in the title reliably "
+             "says which. Eco-Drive needs no battery; a dead one usually just needs "
+             "light, which is exactly the 'untested' discount we buy. Re-measure "
+             "per-model before paying over ~$120.",
+    ),
 ]
 
 # Models we deliberately refuse to alert on, so a lot containing one isn't
@@ -1275,6 +1372,20 @@ MODELS: list[Model] = [
 DEAD_MODELS = {
     r"ti\s*-?\s*83\s*plus": "TI-83 Plus sells $25.37 -> max buy -$3.39 (measured 2026-07-25)",
     r"ti\s*-?\s*30x|ti\s*-?\s*36x|ti\s*-?\s*34": "TI-30/34/36 scientifics sell under $12",
+    # Measured 2026-08-15 while filling out the console category and REJECTED,
+    # recorded so nobody measures it a third time. A STOCK Game Boy Color sells
+    # $48.44 (n=3 clean of 44 matched) - under the ~$80 floor where eBay's fixed
+    # costs leave room. The high GBC sales are all IPS/backlit/custom-shell mods,
+    # which is a different product we don't buy. Contrast the GBA SP, which is in
+    # the book at $84.59 precisely because it clears.
+    # CONSOLE NOUN REQUIRED, both directions. Bare `game boy color|gbc` also
+    # matches "Pokemon Crystal Gameboy Color" - a $145 cart we DO want - and
+    # would have stapled a "this is dead" warning onto every legitimate GBC
+    # cartridge alert. Same family as the console-noun guards on GameCube/N64.
+    r"(game\s*boy\s*color|\bgbc\b)[^a-z0-9]{0,12}(console|system|handheld)|"
+    r"(console|system|handheld)[^a-z0-9]{0,12}(game\s*boy\s*color|\bgbc\b)":
+        "stock Game Boy Color sells $48.44 - under the $80 floor (measured 2026-08-15); "
+        "only IPS/backlit MODS sell higher and those aren't thrift finds",
 }
 
 BY_KEY = {m.key: m for m in MODELS}
@@ -1329,6 +1440,20 @@ def count_units(title: str, model: Model) -> int:
         return 1
     return hits if MULTI_EVIDENCE.search(t) else 1
 
+# --- benched categories -----------------------------------------------------
+# Leron 2026-08-15: "i dont want to flip clothes, i like the cameras, watches
+# video games and consoles". Benched by CATEGORY rather than by picking off 11
+# keys, so this survives someone adding a twelfth jacket later.
+#
+# Benched, not deleted, on purpose. These comps were MEASURED (Arc'teryx Beta
+# $250.52, Veronica Beard $150, Gunne Sax $122) and remeasuring costs a browser
+# session each. `active=False` means: never swept, never alerted, still priceable
+# by hand with `flipscout item`. Un-bench by emptying this set.
+BENCHED_CATEGORIES = {"outerwear", "womens-apparel"}
+
+MODELS = [replace(m, active=False) if m.category in BENCHED_CATEGORIES else m
+          for m in MODELS]
+
 
 def match(title: str) -> Optional[Match]:
     """Best paying model in this title, or None.
@@ -1377,8 +1502,13 @@ def search_terms() -> list[str]:
         "mitutoyo", "starrett", "micrometer", "dial indicator", "machinist tools",
         "machinist tool lot", "precision tools lot",
         "littmann", "stethoscope",
-        # technical outerwear - the unglamorous end, where nobody is bidding
-        "arcteryx", "arc'teryx", "patagonia", "patagonia jacket", "gore-tex jacket",
+        # APPAREL BENCHED 2026-08-15 (Leron: "i dont want to flip clothes").
+        # Removed here, not just deactivated in the book: these 11 terms were
+        # spending ~15% of the 5k/day Browse quota fetching listings that can
+        # now never alert. The comps stay in MODELS behind BENCHED_CATEGORIES.
+        #   was: "arcteryx", "arc'teryx", "patagonia", "patagonia jacket",
+        #        "gore-tex jacket", "gunne sax", "st john knit", "johnny was",
+        #        "veronica beard", "reformation dress", "womens dress lot"
         # cameras - estate sales and thrift shelves are full of them, and the
         # junk-titled boxes ("vintage camera lot") are where the mju-II hides
         "canon powershot", "canon g7x", "canon elph", "sony cybershot",
@@ -1387,10 +1517,6 @@ def search_terms() -> list[str]:
         "canon ae-1", "pentax k1000", "olympus stylus", "polaroid sx-70",
         "35mm film camera", "point and shoot camera",
         "sony handycam", "camcorder",
-        # women's apparel - the measured-empty channels (Johnny Was and St John
-        # specifically live in HiBid estate lots)
-        "gunne sax", "st john knit", "johnny was", "veronica beard",
-        "reformation dress", "womens dress lot",
         # cordless tools + vintage sewing - estate/surplus staples
         "milwaukee m18", "m18 fuel", "milwaukee combo kit",
         "dewalt 20v", "dewalt drill", "cordless drill", "power tool lot",
@@ -1417,4 +1543,10 @@ def search_terms() -> list[str]:
         "sony walkman", "walkman lot", "bose quietcomfort", "casio g-shock",
         "g shock watch", "seiko automatic", "seiko watch lot", "canon fd",
         "vintage camera lens", "camera lens lot",
+        # category pivot pack (added 2026-08-15, paid for by benching apparel):
+        # handhelds/consoles and the second watch brand. "watch lot" earns its
+        # place the way "calculator lot" does - a junk-titled box of watches is
+        # where a $124 Citizen hides behind a $10 title.
+        "ps vita", "playstation vita", "sega dreamcast", "dreamcast console",
+        "citizen eco-drive", "citizen watch", "watch lot", "wristwatch lot",
     ]
