@@ -130,6 +130,37 @@ ACCESSORY_EXCLUDE = (
     # board - "for EOS 5D" dodges the for-<brand> tell by naming the MODEL).
     # Bundle-aware like `case`: "5D Mark III w/ Battery Grip" is a real camera.
     r"(?<!with )(?<!w/ )(?<!& )(?<!, )(?<!and )(?<!\+ )battery\s+grip\b|"
+    # A BATTERY PACK NAMED AFTER THE BODIES IT FITS. Caught live on the board
+    # 2026-08-15: "4x NP-FW50 battery Sony a6000, a6100, A6300, A6400" was
+    # priced as a $350 a6000 body. It dodges every existing tell - no "for
+    # <brand>" (it just lists the bodies), no "compatible with", and
+    # `battery grip` is a different accessory.
+    #
+    # Two independent catches, because either alone leaks:
+    # POSITION IS THE TELL, not the mere mention of a battery. A first pass
+    # here excluded any title containing a battery part number, and it
+    # immediately ate a REAL listing off the same board: "Canon PowerShot
+    # SD630 Digital ELPH 6MP Camera NB-4L Battery" - a $19.99 camera against a
+    # $120 comp - because the seller helpfully named the battery that came
+    # with it. Over-excluding drops real inventory and nobody ever notices,
+    # which makes it the more expensive mistake of the two.
+    #
+    # So the battery is the PRODUCT only when it LEADS:
+    #  1. QUANTIFIED - "4x NP-FW50 battery ...", "2 Pack Batteries ...".
+    #     A camera listing does not count its batteries.
+    #  2. TITLE-INITIAL - "NP-FW50 Battery for Sony a6000", "LP-E6 Battery
+    #     Canon 5D Mark III". The thing being sold is named first.
+    # A battery mentioned AFTER the body ("... Camera NB-4L Battery") is an
+    # included accessory and the listing still prices.
+    r"^\s*\d+\s*(x|pack|pcs|pieces?)\b[^,;]{0,28}?batter(y|ies)\b|"
+    r"^\s*(np|nb|lp|en|bln|bls|dmw)\s*-?\s*[a-z]?\d{1,3}[a-z]?\b[^,;]{0,20}?"
+    r"batter(y|ies)\b|"
+    r"^\s*batter(y|ies)\b|"
+    # MERCHANDISE that borrows a camera model's name. "Canon PowerShot G7 X
+    # Name Tag From Japan" was quoted against the $708.18 G7X comp on the same
+    # board - it is a novelty name tag. Same family as the Prima strategy
+    # guide and the Pokemon Crystal Ball.
+    r"name\s*(tag|plate|badge)|\blapel\b|\bpatch\b|\bmagnet\b|\bpostcard\b|"
     r"\(\s*\d+\s*(pack|pcs|ch)\s*\)"
 )
 
@@ -782,7 +813,13 @@ MODELS: list[Model] = [
         key="fuji_x100v",
         label="Fujifilm X100V",
         comp=1300.00, measured="2026-07-30", sample=8,
-        include=r"x100v\b",        # \b keeps the newer X100VI out of this comp
+        # LEADING \b IS LOAD-BEARING, added 2026-08-15. `x100v\b` guarded the
+        # tail (keeping the newer X100VI out) but not the head, so it matched
+        # INSIDE "DSC-HX100V" - Sony's 1/2.3-inch bridge camera. That listing
+        # sat at #1 on the live board: a $89.99 Sony quoted against a $1,300
+        # Fuji. Same failure as HX99 riding the RX100 include below; a short
+        # alphanumeric model code needs boundaries on BOTH ends.
+        include=r"\bx100v\b",
         exclude=r"for parts|parts only|not working|broken|repair",
         outbound_shipping=8.00, category="cameras",
         comp_query="fujifilm x100v", specificity=64,
@@ -794,7 +831,7 @@ MODELS: list[Model] = [
         key="fuji_x100f",
         label="Fujifilm X100F",
         comp=800.00, measured="2026-07-30", sample=60,
-        include=r"x100f\b",
+        include=r"\bx100f\b",     # both-ends boundary, same reason as X100V above
         exclude=r"for parts|parts only|not working|broken|repair",
         outbound_shipping=8.00, category="cameras",
         comp_query="fujifilm x100f", specificity=63,
