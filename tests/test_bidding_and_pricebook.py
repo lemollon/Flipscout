@@ -1326,3 +1326,64 @@ def test_hx99_is_deliberately_unpriced():
     # ...and the RX100/W-series still price where they always did.
     assert match("Sony Cyber Shot DSC-RX100 Zeiss").model.key == "sony_rx100"
     assert match("Sony CyberShot DSC W830 Digital Camera").model.key == "sony_cybershot"
+
+
+# --- board false positives found live on 2026-08-15 --------------------------
+# All three were sitting on the real board at once, and the worst was #1 by
+# comp. Every one of them is the same shape: something that CARRIES a model's
+# name without BEING the model. That family has bitten this book repeatedly
+# (Prima strategy guide, Zoom Winged Fluke lure, BG-E11 battery grip, HX99),
+# so each gets a permanent test rather than a one-off patch.
+
+def test_hx100v_is_not_an_x100v():
+    """A leading \b on short model codes is load-bearing, not decoration.
+
+    `x100v\b` guarded the tail (keeping X100VI out) but not the head, so it
+    matched INSIDE Sony's "DSC-HX100V" - a 1/2.3-inch bridge camera. The live
+    board ranked it #1: an $89.99 Sony quoted against a $1,300 Fuji.
+    """
+    m = match("Sony Cybershot HX100V 16.2MP Digital Bridge Camera")
+    assert m is None or m.model.key != "fuji_x100v"
+    assert match("Panasonic HX100F") is None
+    # and the real cameras must still price
+    assert match("Fujifilm X100V Black Digital Camera").model.key == "fuji_x100v"
+    assert match("Fujifilm X100F Silver").model.key == "fuji_x100f"
+
+
+def test_a_battery_named_after_the_bodies_it_fits_is_not_the_body():
+    """"4x NP-FW50 battery Sony a6000, a6100, A6300, A6400" priced as a $350 body.
+
+    It dodges every prior tell: no "for <brand>" (it just lists the bodies), no
+    "compatible with", and `battery grip` is a different accessory.
+    """
+    for title in ("4x NP-FW50 battery Sony a6000, a6100, A6300, A6400",
+                  "NP-FW50 Battery for Sony a6000",
+                  "2 Pack Batteries for Canon G7X",
+                  "LP-E6 Battery Canon 5D Mark III"):
+        assert match(title) is None, f"battery priced as a camera: {title!r}"
+
+
+def test_a_bundled_battery_is_still_a_real_listing():
+    """POSITION is the tell, not the mention. Over-excluding drops real money.
+
+    The first version of the guard above excluded any title containing a
+    battery part number, and it immediately ate a REAL listing off the same
+    board: a $19.99 Canon SD630 against a $120 comp, killed because the seller
+    named the battery that came with it. That mistake is the more expensive
+    one - a phantom deal wastes a click, a dropped deal is inventory you never
+    saw. Battery-trailing listings MUST keep pricing.
+    """
+    m = match("Canon PowerShot SD630 Digital ELPH 6MP Camera NB-4L Battery")
+    assert m is not None and m.model.key == "powershot_elph"
+    assert match("Sony Alpha a6000 Mirrorless Camera with battery and charger") is not None
+    assert match("Sony a6000 24.3MP w/ 2 batteries") is not None
+    assert match("Nintendo Game Boy Advance SP with battery") is not None
+    assert match("Canon EOS 5D Mark III Body w/ Battery Grip") is not None
+    assert match("Fujifilm X100V + NP-W126S battery") is not None
+
+
+def test_merchandise_carrying_a_camera_name_is_not_the_camera():
+    """"Canon PowerShot G7 X Name Tag From Japan" was quoted against $708.18."""
+    assert match("Canon PowerShot G7 X Name Tag From Japan") is None
+    assert match("Canon G7X Fridge Magnet") is None
+    assert match("Canon PowerShot G7X Mark II Untested") is not None
