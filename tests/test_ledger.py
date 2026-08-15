@@ -6,11 +6,14 @@ from flipscout import ledger
 
 
 def test_buy_pins_the_comp_at_buy_time(tmp_path):
+    # was Gunne Sax - womens-apparel is benched (BENCHED_CATEGORIES,
+    # active=False 2026-08-15) and match() no longer sees it, so this exercises
+    # an active model (also picks up the 2026-08-15 FireRed/LeafGreen re-measure).
     p = str(tmp_path / "ledger.json")
-    e = ledger.record_buy("Gunne Sax by Jessica McClintock Prairie Dress",
+    e = ledger.record_buy("Pokemon FireRed Version Gameboy Advance Cartridge",
                           paid=21.50, source="goodwill", path=p)
-    assert e["id"] == 1 and e["model"] == "gunne_sax"
-    assert e["comp_at_buy"] == 122.00          # pinned, not re-read later
+    assert e["id"] == 1 and e["model"] == "pkmn_firered_leafgreen"
+    assert e["comp_at_buy"] == 95.00           # pinned, not re-read later
     assert e["status"] == "open"
 
 

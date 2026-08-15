@@ -346,7 +346,7 @@ def test_every_model_has_a_comp_search():
         assert comp_search(m).strip(), m.key
 
 
-# --- technical outerwear: the model is the trade here too --------------------
+# --- technical outerwear: BENCHED 2026-08-15, must never match again ---------
 
 @pytest.mark.parametrize("title,expected", [
     ("Arc'teryx Beta AR Gore-Tex Jacket Mens Medium", "arcteryx_shell"),
@@ -356,9 +356,14 @@ def test_every_model_has_a_comp_search():
     ("Patagonia Nano Puff Jacket Mens M", "patagonia_puffy"),
     ("Patagonia Better Sweater Fleece", "patagonia_generic"),
 ])
-def test_outerwear_models(title, expected):
+def test_benched_outerwear_models_never_match(title, expected):
+    """Was test_outerwear_models (asserted a positive match). Leron 2026-08-15:
+    "i dont want to flip clothes" - outerwear is now in BENCHED_CATEGORIES,
+    every model in it rebuilt with active=False, and Model.matches() returns
+    False outright when active is False. Same title corpus, inverted
+    assertion: these clean, unambiguous jacket titles must now match NOTHING."""
     m = match(title)
-    assert m and m.model.key == expected
+    assert m is None, f"{title} matched {m.model.key if m else None} - benched category leaked through"
 
 
 @pytest.mark.parametrize("title", [
@@ -508,8 +513,12 @@ def test_pokemon_comps_are_the_loose_price_not_the_boxed_one():
 
 def test_unverified_comps_are_flagged_as_estimates():
     """sample=0 makes the alert print 'estimate, not measured'."""
-    for k in ("pkmn_firered_leafgreen", "pkmn_ruby_sapphire", "pkmn_rby"):
+    for k in ("pkmn_ruby_sapphire", "pkmn_rby"):
         assert BY_KEY[k].sample == 0, k
+    # pkmn_firered_leafgreen was RE-MEASURED 2026-08-15 (comp $76.49 -> $95.00,
+    # sample 0 -> 102) - it's no longer an unmeasured guess, so it dropped out
+    # of the "estimate" list above and gets its own assertion instead.
+    assert BY_KEY["pkmn_firered_leafgreen"].sample == 102
 
 
 def test_run_reports_whether_delivery_actually_happened(capsys, monkeypatch):
@@ -650,11 +659,22 @@ def test_poshmark_parse_is_fail_soft():
 
 
 def test_poshmark_rows_price_through_the_book():
+    """Was keyed on arcteryx_shell via POSH_HTML, but outerwear is now benched
+    (BENCHED_CATEGORIES, active=False 2026-08-15) so that fixture's rows no
+    longer price. Poshmark's OWN parsing is still exercised by POSH_HTML above;
+    this test only needs to prove its rows run the SAME evaluate() pipeline as
+    every other source, so it uses a local fixture built around an active
+    model instead of re-purposing an apparel one."""
     from flipscout.hunters import Poshmark
-    rows = Poshmark.parse(POSH_HTML)
+    html = '''<html>
+<script type="application/ld+json">{"@type":"ItemList","itemListElement":[
+ {"@type":"ListItem","position":1,"url":"https://poshmark.com/listing/GoPro-HERO-11-Black-6a58fc086cb7779a11e57943"}]}</script>
+<div class="tile-grid-redesign__price-current"> $80</div>
+</html>'''
+    rows = Poshmark.parse(html)
     got = hunt.evaluate(rows, CFG, hunters=[])
     keys = {c["model"].key for c in got}
-    assert "arcteryx_shell" in keys           # $150 vs a $325 comp
+    assert "gopro_hero11" in keys             # $80 vs a $160 comp
 
 
 def test_unprofitable_models_are_removed_not_kept_at_zero():
@@ -724,10 +744,21 @@ def test_shopify_parse_is_fail_soft():
 
 
 def test_shopify_rows_price_through_the_book():
+    """Was keyed on arcteryx_shell via SHOPIFY_PAYLOAD, but outerwear is now
+    benched (BENCHED_CATEGORIES, active=False 2026-08-15) so that fixture's
+    row no longer prices. SHOPIFY_PAYLOAD's own parsing is still exercised by
+    the tests above; this one only needs to prove a Shopify row runs the SAME
+    evaluate() pipeline as every other source, so it uses a local fixture
+    built around an active model instead of re-purposing an apparel one."""
     from flipscout.hunters import ShopifyStore
-    rows = ShopifyStore.parse(SHOPIFY_PAYLOAD, "outandback", "outandbackoutdoor.com")
+    payload = {"resources": {"results": {"products": [
+        {"id": 223, "title": "GoPro HERO 11 Black Action Camera", "price": "80.00",
+         "available": True, "url": "/products/gopro-hero-11?_pos=1",
+         "image": "https://cdn.shopify.com/x.jpg"},
+    ]}}}
+    rows = ShopifyStore.parse(payload, "outandback", "outandbackoutdoor.com")
     got = hunt.evaluate(rows, CFG, hunters=[])
-    assert {c["model"].key for c in got} == {"arcteryx_shell"}
+    assert {c["model"].key for c in got} == {"gopro_hero11"}
 
 
 def test_gear_shops_only_get_clothing_terms():
@@ -761,9 +792,14 @@ def test_non_jacket_garments_do_not_inherit_a_jacket_comp(title):
     ("Patagonia Nano Puff Jacket", "patagonia_puffy"),
     ("Arcteryx Jacket Large Blue", "arcteryx_generic"),
 ])
-def test_actual_jackets_still_match(title, expected):
+def test_benched_apparel_never_matches(title, expected):
+    """Was test_actual_jackets_still_match - proved a real (non-lookalike)
+    jacket title still matched its model even after the pants/shoes/leggings
+    excludes above landed. Outerwear is now benched entirely
+    (BENCHED_CATEGORIES, active=False 2026-08-15), so even these clean jacket
+    titles must match NOTHING. Same corpus, inverted assertion."""
     m = match(title)
-    assert m and m.model.key == expected
+    assert m is None, f"{title} matched {m.model.key if m else None} - benched category leaked through"
 
 
 # --- cameras (measured 2026-07-28): the model is the trade, again ------------
@@ -911,9 +947,13 @@ def test_film_camera_comps_do_not_use_the_used_filter():
     ("Johnny Was Embroidered Tunic Dress Womens L", "johnny_was"),
     ("Reformation Scottie Silk Midi Dress 4 Purple", "reformation_dress"),
 ])
-def test_womens_apparel_models_match(title, expected):
+def test_benched_womens_apparel_never_matches(title, expected):
+    """Was test_womens_apparel_models_match. womens-apparel is now in
+    BENCHED_CATEGORIES (active=False, 2026-08-15) - Leron: "i dont want to flip
+    clothes" - so match() must return None even for the clean brand+garment
+    titles that used to price correctly. Same corpus, inverted assertion."""
     m = match(title)
-    assert m and m.model.key == expected, f"{title} -> {m.model.key if m else None}"
+    assert m is None, f"{title} matched {m.model.key if m else None} - benched category leaked through"
 
 
 @pytest.mark.parametrize("title", [
@@ -952,13 +992,47 @@ def test_generic_boutique_dress_brands_are_deliberately_absent():
         assert match(title) is None, title
 
 
-def test_poshmark_gets_the_womens_apparel_terms():
-    """Poshmark is the native channel for these brands; its term filter must
-    let them through or the source never sees them."""
+def test_unbenching_a_category_is_a_flip_not_a_rewrite():
+    """Benching is active=False on the Model, not deletion - `comp` still sits
+    in MODELS for when Leron flips BENCHED_CATEGORIES back. Prove the switch
+    actually works: rebuild the SAME arcteryx_shell record with active=True
+    (as if "outerwear" were no longer in BENCHED_CATEGORIES) and confirm it
+    matches its own title again, nothing else about the Model changed."""
+    from dataclasses import replace
+    unbenched = replace(BY_KEY["arcteryx_shell"], active=True)
+    assert unbenched.matches("Arc'teryx Beta AR Gore-Tex Jacket Mens Medium")
+    assert unbenched.comp == BY_KEY["arcteryx_shell"].comp        # nothing else moved
+
+
+def test_benched_categories_have_no_active_models_and_no_search_terms():
+    """Belt-and-suspenders on the bench, so a model or term added to
+    outerwear/womens-apparel later can't slip back in unbenched by accident:
+    (1) nothing whose category is in BENCHED_CATEGORIES may still be
+    active=True in MODELS, and (2) the 11 apparel search terms that used to
+    drive the sweep are gone from search_terms() entirely, not just orphaned."""
+    from flipscout.pricebook import MODELS, BENCHED_CATEGORIES
+    for m in MODELS:
+        if m.category in BENCHED_CATEGORIES:
+            assert not m.active, m.key
+    removed = {"arcteryx", "arc'teryx", "patagonia", "patagonia jacket",
+               "gore-tex jacket", "gunne sax", "st john knit", "johnny was",
+               "veronica beard", "reformation dress", "womens dress lot"}
+    terms = {t.lower() for t in search_terms()}
+    assert not (removed & terms)
+
+
+def test_poshmark_falls_back_to_its_default_terms_now_that_the_book_has_none():
+    """Was test_poshmark_gets_the_womens_apparel_terms. The 11 apparel search
+    terms (including "gunne sax" and "johnny was") were DELETED from
+    search_terms() when womens-apparel got benched (BENCHED_CATEGORIES,
+    2026-08-15) - Poshmark.TERMS no longer intersects the book at all, so
+    relevant_terms() can't "let them through": there's nothing left to filter
+    for. It falls back to its own first two terms instead of returning an
+    empty list and silently stopping the source."""
     from flipscout.hunters import Poshmark
     from flipscout.pricebook import search_terms
     terms = Poshmark().relevant_terms(search_terms())
-    assert "gunne sax" in terms and "johnny was" in terms
+    assert terms == list(Poshmark.TERMS[:2])
 
 
 def test_pricebook_has_no_literal_control_characters():
