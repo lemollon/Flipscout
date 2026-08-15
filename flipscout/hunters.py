@@ -952,14 +952,25 @@ class EbayBrowse:
         self._err_last = ""
         # AUCTION pass (Leron 2026-07-29: "bring this back" - ending-soon
         # auctions with low bids are the biggest underpriced pool on eBay; a
-        # one-shot snipe at max bid is not a bidding war). QUOTA MATH: the
-        # fixed-price pass is 71 terms x 48 runs = ~3.4k of the 5k/day Browse
-        # default. A second call per term on EVERY run would be ~6.8k and blow
-        # the cap, so auctions sweep once per hour: only on runs in the first
-        # half of the hour (the :17 cron; the :47 run skips). ~1.7k extra
-        # calls/day = ~5.1k total, close enough to the cap that the last few
-        # end-of-UTC-day terms may 429 (visible in error_summary) until the
-        # Application Growth Check raises the limit.
+        # one-shot snipe at max bid is not a bidding war). Auctions sweep once
+        # per hour: only on runs in the first half of the hour (the :17 cron;
+        # the :47 run skips).
+        #
+        # QUOTA, re-checked against live logs 2026-08-15 (the old note here
+        # sized this off "71 terms" and warned the tail would 429 near the end
+        # of the UTC day - both stale):
+        #   * search_terms() is 113 terms, not 71. That is 24 runs x 113 x 2
+        #     calls + 24 x 113 x 1 = ~8.1k/day, well past the 5k/day Browse
+        #     DEFAULT - so the Application Growth Check (ticket 260729-000022)
+        #     appears to have been granted.
+        #   * MEASURED over 16 consecutive runs spanning UTC midnight: zero
+        #     429s, zero rate-limit lines, `auth OK` on every run, and NO
+        #     drop-off late in the UTC day followed by a reset spike. There is
+        #     no quota cliff to design around right now.
+        #   * The listing count is BIMODAL - ~8,190 on :17 runs vs ~4,450 on
+        #     :47 runs, a 1.83x split. That is THIS GATE working as intended
+        #     (two passes vs one), not lost coverage. Do not "fix" it.
+        # Re-check with the same method before adding another 40 terms.
         #   FLIPSCOUT_EBAY_AUCTIONS: "always" | "off" | unset (= hourly gate)
         mode = (os.environ.get("FLIPSCOUT_EBAY_AUCTIONS") or "").strip().lower()
         if mode == "always":
