@@ -23,3 +23,4 @@ mybids_run.log
 # Slipped into the tree on PR #39 via `git add -A`; the mybids/hunt state files
 # beside it were already ignored and this one was simply missed.
 fb_sweep_seen.json
+flipscout_seen.json

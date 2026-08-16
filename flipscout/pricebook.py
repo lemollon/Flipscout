@@ -36,6 +36,61 @@ def normalize(title: str) -> str:
     return " ".join(t.split())
 
 
+# How far a platform name may sit from its console/system noun. Bounded at
+# three words: wide enough for "Xbox 360 S Console" and "Sega Genesis Model
+# 1601 Game Console", too narrow to reach from a game's title across to an
+# unrelated console noun.
+_NOUN_GAP = r"(?:[^a-z0-9]+[a-z0-9]+){0,3}[^a-z0-9]+"
+
+_HW_NOUN = r"consoles?|systems?|handhelds?"
+
+
+# "w/ case", "and attachments", "includes pedal" describe a listing that is MORE
+# complete, not an accessory listing. Prefix an accessory noun with this and it
+# only fires when the noun stands alone as the product.
+#
+# Same idea ACCESSORY_EXCLUDE already uses for "w/ SD Card" on cameras, pulled
+# out as a constant because the Singer exclude needs it on five different nouns
+# and the inline version was becoming unreadable. The comma matters: "includes
+# case, pedal and manual" reaches `pedal` through ", ", not "and ".
+_BUNDLED = (r"(?<!with )(?<!w/ )(?<!w/)(?<!and )(?<!& )(?<!\+ )(?<!\+)"
+            r"(?<!includes )(?<!incl )(?<!plus )(?<!, )(?<!,)")
+
+
+def _console_include(platform: str, model_numbers: str = "") -> str:
+    """Require POSITIVE HARDWARE EVIDENCE: a console noun near the platform
+    name, or a hardware model number.
+
+    🚨 This is the single most expensive lesson in this file and it has now been
+    learned three times - GameCube ("Super Mario Sunshine (GameCube)"), N64
+    ("GoldenEye 007 Nintendo 64"), and again on 2026-08-16 when the first cut of
+    the platform pack shipped bare `\\bps4\\b` includes. Checked against live
+    ShopGoodwill data before merge, those bare patterns matched **218 listings**
+    that were games, not hardware: "Battlefield 4 Xbox One Video Game" was being
+    priced against a $72 console comp, "Sony Playstation 3 Video Game Lot"
+    against $80.
+
+    Every platform sells far more GAMES than consoles, and the game's title
+    always contains the console's name. So the platform name alone is never
+    evidence - only the noun or the model number is.
+
+    The two conditions are checked ANYWHERE in the title rather than near each
+    other. A proximity rule was tried first and was wrong: real hardware titles
+    put four or more words between the two ("Sony PSP 2000 64MB Ice Silver
+    Handheld System"), and widening the window far enough to catch those makes
+    it reach across a game's title anyway. Presence is the honest test - a
+    listing that says "console" is selling a console.
+
+    🚨 Because this returns a whole-title assertion, `count_units` sees exactly
+    one match and every listing prices as ONE unit. That is deliberate and it
+    is the safe direction: over-counting inflates the max bid directly, which
+    is the expensive way to be wrong. A genuine two-console lot is quoted for
+    one and simply comes in under the ceiling.
+    """
+    hardware = _HW_NOUN + (f"|{model_numbers}" if model_numbers else "")
+    return rf"^(?=.*(?:{platform}))(?=.*(?:{hardware})).*$"
+
+
 # Things that carry the product's NAME but are not the product. Caught live on
 # 2026-07-25: "Pokemon Emerald Version Official Game Guide - Prima Games GBA
 # Strategy Book" matched the Emerald model and was quoted a $198 max bid. It is a
@@ -46,6 +101,35 @@ ACCESSORY_EXCLUDE = (
     r"\bguide\b|\bbook\b|paperback|magazine|poster|\bposter\b|sticker|decal|"
     r"\bempty\b|box only|case only|cover only|manual only|insert only|label only|"
     r"shell only|display only|\breplica\b|\bpromo\b|advertisement|\bad\b|"
+    # REPLACEMENT PARTS AND SHELLS. "shell only" above was too narrow: caught on
+    # the live board 2026-08-16, "eXtremeRate Switch OLED Shell   Clear Purple"
+    # - a bag of plastic - earned a [buy] alert against the $175 switch_oled
+    # comp. `replacement` was already guarded for cables/chargers/batteries but
+    # not for the housing itself, and "Game Boy Advance SP Replacement Buttons"
+    # leaked the same way against an $80 comp.
+    # 🚨 Anchored to aftermarket/part words, NOT a bare `\bshell\b` - a console
+    # legitimately described as having "a cracked shell" is still a console.
+    # COMPONENT NOUNS. A named part of a valuable machine reads almost exactly
+    # like the machine, and the parts sellers are the most prolific listers on
+    # eBay's fixed-price shelf - so this shows up worst on the BUY-IT-NOW feed,
+    # which is the half Leron actually wants. Live production board 2026-08-16:
+    #   "Singer 221 featherweight sewing Machine feed dogs"  $11 -> $139 profit
+    #   "SINGER 221 Featherweight Stop Motion Knob"          $17 -> $126 profit
+    #   "Canon Powershot G7X Mark II III Spring Lens Holder" $30 -> $952 profit
+    # Ten of them, quoted against whole-machine comps.
+    # 🚨 `simanco` is Singer's own parts marking - the single highest-signal
+    # word here. Every noun below is a COMPONENT that is never sold as the
+    # product, which is why they are safe universally; generic words like
+    # "cover" and "plate" are deliberately NOT here (a camera "body cover" is a
+    # part, but "Pentax K1000 w/ body cap" is a camera).
+    r"\bsimanco\b|feed\s*dogs?\b|balance\s*wheel|stop\s*motion\s*knob|"
+    r"\bface\s*plate\b|\bbase\s*plate\b|throat\s*plate|needle\s*plate|"
+    r"\bbobbins?\b|presser\s*foot|\bbottom\s*cover\b|wire\s*holder|"
+    r"lens\s*holder|\bspring\s*(?:lens|clip|kit)\b|tension\s*assembly|"
+    r"\bshells?\s*(only|kit|set|replacement)|replacement\s*shell|"
+    r"\bhousing\s*(only|kit|set)|replacement\s*(housing|buttons?|parts?|screen)|"
+    r"\bbuttons?\s*(only|set|kit)\b|shell\s*(?:case|cover)\b|"
+    r"extremerate|\bmod\s*kit\b|repair\s*kit|"
     # `card` is bundle-aware: camera listings legitimately read "w/ SD Card" /
     # "64GB Memory Card", and the cameras added 2026-07-28 were being silently
     # rejected over their own bundled storage. A trading/promo card still trips.
@@ -178,6 +262,50 @@ ACCESSORY_EXCLUDE = (
 LOOKALIKE_PHRASING = r"\bstyle\b|\bstyled\b|\binspired\b|\bhomage\b|\btype\b|look\s*alike|\breplica\b"
 
 
+# KNOWN-DEAD HARDWARE. Universal, like ACCESSORY_EXCLUDE and for the same
+# reason: per-model excludes DO NOT COMPOSE, so a phrase that every model needs
+# to reject has to live in exactly one place.
+#
+# 🚨 Found 2026-08-16 by running a real sweep instead of trusting the unit
+# tests. Every model in the book carried its own `for parts|parts only`, and
+# NOT ONE of them caught the phrasings sellers actually use. Nine parts units
+# were sitting on the live board priced against WORKING comps:
+#     "PS3 Console CECH-3001A Parts or Repair"          max bid $25.13
+#     "Nintendo Switch Video Game Console Used Parts/repair"   max bid $61.71
+#     "Nintendo DSi XL Midnight Blue UTL-001-Untested P/R"     max bid $38.81
+# The comps are measured with parts listings EXCLUDED, so quoting one against
+# a working comp is wrong by the full working-vs-dead spread - the expensive
+# direction. This was a pre-existing book-wide gap; the console pack only made
+# it visible, because consoles are listed parts/repair far more than cameras.
+#
+# 🚨 "untested" is deliberately NOT here. An untested unit is the DISCOUNT WE
+# BUY - it is the entire Seiko-automatic and DSi thesis. Only assert-dead
+# language belongs in this list.
+# 🚨 "as is" is deliberately NOT here either. Goodwill staples "sold as is"
+# onto working and broken lots alike, so banning it would blind the book to a
+# large share of its own best source.
+def universally_excluded(t: str) -> bool:
+    """The two guards that are not overridable per model, on a normalized title.
+
+    A guide/box/poster is never the product, and a known-dead unit is never the
+    product - in any category. Kept in one function so `match()` can evaluate
+    them once per listing instead of once per model.
+    """
+    return bool(re.search(ACCESSORY_EXCLUDE, t) or re.search(DEAD_HARDWARE, t))
+
+
+DEAD_HARDWARE = (
+    # separator is OPTIONAL: "Console Used Parts Repair" leaked past a version
+    # that required or/and/&//, caught on the live board 2026-08-16
+    r"for\s*parts|parts\s*only|parts\s*(?:(?:or|and|/|&)\s*)?repair|"
+    r"repair\s*(?:(?:or|and|/|&)\s*)?parts|\bp\s*/\s*r\b|"
+    r"not\s*working|non[-\s]*working|doesn'?t\s*work|does\s*not\s*work|"
+    r"needs?\s*(repair|work|fixing)|for\s*repair|\bsalvage\b|"
+    r"won'?t\s*(turn\s*on|power|boot)|does\s*not\s*power|no\s*power\b|"
+    r"\bdefective\b|\bdefcetive\b"   # the typo is real, seen on a live listing
+)
+
+
 @dataclass(frozen=True)
 class Model:
     """One priceable thing, with the evidence behind its number."""
@@ -217,14 +345,28 @@ class Model:
     active: bool = True
 
     def matches(self, title: str) -> bool:
+        """Does this ONE model describe `title`? Safe to call standalone."""
         if not self.active:
             return False
         t = normalize(title)
-        if not t:
+        if not t or universally_excluded(t):
             return False
-        # The universal accessory guard runs first and is not overridable per
-        # model: a guide/box/poster is never the thing, in any category.
-        if re.search(ACCESSORY_EXCLUDE, t):
+        return self._body_matches(t)
+
+    def _body_matches(self, t: str) -> bool:
+        """`matches` minus the universal guards, on an ALREADY-NORMALIZED title.
+
+        Split out for speed, not taste. The guards are the same two regexes for
+        every model, and `match()` loops all 93 - so evaluating them inside the
+        loop ran ACCESSORY_EXCLUDE ninety-three times per listing. Measured
+        2026-08-16: that alone was 3.59 ms of a 3.32 ms match() (the rest of the
+        book is noise next to it), and it got worse every time a model was
+        added. Hoisted into `match()`, which checks them once.
+
+        🚨 Callers must apply `universally_excluded()` themselves first. Only
+        `match()` is allowed to skip it, because it already did it.
+        """
+        if not self.active:
             return False
         if self.exclude and re.search(self.exclude, t):
             return False
@@ -462,10 +604,18 @@ MODELS: list[Model] = [
         # "for switch"/"for nintendo" is the accessory tell, scoped to THIS
         # model - console names must never enter the universal camera-brand
         # guard (the Donkey Kong lesson).
-        exclude=r"\bfor\s+(the\s+)?(nintendo|switch)\b|joy.?cons?\s+only|dock only|"
-                r"\bcase\b|\bskin\b|screen protector|\bstand\b|\bgrip\b|charger only|"
-                r"tablet only|console only|\blite\b|game only|for parts|parts only|"
-                r"not working|broken",
+        # 🚨 `dock only` was too narrow. Four DOCKS were priced against this
+        # $175 console comp on the live production board 2026-08-16 - "Nintendo
+        # Switch OLED Dock Station Model HEG-007", "OEM Nintendo Switch OLED
+        # Dock No Cables ... X 2". HEG-007 is the DOCK's model number; the
+        # console is HEG-001, so the part number alone settles it.
+        # `dock` is bundle-aware because "Console w/ Dock" is a COMPLETE
+        # console and worth more - same treatment as the Singer case.
+        exclude=rf"\bfor\s+(the\s+)?(nintendo|switch)\b|joy.?cons?\s+only|"
+                rf"{_BUNDLED}\bdocks?\b|\bheg-?\s*007\b|{_BUNDLED}\baccessor\w*|"
+                rf"\bcase\b|\bskin\b|screen protector|\bstand\b|\bgrip\b|charger only|"
+                rf"tablet only|console only|\blite\b|game only|for parts|parts only|"
+                rf"not working|broken",
         outbound_shipping=10.00, category="videogames",
         comp_query="nintendo switch oled console", specificity=40,
         note="FLOOR below the $201.73 median (n=60): tablet-only units sell "
@@ -535,6 +685,350 @@ MODELS: list[Model] = [
         note="FLOOR at ~p25 of a $152.83 median (n=53, game-cart bleed in the "
              "search). Funtastic colors and boxed bundles sell $180+.",
     ),
+
+    # === THE PLATFORM PACK (measured 2026-08-16) ==============================
+    # Leron 8/16, with four live ShopGoodwill links: "flipscout miss so many
+    # video game console ... why is it missing all the deals?" Diagnosed before
+    # measuring anything, per the [[flipscout-breadth-audit]] playbook:
+    #
+    #   census of 1,117 live Goodwill game listings -> the book matched 18. 1.6%.
+    #
+    # It was BOOK blindness, not feed blindness. Three of his four links were
+    # already being fetched by existing search terms and were dropped at
+    # match(). The videogames book was 8 models and every one of them was
+    # Nintendo - no PlayStation, no Xbox, no Wii, no base Switch (only OLED),
+    # and Switch Lite was ACTIVELY EXCLUDED by switch_oled's own exclude.
+    # Unmatched supply, by platform, that same census:
+    #   PlayStation 276 · game lots 277 · Xbox 125 · Wii/Wii U 106 · Switch 80
+    #   Sega 77 · orig Game Boy 59 · DS 56 · SNES/NES 51 · PSP 46
+    #
+    # HOW THESE COMPS WERE SET. eBay sold search, in-page via Chrome (the API
+    # can't serve solds and local creds are empty by design - see ebay_ui).
+    # Each population is filtered by that model's own include/exclude BEFORE
+    # the median is taken, because a raw "playstation 4 console" search is 40%
+    # PS5s and accessories. Every comp here is the FILTERED p25, not the
+    # median: the low tail is real (untested units, missing cords, storage
+    # wear) and we buy assuming we're in it. `n` is the surviving sample.
+    #
+    # A model only shipped if `max_pay(comp)` beat the LIVE Goodwill median for
+    # that platform by >$5 with >=5 live listings. Nine measured platforms
+    # failed that test and are in DEAD_MODELS instead - they are not missing,
+    # they are refused, with the number that refused them.
+    Model(
+        key="ps5_console",
+        label="Sony PlayStation 5 console",
+        comp=330.00, measured="2026-08-16", sample=93,
+        include=_console_include(r"\bps5\b|playstation\s*5", r"\bcfi-\d{4}\w?\b"),
+        # "for PS5" is the accessory tell. Scoped here, never universal.
+        exclude=r"\bfor\s+(the\s+)?(ps5|playstation)\b|controller|dualsense|"
+                r"\bcase\b|\bskin\b|\bstand\b|faceplate|charging|headset|"
+                r"\bportal\b|disc drive|console only shell|for parts|parts only|"
+                r"not working|broken|box only|\bdigital code\b",
+        outbound_shipping=15.00, category="videogames",
+        comp_query="playstation 5 console", specificity=40,
+        note="FLOOR at p25 of a $409.99 median (n=93). Max pay ~$176, and 71 "
+             "PlayStation listings were live on Goodwill the day this was "
+             "measured against zero PlayStation models - the single biggest "
+             "hole in the old book.",
+    ),
+    Model(
+        key="ps4_pro",
+        label="Sony PlayStation 4 Pro console",
+        comp=128.00, measured="2026-08-16", sample=99,
+        # Declared ABOVE ps4_console and given higher specificity so a Pro is
+        # never priced as a base PS4 - same relationship as AGS-101 vs AGS-001.
+        include=_console_include(
+            r"(?:ps4|playstation\s*4)[^a-z0-9]{0,6}pro\b|"
+            r"pro[^a-z0-9]{0,6}(?:ps4|playstation\s*4)", r"\bcuh-7\d{3}\w?\b"),
+        exclude=r"\bfor\s+(the\s+)?(ps4|playstation)\b|controller|dualshock|"
+                r"\bcase\b|\bskin\b|\bstand\b|charging|headset|vertical stand|"
+                r"for parts|parts only|not working|broken|box only",
+        outbound_shipping=12.00, category="videogames",
+        comp_query="playstation 4 pro console", specificity=36,
+        note="FLOOR at p25 of a $151.34 median (n=99). The Pro is worth ~1.6x a "
+             "base PS4 - CUH-7xxx on the label is the tell.",
+    ),
+    Model(
+        key="ps4_console",
+        label="Sony PlayStation 4 console",
+        comp=74.00, measured="2026-08-16", sample=82,
+        include=_console_include(r"\bps4\b|playstation\s*4",
+                                 r"\bcuh-[12]\d{3}\w?\b"),
+        exclude=r"\bpro\b|\bcuh-7\d{3}\b|ps5|playstation\s*5|"
+                r"\bfor\s+(the\s+)?(ps4|playstation)\b|controller|dualshock|"
+                r"\bcase\b|\bskin\b|\bstand\b|charging|headset|camera only|"
+                r"for parts|parts only|not working|broken|box only",
+        outbound_shipping=12.00, category="videogames",
+        comp_query="playstation 4 console", specificity=30,
+        note="FLOOR at p25 of a $94.99 median (n=82). Pro EXCLUDED here and "
+             "priced separately at $120 - do not merge them.",
+    ),
+    Model(
+        key="ps3_console",
+        label="Sony PlayStation 3 console",
+        comp=79.00, measured="2026-08-16", sample=118,
+        include=_console_include(r"\bps3\b|playstation\s*3", r"\bcech-\w+\b"),
+        exclude=r"ps4|ps5|playstation\s*[45]|"
+                r"\bfor\s+(the\s+)?(ps3|playstation)\b|controller|dualshock|"
+                r"\bcase\b|\bskin\b|charging|headset|for parts|parts only|"
+                r"not working|broken|box only",
+        outbound_shipping=14.00, category="videogames",
+        comp_query="playstation 3 console", specificity=30,
+        note="FLOOR at p25 of a $109.99 median (n=118). The backwards-compatible "
+             "fat CECHA/CECHE units are the ones that sell over $200; a Super "
+             "Slim is nearer the floor. Heavy - $14 outbound, not $10.",
+    ),
+    Model(
+        key="ps2_console",
+        label="Sony PlayStation 2 console",
+        comp=70.00, measured="2026-08-16", sample=85,
+        include=_console_include(r"\bps2\b|playstation\s*2", r"\bscph-\d{4,5}\w?\b"),
+        exclude=r"ps3|ps4|ps5|playstation\s*[345]|"
+                r"\bfor\s+(the\s+)?(ps2|playstation)\b|controller|dualshock|"
+                r"\bcase\b|\bskin\b|memory card|network adapter|for parts|"
+                r"parts only|not working|broken|box only",
+        outbound_shipping=12.00, category="videogames",
+        comp_query="playstation 2 console", specificity=30,
+        note="FLOOR at p25 of a $95 median (n=85). Thin margin - max pay is "
+             "~$28 - but Goodwill's PS2 median is $11.99, so the room is real.",
+    ),
+    Model(
+        key="psp_console",
+        label="Sony PSP handheld",
+        comp=66.00, measured="2026-08-16", sample=92,
+        include=_console_include(r"\bpsp\b|playstation\s*portable", r"\bpsp-\d{4}\b"),
+        exclude=r"\bpsp\s*go\b|\bvita\b|\bps2\b|\bwii\b|xbox|umd only|"
+                r"\bfor\s+(the\s+)?psp\b|\bcase\b|\bskin\b|charger|"
+                r"for parts|parts only|parts or repair|not working|broken|box only",
+        outbound_shipping=6.00, category="videogames",
+        comp_query="sony psp console", specificity=30,
+        note="FLOOR at p25 of a $100 median (n=92). PSP Go is a different "
+             "(scarcer) product and is excluded rather than priced here.",
+    ),
+    Model(
+        key="xbox_series",
+        label="Xbox Series X / S console",
+        comp=345.00, measured="2026-08-16", sample=106,
+        include=_console_include(r"xbox\s*series\s*[sx]\b", r"\bmodel\s*188\d\b"),
+        exclude=r"xbox\s*360|xbox\s*one|\bfor\s+(the\s+)?xbox\b|controller|"
+                r"\bcase\b|\bskin\b|\bstand\b|faceplate|charging|headset|"
+                r"for parts|parts only|not working|broken|box only",
+        outbound_shipping=16.00, category="videogames",
+        comp_query="xbox series x console", specificity=40,
+        note="FLOOR at p25 of a $449 median (n=106). Series S sells well "
+             "under Series X; the floor is set so an S still clears.",
+    ),
+    Model(
+        key="xbox_one",
+        label="Xbox One / One S / One X console",
+        comp=71.00, measured="2026-08-16", sample=103,
+        include=_console_include(r"xbox\s*one\b", r"\bmodel\s*1(?:540|681)\b"),
+        exclude=r"xbox\s*360|series\s*[sx]\b|\bkinect\b|"
+                r"\bfor\s+(the\s+)?xbox\b|controller|\bcase\b|\bskin\b|"
+                r"\bstand\b|charging|headset|for parts|parts only|"
+                r"not working|broken|box only",
+        outbound_shipping=14.00, category="videogames",
+        comp_query="xbox one console", specificity=30,
+        note="FLOOR at p25 of an $89 median (n=103). Xbox 360 is MEASURED AND "
+             "DEAD ($69.95, max pay $11.76) - see DEAD_MODELS. Keeping 360 out "
+             "of this include is what makes the model safe.",
+    ),
+    Model(
+        key="wiiu_console",
+        label="Nintendo Wii U console",
+        comp=69.00, measured="2026-08-16", sample=158,
+        include=_console_include(r"wii\s*u\b", r"\bwup-10\d\b"),
+        exclude=r"gamepad only|tablet only|\bfit\b|balance board|"
+                r"\bfor\s+(the\s+)?wii\b|\bcase\b|\bskin\b|"
+                r"for parts|parts only|not working|broken|box only",
+        outbound_shipping=14.00, category="videogames",
+        comp_query="nintendo wii u console", specificity=32,
+        note="FLOOR at p25 of a $125 median (n=158) - unusually wide spread "
+             "($20-$600) because a gamepad-less Wii U is nearly worthless and "
+             "a complete one isn't. Floored hard at p25 for that reason. Plain "
+             "Wii is MEASURED AND DEAD at $44.99 - see DEAD_MODELS.",
+    ),
+    Model(
+        key="switch_base",
+        label="Nintendo Switch console (v1/v2, non-OLED)",
+        comp=120.00, measured="2026-08-16", sample=69,
+        include=_console_include(r"nintendo\s*switch", r"\bhac-001\b"),
+        exclude=r"\boled\b|switch\s*lite|switch\s*2\b|"
+                r"\bfor\s+(the\s+)?(nintendo|switch)\b|joy.?cons?\s+only|"
+                r"dock only|tablet only|console only|\bcase\b|\bskin\b|"
+                r"screen protector|\bgrip\b|charger only|game only|"
+                r"for parts|parts only|not working|broken",
+        outbound_shipping=10.00, category="videogames",
+        comp_query="nintendo switch console", specificity=30,
+        note="FLOOR at p25 of a $141.67 median (n=69). The base Switch was "
+             "ENTIRELY ABSENT from the book - switch_oled only matched 'switch "
+             "oled', so every plain HAC-001 on Goodwill (80 live) was invisible.",
+    ),
+    Model(
+        key="switch_lite",
+        label="Nintendo Switch Lite",
+        comp=90.00, measured="2026-08-16", sample=152,
+        include=_console_include(r"switch\s*lite", r"\bhdh-001\b"),
+        exclude=r"\boled\b|switch\s*2\b|\bfor\s+(the\s+)?(nintendo|switch)\b|"
+                r"\bcase\b|\bskin\b|screen protector|\bgrip\b|charger only|"
+                r"for parts|parts only|not working|broken|box only",
+        outbound_shipping=8.00, category="videogames",
+        comp_query="nintendo switch lite console", specificity=38,
+        note="FLOOR at p25 of a $105.96 median (n=152, the tightest console "
+             "sample in the pack). 🚨 switch_oled's exclude contains `\\blite\\b`, "
+             "so before this model existed a Switch Lite was not merely "
+             "unpriced - it was ACTIVELY REJECTED by the book.",
+    ),
+    Model(
+        key="n2ds_xl",
+        label="Nintendo New 2DS XL / LL",
+        comp=210.00, measured="2026-08-16", sample=171,
+        include=_console_include(r"2ds\s*(?:xl|ll)\b", r"\bjan-001\b"),
+        exclude=r"\bfor\s+(the\s+)?(nintendo|2ds|3ds)\b|\bcase\b|\bskin\b|"
+                r"charger only|stylus only|for parts|parts only|not working|"
+                r"broken|box only",
+        outbound_shipping=6.00, category="videogames",
+        comp_query="nintendo 2ds xl console", specificity=34,
+        note="FLOOR at p25 of a $245.99 median (n=171). Highest-value handheld "
+             "in the pack and the old book had no 2DS entry at all - n3ds_xl's "
+             "exclude explicitly threw `\\b2ds\\b` away.",
+    ),
+    Model(
+        key="dsi_xl",
+        label="Nintendo DSi XL / LL",
+        comp=89.00, measured="2026-08-16", sample=167,
+        include=_console_include(r"\bdsi\s*(?:xl|ll)\b", r"\butl-001\b"),
+        exclude=r"\b3ds\b|\b2ds\b|\bfor\s+(the\s+)?(nintendo|dsi)\b|\bcase\b|"
+                r"\bskin\b|charger only|stylus only|for parts|parts only|"
+                r"not working|broken|box only",
+        outbound_shipping=6.00, category="videogames",
+        comp_query="nintendo dsi xl console", specificity=32,
+        note="FLOOR at p25 of a $115 median (n=167). Plain DS Lite is "
+             "MEASURED AND DEAD at $58 (max pay $18.60 vs a $19.99 Goodwill "
+             "median) - the XL is the only DS-era unit that clears.",
+    ),
+    Model(
+        key="n3ds_base",
+        label="Nintendo 3DS (non-XL)",
+        comp=110.00, measured="2026-08-16", sample=66,
+        include=_console_include(r"\b3ds\b", r"\bctr-001\b"),
+        exclude=r"\b3ds\s*(xl|ll)\b|\b2ds\b|\bdsi\b|\bds\s*lite\b|"
+                r"\bfor\s+(the\s+)?(nintendo|3ds)\b|\bcase\b|\bskin\b|"
+                r"circle pad|cradle only|charger only|stylus only|"
+                r"for parts|parts only|not working|broken|box only",
+        outbound_shipping=6.00, category="videogames",
+        comp_query="nintendo 3ds console", specificity=24,
+        note="FLOOR at p25 of a $139.99 median (n=66). Specificity is "
+             "deliberately BELOW n3ds_xl (28) so an XL always wins the tie: "
+             "the include is a bare `3ds`, which every XL title also carries.",
+    ),
+    Model(
+        key="steam_deck",
+        label="Valve Steam Deck",
+        comp=439.00, measured="2026-08-16", sample=119,
+        include=_console_include(r"steam\s*deck"),
+        exclude=r"\bfor\s+(the\s+)?steam\s*deck\b|\bdock\b|\bcase\b|\bskin\b|"
+                r"screen protector|charger only|for parts|parts only|"
+                r"not working|broken|box only",
+        outbound_shipping=15.00, category="videogames",
+        comp_query="steam deck console", specificity=40,
+        note="FLOOR at p25 of a $540 median (n=119). Only 9 live on Goodwill "
+             "so this fires rarely, but max pay is ~$239 - the LARGEST "
+             "single-item ceiling in the book, ahead of the Series X (~$183) "
+             "and the PS5 (~$176).",
+    ),
+    Model(
+        key="gba_original",
+        label="Game Boy Advance (original AGB-001)",
+        comp=59.00, measured="2026-08-16", sample=99,
+        # Leron's link #274075162 is exactly this: "Game Boy Advance Pokemon
+        # Edition AGB-001". It was FETCHED by the existing "pokemon game boy
+        # advance" term and then dropped, because the book knew only the SP.
+        include=_console_include(
+            r"(?:game\s*boy|gameboy)\s*advance(?!\s*(?:sp|micro))",
+            r"\bagb\s*-?\s*001\b"),
+        exclude=r"\bsp\b|\bags\s*-?\s*\d+\b|micro|\bds\b|\bplayer\b|"
+                r"\bfor\s+(the\s+)?(nintendo|game\s*boy|gameboy)\b|"
+                r"\bcase\b|\bskin\b|\bshell\b|housing|screen only|"
+                r"for parts|parts only|not working|broken|box only",
+        outbound_shipping=5.00, category="videogames",
+        comp_query="game boy advance console", specificity=22,
+        note="FLOOR at p25 of a $75 median (n=99). 🚨 Max pay is only "
+             "$28.86, so most listed GBAs are ALREADY TOO EXPENSIVE - the "
+             "point of this model is to price them and say no out loud, not "
+             "to chase them. Specificity is below gba_sp (25) so an SP in the "
+             "title always wins.",
+    ),
+
+    # --- Loose GBA/GBC carts that hide inside junk-titled lots ---------------
+    # 277 of the 1,117 unmatched Goodwill listings were game LOTS. A generic
+    # lot has NO stable price - measured 2026-08-16: GBA lots median $35 over
+    # a $1.93-$450 range, DS lots $25, PS2 lots $30. So there is deliberately
+    # NO "game lot" model; pricing one on a median would be the Fluke-brand
+    # mistake at scale. Instead the lot TERMS were added to search_terms() so
+    # the sweep surfaces those listings, and these carts price the contents
+    # when a lot title happens to name one. That is the same shape as
+    # "calculator lot" -> ti_84_ce.
+    #
+    # These five are floored at midpoint(p25, median) rather than p25: their
+    # low tail is repro/untested/label-damaged listings, which the excludes
+    # below already reject at match time, so p25 would double-count that risk.
+    Model(
+        key="zelda_minish_cap",
+        label="Zelda: The Minish Cap (GBA)",
+        comp=50.00, measured="2026-08-16", sample=194,
+        include=r"minish\s*cap",
+        exclude=r"\brepro\b|reproduction|\bfake\b|bootleg|\bsealed\b|\bcib\b|"
+                r"box only|\bmanual\b|label only|for parts|parts only",
+        outbound_shipping=5.00, category="videogames",
+        comp_query="zelda minish cap gba", specificity=42,
+        note="Median $79.99 (n=194) but p25 is $21 - strongly BIMODAL, and the "
+             "cheap mode is repros and label-damaged carts. Floored at the "
+             "midpoint. Verify the label and the save works before paying near "
+             "the $23.65 ceiling.",
+    ),
+    Model(
+        key="castlevania_aria",
+        label="Castlevania: Aria of Sorrow (GBA)",
+        comp=50.00, measured="2026-08-16", sample=130,
+        include=r"aria\s*of\s*sorrow",
+        exclude=r"\brepro\b|reproduction|\bfake\b|bootleg|\bsealed\b|\bcib\b|"
+                r"box only|\bmanual\b|label only|for parts|parts only",
+        outbound_shipping=5.00, category="videogames",
+        comp_query="castlevania aria of sorrow gba", specificity=42,
+        note="Median $85 (n=130), p25 $20 - same bimodal repro tail as the "
+             "Minish Cap, floored the same way.",
+    ),
+    Model(
+        key="zelda_oracle",
+        label="Zelda: Oracle of Ages / Seasons (GBC)",
+        comp=80.00, measured="2026-08-16", sample=41,
+        include=r"oracle\s*of\s*(ages|seasons)",
+        exclude=r"\brepro\b|reproduction|\bfake\b|bootleg|\bsealed\b|\bcib\b|"
+                r"box only|\bmanual\b|booklet|label only|for parts|parts only",
+        outbound_shipping=5.00, category="videogames",
+        comp_query="zelda oracle of ages seasons gameboy", specificity=42,
+        note="Median $120 (n=41 - thin). Highest-value cart in the pack. 🚨 It "
+             "is a GAME BOY COLOR cart, so it will co-occur with the GBC "
+             "DEAD_MODELS warning; that warning is about the CONSOLE and does "
+             "not apply to this cartridge.",
+    ),
+    Model(
+        key="zelda_link_awakening_dx",
+        label="Zelda: Link's Awakening DX (GBC)",
+        comp=50.00, measured="2026-08-16", sample=166,
+        include=r"link'?s\s*awakening",
+        exclude=r"\bswitch\b|\brepro\b|reproduction|\bfake\b|bootleg|\bsealed\b|"
+                r"\bcib\b|box only|\bmanual\b|label only|for parts|parts only",
+        outbound_shipping=5.00, category="videogames",
+        comp_query="zelda links awakening dx gameboy color", specificity=42,
+        note="Median $59 (n=166), a TIGHT distribution ($45-$65 interquartile) "
+             "- the most predictable cart here. The Switch remake shares the "
+             "name and is excluded.",
+    ),
+    # Fire Emblem (GBA) was measured at $51 (n=131, p25 $24.99) and CUT here,
+    # not shipped: at a $38 floor it yields a $0.00 max bid against the book's
+    # standing bar of $20 target profit + $9 inbound shipping. See DEAD_MODELS.
 
     # === MY PICKS, chosen to exploit the CHANNEL rather than a fandom ==========
     # HiBid aggregates estate, industrial and government surplus. So the best
@@ -1215,9 +1709,36 @@ MODELS: list[Model] = [
                 r"singer\s*22[12]\b",
         # The $56 p25 tail is attachments, cases, manuals and parts machines
         # sold under the same name - the classic accessory trap.
-        exclude=r"\bmanual\b|attachments?\s+(only|lot)|bobbins?|\bcase only\b|"
-                r"foot only|pedal only|motor only|light only|"
-                r"for parts|parts only|not working|\bscroll\s*plate",
+        #
+        # 🚨 REWRITTEN 2026-08-16. The old version required the word "only"
+        # ("attachments only", "case only", "foot only") and real listings do
+        # not say it. Audited against all 36 Singer rows on the live production
+        # board: 23 were parts and 17 of them were being priced against the
+        # $200 whole-machine comp - "Singer Featherweight 221 Light Switch" at
+        # $18 was quoted $124 of profit, an "electric switch" at $17 got $133.
+        #
+        # Featherweight parts are a cottage industry: switches, terminals,
+        # hooks, faceplates, feed dogs, oil-can holders, buttonhole
+        # attachments, case trays. Chasing them one noun at a time lost - this
+        # is the whole component vocabulary plus the "fits / for Singer" tell.
+        # 🚨 `\bcase\b` is safe HERE (a bare Featherweight case is a $50 item
+        # people sell alone) but must never go in the universal guard, where
+        # "camera w/ case" is a legitimate bundle.
+        # Verified on those 36 titles: 11/11 real machines still price, 23/23
+        # parts rejected, and there is a test carrying the same corpus.
+        exclude=(
+            # bundle-aware: "Machine w/ Case" is a COMPLETE machine and worth
+            # more, so these five only fire when the accessory IS the product
+            rf"{_BUNDLED}\bmanual\b|{_BUNDLED}attachments?\b|"
+            rf"{_BUNDLED}\baccessor\w*|{_BUNDLED}\bcase\b|{_BUNDLED}\bpedal\b|"
+            # unambiguous components - never sold as the machine
+            r"bobbins?|foot control|motor only|light only|\bswitch\b|"
+            r"\bterminal\b|\bhook\b|\bscrews?\b|\bknob\b|\bcover\b|"
+            r"feed\s*dogs?|balance\s*wheel|face\s*plate|\bplate\b|oil can|"
+            r"\btray\b|buttonhole|zig.?zag|blind stitch|stitch length|"
+            r"\bhull\b|\bfits\b|\bwill fit\b|\bfor\s+(class|singer)\b|"
+            r"\bparts?\b|\bwire\b|\biron\b|\bquilting\b|\b925\b|sampson|"
+            r"scroll\s*plate|for parts|parts only|not working"),
         outbound_shipping=14.00, category="sewing",
         comp_query="singer featherweight 221", specificity=60,
         note="THE estate-sale machine: floor below the $238.71 median (n=60, "
@@ -1348,7 +1869,10 @@ MODELS: list[Model] = [
         key="ps_vita",
         label="PlayStation Vita console",
         comp=150.00, measured="2026-08-15", sample=28, comp_used_only=False,
-        include=r"ps\s*vita|playstation\s*vita|\bpch-?\s*[12]0\d\d\b",
+        # [12]\d{3}, not [12]0\d\d: PCH-1101 and PCH-1104 are real Vita
+        # hardware and the old pattern missed both (caught on a live listing
+        # 2026-08-16). Game SKUs are PCSE-/PCSB-, so this cannot swallow one.
+        include=r"ps\s*vita|playstation\s*vita|\bpch-?\s*[12]\d{3}\b",
         exclude=r"\bgames?\b|\bcard\b|memory card|charger|\bcase\b|\bcover\b|"
                 r"screen protector|for parts|parts only|broken|not working|"
                 r"japan|japanese|\bjap\b|ntsc-j",
@@ -1423,6 +1947,84 @@ DEAD_MODELS = {
     r"(console|system|handheld)[^a-z0-9]{0,12}(game\s*boy\s*color|\bgbc\b)":
         "stock Game Boy Color sells $48.44 - under the $80 floor (measured 2026-08-15); "
         "only IPS/backlit MODS sell higher and those aren't thrift finds",
+
+    # --- Measured 2026-08-16 in the platform pack and REFUSED ----------------
+    # Nine platforms cleared nothing. Each was measured the same way as the
+    # models above (eBay solds, filtered by its own include/exclude, p25 taken)
+    # and then failed the ship test: max_pay(comp) had to beat the LIVE Goodwill
+    # median for that platform by >$5. These are recorded rather than dropped so
+    # the next person to ask "why no Wii?" reads a number instead of re-measuring.
+    #
+    # 🚨 EVERY PATTERN HERE REQUIRES A CONSOLE NOUN, both directions - the
+    # Game Boy Color lesson. Bare `\bwii\b` would staple "this is dead" onto
+    # every Wii GAME, and bare `\bnes\b` onto every NES cartridge. A dead
+    # CONSOLE says nothing about the carts that run on it.
+    r"(\bwii\b)(?!\s*u)<GAP>(console|system)|"
+    r"(console|system)<GAP>(\bwii\b)(?!\s*u)":
+        "plain Nintendo Wii sells $44.99 (n=47, measured 2026-08-16) -> max pay "
+        "$7.96 against a $12.99 Goodwill median. Wii U is different and IS priced",
+    r"xbox\s*360<GAP>(console|system)|"
+    r"(console|system)<GAP>xbox\s*360":
+        "Xbox 360 sells $69.95 (n=75, measured 2026-08-16) -> max pay $11.76 "
+        "against a $9.99 Goodwill median. $1.77 of headroom is not a trade",
+    r"(\bsnes\b|super\s*nintendo)<GAP>(console|system)|"
+    r"(console|system)<GAP>(\bsnes\b|super\s*nintendo)":
+        "SNES console sells $85 (n=56, measured 2026-08-16) -> max pay $20.43 "
+        "against a $19.99 Goodwill median. Boxed/1CHIP units are a different trade",
+    r"(\bnes\b|nintendo entertainment system)<GAP>(console|system)|"
+    r"(console|system)<GAP>(\bnes\b|nintendo entertainment system)":
+        "NES console sells $60 (n=35 THIN, measured 2026-08-16) -> max pay $8.87 "
+        "against a $17 Goodwill median. Negative headroom",
+    r"(sega\s*genesis|\bgenesis\b)<GAP>(console|system)|"
+    r"(console|system)<GAP>(sega\s*genesis|\bgenesis\b)":
+        "Sega Genesis sells $59.99 (n=52, measured 2026-08-16) -> max pay $0.00. "
+        "The whole Sega shelf (77 live on Goodwill) is worth walking past",
+    r"(\bds\s*lite\b|\busg\s*-?\s*001\b)":
+        "Nintendo DS Lite sells $58 (n=78, measured 2026-08-16) -> max pay $18.60 "
+        "against a $19.99 Goodwill median. DSi XL and 2DS XL DO clear - check which",
+    r"((game\s*boy|gameboy)\s*pocket|\bmgb\s*-?\s*001\b)":
+        "Game Boy Pocket sells $49.90 (n=154, measured 2026-08-16) -> max pay "
+        "$6.29 against a $21 Goodwill median. Cheapest handheld measured",
+    r"(\bdmg\s*-?\s*01\b|(game\s*boy|gameboy)\s*(original|classic|brick))":
+        "original DMG-01 Game Boy sells $68 (n=82, measured 2026-08-16) -> max pay "
+        "$21.92 against a $25 Goodwill median. Negative headroom",
+    # Carts measured 2026-08-16 alongside the four that shipped, and cut on the
+    # book's real bar ($20 target profit + $9 inbound), which is stricter than
+    # a raw max_pay: all four yield a max bid at or near $0.00.
+    r"fire\s*emblem\b(?!.*(awakening|fates|three\s*houses|echoes))":
+        "Fire Emblem (GBA) loose sells $51 (n=131, measured 2026-08-16) -> $0.00 "
+        "max bid at $20 target profit. Common in GBA lots and still not a trade",
+    r"golden\s*sun":
+        "Golden Sun (GBA) loose sells $30 (n=113, measured 2026-08-16) -> $6.29 "
+        "ceiling before inbound shipping. The Lost Age is scarcer - check which",
+    r"advance\s*wars\b(?!.*(dual\s*strike|days\s*of\s*ruin))":
+        "Advance Wars (GBA) loose sells $29.15 (n=69, measured 2026-08-16) - "
+        "tight $19-$65 range and no room under it",
+    r"metroid\s*(fusion|zero\s*mission)":
+        "Metroid Fusion / Zero Mission loose sells $39.99 (n=68, measured "
+        "2026-08-16) -> $10.62 ceiling. Sealed copies are a different product",
+    # Not a platform - a SHAPE, and the one entry here that is a CAUTION rather
+    # than a refusal. 🚨 DEAD_MODELS only annotates a listing that ALREADY
+    # matched a model; it cannot reject one that matches nothing. So this never
+    # fires on a bare "Nintendo Gameboy Games 5pc" (nothing matches that, and
+    # nothing should). What it DOES catch is the case that misprices: a console
+    # or cart we can price, listed as part of a games lot, where our comp covers
+    # the ONE named item and the lot's real value is whatever else is in the box.
+    # Measured 2026-08-16 for why no lot model exists: GBA lots median $35 over
+    # a $1.93-$450 range (n=221), Game Boy $39.99, DS $25, PS2 $30 - no stable
+    # comp at any size. The named-title lookahead keeps a "lot of GBA games
+    # incl. Pokemon Emerald" alerting cleanly as Emerald.
+    r"^(?=.*\b(games|video games)\b)(?=.*\b(lot|bundle|\d+\s*pcs?)\b)"
+    r"(?!.*(pok[eé]mon|pokeman|zelda|minish|oracle\s*of|link'?s\s*awakening|"
+    r"castlevania|aria\s*of\s*sorrow)).*$":
+        "this is a LOT and the comp above prices only the one item named in the "
+        "title - a generic game lot has no comp of its own (measured 2026-08-16: "
+        "GBA lots median $35 across a $1.93-$450 range, n=221). Count what's in "
+        "the photos before treating the rest as free upside",
+}
+
+DEAD_MODELS = {
+    pat.replace("<GAP>", _NOUN_GAP): why for pat, why in DEAD_MODELS.items()
 }
 
 BY_KEY = {m.key: m for m in MODELS}
@@ -1501,7 +2103,10 @@ def match(title: str) -> Optional[Match]:
     t = normalize(title)
     if not t:
         return None
-    hits = [m for m in MODELS if m.matches(t)]
+    # Universal guards ONCE, not once per model - see Model._body_matches.
+    if universally_excluded(t):
+        return None
+    hits = [m for m in MODELS if m._body_matches(t)]
     if not hits:
         return None
     # most specific wins, by declared specificity (see Model.specificity)
@@ -1586,4 +2191,20 @@ def search_terms() -> list[str]:
         # where a $124 Citizen hides behind a $10 title.
         "ps vita", "playstation vita", "sega dreamcast", "dreamcast console",
         "citizen eco-drive", "citizen watch", "watch lot", "wristwatch lot",
+        # === platform pack (added 2026-08-16) ================================
+        # The console terms above were Nintendo-only, so 276 live PlayStation
+        # and 125 Xbox listings were never even fetched. Measured live on
+        # 2026-08-16 against Leron's four links: 3 of the 4 WERE already being
+        # fetched and died at match(), but #273589008 ("Nintendo Gameboy Games
+        # 5pc") was reached by no term at all - "nintendo games" fixes that.
+        "playstation 5", "playstation 4", "ps4 console", "playstation 3",
+        "playstation 2", "ps2 console", "sony psp",
+        "xbox series x", "xbox one", "xbox console",
+        "nintendo switch", "switch lite", "wii u",
+        "nintendo 2ds", "nintendo dsi", "steam deck",
+        # Goodwill's search is substring-fuzzy, so the bare-platform terms above
+        # pull the accessories too; that is fine, the book rejects them. What we
+        # cannot recover from is never fetching the listing at all.
+        "nintendo games", "video game lot", "retro video games",
+        "handheld game console",
     ]

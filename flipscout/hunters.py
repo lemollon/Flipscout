@@ -91,21 +91,77 @@ class ShopGoodwill:
     def __init__(self, session: Optional[requests.Session] = None):
         self.session = session or requests.Session()
 
-    def _query(self, query: str, limit: int, buy_now_only: bool) -> list[dict]:
-        body = _gw_body(query, size=limit)
+    # Buy-It-Now pages we are willing to pull per term. 5 x 40 = 200, which is
+    # far above any BIN count measured (the largest was 97, for "ti-84").
+    # It exists so one pathological term cannot walk the whole catalogue.
+    _BIN_MAX_PAGES = 5
+
+    def _one_page(self, query: str, page: int, size: int,
+                  buy_now_only: bool) -> tuple:
+        """One page. Returns (items, itemCount) - itemCount is the server's own
+        total for the query, which is what makes paging exact rather than a
+        guess about whether another page exists."""
+        body = _gw_body(query, page=page, size=size)
         if buy_now_only:
             # The form field was sitting there empty the whole time. Set to
             # "true" it returns Goodwill's Buy-It-Now inventory: FIXED prices,
             # no bidding war, buy outright. Measured 2026-07-28: 40 items per
             # broad term, including a $12.99 Gunne Sax against a $122 comp.
             body["searchBuyNowOnly"] = "true"
+        r = self.session.post(_GW_SEARCH, json=body,
+                              headers=_GW_HEADERS, timeout=_TIMEOUT)
+        r.raise_for_status()
+        sr = ((r.json() or {}).get("searchResults") or {})
+        return (sr.get("items") or []), (sr.get("itemCount") or 0)
+
+    def _query(self, query: str, limit: int, buy_now_only: bool) -> list[dict]:
+        """All BIN results for the query; first page only for auctions.
+
+        🚨 The page size is capped SERVER-SIDE at 40 no matter what pageSize
+        says - asking for 200 returns 40. So a term with more than 40 hits was
+        silently truncated. Measured 2026-08-16 over 18 terms:
+
+            BIN      296 exist, 177 fetched -> 119 MISSING (40%)
+            AUCTION 1887 exist, 512 fetched -> 1375 MISSING (73%)
+
+        Buy-It-Now is paged to completion because that is the half you can act
+        on without winning a bidding war, and because it is SMALL - the largest
+        BIN count measured on any term was 97, so this costs a handful of extra
+        calls against a source with no quota.
+
+        Auctions are deliberately NOT paged. 1,375 missing over 18 terms
+        extrapolates to ~10k over the full 133-term book, which is a different
+        decision about runtime and volume, not a bug fix. Auctions already
+        supply ~96% of the board.
+        """
         try:
-            r = self.session.post(_GW_SEARCH, json=body,
-                                  headers=_GW_HEADERS, timeout=_TIMEOUT)
-            r.raise_for_status()
-            return ((r.json() or {}).get("searchResults") or {}).get("items") or []
+            items, total = self._one_page(query, 1, limit, buy_now_only)
         except Exception:
             return []                      # fail-soft: one dead source never kills a run
+        if not buy_now_only or not items:
+            return items
+
+        seen = {str(i.get("itemId")) for i in items}
+        page = 2
+        while len(items) < total and page <= self._BIN_MAX_PAGES:
+            time.sleep(0.2)                # polite: this is a charity's server
+            try:
+                more, _ = self._one_page(query, page, limit, True)
+            except Exception:
+                # 🚨 Fail-soft PER PAGE, not per query. Wrapping the whole loop
+                # in one try meant a 500 on page 2 discarded the 40 good rows
+                # from page 1 - strictly worse than not paging at all, and a
+                # partial outage would have read as "this term has nothing".
+                break
+            if not more:
+                break
+            fresh = [i for i in more if str(i.get("itemId")) not in seen]
+            if not fresh:                  # server repeated a page - stop
+                break
+            seen.update(str(i.get("itemId")) for i in fresh)
+            items.extend(fresh)
+            page += 1
+        return items
 
     def search(self, query: str, limit: int = 40) -> list[dict]:
         # TWO passes, merged: the auction inventory this hunter always had,
@@ -971,6 +1027,23 @@ class EbayBrowse:
         #     :47 runs, a 1.83x split. That is THIS GATE working as intended
         #     (two passes vs one), not lost coverage. Do not "fix" it.
         # Re-check with the same method before adding another 40 terms.
+        #
+        # RE-CHECKED 2026-08-16, after the platform pack took search_terms()
+        # from 113 to 133 (+17.7%):
+        #   * projected ~9.6k calls/day (24 x 133 x 2 + 24 x 133 x 1), up from
+        #     ~8.1k. Still no cliff found.
+        #   * MEASURED over 8 consecutive runs: zero counted search errors.
+        #     🚨 Check for the string `ebay: N search error(s)` that
+        #     error_summary() emits - NOT for "429" in the raw log. Grepping
+        #     the log for 429 matches TIMESTAMPS ("17:00:31.8429335Z") and
+        #     reports phantom rate limiting. That false positive cost a
+        #     re-check on 2026-08-16 before the right signal was used.
+        #   * The bimodal split still holds: 7,905 listings on the :17-window
+        #     run vs ~4,300 on the :47 runs.
+        # The 5k "default" is clearly not what we are on - 8.1k/day ran clean
+        # for a day - but the granted ceiling is still UNKNOWN, so this is
+        # headroom by observation, not by contract. The error counter is the
+        # tripwire; if it starts printing, cut terms before anything else.
         #   FLIPSCOUT_EBAY_AUCTIONS: "always" | "off" | unset (= hourly gate)
         mode = (os.environ.get("FLIPSCOUT_EBAY_AUCTIONS") or "").strip().lower()
         if mode == "always":
@@ -1081,6 +1154,29 @@ class EbayBrowse:
         # not-new grade: refurbs, Used, media grades, parts.
         # newlyListed sort: underpriced BINs die in minutes, so fresh listings
         # beat best-match popularity for deal-hunting.
+        #
+        # ⛔ DO NOT switch this to price-ascending. It is the obvious idea when
+        # someone asks for more Buy-It-Now, and it is wrong - MEASURED
+        # 2026-08-16 over three terms, share of results that are parts /
+        # accessories / empty boxes rather than the product:
+        #
+        #     term                      price+ship ASC    newlyListed
+        #     canon ae-1                        63%            18%
+        #     nintendo switch console           68%            28%
+        #     singer featherweight              56%            53%
+        #
+        # The cheapest listings are cheap BECAUSE they are parts. Sorting by
+        # price aims the feed straight at the cohort the accessory guard exists
+        # to reject, and the fixed-price feed is already the worst offender for
+        # it (22% of live BIN board items were components).
+        #
+        # ⛔ DO NOT add an offset page here either. limit is capped at 50/term
+        # and there is no paging on purpose: a second page doubles eBay Browse
+        # calls, and Browse is the ONE quota-metered source. We run ~9.6k
+        # calls/day against a granted ceiling nobody has measured. eBay is 52%
+        # of all swept volume, so trading a silent degradation of the largest
+        # source for some extra BIN is a bad bet. Goodwill BIN paging (free,
+        # unmetered) was the right place to buy that coverage instead.
         passes = [("FIXED_PRICE", "newlyListed")]
         # Ending-soon auctions with low bids - swept hourly (see __init__ quota
         # math), sorted by soonest close so the 50-row window holds the lots

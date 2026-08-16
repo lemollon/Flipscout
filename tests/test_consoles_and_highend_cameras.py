@@ -26,7 +26,11 @@ def test_switch_oled_needs_the_console_not_an_accessory():
     # Accessory phrasings scoped to this model - never the universal guard.
     assert match("Carrying Case for Nintendo Switch OLED") is None
     assert match("Joy-Cons only for Switch OLED pair") is None
-    assert match("Nintendo Switch Lite Coral") is None
+    # Was `is None` until 2026-08-16. That assertion encoded a REAL MISS: the
+    # Lite is a $105.50-median product and switch_oled's exclude threw it away,
+    # so the book didn't merely skip Switch Lites, it actively rejected them.
+    # A hardware noun is required - see test_platform_pack for why.
+    assert match("Nintendo Switch Lite Coral Handheld Console").model.key == "switch_lite"
 
 
 def test_gamecube_requires_console_noun_so_games_never_price_as_hardware():
@@ -40,9 +44,11 @@ def test_n64_requires_console_noun():
     assert match("GoldenEye 007 Nintendo 64 cartridge") is None
 
 
-def test_3ds_xl_matches_but_2ds_does_not():
+def test_3ds_xl_and_2ds_xl_price_as_themselves():
     assert match("New Nintendo 3DS XL Galaxy Style").model.key == "n3ds_xl"
-    assert match("Nintendo 2DS XL Black Turquoise") is None
+    # Was `is None` until 2026-08-16. The 2DS XL is the HIGHEST-value handheld
+    # measured ($229.99 median, n=55) and n3ds_xl's exclude was discarding it.
+    assert match("Nintendo 2DS XL Black Turquoise Handheld Console").model.key == "n2ds_xl"
 
 
 # --- high-ticket cameras -----------------------------------------------------
