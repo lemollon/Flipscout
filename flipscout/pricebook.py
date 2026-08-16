@@ -97,6 +97,23 @@ ACCESSORY_EXCLUDE = (
     # leaked the same way against an $80 comp.
     # 🚨 Anchored to aftermarket/part words, NOT a bare `\bshell\b` - a console
     # legitimately described as having "a cracked shell" is still a console.
+    # COMPONENT NOUNS. A named part of a valuable machine reads almost exactly
+    # like the machine, and the parts sellers are the most prolific listers on
+    # eBay's fixed-price shelf - so this shows up worst on the BUY-IT-NOW feed,
+    # which is the half Leron actually wants. Live production board 2026-08-16:
+    #   "Singer 221 featherweight sewing Machine feed dogs"  $11 -> $139 profit
+    #   "SINGER 221 Featherweight Stop Motion Knob"          $17 -> $126 profit
+    #   "Canon Powershot G7X Mark II III Spring Lens Holder" $30 -> $952 profit
+    # Ten of them, quoted against whole-machine comps.
+    # 🚨 `simanco` is Singer's own parts marking - the single highest-signal
+    # word here. Every noun below is a COMPONENT that is never sold as the
+    # product, which is why they are safe universally; generic words like
+    # "cover" and "plate" are deliberately NOT here (a camera "body cover" is a
+    # part, but "Pentax K1000 w/ body cap" is a camera).
+    r"\bsimanco\b|feed\s*dogs?\b|balance\s*wheel|stop\s*motion\s*knob|"
+    r"\bface\s*plate\b|\bbase\s*plate\b|throat\s*plate|needle\s*plate|"
+    r"\bbobbins?\b|presser\s*foot|\bbottom\s*cover\b|wire\s*holder|"
+    r"lens\s*holder|\bspring\s*(?:lens|clip|kit)\b|tension\s*assembly|"
     r"\bshells?\s*(only|kit|set|replacement)|replacement\s*shell|"
     r"\bhousing\s*(only|kit|set)|replacement\s*(housing|buttons?|parts?|screen)|"
     r"\bbuttons?\s*(only|set|kit)\b|shell\s*(?:case|cover)\b|"

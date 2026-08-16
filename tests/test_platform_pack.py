@@ -273,6 +273,40 @@ def test_variant_models_deliberately_keep_bare_name_matching():
             f"{key} was given the noun rule; see this test's docstring")
 
 
+@pytest.mark.parametrize("title", [
+    # All real, all live on the PRODUCTION board 2026-08-16, all quoted against
+    # a whole-machine comp. Parts sellers are the most prolific listers on
+    # eBay's fixed-price shelf, so this lands hardest on the BUY-IT-NOW feed.
+    "Singer  221 featherweight sewing Machine feed dogs",
+    "Singer  222k 221 featherweight sewing Machine balance wheel",
+    "Singer  221 featherweight sewing Machine bottom cover",
+    "Singer 222 221 featherweight sewing Machine faceplate side access",
+    "Singer 221 Featherweight Feed Dog SIMANCO 125261 Vintage Sewing Machine Part",
+    "SINGER 221 Featherweight Stop Motion Knob In Black",
+    "Canon Powershot G7X G7 X Mark II III Spring Lens Holder Plastic Ring",
+    "Canon Base Plate AE-1 AT-1 Camera Replacement Part",
+    "1PC Housing Shell Set For Fluke 323 Clamp Meter Front & Back Cover",
+])
+def test_component_parts_never_price_as_the_whole_machine(title):
+    """A named component reads almost exactly like the machine it belongs to.
+
+    `simanco` is Singer's own parts marking and the highest-signal word here.
+    """
+    assert match(title) is None
+
+
+@pytest.mark.parametrize("title", [
+    # 🚨 Generic words like "cover" and "plate" are deliberately NOT in the
+    # guard - only component nouns that are never sold AS the product.
+    "Singer 221 Featherweight Sewing Machine with case and attachments",
+    "Canon AE-1 Program 35mm SLR with 50mm f/1.8 lens",
+    "Fluke 87V True RMS Multimeter tested working",
+    "Pentax K1000 35mm SLR camera with body cap",
+])
+def test_the_component_guard_does_not_eat_whole_machines(title):
+    assert match(title) is not None, f"{title!r} is the real product"
+
+
 def test_a_model_number_stands_in_for_the_noun():
     """The escape hatch for terse titles: a hardware model number is evidence
     on its own, because no game carries one."""
