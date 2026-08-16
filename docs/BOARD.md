@@ -1,68 +1,68 @@
-# Flipscout board - 761 buyable now
-_Generated 2026-08-16T23:08:35+00:00 - best profit first. 'Open' is what it costs to enter; never bid past 'Max'._
+# Flipscout board - 745 buyable now
+_Generated 2026-08-16T23:41:04+00:00 - best profit first. 'Open' is what it costs to enter; never bid past 'Max'._
 
 | # | Item | Model | Open | Max bid | Clears | Source | Where | Ends |
 |---|------|-------|-----:|--------:|-------:|--------|-------|------|
 | 1 | [Fluke 87 III True RMS Multimeter](https://hibid.com/lot/317395794) | Fluke 87/87V multimeter | $8.00 | $195.24 | $207.24 | hibid 📍 | Cypress, TX | - |
 | 2 | [Olympus Stylus Epic 35mm Film Camera 35mm f2.8 Lens Built-in](https://shopgoodwill.com/item/274005199) | Olympus mju-II / Stylus Epic (non-zoom) | $202.00 | $383.21 | $201.21 | goodwill |  | 2026-08-19T18:13 |
-| 3 | [FLUKE 87V - TRUE RMS MULTIMETER - B](https://hibid.com/lot/317828275) | Fluke 87/87V multimeter | $8.00 | $186.24 | $198.24 | hibid | Davie, FL | - |
-| 4 | [FLUKE 87V - TRUE RMS MULTIMETER - C](https://hibid.com/lot/317828276) | Fluke 87/87V multimeter | $8.00 | $186.24 | $198.24 | hibid | Davie, FL | - |
-| 5 | [$489 Xbox Series S - All Digital Gaming Console -](https://hibid.com/lot/317408600) | Xbox Series X / S console | $88.00 | $262.89 | $194.89 | hibid 📍 | Houston, TX | - |
-| 6 | [PlayStation 5 Digital Edition Console (slim)](https://hibid.com/lot/317809785) | Sony PlayStation 5 console | $107.50 | $241.88 | $154.38 | hibid | Burlington, ON | - |
-| 7 | [Singer 132Q Featherweight sewing machine](https://hibid.com/lot/313548771) | Singer Featherweight 221/222 | $2.00 | $130.10 | $148.10 | hibid | Decatur, IN | - |
-| 8 | [Singer featherweight machine, not tested, no cord](https://hibid.com/lot/317363777) | Singer Featherweight 221/222 | $2.00 | $130.10 | $148.10 | hibid | Robinson, IL | - |
-| 9 | [Singer "Featherweight" Sewing Machine](https://hibid.com/lot/317666955) | Singer Featherweight 221/222 | $5.00 | $130.10 | $145.10 | hibid | Camden, AR | - |
+| 3 | [FLUKE 87V - TRUE RMS MULTIMETER - C](https://hibid.com/lot/317828276) | Fluke 87/87V multimeter | $8.00 | $186.24 | $198.24 | hibid | Davie, FL | - |
+| 4 | [FLUKE 87V - TRUE RMS MULTIMETER - B](https://hibid.com/lot/317828275) | Fluke 87/87V multimeter | $8.00 | $186.24 | $198.24 | hibid | Davie, FL | - |
+| 5 | [PlayStation 5 Digital Edition Console (slim)](https://hibid.com/lot/317809785) | Sony PlayStation 5 console | $112.50 | $241.88 | $149.38 | hibid | Burlington, ON | - |
+| 6 | [Singer 132Q Featherweight sewing machine](https://hibid.com/lot/313548771) | Singer Featherweight 221/222 | $2.00 | $130.10 | $148.10 | hibid | Decatur, IN | - |
+| 7 | [Singer featherweight machine, not tested, no cord](https://hibid.com/lot/317363777) | Singer Featherweight 221/222 | $2.00 | $130.10 | $148.10 | hibid | Robinson, IL | - |
+| 8 | [Singer "Featherweight" Sewing Machine](https://hibid.com/lot/317666955) | Singer Featherweight 221/222 | $5.00 | $130.10 | $145.10 | hibid | Camden, AR | - |
+| 9 | [Singer Featherweight Portable Sewing Machine 221](https://hibid.com/lot/317649782) | Singer Featherweight 221/222 | $5.00 | $130.10 | $145.10 | hibid | Brevard, NC | - |
 | 10 | [Singer Featherweight Portable Sewing Machine 221-1](https://hibid.com/lot/317649781) | Singer Featherweight 221/222 | $5.00 | $130.10 | $145.10 | hibid | Brevard, NC | - |
-| 11 | [Singer Featherweight Portable Sewing Machine 221](https://hibid.com/lot/317649782) | Singer Featherweight 221/222 | $5.00 | $130.10 | $145.10 | hibid | Brevard, NC | - |
-| 12 | [Singer Featherweight Sewing Machine - Electric](https://hibid.com/lot/316114108) | Singer Featherweight 221/222 | $10.00 | $130.10 | $140.10 | hibid | Bluefield, VA | - |
-| 13 | [Singer 99 Featherweight Portable Sewing Machine Black Gold 1](https://shopgoodwill.com/item/273603008) | Singer Featherweight 221/222 | $10.99 | $128.10 | $137.11 | goodwill |  | 2026-08-18T20:13 |
-| 14 | [Singer 221 Featherweight Sewing Machine](https://hibid.com/lot/316817385) | Singer Featherweight 221/222 | $15.00 | $130.10 | $135.10 | hibid | Dundee, OH | - |
+| 11 | [Singer Featherweight Sewing Machine - Electric](https://hibid.com/lot/316114108) | Singer Featherweight 221/222 | $10.00 | $130.10 | $140.10 | hibid | Bluefield, VA | - |
+| 12 | [Singer 99 Featherweight Portable Sewing Machine Black Gold 1](https://shopgoodwill.com/item/273603008) | Singer Featherweight 221/222 | $10.99 | $128.10 | $137.11 | goodwill |  | 2026-08-18T20:13 |
+| 13 | [Singer 221 Featherweight Sewing Machine](https://hibid.com/lot/316817385) | Singer Featherweight 221/222 | $15.00 | $130.10 | $135.10 | hibid | Dundee, OH | - |
+| 14 | [Vtg  Singer Featherweight Model 221 portable](https://hibid.com/lot/317398134) | Singer Featherweight 221/222 | $15.00 | $130.10 | $135.10 | hibid | Winston-Salem, NC | - |
 | 15 | [Vtg Singer Featherweight 221-1 sewing machine](https://hibid.com/lot/317398136) | Singer Featherweight 221/222 | $15.00 | $130.10 | $135.10 | hibid | Winston-Salem, NC | - |
-| 16 | [Vtg  Singer Featherweight Model 221 portable](https://hibid.com/lot/317398134) | Singer Featherweight 221/222 | $15.00 | $130.10 | $135.10 | hibid | Winston-Salem, NC | - |
-| 17 | [Olympus Stylus Epic Zoom 170 Film Camera](https://hibid.com/lot/317176406) | Olympus Stylus Epic Zoom 80/115/170 | $2.00 | $117.00 | $135.00 | hibid | Northville, MI | - |
-| 18 | [Hagibis Nintendo Switch OLED Docking Station Po...](https://hibid.com/lot/317978737) | Nintendo Switch OLED console | $2.00 | $112.41 | $130.41 | hibid | Mississauga, ON | - |
-| 19 | [Sony Alpha a6000 24.3MP Mirrorless Camera Silver Sony E 16-5](https://shopgoodwill.com/item/273884454) | Sony a6000 (mirrorless) | $154.00 | $263.23 | $129.23 | goodwill |  | 2026-08-20T13:33 |
-| 20 | [Olympus Stylus Epic Zoom 170 Deluxe 35mm Film Camera](https://shopgoodwill.com/item/274079196) | Olympus Stylus Epic Zoom 80/115/170 | $13.99 | $117.00 | $123.01 | goodwill |  | 2026-08-20T18:01 |
-| 21 | [Olympus Stylus Epic Zoom 115 35mm Film Point & Shoot Camera ](https://shopgoodwill.com/item/273880350) | Olympus Stylus Epic Zoom 80/115/170 | $14.99 | $114.01 | $119.02 | goodwill |  | 2026-08-20T17:59 |
-| 22 | [Milwaukee M18  Fuel 2-Tool Combo Kit 2997-22 Case](https://www.ebay.com/itm/298560194240?_skw=milwaukee+combo+kit&hash=item45839306c0:g:YtAAAeSwkB5qcoGJ) | Milwaukee M18 combo kit | $20.00 | $111.75 | $111.75 | ebay |  | - |
-| 23 | [Canon AE-1 Camera](https://hibid.com/lot/316550286) | Canon AE-1 / AE-1 Program (35mm SLR) | $2.00 | $91.90 | $109.90 | hibid | Bridgewater, VA | - |
-| 24 | [Canon AE-1 Camera; Lens case](https://hibid.com/lot/316550277) | Canon AE-1 / AE-1 Program (35mm SLR) | $2.00 | $91.90 | $109.90 | hibid | Bridgewater, VA | - |
-| 25 | [Camera bundle. Canon AE-1 program, Pentax ESPIO](https://hibid.com/lot/312795610) | Canon AE-1 / AE-1 Program (35mm SLR) | $2.00 | $91.90 | $109.90 | hibid | Yellowhead County, AB | - |
-| 26 | [Canon AE-1 Program Camera Lens Lot](https://hibid.com/lot/316833092) | Canon AE-1 / AE-1 Program (35mm SLR) | $2.50 | $91.90 | $109.40 | hibid | Joplin, MO | - |
-| 27 | [Canon AE-1 35mm SLR Camera Kit](https://hibid.com/lot/317257962) | Canon AE-1 / AE-1 Program (35mm SLR) | $2.50 | $91.90 | $109.40 | hibid | Madisonville, TN | - |
-| 28 | [Canon AE-1 35mm SLR Camera w/ 50mm f/1.8 Lens & P](https://hibid.com/lot/317568938) | Canon AE-1 / AE-1 Program (35mm SLR) | $3.00 | $91.90 | $108.90 | hibid | Bloomington, IN | - |
-| 29 | [Vtg Canon AE-1 35mm Film Camera, Vivitar See Info](https://hibid.com/lot/316741507) | Canon AE-1 / AE-1 Program (35mm SLR) | $4.00 | $91.90 | $107.90 | hibid | Albuquerque, NM | - |
-| 30 | [LEGO Movie Videogame (PlayStation Vita / PS Vita) Cartridge ](https://www.ebay.com/itm/267759101277?_skw=playstation+vita&hash=item3e57afa55d:g:xv8AAeSwsJVqgdYr) | PlayStation Vita console | $5.00 | $92.72 | $107.72 | ebay |  | - |
-| 31 | [Vintage film Canon AE-1 w/flash 188A and 2 lenses](https://hibid.com/lot/317337862) | Canon AE-1 / AE-1 Program (35mm SLR) | $5.00 | $91.90 | $106.90 | hibid | Creston, CA | - |
-| 32 | [NINTENDO 3DS XL Operations Manual](https://www.ebay.com/itm/206496241918?_skw=nintendo+3ds+xl&hash=item30142298fe:g:F8QAAOSwM01oO7MH) | Nintendo 3DS XL / New 3DS XL | $3.99 | $90.39 | $106.40 | ebay |  | - |
-| 33 | [Original Nintendo 3DS XL Power Adapter Charger WAP-002](https://www.ebay.com/itm/820011067780?_skw=nintendo+3ds+xl&hash=itembeec77e984:g:dJAAAeSwWKNqgh0Q) | Nintendo 3DS XL / New 3DS XL | $4.00 | $90.39 | $106.39 | ebay |  | - |
-| 34 | [Canon AE-1 Camera](https://hibid.com/lot/317602401) | Canon AE-1 / AE-1 Program (35mm SLR) | $8.50 | $91.90 | $103.40 | hibid | Union Bridge, MD | - |
-| 35 | [Freedom Wars (Sony PlayStation Vita, 2014)](https://www.ebay.com/itm/366609876822?_skw=playstation+vita&hash=item555ba6c756:g:mHAAAeSwFkJqgi1Q) | PlayStation Vita console | $9.99 | $92.72 | $102.73 | ebay |  | - |
-| 36 | [Asahi Pentax K1000 35mm manual focus SLR film](https://hibid.com/lot/317734659) | Pentax K1000 (35mm SLR) | $1.00 | $83.04 | $102.04 | hibid | Yorkton, SK | - |
-| 37 | [Olympus Stylus Epic Zoom 80 Film Camera](https://hibid.com/lot/317240296) | Olympus Stylus Epic Zoom 80/115/170 | $35.00 | $117.00 | $102.00 | hibid | Green Bay, WI | - |
-| 38 | [Cannon AE 1 Program camera](https://hibid.com/lot/316463856) | Canon AE-1 / AE-1 Program (35mm SLR) | $10.00 | $91.90 | $101.90 | hibid | Farmersburg, IN | - |
-| 39 | [Canon AE-1 35mm Film SLR Camera w/2 Lenses - Shutter Fires](https://shopgoodwill.com/item/273717355) | Canon AE-1 / AE-1 Program (35mm SLR) | $7.99 | $88.90 | $100.91 | goodwill |  | 2026-08-19T18:36 |
-| 40 | [Singer Featherweight Sewing Machine 678-3A](https://hibid.com/lot/315824313) | Singer Featherweight 221/222 | $50.00 | $130.10 | $100.10 | hibid | Brevard, NC | - |
-| 41 | [Vintage Canon AE-1 Program & FT QL 35mm SLR Film Camera Lot ](https://shopgoodwill.com/item/273626463) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $89.90 | $99.91 | goodwill |  | 2026-08-18T20:31 |
-| 42 | [Canon / AE-1 Program Film Camera + 28-80mm Lense / + 3 Rolls](https://shopgoodwill.com/item/273991143) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $89.90 | $99.91 | goodwill |  | 2026-08-19T18:38 |
-| 43 | [Canon AE-1 Program 35mm SLR Camera w/ Accessories](https://shopgoodwill.com/item/273715152) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $89.90 | $99.91 | goodwill |  | 2026-08-19T19:11 |
-| 44 | [Vtg Canon AE-1 Program 35mm film camera & More](https://hibid.com/lot/316947022) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.00 | $91.90 | $99.90 | hibid | Clinton Twp, MI | - |
-| 45 | [Canon AE-1 Program 35mm SLR Camera w/ Canon FD 50mm f1.8 Len](https://shopgoodwill.com/item/273413265) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $89.40 | $99.41 | goodwill |  | 2026-08-18T18:31 |
-| 46 | [Canon Power Winder A2 for AE-1 Untested](https://shopgoodwill.com/item/273490733) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $88.90 | $98.91 | goodwill |  | 2026-08-17T20:03 |
-| 47 | [Vintage Canon AE-1 Program 35mm Film Camera in Case w/ Acces](https://shopgoodwill.com/item/273604384) | Canon AE-1 / AE-1 Program (35mm SLR) | $10.99 | $89.90 | $98.91 | goodwill |  | 2026-08-18T18:01 |
-| 48 | [Vintage Canon AE-1 35mm SLR Camera w/ FD 50mm f1.8 Lens Flas](https://shopgoodwill.com/item/273579587) | Canon AE-1 / AE-1 Program (35mm SLR) | $10.99 | $89.90 | $98.91 | goodwill |  | 2026-08-18T18:15 |
-| 49 | [Cannon AE-1 Camera, Lenses & More](https://hibid.com/lot/316947142) | Canon AE-1 / AE-1 Program (35mm SLR) | $13.00 | $91.90 | $98.90 | hibid | Clinton Twp, MI | - |
-| 50 | [Sony OEM PlayStation Ps Vita AC Adaptor Very Good Condition ](https://www.ebay.com/itm/147508798468?_skw=playstation+vita&hash=item225835a404:g:2hIAAeSwMyRqgdSo) | PlayStation Vita console | $13.95 | $92.72 | $98.77 | ebay |  | - |
-| 51 | [Assassin's Creed III: Liberation (Sony PlayStation Vita, 201](https://www.ebay.com/itm/366609877238?_skw=playstation+vita&hash=item555ba6c8f6:g:azoAAeSwBidqgi2Z) | PlayStation Vita console | $14.12 | $92.72 | $98.60 | ebay |  | - |
-| 52 | [Pentax K1000 Camera Outfit](https://hibid.com/lot/315752988) | Pentax K1000 (35mm SLR) | $5.00 | $83.04 | $98.04 | hibid | Edinburg, VA | - |
-| 53 | [Canon AE-1 Program Digital Camera](https://shopgoodwill.com/item/273850240) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $89.91 | $97.92 | goodwill |  | 2026-08-20T16:52 |
-| 54 | [Canon AE-1 Program Black 35mm SLR Camera Body Untested](https://shopgoodwill.com/item/273641142) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $88.90 | $96.91 | goodwill |  | 2026-08-18T18:01 |
-| 55 | [* Borderlands 2 (Sony PlayStation Vita, 2014) Cartridge Only](https://www.ebay.com/itm/188787410017?_skw=playstation+vita&hash=item2bf49b4461:g:6Y0AAeSw5fZqfOS2) | PlayStation Vita console | $15.87 | $92.72 | $96.85 | ebay |  | - |
-| 56 | [Mixed Lot 5 Cameras Canon AE-1 Minolta XG-1 PowerShot Olympu](https://shopgoodwill.com/item/273628862) | Canon AE-1 / AE-1 Program (35mm SLR) | $13.99 | $89.91 | $95.92 | goodwill |  | 2026-08-19T19:16 |
-| 57 | [Vintage Canon AE-1 Program Film Camera W/ Canon Lens FD 50mm](https://shopgoodwill.com/item/273612134) | Canon AE-1 / AE-1 Program (35mm SLR) | $13.00 | $88.90 | $95.90 | goodwill |  | 2026-08-18T18:45 |
-| 58 | [Vintage Canon Ae-1 Pentax Sf10 + 8 Piece Film & Instant Came](https://shopgoodwill.com/item/273961826) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.99 | $87.91 | $94.92 | goodwill |  | 2026-08-19T19:08 |
-| 59 | [Vintage Canon AE-1 35mm SLR Camera 4 Piece Lot With 3 Lenses](https://shopgoodwill.com/item/273761915) | Canon AE-1 / AE-1 Program (35mm SLR) | $14.99 | $89.90 | $94.91 | goodwill |  | 2026-08-19T20:20 |
-| 60 | [Vintage Canon AE-1 with 50/1.8 FD SLR Camera w/ Accessories](https://shopgoodwill.com/item/273580353) | Canon AE-1 / AE-1 Program (35mm SLR) | $14.99 | $88.90 | $93.91 | goodwill |  | 2026-08-18T16:04 |
+| 16 | [Olympus Stylus Epic Zoom 170 Film Camera](https://hibid.com/lot/317176406) | Olympus Stylus Epic Zoom 80/115/170 | $2.00 | $117.00 | $135.00 | hibid | Northville, MI | - |
+| 17 | [Hagibis Nintendo Switch OLED Docking Station Po...](https://hibid.com/lot/317978737) | Nintendo Switch OLED console | $2.00 | $112.41 | $130.41 | hibid | Mississauga, ON | - |
+| 18 | [Sony Alpha a6000 24.3MP Mirrorless Camera Silver Sony E 16-5](https://shopgoodwill.com/item/273884454) | Sony a6000 (mirrorless) | $154.00 | $263.23 | $129.23 | goodwill |  | 2026-08-20T13:33 |
+| 19 | [Olympus Stylus Epic Zoom 170 Deluxe 35mm Film Camera](https://shopgoodwill.com/item/274079196) | Olympus Stylus Epic Zoom 80/115/170 | $13.99 | $117.00 | $123.01 | goodwill |  | 2026-08-20T18:01 |
+| 20 | [Olympus Stylus Epic Zoom 115 35mm Film Point & Shoot Camera ](https://shopgoodwill.com/item/273880350) | Olympus Stylus Epic Zoom 80/115/170 | $14.99 | $114.01 | $119.02 | goodwill |  | 2026-08-20T17:59 |
+| 21 | [Milwaukee M18  Fuel 2-Tool Combo Kit 2997-22 Case](https://www.ebay.com/itm/298560194240?_skw=milwaukee+combo+kit&hash=item45839306c0:g:YtAAAeSwkB5qcoGJ) | Milwaukee M18 combo kit | $20.00 | $111.75 | $111.75 | ebay |  | - |
+| 22 | [Canon AE-1 Camera](https://hibid.com/lot/316550286) | Canon AE-1 / AE-1 Program (35mm SLR) | $2.00 | $91.90 | $109.90 | hibid | Bridgewater, VA | - |
+| 23 | [Canon AE-1 Camera; Lens case](https://hibid.com/lot/316550277) | Canon AE-1 / AE-1 Program (35mm SLR) | $2.00 | $91.90 | $109.90 | hibid | Bridgewater, VA | - |
+| 24 | [Camera bundle. Canon AE-1 program, Pentax ESPIO](https://hibid.com/lot/312795610) | Canon AE-1 / AE-1 Program (35mm SLR) | $2.00 | $91.90 | $109.90 | hibid | Yellowhead County, AB | - |
+| 25 | [Canon AE-1 Program Camera Lens Lot](https://hibid.com/lot/316833092) | Canon AE-1 / AE-1 Program (35mm SLR) | $2.50 | $91.90 | $109.40 | hibid | Joplin, MO | - |
+| 26 | [Canon AE-1 35mm SLR Camera Kit](https://hibid.com/lot/317257962) | Canon AE-1 / AE-1 Program (35mm SLR) | $2.50 | $91.90 | $109.40 | hibid | Madisonville, TN | - |
+| 27 | [Canon AE-1 35mm SLR Camera w/ 50mm f/1.8 Lens & P](https://hibid.com/lot/317568938) | Canon AE-1 / AE-1 Program (35mm SLR) | $3.00 | $91.90 | $108.90 | hibid | Bloomington, IN | - |
+| 28 | [Vtg Canon AE-1 35mm Film Camera, Vivitar See Info](https://hibid.com/lot/316741507) | Canon AE-1 / AE-1 Program (35mm SLR) | $4.00 | $91.90 | $107.90 | hibid | Albuquerque, NM | - |
+| 29 | [LEGO Movie Videogame (PlayStation Vita / PS Vita) Cartridge ](https://www.ebay.com/itm/267759101277?_skw=playstation+vita&hash=item3e57afa55d:g:xv8AAeSwsJVqgdYr) | PlayStation Vita console | $5.00 | $92.72 | $107.72 | ebay |  | - |
+| 30 | [Vintage film Canon AE-1 w/flash 188A and 2 lenses](https://hibid.com/lot/317337862) | Canon AE-1 / AE-1 Program (35mm SLR) | $5.00 | $91.90 | $106.90 | hibid | Creston, CA | - |
+| 31 | [Canon AE-1 Camera](https://hibid.com/lot/317602401) | Canon AE-1 / AE-1 Program (35mm SLR) | $8.50 | $91.90 | $103.40 | hibid | Union Bridge, MD | - |
+| 32 | [Freedom Wars (Sony PlayStation Vita, 2014)](https://www.ebay.com/itm/366609876822?_skw=playstation+vita&hash=item555ba6c756:g:mHAAAeSwFkJqgi1Q) | PlayStation Vita console | $9.99 | $92.72 | $102.73 | ebay |  | - |
+| 33 | [Pentax K1000, Argus G1835 Cameras, Lens, Case](https://hibid.com/lot/317996293) | Pentax K1000 (35mm SLR) | $1.00 | $83.04 | $102.04 | hibid | Castile, NY | - |
+| 34 | [Asahi Pentax K1000 35mm manual focus SLR film](https://hibid.com/lot/317734659) | Pentax K1000 (35mm SLR) | $1.00 | $83.04 | $102.04 | hibid | Yorkton, SK | - |
+| 35 | [Olympus Stylus Epic Zoom 80 Film Camera](https://hibid.com/lot/317240296) | Olympus Stylus Epic Zoom 80/115/170 | $35.00 | $117.00 | $102.00 | hibid | Green Bay, WI | - |
+| 36 | [Cannon AE 1 Program camera](https://hibid.com/lot/316463856) | Canon AE-1 / AE-1 Program (35mm SLR) | $10.00 | $91.90 | $101.90 | hibid | Farmersburg, IN | - |
+| 37 | [Canon AE-1 35mm Film SLR Camera w/2 Lenses - Shutter Fires](https://shopgoodwill.com/item/273717355) | Canon AE-1 / AE-1 Program (35mm SLR) | $7.99 | $88.90 | $100.91 | goodwill |  | 2026-08-19T18:36 |
+| 38 | [Singer Featherweight Sewing Machine 678-3A](https://hibid.com/lot/315824313) | Singer Featherweight 221/222 | $50.00 | $130.10 | $100.10 | hibid | Brevard, NC | - |
+| 39 | [Vintage Canon AE-1 Program & FT QL 35mm SLR Film Camera Lot ](https://shopgoodwill.com/item/273626463) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $89.90 | $99.91 | goodwill |  | 2026-08-18T20:31 |
+| 40 | [Canon / AE-1 Program Film Camera + 28-80mm Lense / + 3 Rolls](https://shopgoodwill.com/item/273991143) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $89.90 | $99.91 | goodwill |  | 2026-08-19T18:38 |
+| 41 | [Canon AE-1 Program 35mm SLR Camera w/ Accessories](https://shopgoodwill.com/item/273715152) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $89.90 | $99.91 | goodwill |  | 2026-08-19T19:11 |
+| 42 | [Canon AE-1 Program 35mm SLR Film Camera with Canon FD 50mm f](https://shopgoodwill.com/item/273873727) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $89.90 | $99.91 | goodwill |  | 2026-08-20T18:24 |
+| 43 | [Vtg Canon AE-1 Program 35mm film camera & More](https://hibid.com/lot/316947022) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.00 | $91.90 | $99.90 | hibid | Clinton Twp, MI | - |
+| 44 | [Canon Power Winder A2 for AE-1 Untested](https://shopgoodwill.com/item/273490733) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $88.90 | $98.91 | goodwill |  | 2026-08-17T20:03 |
+| 45 | [Vintage Canon AE-1 Program 35mm Film Camera in Case w/ Acces](https://shopgoodwill.com/item/273604384) | Canon AE-1 / AE-1 Program (35mm SLR) | $10.99 | $89.90 | $98.91 | goodwill |  | 2026-08-18T18:01 |
+| 46 | [Vintage Canon AE-1 35mm SLR Camera w/ FD 50mm f1.8 Lens Flas](https://shopgoodwill.com/item/273579587) | Canon AE-1 / AE-1 Program (35mm SLR) | $10.99 | $89.90 | $98.91 | goodwill |  | 2026-08-18T18:15 |
+| 47 | [Cannon AE-1 Camera, Lenses & More](https://hibid.com/lot/316947142) | Canon AE-1 / AE-1 Program (35mm SLR) | $13.00 | $91.90 | $98.90 | hibid | Clinton Twp, MI | - |
+| 48 | [Sony OEM PlayStation Ps Vita AC Adaptor Very Good Condition ](https://www.ebay.com/itm/147508798468?_skw=playstation+vita&hash=item225835a404:g:2hIAAeSwMyRqgdSo) | PlayStation Vita console | $13.95 | $92.72 | $98.77 | ebay |  | - |
+| 49 | [Assassin's Creed III: Liberation (Sony PlayStation Vita, 201](https://www.ebay.com/itm/366609877238?_skw=playstation+vita&hash=item555ba6c8f6:g:azoAAeSwBidqgi2Z) | PlayStation Vita console | $14.12 | $92.72 | $98.60 | ebay |  | - |
+| 50 | [Canon AE-1 Program 35mm SLR Camera w/ Canon FD 50mm f1.8 Len](https://shopgoodwill.com/item/273413265) | Canon AE-1 / AE-1 Program (35mm SLR) | $10.99 | $89.40 | $98.41 | goodwill |  | 2026-08-18T18:31 |
+| 51 | [Pentax K1000 Camera Outfit](https://hibid.com/lot/315752988) | Pentax K1000 (35mm SLR) | $5.00 | $83.04 | $98.04 | hibid | Edinburg, VA | - |
+| 52 | [Canon AE-1 Program Digital Camera](https://shopgoodwill.com/item/273850240) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $89.91 | $97.92 | goodwill |  | 2026-08-20T16:52 |
+| 53 | [Canon AE-1 Program Black 35mm SLR Camera Body Untested](https://shopgoodwill.com/item/273641142) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $88.90 | $96.91 | goodwill |  | 2026-08-18T18:01 |
+| 54 | [* Borderlands 2 (Sony PlayStation Vita, 2014) Cartridge Only](https://www.ebay.com/itm/188787410017?_skw=playstation+vita&hash=item2bf49b4461:g:6Y0AAeSw5fZqfOS2) | PlayStation Vita console | $15.87 | $92.72 | $96.85 | ebay |  | - |
+| 55 | [Mixed Lot 5 Cameras Canon AE-1 Minolta XG-1 PowerShot Olympu](https://shopgoodwill.com/item/273628862) | Canon AE-1 / AE-1 Program (35mm SLR) | $13.99 | $89.91 | $95.92 | goodwill |  | 2026-08-19T19:16 |
+| 56 | [Vintage Canon AE-1 Program Film Camera W/ Canon Lens FD 50mm](https://shopgoodwill.com/item/273612134) | Canon AE-1 / AE-1 Program (35mm SLR) | $13.00 | $88.90 | $95.90 | goodwill |  | 2026-08-18T18:45 |
+| 57 | [Vintage Canon Ae-1 Pentax Sf10 + 8 Piece Film & Instant Came](https://shopgoodwill.com/item/273961826) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.99 | $87.91 | $94.92 | goodwill |  | 2026-08-19T19:08 |
+| 58 | [Vintage Canon AE-1 35mm SLR Camera 4 Piece Lot With 3 Lenses](https://shopgoodwill.com/item/273761915) | Canon AE-1 / AE-1 Program (35mm SLR) | $14.99 | $89.90 | $94.91 | goodwill |  | 2026-08-19T20:20 |
+| 59 | [Vintage Canon AE-1 with 50/1.8 FD SLR Camera w/ Accessories](https://shopgoodwill.com/item/273580353) | Canon AE-1 / AE-1 Program (35mm SLR) | $14.99 | $88.90 | $93.91 | goodwill |  | 2026-08-18T16:04 |
+| 60 | [Vintage Asahi Pentax K1000 35mm mechanical SLR Film Camera](https://shopgoodwill.com/item/273885302) | Pentax K1000 (35mm SLR) | $9.99 | $83.04 | $93.05 | goodwill |  | 2026-08-20T19:12 |
 | 61 | [Pentax K1000 Camera](https://hibid.com/lot/314545420) | Pentax K1000 (35mm SLR) | $10.00 | $83.04 | $93.04 | hibid | Billings, MT | - |
 | 62 | [Starrett No. 196 Dial Test Indicator Set](https://hibid.com/lot/317395563) | Dial / test indicator (brand-name) | $5.00 | $77.87 | $92.87 | hibid 📍 | Cypress, TX | - |
 | 63 | [Army Corps of Hell (Sony PlayStation Vita, 2012)](https://www.ebay.com/itm/366609878017?_skw=playstation+vita&hash=item555ba6cc01:g:PGEAAeSwvLhqgi4K) | PlayStation Vita console | $19.95 | $92.72 | $92.77 | ebay |  | - |
@@ -73,396 +73,396 @@ _Generated 2026-08-16T23:08:35+00:00 - best profit first. 'Open' is what it cost
 | 68 | [Persona 4 Golden P4G (Sony Playstation PS Vita, 2012) Cartri](https://www.ebay.com/itm/168618767924?_skw=ps+vita&hash=item2742763634:g:vt4AAeSwEi9qgiP5) | PlayStation Vita console | $21.49 | $92.72 | $91.23 | ebay |  | - |
 | 69 | [Black Canon AE-1 Program 35mm Film SLR Camera w/50mm Lens - ](https://shopgoodwill.com/item/273868403) | Canon AE-1 / AE-1 Program (35mm SLR) | $18.00 | $88.90 | $90.90 | goodwill |  | 2026-08-20T18:21 |
 | 70 | [ModNation Racers: Road Trip (Sony PS Vita, 2012) No Manual](https://www.ebay.com/itm/800518873587?_skw=ps+vita&hash=itemba62a4a1f3:g:cp0AAeSwjgRqgezE) | PlayStation Vita console | $12.37 | $83.22 | $90.85 | ebay |  | - |
-| 71 | [Vintage Asahi Pentax K1000 35mm mechanical SLR Film Camera](https://shopgoodwill.com/item/273885302) | Pentax K1000 (35mm SLR) | $9.99 | $80.79 | $90.80 | goodwill |  | 2026-08-20T19:12 |
-| 72 | [Ipod Video 5th Generation](https://hibid.com/lot/317424940) | iPod Classic/Video (capacity unknown) | $8.00 | $78.75 | $90.75 | hibid | Elora, ON | - |
-| 73 | [Asahi Pentax K1000 35mm Film SLR Camera Body](https://shopgoodwill.com/item/273758997) | Pentax K1000 (35mm SLR) | $9.99 | $80.54 | $90.55 | goodwill |  | 2026-08-21T18:14 |
-| 74 | [LEGO Legends of Chima: Laval's Journey Playstation Vita](https://shopgoodwill.com/item/273656343) | PlayStation Vita console | $18.99 | $89.22 | $90.23 | goodwill |  | 2026-08-18T19:09 |
-| 75 | [Canon AE-1 Program 35mm SLR Camera with Canon FD 50mm f/1.8 ](https://shopgoodwill.com/item/273999130) | Canon AE-1 / AE-1 Program (35mm SLR) | $19.99 | $89.90 | $89.91 | goodwill |  | 2026-08-19T18:19 |
-| 76 | [Apple iPod Classic 160GB Music Player W/ Earbuds - Tested/Fo](https://shopgoodwill.com/item/274108046) | iPod Classic 160GB | $22.00 | $91.73 | $89.73 | goodwill |  | 2026-08-22T19:02 |
-| 77 | [Persona 4 Golden - Sony PlayStation Vita](https://www.ebay.com/itm/407149589919?_skw=playstation+vita&hash=item5ecc01b59f:g:OwcAAeSw1yVqgiXy) | PlayStation Vita console | $18.00 | $87.72 | $89.72 | ebay |  | - |
-| 78 | [PENTAX K1000 Genuine Original User Instruction Manual Bookle](https://www.ebay.com/itm/227478299197?_skw=pentax+k1000&hash=item34f6c3623d:g:WDgAAeSwPABp-eE8) | Pentax K1000 (35mm SLR) | $13.66 | $83.04 | $89.38 | ebay |  | - |
-| 79 | [Asahi Pentax K1000 35mm Slr Film Camera Body](https://shopgoodwill.com/item/274079238) | Pentax K1000 (35mm SLR) | $13.99 | $83.04 | $89.05 | goodwill |  | 2026-08-20T18:12 |
-| 80 | [Asahi Pentax K1000 35mm SLR Camera w/ Five Star MC Auto Zoom](https://shopgoodwill.com/item/273514815) | Pentax K1000 (35mm SLR) | $14.95 | $83.04 | $88.09 | goodwill |  | 2026-08-23T16:58 |
-| 81 | [Untested Asahi Pentax K1000 SLR Film Camera w/ Pentax-A 50mm](https://shopgoodwill.com/item/273833721) | Pentax K1000 (35mm SLR) | $14.99 | $83.04 | $88.05 | goodwill |  | 2026-08-20T18:28 |
-| 82 | [Canon Ae-1 Program 35mm Slr Film Camera With 50mm F/1.8 Lens](https://shopgoodwill.com/item/273758343) | Canon AE-1 / AE-1 Program (35mm SLR) | $21.99 | $89.90 | $87.91 | goodwill |  | 2026-08-17T19:40 |
-| 83 | [Starrett speed indicator](https://hibid.com/lot/317281831) | Dial / test indicator (brand-name) | $1.00 | $68.87 | $87.87 | hibid | Hillsboro, OR | - |
-| 84 | [Fluke 337 True RMS Clamp Meter Kit](https://hibid.com/lot/315105262) | Fluke 3xx clamp meter | $20.00 | $87.38 | $87.38 | hibid | Idaho Falls, ID | - |
-| 85 | [Untested Silver Toned Asahi Pentax K1000 SLR Film Camera w/ ](https://shopgoodwill.com/item/273876473) | Pentax K1000 (35mm SLR) | $15.99 | $83.04 | $87.05 | goodwill |  | 2026-08-20T18:29 |
-| 86 | [Vintage Canon AE-1 Leather Ever Ready Case, Made In Japan](https://www.ebay.com/itm/158195133609?_skw=canon+ae-1&hash=item24d52a2ca9:g:XF4AAeSwFkJqgfNv) | Canon AE-1 / AE-1 Program (35mm SLR) | $25.00 | $91.90 | $86.90 | ebay |  | - |
-| 87 | [Starrett  Dial Indicator](https://hibid.com/lot/317700048) | Dial / test indicator (brand-name) | $2.00 | $68.87 | $86.87 | hibid | Mattoon, IL | - |
-| 88 | [Starrett Back Plunger Dial Indicator](https://hibid.com/lot/317492536) | Dial / test indicator (brand-name) | $2.00 | $68.87 | $86.87 | hibid | Peterborough, ON | - |
-| 89 | [Canon Elph digital camera](https://hibid.com/lot/317446536) | Canon PowerShot ELPH / IXUS (digital) | $2.00 | $68.70 | $86.70 | hibid | Otley, IA | - |
-| 90 | [Starrett dial indicator](https://hibid.com/lot/317269273) | Dial / test indicator (brand-name) | $2.50 | $68.87 | $86.37 | hibid | Bark River, MI | - |
-| 91 | [Brown & sharpe dial indicator, micrometer](https://hibid.com/lot/317269280) | Dial / test indicator (brand-name) | $2.50 | $68.87 | $86.37 | hibid | Bark River, MI | - |
-| 92 | [vtg Starrett Last Word dial indicator](https://hibid.com/lot/317269275) | Dial / test indicator (brand-name) | $2.50 | $68.87 | $86.37 | hibid | Bark River, MI | - |
-| 93 | [Vintage Pentax K1000 SLR Camera w/ Accessories](https://shopgoodwill.com/item/273885690) | Pentax K1000 (35mm SLR) | $12.99 | $79.05 | $86.06 | goodwill |  | 2026-08-20T19:09 |
-| 94 | [Canon / AE-1 Silver 35mm SLR Film Camera / w/ Vivitar 75-205](https://shopgoodwill.com/item/273612566) | Canon AE-1 / AE-1 Program (35mm SLR) | $24.00 | $89.90 | $85.90 | goodwill |  | 2026-08-16T18:35 |
-| 95 | [Starrett dial indicator in red case](https://hibid.com/lot/316184313) | Dial / test indicator (brand-name) | $3.00 | $68.87 | $85.87 | hibid | Denfield, ON | - |
-| 96 | [Coach Brown Canvas Monogram Print iPod Classic Case With Wri](https://shopgoodwill.com/item/274135340) | iPod Classic/Video (capacity unknown) | $9.99 | $75.75 | $85.76 | goodwill |  | 2026-08-23T18:17 |
-| 97 | [Apple iPod Classic 5th Gen (Powers On, Reset)](https://shopgoodwill.com/item/274047120) | iPod Classic/Video (capacity unknown) | $11.00 | $76.75 | $85.75 | goodwill |  | 2026-08-21T19:26 |
-| 98 | [OEM Genuine Apple iPod Classic USB Power Adapter Charger A11](https://www.ebay.com/itm/407147960060?_skw=ipod+classic&hash=item5ecbe8d6fc:g:izQAAeSwW4tqgPlH) | iPod Classic/Video (capacity unknown) | $13.00 | $78.75 | $85.75 | ebay |  | - |
-| 99 | [Sony handycam camcorder. Not able to test needs](https://hibid.com/lot/316186412) | Sony Handycam camcorder | $8.00 | $73.70 | $85.70 | hibid 📍 | Frankston, TX | - |
-| 100 | [PlayStation All-Stars Battle Royale (Sony PS Vita) Complete ](https://www.ebay.com/itm/800518891904?_skw=ps+vita&hash=itemba62a4e980:g:ekYAAeSwdixqge0k) | PlayStation Vita console | $18.71 | $84.07 | $85.36 | ebay |  | - |
-| 101 | [Singer Featherweight Sewing Machine](https://hibid.com/lot/316114125) | Singer Featherweight 221/222 | $65.00 | $130.10 | $85.10 | hibid | Bluefield, VA | - |
-| 102 | [Pentax & Pentax K1000 35mm Film SLR Cameras 2ct.](https://shopgoodwill.com/item/273883289) | Pentax K1000 (35mm SLR) | $14.99 | $80.05 | $85.06 | goodwill |  | 2026-08-20T18:57 |
-| 103 | [Vintage Asahi Pentax K1000 SLR Film Camera](https://hibid.com/lot/316754627) | Pentax K1000 (35mm SLR) | $18.00 | $83.04 | $85.04 | hibid | Varies; See Auction, MO | - |
-| 104 | [iPod Classic 5th Generation A1136 30GB Screen Issue Upper Ri](https://shopgoodwill.com/item/274068705) | iPod Classic/Video (capacity unknown) | $10.99 | $75.75 | $84.76 | goodwill |  | 2026-08-22T18:48 |
-| 105 | [PlayStation All-Stars Battle Royale (Sony PS Vita) Complete ](https://www.ebay.com/itm/800518890985?_skw=ps+vita&hash=itemba62a4e5e9:g:ekYAAeSwdixqge0k) | PlayStation Vita console | $19.23 | $83.22 | $83.99 | ebay |  | - |
-| 106 | [Need for Speed: Most Wanted (Sony PS Vita) Complete In Box C](https://www.ebay.com/itm/800518872271?_skw=ps+vita&hash=itemba62a49ccf:g:eRYAAeSwQzFqgeyW) | PlayStation Vita console | $20.18 | $84.07 | $83.89 | ebay |  | - |
-| 107 | [Starrett dial test indicator](https://hibid.com/lot/317281830) | Dial / test indicator (brand-name) | $5.00 | $68.87 | $83.87 | hibid | Hillsboro, OR | - |
-| 108 | [Vintage Federal Dial Indicator](https://hibid.com/lot/316037826) | Dial / test indicator (brand-name) | $5.00 | $68.87 | $83.87 | hibid | Nicholls, GA | - |
-| 109 | [Apple iPod Classic 8GB Model A1236 Black Click Wheel Tested ](https://shopgoodwill.com/item/273850226) | iPod Classic/Video (capacity unknown) | $12.99 | $76.76 | $83.77 | goodwill |  | 2026-08-21T19:09 |
-| 110 | [Canon PowerShot ELPH 360 HS A Silver](https://hibid.com/lot/317922821) | Canon PowerShot ELPH / IXUS (digital) | $5.00 | $68.70 | $83.70 | hibid | Etobicoke, ON | - |
-| 111 | [SONY HANDYCAM](https://hibid.com/lot/317607669) | Sony Handycam camcorder | $1.00 | $64.70 | $83.70 | hibid | Cumberland, WI | - |
-| 112 | [Sony Handycam](https://hibid.com/lot/317260861) | Sony Handycam camcorder | $1.00 | $64.70 | $83.70 | hibid | Huntingdon, TN | - |
-| 113 | [Sony MiniDVD Handycam Camcorder with Case](https://hibid.com/lot/317710906) | Sony Handycam camcorder | $1.00 | $64.70 | $83.70 | hibid | Centre, AL | - |
-| 114 | [Vintage Sony Video 8 Auto HandyCam Video Camera](https://hibid.com/lot/317546296) | Sony Handycam camcorder | $1.00 | $64.70 | $83.70 | hibid | Wellington, KS | - |
-| 115 | [Apple iPod Classic 120GB Black Grey Click Wheel Media Player](https://shopgoodwill.com/item/273852351) | iPod Classic 120GB | $16.99 | $80.65 | $83.66 | goodwill |  | 2026-08-20T18:55 |
-| 116 | [Toshiba MK2004GAL 20GB 1.8in IDE Hard Drive for iPod Classic](https://www.ebay.com/itm/287527699421?_skw=ipod+classic&hash=item42f1fc83dd:g:N-8AAeSwUiNqgRsn) | iPod Classic/Video (capacity unknown) | $12.00 | $75.25 | $83.25 | ebay |  | - |
-| 117 | [Need for Speed: Most Wanted (Sony PS Vita) Complete In Box C](https://www.ebay.com/itm/800518872043?_skw=ps+vita&hash=itemba62a49beb:g:eRYAAeSwQzFqgeyW) | PlayStation Vita console | $20.00 | $83.22 | $83.22 | ebay |  | - |
-| 118 | [Starrett 25-441J Dial Indicator](https://hibid.com/lot/317160152) | Dial / test indicator (brand-name) | $6.00 | $68.87 | $82.87 | hibid | Mooresville, IN | - |
-| 119 | [Brown & Sharpe Bestest Dial Test Indicator](https://hibid.com/lot/317711008) | Dial / test indicator (brand-name) | $6.00 | $68.87 | $82.87 | hibid | Hayden, ID | - |
-| 120 | [Gravity Rush (Sony PlayStation Vita PS Vita, 2012)](https://www.ebay.com/itm/307130114618?_skw=ps+vita&hash=item478261a23a:g:~kcAAeSwtH5qgec~) | PlayStation Vita console | $29.99 | $92.72 | $82.73 | ebay |  | - |
-| 121 | [Sony Handycam](https://hibid.com/lot/316483675) | Sony Handycam camcorder | $2.00 | $64.70 | $82.70 | hibid | Evansville, IN | - |
-| 122 | [Sony HandyCam Video Camera](https://hibid.com/lot/317489819) | Sony Handycam camcorder | $2.00 | $64.70 | $82.70 | hibid | Henderson, KY | - |
-| 123 | [Vintage Asahi Pentax K1000 35mm SLR Film Camera Albinar 80-2](https://shopgoodwill.com/item/273743451) | Pentax K1000 (35mm SLR) | $20.99 | $83.04 | $82.05 | goodwill |  | 2026-08-19T18:18 |
-| 124 | [Canon AE-1 Program 35mm SLR Film Camera W/ Carrying Case - N](https://shopgoodwill.com/item/273457408) | Canon AE-1 / AE-1 Program (35mm SLR) | $27.00 | $88.91 | $81.91 | goodwill |  | 2026-08-17T18:41 |
-| 125 | [Toshiba MK3008GAL  Hard Drive for iPod Video 5th Generation ](https://www.ebay.com/itm/257671154672?_skw=ipod+video&hash=item3bfe65cbf0:g:IXMAAeSwbspqeLmV) | iPod Classic/Video (capacity unknown) | $16.99 | $78.75 | $81.76 | ebay |  | - |
-| 126 | [Sony Handycam FDR-AX53 4K camcorder with](https://hibid.com/lot/316769811) | Sony Handycam camcorder | $3.00 | $64.70 | $81.70 | hibid | Okmulgee, OK | - |
-| 127 | [1PC Used Battery Back Cover Box For Fluke 317 319 Clamp Mete](https://www.ebay.com/itm/227476768365?_skw=fluke+meter&hash=item34f6ac066d:g:t9gAAeSwj-VqgCIq) | Fluke 3xx clamp meter | $25.95 | $87.38 | $81.43 | ebay |  | - |
-| 128 | [Asahi Pentax K1000 35mm SLR Camera w Cosina 80-200mm Lens Mi](https://shopgoodwill.com/item/274142857) | Pentax K1000 (35mm SLR) | $19.99 | $81.04 | $81.05 | goodwill |  | 2026-08-21T18:16 |
-| 129 | [Asahi Pentax K1000 35mm SLR Camera with Vivitar RL Edition M](https://shopgoodwill.com/item/274136793) | Pentax K1000 (35mm SLR) | $19.99 | $81.04 | $81.05 | goodwill |  | 2026-08-21T18:58 |
-| 130 | [Sony Handycam with with charger and bag](https://hibid.com/lot/317446572) | Sony Handycam camcorder | $4.00 | $64.70 | $80.70 | hibid | Otley, IA | - |
-| 131 | [Sony HDR-HC3 Video Handycam Camcorder w/](https://hibid.com/lot/317516017) | Sony Handycam camcorder | $4.00 | $64.70 | $80.70 | hibid | Madison, WI | - |
-| 132 | [Borderlands 2 (Sony PlayStation Vita PS Vita, 2014) – CIB](https://www.ebay.com/itm/128029507771?_skw=playstation+vita&hash=item1dcf2740bb:g:wC8AAeSwazxqgcJY) | PlayStation Vita console | $32.43 | $92.72 | $80.29 | ebay |  | - |
-| 133 | [Starrett 25-441J Dial Indicator](https://hibid.com/lot/317160150) | Dial / test indicator (brand-name) | $9.00 | $68.87 | $79.87 | hibid | Mooresville, IN | - |
-| 134 | [Sony Video HI8 HandyCam](https://hibid.com/lot/317590703) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Anchorage, AK | - |
-| 135 | [Sony Handycam Video8 Camcorder Lot](https://hibid.com/lot/316122208) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Wattsburg, PA | - |
-| 136 | [Sony Handycam PRO CCD-V9 Camcorder & Accessories](https://hibid.com/lot/317801078) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Schnecksville, PA | - |
-| 137 | [Mitutoyo 513-404-10T Dial Indicators](https://hibid.com/lot/301352832) | Dial / test indicator (brand-name) | $10.00 | $68.87 | $78.87 | hibid | San Mateo, CA | - |
-| 138 | [Apple iPod Classic A1136 30GB Black Click Wheel and Stainles](https://shopgoodwill.com/item/273729211) | iPod Classic/Video (capacity unknown) | $18.00 | $76.75 | $78.75 | goodwill |  | 2026-08-17T18:47 |
-| 139 | [Sony Vintage 1980's CCD-V3 HandyCam Video 8 Camera Recorder-](https://shopgoodwill.com/item/273421994) | Sony Handycam camcorder | $4.99 | $63.71 | $78.72 | goodwill |  | 2026-08-16T19:10 |
-| 140 | [Canon Power Shot Elph 100 HS with Battery and SD](https://hibid.com/lot/315741705) | Canon PowerShot ELPH / IXUS (digital) | $10.00 | $68.70 | $78.70 | hibid | Mooreland, IN | - |
-| 141 | [Various Old Cameras and Sony Handycam](https://hibid.com/lot/317475017) | Sony Handycam camcorder | $6.00 | $64.70 | $78.70 | hibid | Oak Ridge, TN | - |
-| 142 | [Pentax K1000 50mm f2 SMC-A Manual SLR Film Camera 1980s Book](https://www.ebay.com/itm/147503287067?_skw=pentax+k1000&hash=item2257e18b1b:g:BCoAAeSwWQxqflzL) | Pentax K1000 (35mm SLR) | $24.99 | $83.04 | $78.05 | ebay |  | - |
-| 143 | [Asahi Pentax K1000 35mm SLR Camera Original Instruction Manu](https://www.ebay.com/itm/147503283105?_skw=pentax+k1000&hash=item2257e17ba1:g:SIsAAeSwVnNqflwc) | Pentax K1000 (35mm SLR) | $24.99 | $83.04 | $78.05 | ebay |  | - |
-| 144 | [Omega Labyrinth - PS Vita](https://www.ebay.com/itm/227478743694?_skw=ps+vita&hash=item34f6ca2a8e:g:rTkAAeSwOfRqgigt) | PlayStation Vita console | $35.00 | $92.72 | $77.72 | ebay |  | - |
-| 145 | [Sony CCD-TR23 Video8 Handycam Kit](https://hibid.com/lot/316009340) | Sony Handycam camcorder | $7.00 | $64.70 | $77.70 | hibid | West Columbia, SC | - |
-| 146 | [Nintendo Switch U Consoles & Controllers](https://hibid.com/lot/315748689) | Nintendo Switch console (v1/v2, non-OLED) | $7.00 | $64.70 | $77.70 | hibid | Greenville, MI | - |
-| 147 | [PENTAX K1000 Rear Film Door Only for SLR 35mm Film Camera .](https://www.ebay.com/itm/237010301366?_skw=pentax+k1000&hash=item372eea31b6:g:WYwAAOSwRetfw9LE) | Pentax K1000 (35mm SLR) | $18.99 | $76.09 | $77.10 | ebay |  | - |
-| 148 | [Powers On IOB Canon PowerShot SD550 Digital ELPH w/ Accessor](https://shopgoodwill.com/item/273990211) | Canon PowerShot ELPH / IXUS (digital) | $10.99 | $67.70 | $76.71 | goodwill |  | 2026-08-17T18:03 |
-| 149 | [Sony Handycam Station Adaptor Plate Model Eta-26 Black Untes](https://shopgoodwill.com/item/273523945) | Sony Handycam camcorder | $7.99 | $64.70 | $76.71 | goodwill |  | 2026-08-17T18:10 |
-| 150 | [Canon PowerShot ELPH 170 IS Digital Camera with Or](https://hibid.com/lot/313923332) | Canon PowerShot ELPH / IXUS (digital) | $12.00 | $68.70 | $76.70 | hibid | Angles Camp, CA | - |
-| 151 | [Vintage Pentax K1000 35mm Film Camera Bundle](https://shopgoodwill.com/item/273865997) | Pentax K1000 (35mm SLR) | $24.99 | $81.04 | $76.05 | goodwill |  | 2026-08-20T18:07 |
-| 152 | [Vintage Canon AE-1 & Honeywell Pentax Spotmatic F 35mm SLR C](https://shopgoodwill.com/item/273710740) | Canon AE-1 / AE-1 Program (35mm SLR) | $34.00 | $89.90 | $75.90 | goodwill |  | 2026-08-17T18:54 |
-| 153 | [Apple iPod Classic 3rd Gen 40GB Model A1040 Bundle Box - Pow](https://shopgoodwill.com/item/274077020) | iPod Classic/Video (capacity unknown) | $20.99 | $76.75 | $75.76 | goodwill |  | 2026-08-20T18:22 |
-| 154 | [Apple Ipod Classic 5th Generation 30gb Black Portable Media ](https://shopgoodwill.com/item/273746685) | iPod Classic/Video (capacity unknown) | $22.00 | $77.75 | $75.75 | goodwill |  | 2026-08-17T20:07 |
-| 155 | [Canon Powershot Sd400 Digital Elph 5.0mp Camera With Battery](https://shopgoodwill.com/item/273715886) | Canon PowerShot ELPH / IXUS (digital) | $10.99 | $66.70 | $75.71 | goodwill |  | 2026-08-17T20:30 |
-| 156 | [Sony Handycam Video 8 (Model CCD-TR71)](https://hibid.com/lot/317213642) | Sony Handycam camcorder | $9.00 | $64.70 | $75.70 | hibid | Corrales, NM | - |
-| 157 | [2 GameBoy Advanced Sp Consoles + 3DS](https://hibid.com/lot/317673143) | Nintendo 3DS (non-XL) | $5.00 | $60.03 | $75.03 | hibid | Kuna, ID | - |
-| 158 | [Vintage 2005 Apple A1099 iPod Classic 4th Gen. 20GB White MP](https://shopgoodwill.com/item/273629511) | iPod Classic/Video (capacity unknown) | $19.99 | $75.00 | $75.01 | goodwill |  | 2026-08-16T20:10 |
-| 159 | [Apple Ipod Classic 160GB](https://shopgoodwill.com/item/273592656) | iPod Classic 160GB | $37.75 | $92.72 | $74.97 | goodwill |  | 2026-08-18T18:56 |
-| 160 | [Sony PlayStation 4 Pro CUH-7015B Black Console 100-240V 310W](https://shopgoodwill.com/item/273407652) | Sony PlayStation 4 Pro console | $14.95 | $69.64 | $74.69 | goodwill |  | 2026-08-17T16:35 |
-| 161 | [Pentax K1000 35mm SLR Camera Body Untested [Black in Viewfin](https://shopgoodwill.com/item/273610445) | Pentax K1000 (35mm SLR) | $26.00 | $80.04 | $74.04 | goodwill |  | 2026-08-18T18:59 |
-| 162 | [Vintage Starrett Dial Test Indicator Set](https://hibid.com/lot/316114042) | Dial / test indicator (brand-name) | $15.00 | $68.87 | $73.87 | hibid | Bluefield, VA | - |
-| 163 | [iPod Classic 7th Generation 160GB A1238 Reset](https://shopgoodwill.com/item/273794604) | iPod Classic/Video (capacity unknown) | $22.00 | $75.75 | $73.75 | goodwill |  | 2026-08-19T19:03 |
-| 164 | [Sony Dcr-dvd92 Ntsc Digital Video Camera Recorder - Untested](https://shopgoodwill.com/item/274040896) | Sony Handycam camcorder | $7.99 | $61.71 | $73.72 | goodwill |  | 2026-08-19T20:22 |
-| 165 | [Canon Powershot S400 Digital Elph](https://shopgoodwill.com/item/273760081) | Canon PowerShot ELPH / IXUS (digital) | $14.99 | $68.70 | $73.71 | goodwill |  | 2026-08-17T19:10 |
-| 166 | [Jak and Daxter Collection PS Vita (PlayStation Vita, 2013) C](https://www.ebay.com/itm/128029509818?_skw=playstation+vita&hash=item1dcf2748ba:g:WFAAAeSwMyRqgcLg) | PlayStation Vita console | $39.63 | $92.72 | $73.09 | ebay |  | - |
-| 167 | [Starrett Dial Test Indicator,Calipers & Micrometer](https://hibid.com/lot/316623210) | Dial / test indicator (brand-name) | $16.00 | $68.87 | $72.87 | hibid | Walworth, NY | - |
-| 168 | [MK3008GAL Replace Hard Drive for iPod Video 5th Generation 3](https://www.ebay.com/itm/398280598605?_skw=ipod+video&hash=item5cbb5fa44d:g:BzQAAeSw~cFqfYs3) | iPod Classic/Video (capacity unknown) | $25.99 | $78.75 | $72.76 | ebay |  | - |
-| 169 | [Canon Powershot Elph 170 Is 12x Zoom Blue + Case Set Unteste](https://shopgoodwill.com/item/273762079) | Canon PowerShot ELPH / IXUS (digital) | $11.99 | $64.71 | $72.72 | goodwill |  | 2026-08-17T20:33 |
-| 170 | [Sony Dcr-dvd108 Digital Video Camera Recorder - Untested](https://shopgoodwill.com/item/273808050) | Sony Handycam camcorder | $8.99 | $61.71 | $72.72 | goodwill |  | 2026-08-17T18:19 |
-| 171 | [Vtg Canon AE-1 35mm Film SLR Camera with Accessories & Bag (](https://shopgoodwill.com/item/273726158) | Canon AE-1 / AE-1 Program (35mm SLR) | $37.21 | $89.90 | $72.69 | goodwill |  | 2026-08-19T19:19 |
-| 172 | [Vintage Canon AE-1 Film Camera-AS IS](https://shopgoodwill.com/item/273886504) | Canon AE-1 / AE-1 Program (35mm SLR) | $37.00 | $88.90 | $71.90 | goodwill |  | 2026-08-18T13:55 |
-| 173 | [Apple Ipod Classic-20gb- Bundle With Accessories](https://shopgoodwill.com/item/274110771) | iPod Classic/Video (capacity unknown) | $26.99 | $78.75 | $71.76 | goodwill |  | 2026-08-20T20:12 |
-| 174 | [Black Apple iPod Classic 6th Generation - 160GB - Model No. ](https://shopgoodwill.com/item/273886719) | iPod Classic/Video (capacity unknown) | $24.00 | $75.76 | $71.76 | goodwill |  | 2026-08-20T20:27 |
-| 175 | [Sony Video Hi8 Handycam (Untested)](https://shopgoodwill.com/item/273438871) | Sony Handycam camcorder | $9.99 | $61.70 | $71.71 | goodwill |  | 2026-08-16T18:16 |
-| 176 | [Apple iPod Classic 5th Gen 30GB White MA002LL A1136 Tested R](https://shopgoodwill.com/item/273604494) | iPod Classic/Video (capacity unknown) | $24.00 | $74.76 | $70.76 | goodwill |  | 2026-08-18T19:47 |
-| 177 | [Vintage Sony Handycam Camcorder Bundle Carl Zeiss 12x Optica](https://shopgoodwill.com/item/273584931) | Sony Handycam camcorder | $13.99 | $64.70 | $70.71 | goodwill |  | 2026-08-16T18:55 |
-| 178 | [Sony Handycam CCD-FX330 Video8 Camcorder 10x Zoom Auto Focus](https://shopgoodwill.com/item/273286119) | Sony Handycam camcorder | $14.95 | $64.70 | $69.75 | goodwill |  | 2026-08-16T16:39 |
-| 179 | [Vintage Sony Handycam CCD-TR5 Video8 Camera NTSC 6x Zoom w/ ](https://shopgoodwill.com/item/273615926) | Sony Handycam camcorder | $14.95 | $64.70 | $69.75 | goodwill |  | 2026-08-17T16:48 |
-| 180 | [Wipeout 2048 - Sony PlayStation Vita](https://www.ebay.com/itm/147509228776?_skw=playstation+vita&hash=item22583c34e8:g:lPQAAeSw1clqghuC) | PlayStation Vita console | $35.99 | $85.50 | $69.51 | ebay |  | - |
-| 181 | [Mitutoyo 543-732B-02CAL  Digital Indicator](https://hibid.com/lot/316358026) | Dial / test indicator (brand-name) | $20.00 | $68.87 | $68.87 | hibid | Fallon, NV | - |
-| 182 | [iPod Classic 6th Generation 80GB A1238 Reset](https://shopgoodwill.com/item/274007346) | iPod Classic/Video (capacity unknown) | $27.00 | $75.75 | $68.75 | goodwill |  | 2026-08-21T18:32 |
-| 183 | [Canon PowerShot S330 2.0MP 3x Zoom Digital Elph Camera - Wor](https://www.ebay.com/itm/128029779961?_skw=canon+elph&hash=item1dcf2b67f9:g:4cwAAeSwUrdqgfQe) | Canon PowerShot ELPH / IXUS (digital) | $20.00 | $68.70 | $68.70 | ebay |  | - |
-| 184 | [Canon PowerShot S410 4.0MP Digital Elph Camera 3x Zoom - Wor](https://www.ebay.com/itm/128029767498?_skw=canon+elph&hash=item1dcf2b374a:g:wHMAAeSwWcdqgfH~) | Canon PowerShot ELPH / IXUS (digital) | $20.00 | $68.70 | $68.70 | ebay |  | - |
-| 185 | [6th Gen Apple iPod Classic A1238 80GB MP3 Player](https://shopgoodwill.com/item/274039586) | iPod Classic/Video (capacity unknown) | $27.00 | $75.25 | $68.25 | goodwill |  | 2026-08-21T19:20 |
-| 186 | [Apple iPod Classic 6th Gen 120GB Silver Digital Media Player](https://shopgoodwill.com/item/273614852) | iPod Classic/Video (capacity unknown) | $26.99 | $74.76 | $67.77 | goodwill |  | 2026-08-18T19:20 |
-| 187 | [Assassin's Creed Chronicles for PlayStation Vita](https://www.ebay.com/itm/168617913144?_skw=playstation+vita&hash=item2742692b38:g:aqQAAeSwiuJqgavU) | PlayStation Vita console | $44.99 | $92.72 | $67.73 | ebay |  | - |
-| 188 | [Sony CCD-TR115E Handycam 220X Video Camera](https://shopgoodwill.com/item/273902161) | Sony Handycam camcorder | $11.99 | $59.71 | $67.72 | goodwill |  | 2026-08-16T18:26 |
-| 189 | [Sony Handycam CCD-TRV22 NTSC 8mm Video8 Zoom 26x Video Camco](https://shopgoodwill.com/item/273486731) | Sony Handycam camcorder | $13.99 | $61.71 | $67.72 | goodwill |  | 2026-08-17T18:02 |
-| 190 | [Sony Handycam CCD-F201 Video8 & JVC GR-DVL300U MiniDV Camcor](https://shopgoodwill.com/item/274036107) | Sony Handycam camcorder | $13.99 | $61.70 | $67.71 | goodwill |  | 2026-08-16T18:07 |
-| 191 | [untested as-is ps vita MODEL.PCH-1101](https://shopgoodwill.com/item/274042980) | PlayStation Vita console | $42.00 | $89.22 | $67.22 | goodwill |  | 2026-08-21T19:00 |
-| 192 | [Canon PowerShot SD750 Digital ELPH Camera Bundle (Untested)](https://shopgoodwill.com/item/273491422) | Canon PowerShot ELPH / IXUS (digital) | $18.00 | $64.71 | $66.71 | goodwill |  | 2026-08-17T19:16 |
-| 193 | [Sony Handycam DCR-TRV280 Digital8 Camcorder 990x Zoom Steady](https://shopgoodwill.com/item/273714028) | Sony Handycam camcorder | $15.99 | $62.70 | $66.71 | goodwill |  | 2026-08-17T18:23 |
-| 194 | [Sony Handycam DCR TRV280 Digital8 Camcorder NTSC SteadyShot ](https://shopgoodwill.com/item/273751906) | Sony Handycam camcorder | $15.99 | $62.70 | $66.71 | goodwill |  | 2026-08-17T18:44 |
-| 195 | [Sony Playstation 4 Pro Ps4 Console Cuh-7215b Black](https://shopgoodwill.com/item/273610409) | Sony PlayStation 4 Pro console | $23.00 | $69.64 | $66.64 | goodwill |  | 2026-08-18T20:02 |
-| 196 | [Vintage Asahi Pentax K1000 35mm SLR Film Camera Body Silver ](https://shopgoodwill.com/item/273746960) | Pentax K1000 (35mm SLR) | $37.00 | $83.04 | $66.04 | goodwill |  | 2026-08-19T18:09 |
-| 197 | [Apple iPod Classic 3rd Gen 15GB White Monochrome Screen Vint](https://shopgoodwill.com/item/273838766) | iPod Classic/Video (capacity unknown) | $32.00 | $76.76 | $64.76 | goodwill |  | 2026-08-20T18:53 |
-| 198 | [Sony Handycam Vision CCD-TRV308 Video Hi8 Camcorder W/ Case ](https://shopgoodwill.com/item/273460291) | Sony Handycam camcorder | $16.99 | $61.71 | $64.72 | goodwill |  | 2026-08-17T18:15 |
-| 199 | [Vintage Sony Handycam CCD-F55 Video 8 Camcorder 8x AF Macro ](https://shopgoodwill.com/item/273807757) | Sony Handycam camcorder | $19.99 | $64.70 | $64.71 | goodwill |  | 2026-08-19T19:14 |
-| 200 | [Fluke Carbon Monoxide Meter](https://hibid.com/lot/317134502) | Fluke meter (unspecified model) | $4.00 | $48.67 | $64.67 | hibid 📍 | Katy, TX | - |
-| 201 | [Vintage Koss Headphones & Polaroid SX-70](https://hibid.com/lot/317069078) | Polaroid SX-70 (folding) | $4.00 | $48.34 | $64.34 | hibid | Shawnee, KS | - |
-| 202 | [Vintage Canon AE-1 35mm Film SLR Camera W/ Lens - Not Tested](https://shopgoodwill.com/item/273459603) | Canon AE-1 / AE-1 Program (35mm SLR) | $44.88 | $88.91 | $64.03 | goodwill |  | 2026-08-17T19:02 |
-| 203 | [Sony Make Believe Handycam DCR-SX63 Digital Video Camera 60x](https://shopgoodwill.com/item/273979007) | Sony Handycam camcorder | $16.99 | $60.71 | $63.72 | goodwill |  | 2026-08-17T17:09 |
-| 204 | [Mitutoyo Dial Caliper 505-626 6" - USA .](https://hibid.com/lot/317773636) | Mitutoyo micrometer/caliper/indicator | $4.00 | $47.12 | $63.12 | hibid 📍 | Houston, TX | - |
-| 205 | [Canon AE-1 SLR Film Camera Body Only](https://shopgoodwill.com/item/273714896) | Canon AE-1 / AE-1 Program (35mm SLR) | $46.88 | $89.90 | $63.02 | goodwill |  | 2026-08-17T13:38 |
-| 206 | [GAMEBOY ADVANCE SP Charger & USB C Adapter Kit, 2-in-1 Charg](https://www.nellisauction.com/p/gameboy-advance-sp-charger-usb-c-adapter-kit-2-in-1-charging-set-for-gba-sp-nint/123259418) | Game Boy Advance SP (AGS-001/unspecified) | $1.00 | $44.00 | $63.00 | nellis 📍 | Katy | 2026-08-17T00:17 |
-| 207 | [Apple iPod Classic 6th Generation Black 80GB MB147LL Tested ](https://shopgoodwill.com/item/273606067) | iPod Classic/Video (capacity unknown) | $32.00 | $74.76 | $62.76 | goodwill |  | 2026-08-18T18:59 |
-| 208 | [Vintage Sony Handycam CCD-F40 Video8 Camcorder with Tiffen L](https://shopgoodwill.com/item/273930553) | Sony Handycam camcorder | $19.99 | $62.70 | $62.71 | goodwill |  | 2026-08-16T18:09 |
-| 209 | [Sony Handycam DCR-HC62 MiniDV Camcorder 25x Optical Zoom - P](https://shopgoodwill.com/item/273762705) | Sony Handycam camcorder | $19.99 | $62.70 | $62.71 | goodwill |  | 2026-08-17T18:14 |
-| 210 | [Canon AE-1 35mm Film Camera with Lens and Case](https://shopgoodwill.com/item/273508745) | Canon AE-1 / AE-1 Program (35mm SLR) | $49.99 | $91.90 | $61.91 | goodwill |  | 2026-08-18T17:00 |
-| 211 | [Canon AE-1 Program 35mm Film Camera with Lens](https://shopgoodwill.com/item/273764831) | Canon AE-1 / AE-1 Program (35mm SLR) | $49.99 | $91.90 | $61.91 | goodwill |  | 2026-08-20T17:00 |
-| 212 | [SONY MINI DV HANDYCAM](https://hibid.com/lot/314205244) | Sony Handycam camcorder | $23.00 | $64.70 | $61.70 | hibid | Knoxville, TN | - |
-| 213 | [Nintendo 3DS XL Handheld Gaming Console Black SPR-001 Dual S](https://shopgoodwill.com/item/274074991) | Nintendo 3DS XL / New 3DS XL | $47.00 | $88.39 | $61.39 | goodwill |  | 2026-08-20T18:42 |
-| 214 | [Starrett No.25-131 .125 Range Dial Test Indicator](https://www.ebay.com/itm/377423283545?_skw=dial+indicator&hash=item57e02e4559:g:rVoAAeSwJvdqgd-C) | Dial / test indicator (brand-name) | $28.00 | $68.87 | $60.87 | ebay |  | - |
-| 215 | [Vintage Canon AE-1 35mm SLR Camera, 3 Lenses & More - AS IS](https://shopgoodwill.com/item/273744503) | Canon AE-1 / AE-1 Program (35mm SLR) | $52.00 | $91.90 | $59.90 | goodwill |  | 2026-08-20T18:05 |
-| 216 | [Sony Handycam Vision](https://shopgoodwill.com/item/273737822) | Sony Handycam camcorder | $24.99 | $64.70 | $59.71 | goodwill |  | 2026-08-17T18:22 |
-| 217 | [Magnetic Base & Mitutoyo Dial Indicator](https://hibid.com/lot/317095839) | Dial / test indicator (brand-name) | $30.00 | $68.87 | $58.87 | hibid | Tullamarine Victoria, -- | - |
-| 218 | [Metal Gear Solid HD Collection (Sony PlayStation Vita, 2012)](https://www.ebay.com/itm/820011045878?_skw=playstation+vita&hash=itembeec7793f6:g:b48AAeSwg3NqghwP) | PlayStation Vita console | $54.05 | $92.72 | $58.67 | ebay |  | - |
-| 219 | [Sony CCD-TR700 Handycam Hi8 Camcorder SteadyShot 10x Zoom Vi](https://shopgoodwill.com/item/274115606) | Sony Handycam camcorder | $24.95 | $62.70 | $57.75 | goodwill |  | 2026-08-17T18:46 |
-| 220 | [Nintendo Switch Lite Hybrid System Armor (Gray)](https://hibid.com/lot/317989099) | Nintendo Switch Lite | $3.00 | $40.67 | $57.67 | hibid | Dartmouth, NS | - |
-| 221 | [#52 Citizen](https://hibid.com/lot/317940548) | Citizen watch (Eco-Drive / quartz) | $10.00 | $47.34 | $57.34 | hibid 📍 | Bryan, TX | - |
-| 222 | [MITUTOYO CALIPER](https://hibid.com/lot/317457998) | Mitutoyo micrometer/caliper/indicator | $1.00 | $38.12 | $57.12 | hibid | Fenton, MO | - |
-| 223 | [MITUTOYO JAPAN CALIPER 12”](https://hibid.com/lot/317520594) | Mitutoyo micrometer/caliper/indicator | $1.00 | $38.12 | $57.12 | hibid | Cumby, TX | - |
-| 224 | [Sega Dreamcast unit new un-opened](https://hibid.com/lot/317377876) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
-| 225 | [Sega Dreamcast Draconus cult of the Wyrm](https://hibid.com/lot/317378011) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
-| 226 | [3 Sega Dreamcast jump Packs](https://hibid.com/lot/317377910) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
-| 227 | [Sega Dreamcast Maken X Pre-Viewed](https://hibid.com/lot/317378018) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
-| 228 | [Sega Dreamcast Silver  new un-opened](https://hibid.com/lot/317377979) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
-| 229 | [Sega Dreamcast Psychic Force new un-opened](https://hibid.com/lot/317378004) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
-| 230 | [Sega Dreamcast keyboard, mouse browser new](https://hibid.com/lot/317377902) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
-| 231 | [Sega Dreamcast Grandia 2   new, un-opened](https://hibid.com/lot/317377923) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
-| 232 | [Sega Dreamcast Trick Style new Un- opened](https://hibid.com/lot/317377994) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
-| 233 | [Sega Dreamcast Gundam side story 0079  new](https://hibid.com/lot/317377986) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
-| 234 | [Men's Citizen Eco-Drive & Seiko Wrist Watches](https://hibid.com/lot/317926689) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Pismo Beach, CA | - |
-| 235 | [Ladies Citizen Eco-Drive Watch & Kessaris Watch](https://hibid.com/lot/317021926) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Enid, OK | - |
+| 71 | [Asahi Pentax K1000 35mm Film SLR Camera Body](https://shopgoodwill.com/item/273758997) | Pentax K1000 (35mm SLR) | $9.99 | $80.54 | $90.55 | goodwill |  | 2026-08-21T18:14 |
+| 72 | [LEGO Legends of Chima: Laval's Journey Playstation Vita](https://shopgoodwill.com/item/273656343) | PlayStation Vita console | $18.99 | $89.22 | $90.23 | goodwill |  | 2026-08-18T19:09 |
+| 73 | [Canon AE-1 Program 35mm SLR Camera with Canon FD 50mm f/1.8 ](https://shopgoodwill.com/item/273999130) | Canon AE-1 / AE-1 Program (35mm SLR) | $19.99 | $89.90 | $89.91 | goodwill |  | 2026-08-19T18:19 |
+| 74 | [Apple iPod Classic 160GB Music Player W/ Earbuds - Tested/Fo](https://shopgoodwill.com/item/274108046) | iPod Classic 160GB | $22.00 | $91.73 | $89.73 | goodwill |  | 2026-08-22T19:02 |
+| 75 | [Persona 4 Golden - Sony PlayStation Vita](https://www.ebay.com/itm/407149589919?_skw=playstation+vita&hash=item5ecc01b59f:g:OwcAAeSw1yVqgiXy) | PlayStation Vita console | $18.00 | $87.72 | $89.72 | ebay |  | - |
+| 76 | [PENTAX K1000 Genuine Original User Instruction Manual Bookle](https://www.ebay.com/itm/227478299197?_skw=pentax+k1000&hash=item34f6c3623d:g:WDgAAeSwPABp-eE8) | Pentax K1000 (35mm SLR) | $13.66 | $83.04 | $89.38 | ebay |  | - |
+| 77 | [Asahi Pentax K1000 35mm Slr Film Camera Body](https://shopgoodwill.com/item/274079238) | Pentax K1000 (35mm SLR) | $13.99 | $83.04 | $89.05 | goodwill |  | 2026-08-20T18:12 |
+| 78 | [Asahi Pentax K1000 35mm SLR Camera w/ Five Star MC Auto Zoom](https://shopgoodwill.com/item/273514815) | Pentax K1000 (35mm SLR) | $14.95 | $83.04 | $88.09 | goodwill |  | 2026-08-23T16:58 |
+| 79 | [Untested Asahi Pentax K1000 SLR Film Camera w/ Pentax-A 50mm](https://shopgoodwill.com/item/273833721) | Pentax K1000 (35mm SLR) | $14.99 | $83.04 | $88.05 | goodwill |  | 2026-08-20T18:28 |
+| 80 | [Canon Ae-1 Program 35mm Slr Film Camera With 50mm F/1.8 Lens](https://shopgoodwill.com/item/273758343) | Canon AE-1 / AE-1 Program (35mm SLR) | $21.99 | $89.90 | $87.91 | goodwill |  | 2026-08-17T19:40 |
+| 81 | [Starrett speed indicator](https://hibid.com/lot/317281831) | Dial / test indicator (brand-name) | $1.00 | $68.87 | $87.87 | hibid | Hillsboro, OR | - |
+| 82 | [Untested Silver Toned Asahi Pentax K1000 SLR Film Camera w/ ](https://shopgoodwill.com/item/273876473) | Pentax K1000 (35mm SLR) | $15.99 | $83.04 | $87.05 | goodwill |  | 2026-08-20T18:29 |
+| 83 | [Vintage Canon AE-1 Leather Ever Ready Case, Made In Japan](https://www.ebay.com/itm/158195133609?_skw=canon+ae-1&hash=item24d52a2ca9:g:XF4AAeSwFkJqgfNv) | Canon AE-1 / AE-1 Program (35mm SLR) | $25.00 | $91.90 | $86.90 | ebay |  | - |
+| 84 | [Starrett  Dial Indicator](https://hibid.com/lot/317700048) | Dial / test indicator (brand-name) | $2.00 | $68.87 | $86.87 | hibid | Mattoon, IL | - |
+| 85 | [Starrett Back Plunger Dial Indicator](https://hibid.com/lot/317492536) | Dial / test indicator (brand-name) | $2.00 | $68.87 | $86.87 | hibid | Peterborough, ON | - |
+| 86 | [Canon Elph digital camera](https://hibid.com/lot/317446536) | Canon PowerShot ELPH / IXUS (digital) | $2.00 | $68.70 | $86.70 | hibid | Otley, IA | - |
+| 87 | [Starrett dial indicator](https://hibid.com/lot/317269273) | Dial / test indicator (brand-name) | $2.50 | $68.87 | $86.37 | hibid | Bark River, MI | - |
+| 88 | [Brown & sharpe dial indicator, micrometer](https://hibid.com/lot/317269280) | Dial / test indicator (brand-name) | $2.50 | $68.87 | $86.37 | hibid | Bark River, MI | - |
+| 89 | [vtg Starrett Last Word dial indicator](https://hibid.com/lot/317269275) | Dial / test indicator (brand-name) | $2.50 | $68.87 | $86.37 | hibid | Bark River, MI | - |
+| 90 | [Vintage Pentax K1000 SLR Camera w/ Accessories](https://shopgoodwill.com/item/273885690) | Pentax K1000 (35mm SLR) | $12.99 | $79.05 | $86.06 | goodwill |  | 2026-08-20T19:09 |
+| 91 | [Canon / AE-1 Silver 35mm SLR Film Camera / w/ Vivitar 75-205](https://shopgoodwill.com/item/273612566) | Canon AE-1 / AE-1 Program (35mm SLR) | $24.00 | $89.90 | $85.90 | goodwill |  | 2026-08-16T18:35 |
+| 92 | [Starrett dial indicator in red case](https://hibid.com/lot/316184313) | Dial / test indicator (brand-name) | $3.00 | $68.87 | $85.87 | hibid | Denfield, ON | - |
+| 93 | [Coach Brown Canvas Monogram Print iPod Classic Case With Wri](https://shopgoodwill.com/item/274135340) | iPod Classic/Video (capacity unknown) | $9.99 | $75.75 | $85.76 | goodwill |  | 2026-08-23T18:17 |
+| 94 | [Apple iPod Classic 5th Gen (Powers On, Reset)](https://shopgoodwill.com/item/274047120) | iPod Classic/Video (capacity unknown) | $11.00 | $76.75 | $85.75 | goodwill |  | 2026-08-21T19:26 |
+| 95 | [OEM Genuine Apple iPod Classic USB Power Adapter Charger A11](https://www.ebay.com/itm/407147960060?_skw=ipod+classic&hash=item5ecbe8d6fc:g:izQAAeSwW4tqgPlH) | iPod Classic/Video (capacity unknown) | $13.00 | $78.75 | $85.75 | ebay |  | - |
+| 96 | [PlayStation All-Stars Battle Royale (Sony PS Vita) Complete ](https://www.ebay.com/itm/800518891904?_skw=ps+vita&hash=itemba62a4e980:g:ekYAAeSwdixqge0k) | PlayStation Vita console | $18.71 | $84.07 | $85.36 | ebay |  | - |
+| 97 | [Singer Featherweight Sewing Machine](https://hibid.com/lot/316114125) | Singer Featherweight 221/222 | $65.00 | $130.10 | $85.10 | hibid | Bluefield, VA | - |
+| 98 | [Pentax & Pentax K1000 35mm Film SLR Cameras 2ct.](https://shopgoodwill.com/item/273883289) | Pentax K1000 (35mm SLR) | $14.99 | $80.05 | $85.06 | goodwill |  | 2026-08-20T18:57 |
+| 99 | [Vintage Asahi Pentax K1000 SLR Film Camera](https://hibid.com/lot/316754627) | Pentax K1000 (35mm SLR) | $18.00 | $83.04 | $85.04 | hibid | Varies; See Auction, MO | - |
+| 100 | [iPod Classic 5th Generation A1136 30GB Screen Issue Upper Ri](https://shopgoodwill.com/item/274068705) | iPod Classic/Video (capacity unknown) | $10.99 | $75.75 | $84.76 | goodwill |  | 2026-08-22T18:48 |
+| 101 | [PlayStation All-Stars Battle Royale (Sony PS Vita) Complete ](https://www.ebay.com/itm/800518890985?_skw=ps+vita&hash=itemba62a4e5e9:g:ekYAAeSwdixqge0k) | PlayStation Vita console | $19.23 | $83.22 | $83.99 | ebay |  | - |
+| 102 | [Need for Speed: Most Wanted (Sony PS Vita) Complete In Box C](https://www.ebay.com/itm/800518872271?_skw=ps+vita&hash=itemba62a49ccf:g:eRYAAeSwQzFqgeyW) | PlayStation Vita console | $20.18 | $84.07 | $83.89 | ebay |  | - |
+| 103 | [Starrett dial test indicator](https://hibid.com/lot/317281830) | Dial / test indicator (brand-name) | $5.00 | $68.87 | $83.87 | hibid | Hillsboro, OR | - |
+| 104 | [Vintage Federal Dial Indicator](https://hibid.com/lot/316037826) | Dial / test indicator (brand-name) | $5.00 | $68.87 | $83.87 | hibid | Nicholls, GA | - |
+| 105 | [Apple iPod Classic 8GB Model A1236 Black Click Wheel Tested ](https://shopgoodwill.com/item/273850226) | iPod Classic/Video (capacity unknown) | $12.99 | $76.76 | $83.77 | goodwill |  | 2026-08-21T19:09 |
+| 106 | [Canon PowerShot ELPH 360 HS A Silver](https://hibid.com/lot/317922821) | Canon PowerShot ELPH / IXUS (digital) | $5.00 | $68.70 | $83.70 | hibid | Etobicoke, ON | - |
+| 107 | [SONY HANDYCAM](https://hibid.com/lot/317607669) | Sony Handycam camcorder | $1.00 | $64.70 | $83.70 | hibid | Cumberland, WI | - |
+| 108 | [Sony Handycam](https://hibid.com/lot/317260861) | Sony Handycam camcorder | $1.00 | $64.70 | $83.70 | hibid | Huntingdon, TN | - |
+| 109 | [Sony MiniDVD Handycam Camcorder with Case](https://hibid.com/lot/317710906) | Sony Handycam camcorder | $1.00 | $64.70 | $83.70 | hibid | Centre, AL | - |
+| 110 | [Vintage Sony Video 8 Auto HandyCam Video Camera](https://hibid.com/lot/317546296) | Sony Handycam camcorder | $1.00 | $64.70 | $83.70 | hibid | Wellington, KS | - |
+| 111 | [Apple iPod Classic 120GB Black Grey Click Wheel Media Player](https://shopgoodwill.com/item/273852351) | iPod Classic 120GB | $16.99 | $80.65 | $83.66 | goodwill |  | 2026-08-20T18:55 |
+| 112 | [Need for Speed: Most Wanted (Sony PS Vita) Complete In Box C](https://www.ebay.com/itm/800518872043?_skw=ps+vita&hash=itemba62a49beb:g:eRYAAeSwQzFqgeyW) | PlayStation Vita console | $20.00 | $83.22 | $83.22 | ebay |  | - |
+| 113 | [Asahi Pentax K1000 35mm SLR Camera with Vivitar RL Edition M](https://shopgoodwill.com/item/274136793) | Pentax K1000 (35mm SLR) | $19.99 | $83.04 | $83.05 | goodwill |  | 2026-08-21T18:58 |
+| 114 | [Starrett 25-441J Dial Indicator](https://hibid.com/lot/317160152) | Dial / test indicator (brand-name) | $6.00 | $68.87 | $82.87 | hibid | Mooresville, IN | - |
+| 115 | [Brown & Sharpe Bestest Dial Test Indicator](https://hibid.com/lot/317711008) | Dial / test indicator (brand-name) | $6.00 | $68.87 | $82.87 | hibid | Hayden, ID | - |
+| 116 | [Gravity Rush (Sony PlayStation Vita PS Vita, 2012)](https://www.ebay.com/itm/307130114618?_skw=ps+vita&hash=item478261a23a:g:~kcAAeSwtH5qgec~) | PlayStation Vita console | $29.99 | $92.72 | $82.73 | ebay |  | - |
+| 117 | [Sony Handycam](https://hibid.com/lot/316483675) | Sony Handycam camcorder | $2.00 | $64.70 | $82.70 | hibid | Evansville, IN | - |
+| 118 | [Sony HandyCam Video Camera](https://hibid.com/lot/317489819) | Sony Handycam camcorder | $2.00 | $64.70 | $82.70 | hibid | Henderson, KY | - |
+| 119 | [Vintage Asahi Pentax K1000 35mm SLR Film Camera Albinar 80-2](https://shopgoodwill.com/item/273743451) | Pentax K1000 (35mm SLR) | $20.99 | $83.04 | $82.05 | goodwill |  | 2026-08-19T18:18 |
+| 120 | [Canon AE-1 Program 35mm SLR Film Camera W/ Carrying Case - N](https://shopgoodwill.com/item/273457408) | Canon AE-1 / AE-1 Program (35mm SLR) | $27.00 | $88.91 | $81.91 | goodwill |  | 2026-08-17T18:41 |
+| 121 | [Toshiba MK3008GAL  Hard Drive for iPod Video 5th Generation ](https://www.ebay.com/itm/257671154672?_skw=ipod+video&hash=item3bfe65cbf0:g:IXMAAeSwbspqeLmV) | iPod Classic/Video (capacity unknown) | $16.99 | $78.75 | $81.76 | ebay |  | - |
+| 122 | [Sony Handycam FDR-AX53 4K camcorder with](https://hibid.com/lot/316769811) | Sony Handycam camcorder | $3.00 | $64.70 | $81.70 | hibid | Okmulgee, OK | - |
+| 123 | [SONY HANDCAM VISION CCD-TRV22](https://hibid.com/lot/316430589) | Sony Handycam camcorder | $3.00 | $64.70 | $81.70 | hibid | Edinboro, PA | - |
+| 124 | [1PC Used Battery Back Cover Box For Fluke 317 319 Clamp Mete](https://www.ebay.com/itm/227476768365?_skw=fluke+meter&hash=item34f6ac066d:g:t9gAAeSwj-VqgCIq) | Fluke 3xx clamp meter | $25.95 | $87.38 | $81.43 | ebay |  | - |
+| 125 | [Asahi Pentax K1000 35mm SLR Camera w Cosina 80-200mm Lens Mi](https://shopgoodwill.com/item/274142857) | Pentax K1000 (35mm SLR) | $19.99 | $81.04 | $81.05 | goodwill |  | 2026-08-21T18:16 |
+| 126 | [Sony Handycam with with charger and bag](https://hibid.com/lot/317446572) | Sony Handycam camcorder | $4.00 | $64.70 | $80.70 | hibid | Otley, IA | - |
+| 127 | [Sony HDR-HC3 Video Handycam Camcorder w/](https://hibid.com/lot/317516017) | Sony Handycam camcorder | $4.00 | $64.70 | $80.70 | hibid | Madison, WI | - |
+| 128 | [Borderlands 2 (Sony PlayStation Vita PS Vita, 2014) – CIB](https://www.ebay.com/itm/128029507771?_skw=playstation+vita&hash=item1dcf2740bb:g:wC8AAeSwazxqgcJY) | PlayStation Vita console | $32.43 | $92.72 | $80.29 | ebay |  | - |
+| 129 | [Starrett 25-441J Dial Indicator](https://hibid.com/lot/317160150) | Dial / test indicator (brand-name) | $9.00 | $68.87 | $79.87 | hibid | Mooresville, IN | - |
+| 130 | [Sony Video HI8 HandyCam](https://hibid.com/lot/317590703) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Anchorage, AK | - |
+| 131 | [Sony Handycam Video8 Camcorder Lot](https://hibid.com/lot/316122208) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Wattsburg, PA | - |
+| 132 | [Sony Handycam PRO CCD-V9 Camcorder & Accessories](https://hibid.com/lot/317801078) | Sony Handycam camcorder | $5.00 | $64.70 | $79.70 | hibid | Schnecksville, PA | - |
+| 133 | [Mitutoyo 513-404-10T Dial Indicators](https://hibid.com/lot/301352832) | Dial / test indicator (brand-name) | $10.00 | $68.87 | $78.87 | hibid | San Mateo, CA | - |
+| 134 | [Apple iPod Classic A1136 30GB Black Click Wheel and Stainles](https://shopgoodwill.com/item/273729211) | iPod Classic/Video (capacity unknown) | $18.00 | $76.75 | $78.75 | goodwill |  | 2026-08-17T18:47 |
+| 135 | [Sony Vintage 1980's CCD-V3 HandyCam Video 8 Camera Recorder-](https://shopgoodwill.com/item/273421994) | Sony Handycam camcorder | $4.99 | $63.71 | $78.72 | goodwill |  | 2026-08-16T19:10 |
+| 136 | [Canon Power Shot Elph 100 HS with Battery and SD](https://hibid.com/lot/315741705) | Canon PowerShot ELPH / IXUS (digital) | $10.00 | $68.70 | $78.70 | hibid | Mooreland, IN | - |
+| 137 | [Various Old Cameras and Sony Handycam](https://hibid.com/lot/317475017) | Sony Handycam camcorder | $6.00 | $64.70 | $78.70 | hibid | Oak Ridge, TN | - |
+| 138 | [Pentax K-1000 Top Cover - PART](https://www.ebay.com/itm/287529401533?_skw=pentax+k1000&hash=item42f2167cbd:g:7pcAAeSwUiNqgkgJ) | Pentax K1000 (35mm SLR) | $9.99 | $68.05 | $78.06 | ebay |  | - |
+| 139 | [Pentax K1000 50mm f2 SMC-A Manual SLR Film Camera 1980s Book](https://www.ebay.com/itm/147503287067?_skw=pentax+k1000&hash=item2257e18b1b:g:BCoAAeSwWQxqflzL) | Pentax K1000 (35mm SLR) | $24.99 | $83.04 | $78.05 | ebay |  | - |
+| 140 | [Asahi Pentax K1000 35mm SLR Camera Original Instruction Manu](https://www.ebay.com/itm/147503283105?_skw=pentax+k1000&hash=item2257e17ba1:g:SIsAAeSwVnNqflwc) | Pentax K1000 (35mm SLR) | $24.99 | $83.04 | $78.05 | ebay |  | - |
+| 141 | [Omega Labyrinth - PS Vita](https://www.ebay.com/itm/227478743694?_skw=ps+vita&hash=item34f6ca2a8e:g:rTkAAeSwOfRqgigt) | PlayStation Vita console | $35.00 | $92.72 | $77.72 | ebay |  | - |
+| 142 | [Sony CCD-TR23 Video8 Handycam Kit](https://hibid.com/lot/316009340) | Sony Handycam camcorder | $7.00 | $64.70 | $77.70 | hibid | West Columbia, SC | - |
+| 143 | [Nintendo Switch U Consoles & Controllers](https://hibid.com/lot/315748689) | Nintendo Switch console (v1/v2, non-OLED) | $7.00 | $64.70 | $77.70 | hibid | Greenville, MI | - |
+| 144 | [PENTAX K1000 Rear Film Door Only for SLR 35mm Film Camera .](https://www.ebay.com/itm/237010301366?_skw=pentax+k1000&hash=item372eea31b6:g:WYwAAOSwRetfw9LE) | Pentax K1000 (35mm SLR) | $18.99 | $76.09 | $77.10 | ebay |  | - |
+| 145 | [Powers On IOB Canon PowerShot SD550 Digital ELPH w/ Accessor](https://shopgoodwill.com/item/273990211) | Canon PowerShot ELPH / IXUS (digital) | $10.99 | $67.70 | $76.71 | goodwill |  | 2026-08-17T18:03 |
+| 146 | [Sony Handycam Station Adaptor Plate Model Eta-26 Black Untes](https://shopgoodwill.com/item/273523945) | Sony Handycam camcorder | $7.99 | $64.70 | $76.71 | goodwill |  | 2026-08-17T18:10 |
+| 147 | [Canon PowerShot ELPH 170 IS Digital Camera with Or](https://hibid.com/lot/313923332) | Canon PowerShot ELPH / IXUS (digital) | $12.00 | $68.70 | $76.70 | hibid | Angles Camp, CA | - |
+| 148 | [Vintage Pentax K1000 35mm Film Camera Bundle](https://shopgoodwill.com/item/273865997) | Pentax K1000 (35mm SLR) | $24.99 | $81.04 | $76.05 | goodwill |  | 2026-08-20T18:07 |
+| 149 | [Apple iPod Classic 3rd Gen 40GB Model A1040 Bundle Box - Pow](https://shopgoodwill.com/item/274077020) | iPod Classic/Video (capacity unknown) | $20.99 | $76.75 | $75.76 | goodwill |  | 2026-08-20T18:22 |
+| 150 | [Canon Powershot Sd400 Digital Elph 5.0mp Camera With Battery](https://shopgoodwill.com/item/273715886) | Canon PowerShot ELPH / IXUS (digital) | $10.99 | $66.70 | $75.71 | goodwill |  | 2026-08-17T20:30 |
+| 151 | [Sony Handycam Video 8 (Model CCD-TR71)](https://hibid.com/lot/317213642) | Sony Handycam camcorder | $9.00 | $64.70 | $75.70 | hibid | Corrales, NM | - |
+| 152 | [2 GameBoy Advanced Sp Consoles + 3DS](https://hibid.com/lot/317673143) | Nintendo 3DS (non-XL) | $5.00 | $60.03 | $75.03 | hibid | Kuna, ID | - |
+| 153 | [Vintage 2005 Apple A1099 iPod Classic 4th Gen. 20GB White MP](https://shopgoodwill.com/item/273629511) | iPod Classic/Video (capacity unknown) | $19.99 | $75.00 | $75.01 | goodwill |  | 2026-08-16T20:10 |
+| 154 | [Apple Ipod Classic 160GB](https://shopgoodwill.com/item/273592656) | iPod Classic 160GB | $37.75 | $92.72 | $74.97 | goodwill |  | 2026-08-18T18:56 |
+| 155 | [Nintendo Switch 32GB Console - Used](https://hibid.com/lot/317719746) | Nintendo Switch console (v1/v2, non-OLED) | $10.00 | $64.70 | $74.70 | hibid | Mississauga, ON | - |
+| 156 | [Pentax K1000 35mm SLR Camera Body Untested [Black in Viewfin](https://shopgoodwill.com/item/273610445) | Pentax K1000 (35mm SLR) | $26.00 | $80.04 | $74.04 | goodwill |  | 2026-08-18T18:59 |
+| 157 | [Vintage Starrett Dial Test Indicator Set](https://hibid.com/lot/316114042) | Dial / test indicator (brand-name) | $15.00 | $68.87 | $73.87 | hibid | Bluefield, VA | - |
+| 158 | [iPod Classic 7th Generation 160GB A1238 Reset](https://shopgoodwill.com/item/273794604) | iPod Classic/Video (capacity unknown) | $22.00 | $75.75 | $73.75 | goodwill |  | 2026-08-19T19:03 |
+| 159 | [Sony Dcr-dvd92 Ntsc Digital Video Camera Recorder - Untested](https://shopgoodwill.com/item/274040896) | Sony Handycam camcorder | $7.99 | $61.71 | $73.72 | goodwill |  | 2026-08-19T20:22 |
+| 160 | [Canon Powershot S400 Digital Elph](https://shopgoodwill.com/item/273760081) | Canon PowerShot ELPH / IXUS (digital) | $14.99 | $68.70 | $73.71 | goodwill |  | 2026-08-17T19:10 |
+| 161 | [Sony PlayStation 4 Pro CUH-7015B Black Console 100-240V 310W](https://shopgoodwill.com/item/273407652) | Sony PlayStation 4 Pro console | $15.95 | $69.64 | $73.69 | goodwill |  | 2026-08-17T16:35 |
+| 162 | [Jak and Daxter Collection PS Vita (PlayStation Vita, 2013) C](https://www.ebay.com/itm/128029509818?_skw=playstation+vita&hash=item1dcf2748ba:g:WFAAAeSwMyRqgcLg) | PlayStation Vita console | $39.63 | $92.72 | $73.09 | ebay |  | - |
+| 163 | [Starrett Dial Test Indicator,Calipers & Micrometer](https://hibid.com/lot/316623210) | Dial / test indicator (brand-name) | $16.00 | $68.87 | $72.87 | hibid | Walworth, NY | - |
+| 164 | [MK3008GAL Replace Hard Drive for iPod Video 5th Generation 3](https://www.ebay.com/itm/398280598605?_skw=ipod+video&hash=item5cbb5fa44d:g:BzQAAeSw~cFqfYs3) | iPod Classic/Video (capacity unknown) | $25.99 | $78.75 | $72.76 | ebay |  | - |
+| 165 | [Canon Powershot Elph 170 Is 12x Zoom Blue + Case Set Unteste](https://shopgoodwill.com/item/273762079) | Canon PowerShot ELPH / IXUS (digital) | $11.99 | $64.71 | $72.72 | goodwill |  | 2026-08-17T20:33 |
+| 166 | [Sony Dcr-dvd108 Digital Video Camera Recorder - Untested](https://shopgoodwill.com/item/273808050) | Sony Handycam camcorder | $8.99 | $61.71 | $72.72 | goodwill |  | 2026-08-17T18:19 |
+| 167 | [Vtg Canon AE-1 35mm Film SLR Camera with Accessories & Bag (](https://shopgoodwill.com/item/273726158) | Canon AE-1 / AE-1 Program (35mm SLR) | $37.21 | $89.90 | $72.69 | goodwill |  | 2026-08-19T19:19 |
+| 168 | [Vintage Canon AE-1 Film Camera-AS IS](https://shopgoodwill.com/item/273886504) | Canon AE-1 / AE-1 Program (35mm SLR) | $37.00 | $88.90 | $71.90 | goodwill |  | 2026-08-18T13:55 |
+| 169 | [Apple Ipod Classic-20gb- Bundle With Accessories](https://shopgoodwill.com/item/274110771) | iPod Classic/Video (capacity unknown) | $26.99 | $78.75 | $71.76 | goodwill |  | 2026-08-20T20:12 |
+| 170 | [Black Apple iPod Classic 6th Generation - 160GB - Model No. ](https://shopgoodwill.com/item/273886719) | iPod Classic/Video (capacity unknown) | $24.00 | $75.76 | $71.76 | goodwill |  | 2026-08-20T20:27 |
+| 171 | [Sony Video Hi8 Handycam (Untested)](https://shopgoodwill.com/item/273438871) | Sony Handycam camcorder | $9.99 | $61.70 | $71.71 | goodwill |  | 2026-08-16T18:16 |
+| 172 | [Apple iPod Classic 5th Gen 30GB White MA002LL A1136 Tested R](https://shopgoodwill.com/item/273604494) | iPod Classic/Video (capacity unknown) | $24.00 | $74.76 | $70.76 | goodwill |  | 2026-08-18T19:47 |
+| 173 | [Vintage Sony Handycam Camcorder Bundle Carl Zeiss 12x Optica](https://shopgoodwill.com/item/273584931) | Sony Handycam camcorder | $13.99 | $64.70 | $70.71 | goodwill |  | 2026-08-16T18:55 |
+| 174 | [Sony Handycam CCD-FX330 Video8 Camcorder 10x Zoom Auto Focus](https://shopgoodwill.com/item/273286119) | Sony Handycam camcorder | $14.95 | $64.70 | $69.75 | goodwill |  | 2026-08-16T16:39 |
+| 175 | [Vintage Sony Handycam CCD-TR5 Video8 Camera NTSC 6x Zoom w/ ](https://shopgoodwill.com/item/273615926) | Sony Handycam camcorder | $14.95 | $64.70 | $69.75 | goodwill |  | 2026-08-17T16:48 |
+| 176 | [Wipeout 2048 - Sony PlayStation Vita](https://www.ebay.com/itm/147509228776?_skw=playstation+vita&hash=item22583c34e8:g:lPQAAeSw1clqghuC) | PlayStation Vita console | $35.99 | $85.50 | $69.51 | ebay |  | - |
+| 177 | [Mitutoyo 543-732B-02CAL  Digital Indicator](https://hibid.com/lot/316358026) | Dial / test indicator (brand-name) | $20.00 | $68.87 | $68.87 | hibid | Fallon, NV | - |
+| 178 | [iPod Classic 6th Generation 80GB A1238 Reset](https://shopgoodwill.com/item/274007346) | iPod Classic/Video (capacity unknown) | $27.00 | $75.75 | $68.75 | goodwill |  | 2026-08-21T18:32 |
+| 179 | [Ipod Video 5th Generation](https://hibid.com/lot/317424940) | iPod Classic/Video (capacity unknown) | $30.00 | $78.75 | $68.75 | hibid | Elora, ON | - |
+| 180 | [Canon PowerShot S330 2.0MP 3x Zoom Digital Elph Camera - Wor](https://www.ebay.com/itm/128029779961?_skw=canon+elph&hash=item1dcf2b67f9:g:4cwAAeSwUrdqgfQe) | Canon PowerShot ELPH / IXUS (digital) | $20.00 | $68.70 | $68.70 | ebay |  | - |
+| 181 | [Canon PowerShot S410 4.0MP Digital Elph Camera 3x Zoom - Wor](https://www.ebay.com/itm/128029767498?_skw=canon+elph&hash=item1dcf2b374a:g:wHMAAeSwWcdqgfH~) | Canon PowerShot ELPH / IXUS (digital) | $20.00 | $68.70 | $68.70 | ebay |  | - |
+| 182 | [6th Gen Apple iPod Classic A1238 80GB MP3 Player](https://shopgoodwill.com/item/274039586) | iPod Classic/Video (capacity unknown) | $27.00 | $75.25 | $68.25 | goodwill |  | 2026-08-21T19:20 |
+| 183 | [Apple iPod Classic 6th Gen 120GB Silver Digital Media Player](https://shopgoodwill.com/item/273614852) | iPod Classic/Video (capacity unknown) | $26.99 | $74.76 | $67.77 | goodwill |  | 2026-08-18T19:20 |
+| 184 | [Assassin's Creed Chronicles for PlayStation Vita](https://www.ebay.com/itm/168617913144?_skw=playstation+vita&hash=item2742692b38:g:aqQAAeSwiuJqgavU) | PlayStation Vita console | $44.99 | $92.72 | $67.73 | ebay |  | - |
+| 185 | [Sony CCD-TR115E Handycam 220X Video Camera](https://shopgoodwill.com/item/273902161) | Sony Handycam camcorder | $11.99 | $59.71 | $67.72 | goodwill |  | 2026-08-16T18:26 |
+| 186 | [Sony Handycam CCD-TRV22 NTSC 8mm Video8 Zoom 26x Video Camco](https://shopgoodwill.com/item/273486731) | Sony Handycam camcorder | $13.99 | $61.71 | $67.72 | goodwill |  | 2026-08-17T18:02 |
+| 187 | [Sony Handycam CCD-F201 Video8 & JVC GR-DVL300U MiniDV Camcor](https://shopgoodwill.com/item/274036107) | Sony Handycam camcorder | $13.99 | $61.70 | $67.71 | goodwill |  | 2026-08-16T18:07 |
+| 188 | [untested as-is ps vita MODEL.PCH-1101](https://shopgoodwill.com/item/274042980) | PlayStation Vita console | $42.00 | $89.22 | $67.22 | goodwill |  | 2026-08-21T19:00 |
+| 189 | [Canon PowerShot SD750 Digital ELPH Camera Bundle (Untested)](https://shopgoodwill.com/item/273491422) | Canon PowerShot ELPH / IXUS (digital) | $18.00 | $64.71 | $66.71 | goodwill |  | 2026-08-17T19:16 |
+| 190 | [Sony Handycam DCR-TRV280 Digital8 Camcorder 990x Zoom Steady](https://shopgoodwill.com/item/273714028) | Sony Handycam camcorder | $15.99 | $62.70 | $66.71 | goodwill |  | 2026-08-17T18:23 |
+| 191 | [Sony Handycam DCR TRV280 Digital8 Camcorder NTSC SteadyShot ](https://shopgoodwill.com/item/273751906) | Sony Handycam camcorder | $15.99 | $62.70 | $66.71 | goodwill |  | 2026-08-17T18:44 |
+| 192 | [Vintage Asahi Pentax K1000 35mm SLR Film Camera Body Silver ](https://shopgoodwill.com/item/273746960) | Pentax K1000 (35mm SLR) | $37.00 | $83.04 | $66.04 | goodwill |  | 2026-08-19T18:09 |
+| 193 | [Vintage Canon AE-1 & Honeywell Pentax Spotmatic F 35mm SLR C](https://shopgoodwill.com/item/273710740) | Canon AE-1 / AE-1 Program (35mm SLR) | $44.88 | $89.90 | $65.02 | goodwill |  | 2026-08-17T18:54 |
+| 194 | [Apple iPod Classic 3rd Gen 15GB White Monochrome Screen Vint](https://shopgoodwill.com/item/273838766) | iPod Classic/Video (capacity unknown) | $32.00 | $76.76 | $64.76 | goodwill |  | 2026-08-20T18:53 |
+| 195 | [Sony Handycam Vision CCD-TRV308 Video Hi8 Camcorder W/ Case ](https://shopgoodwill.com/item/273460291) | Sony Handycam camcorder | $16.99 | $61.71 | $64.72 | goodwill |  | 2026-08-17T18:15 |
+| 196 | [Vintage Sony Handycam CCD-F55 Video 8 Camcorder 8x AF Macro ](https://shopgoodwill.com/item/273807757) | Sony Handycam camcorder | $19.99 | $64.70 | $64.71 | goodwill |  | 2026-08-19T19:14 |
+| 197 | [Fluke Carbon Monoxide Meter](https://hibid.com/lot/317134502) | Fluke meter (unspecified model) | $4.00 | $48.67 | $64.67 | hibid 📍 | Katy, TX | - |
+| 198 | [Vintage Koss Headphones & Polaroid SX-70](https://hibid.com/lot/317069078) | Polaroid SX-70 (folding) | $4.00 | $48.34 | $64.34 | hibid | Shawnee, KS | - |
+| 199 | [Vintage Canon AE-1 35mm Film SLR Camera W/ Lens - Not Tested](https://shopgoodwill.com/item/273459603) | Canon AE-1 / AE-1 Program (35mm SLR) | $44.88 | $88.91 | $64.03 | goodwill |  | 2026-08-17T19:02 |
+| 200 | [Sony Make Believe Handycam DCR-SX63 Digital Video Camera 60x](https://shopgoodwill.com/item/273979007) | Sony Handycam camcorder | $16.99 | $60.71 | $63.72 | goodwill |  | 2026-08-17T17:09 |
+| 201 | [Mitutoyo Dial Caliper 505-626 6" - USA .](https://hibid.com/lot/317773636) | Mitutoyo micrometer/caliper/indicator | $4.00 | $47.12 | $63.12 | hibid 📍 | Houston, TX | - |
+| 202 | [Canon AE-1 SLR Film Camera Body Only](https://shopgoodwill.com/item/273714896) | Canon AE-1 / AE-1 Program (35mm SLR) | $46.88 | $89.90 | $63.02 | goodwill |  | 2026-08-17T13:38 |
+| 203 | [GAMEBOY ADVANCE SP Charger & USB C Adapter Kit, 2-in-1 Charg](https://www.nellisauction.com/p/gameboy-advance-sp-charger-usb-c-adapter-kit-2-in-1-charging-set-for-gba-sp-nint/123259418) | Game Boy Advance SP (AGS-001/unspecified) | $1.00 | $44.00 | $63.00 | nellis 📍 | Katy | 2026-08-17T00:17 |
+| 204 | [Apple iPod Classic 6th Generation Black 80GB MB147LL Tested ](https://shopgoodwill.com/item/273606067) | iPod Classic/Video (capacity unknown) | $32.00 | $74.76 | $62.76 | goodwill |  | 2026-08-18T18:59 |
+| 205 | [Vintage Sony Handycam CCD-F40 Video8 Camcorder with Tiffen L](https://shopgoodwill.com/item/273930553) | Sony Handycam camcorder | $19.99 | $62.70 | $62.71 | goodwill |  | 2026-08-16T18:09 |
+| 206 | [Sony Handycam DCR-HC62 MiniDV Camcorder 25x Optical Zoom - P](https://shopgoodwill.com/item/273762705) | Sony Handycam camcorder | $19.99 | $62.70 | $62.71 | goodwill |  | 2026-08-17T18:14 |
+| 207 | [Canon AE-1 35mm Film Camera with Lens and Case](https://shopgoodwill.com/item/273508745) | Canon AE-1 / AE-1 Program (35mm SLR) | $49.99 | $91.90 | $61.91 | goodwill |  | 2026-08-18T17:00 |
+| 208 | [Canon AE-1 Program 35mm Film Camera with Lens](https://shopgoodwill.com/item/273764831) | Canon AE-1 / AE-1 Program (35mm SLR) | $49.99 | $91.90 | $61.91 | goodwill |  | 2026-08-20T17:00 |
+| 209 | [SONY MINI DV HANDYCAM](https://hibid.com/lot/314205244) | Sony Handycam camcorder | $23.00 | $64.70 | $61.70 | hibid | Knoxville, TN | - |
+| 210 | [Nintendo 3DS XL Handheld Gaming Console Black SPR-001 Dual S](https://shopgoodwill.com/item/274074991) | Nintendo 3DS XL / New 3DS XL | $47.00 | $88.39 | $61.39 | goodwill |  | 2026-08-20T18:42 |
+| 211 | [Starrett No.25-131 .125 Range Dial Test Indicator](https://www.ebay.com/itm/377423283545?_skw=dial+indicator&hash=item57e02e4559:g:rVoAAeSwJvdqgd-C) | Dial / test indicator (brand-name) | $28.00 | $68.87 | $60.87 | ebay |  | - |
+| 212 | [Apple Ipod Classic 5th Generation 30gb Black Portable Media ](https://shopgoodwill.com/item/273746685) | iPod Classic/Video (capacity unknown) | $37.00 | $77.75 | $60.75 | goodwill |  | 2026-08-17T20:07 |
+| 213 | [Vintage Canon AE-1 35mm SLR Camera, 3 Lenses & More - AS IS](https://shopgoodwill.com/item/273744503) | Canon AE-1 / AE-1 Program (35mm SLR) | $52.00 | $91.90 | $59.90 | goodwill |  | 2026-08-20T18:05 |
+| 214 | [Sony Handycam Vision](https://shopgoodwill.com/item/273737822) | Sony Handycam camcorder | $24.99 | $64.70 | $59.71 | goodwill |  | 2026-08-17T18:22 |
+| 215 | [Magnetic Base & Mitutoyo Dial Indicator](https://hibid.com/lot/317095839) | Dial / test indicator (brand-name) | $30.00 | $68.87 | $58.87 | hibid | Tullamarine Victoria, -- | - |
+| 216 | [Metal Gear Solid HD Collection (Sony PlayStation Vita, 2012)](https://www.ebay.com/itm/820011045878?_skw=playstation+vita&hash=itembeec7793f6:g:b48AAeSwg3NqghwP) | PlayStation Vita console | $54.05 | $92.72 | $58.67 | ebay |  | - |
+| 217 | [Sony CCD-TR700 Handycam Hi8 Camcorder SteadyShot 10x Zoom Vi](https://shopgoodwill.com/item/274115606) | Sony Handycam camcorder | $24.95 | $62.70 | $57.75 | goodwill |  | 2026-08-17T18:46 |
+| 218 | [Nintendo Switch Lite Hybrid System Armor (Gray)](https://hibid.com/lot/317989099) | Nintendo Switch Lite | $3.00 | $40.67 | $57.67 | hibid | Dartmouth, NS | - |
+| 219 | [#52 Citizen](https://hibid.com/lot/317940548) | Citizen watch (Eco-Drive / quartz) | $10.00 | $47.34 | $57.34 | hibid 📍 | Bryan, TX | - |
+| 220 | [MITUTOYO CALIPER](https://hibid.com/lot/317457998) | Mitutoyo micrometer/caliper/indicator | $1.00 | $38.12 | $57.12 | hibid | Fenton, MO | - |
+| 221 | [MITUTOYO JAPAN CALIPER 12”](https://hibid.com/lot/317520594) | Mitutoyo micrometer/caliper/indicator | $1.00 | $38.12 | $57.12 | hibid | Cumby, TX | - |
+| 222 | [Sega Dreamcast unit new un-opened](https://hibid.com/lot/317377876) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
+| 223 | [Sega Dreamcast Draconus cult of the Wyrm](https://hibid.com/lot/317378011) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
+| 224 | [Sega Dreamcast Silver  new un-opened](https://hibid.com/lot/317377979) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
+| 225 | [3 Sega Dreamcast jump Packs](https://hibid.com/lot/317377910) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
+| 226 | [Sega Dreamcast Maken X Pre-Viewed](https://hibid.com/lot/317378018) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
+| 227 | [Sega Dreamcast Psychic Force new un-opened](https://hibid.com/lot/317378004) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
+| 228 | [Sega Dreamcast Grandia 2   new, un-opened](https://hibid.com/lot/317377923) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
+| 229 | [Sega Dreamcast keyboard, mouse browser new](https://hibid.com/lot/317377902) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
+| 230 | [Sega Dreamcast Gundam side story 0079  new](https://hibid.com/lot/317377986) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
+| 231 | [Sega Dreamcast Trick Style new Un- opened](https://hibid.com/lot/317377994) | Sega Dreamcast console | $2.00 | $39.01 | $57.01 | hibid | Pearsonville, NB | - |
+| 232 | [Men's Citizen Eco-Drive & Seiko Wrist Watches](https://hibid.com/lot/317926689) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Pismo Beach, CA | - |
+| 233 | [Ladies Citizen Eco-Drive Watch & Kessaris Watch](https://hibid.com/lot/317021926) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Enid, OK | - |
+| 234 | [CITIZEN ECO-DRIVE AREZZO MEN'S WATCH -NEW IN BOX](https://hibid.com/lot/317472817) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Knoxville, TN | - |
+| 235 | [CITIZEN ECO-DRIVE STILETTO MEN'S WATCH -NEW IN BOX](https://hibid.com/lot/317472818) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Knoxville, TN | - |
 | 236 | [CITIZEN ECO-DRIVE STILETTO MEN'S WATCH -NEW IN BOX](https://hibid.com/lot/317472816) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Knoxville, TN | - |
-| 237 | [CITIZEN ECO-DRIVE AREZZO MEN'S WATCH -NEW IN BOX](https://hibid.com/lot/317472817) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Knoxville, TN | - |
-| 238 | [CITIZEN ECO-DRIVE STILETTO MEN'S WATCH -NEW IN BOX](https://hibid.com/lot/317472818) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Knoxville, TN | - |
-| 239 | [Ladies Citizen quartz watch](https://hibid.com/lot/317000612) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Hollsoppple, PA | - |
-| 240 | [Citizen America's Cup Vintage Watch](https://hibid.com/lot/315619115) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Bradenton, FL | - |
-| 241 | [Polaroid Film Camera the Button Land Camera Gray Instant Sx-](https://shopgoodwill.com/item/273811439) | Polaroid SX-70 (folding) | $8.09 | $44.35 | $56.26 | goodwill |  | 2026-08-17T20:18 |
-| 242 | [Mitutoyo Micrometer in Case](https://hibid.com/lot/316546776) | Mitutoyo micrometer/caliper/indicator | $2.00 | $38.12 | $56.12 | hibid | Clinton, TN | - |
-| 243 | [Mitutoyo Caliper, Micrometer, and Protractor](https://hibid.com/lot/317396657) | Mitutoyo micrometer/caliper/indicator | $2.00 | $38.12 | $56.12 | hibid | Plymouth, OH | - |
-| 244 | [Vintage Citizen Ladies Wristwatch](https://hibid.com/lot/316195529) | Citizen watch (Eco-Drive / quartz) | $2.50 | $38.34 | $55.84 | hibid | Sioux Falls, SD | - |
-| 245 | [Vintage Citizen Ladies Wristwatch](https://hibid.com/lot/316195528) | Citizen watch (Eco-Drive / quartz) | $2.50 | $38.34 | $55.84 | hibid | Sioux Falls, SD | - |
-| 246 | [Vintage Brown Polaroid  SX-70 Leather Camera Bag Crossbody](https://www.ebay.com/itm/267752376041?_skw=polaroid+sx-70&hash=item3e574906e9:g:iOMAAeSwDzRqeS5c) | Polaroid SX-70 (folding) | $12.50 | $48.34 | $55.84 | ebay |  | - |
-| 247 | [Apple iPod Classic 6th Gen 80GB Black MB147LL MP3 Player Tes](https://shopgoodwill.com/item/273604497) | iPod Classic/Video (capacity unknown) | $39.00 | $74.76 | $55.76 | goodwill |  | 2026-08-18T18:57 |
-| 248 | [Sony Handycam DCR TRV240 Digital 8 Hi8 8mm NTSC Camcorder 25](https://shopgoodwill.com/item/273742613) | Sony Handycam camcorder | $27.00 | $62.70 | $55.70 | goodwill |  | 2026-08-17T18:33 |
-| 249 | [Sony Handycam Vision CCD TRV68 Hi8 Digital Video Camcorder 2](https://shopgoodwill.com/item/273746598) | Sony Handycam camcorder | $27.00 | $62.70 | $55.70 | goodwill |  | 2026-08-17T18:33 |
-| 250 | [FLUKE T+PRO TESTER, 4 BATTERY CHARGERS](https://hibid.com/lot/316622025) | Fluke meter (unspecified model) | $4.00 | $39.67 | $55.67 | hibid | Lafollette, TN | - |
-| 251 | [Mitutoyo Small Hole Gage](https://hibid.com/lot/317586638) | Mitutoyo micrometer/caliper/indicator | $2.50 | $38.12 | $55.62 | hibid | Nicholls, GA | - |
-| 252 | [Mitutoyo Small Hole Gage](https://hibid.com/lot/317586633) | Mitutoyo micrometer/caliper/indicator | $2.50 | $38.12 | $55.62 | hibid | Nicholls, GA | - |
-| 253 | [NEW MITUTOYO MICROMETER SET](https://hibid.com/lot/317550597) | Mitutoyo micrometer/caliper/indicator | $2.50 | $38.12 | $55.62 | hibid | Chilton, WI | - |
-| 254 | [Mitutoyo 0-6 in. Outside Micrometer Set](https://hibid.com/lot/317192927) | Mitutoyo micrometer/caliper/indicator | $2.50 | $38.12 | $55.62 | hibid | Troy, OH | - |
-| 255 | [Mitutoyo Height Gage, Dial Caliper & B&S Tools](https://hibid.com/lot/317192940) | Mitutoyo micrometer/caliper/indicator | $2.50 | $38.12 | $55.62 | hibid | Troy, OH | - |
-| 256 | [Polaroid Pronto! B SX-70 Instant Film Camera Untested](https://shopgoodwill.com/item/273618120) | Polaroid SX-70 (folding) | $9.99 | $45.34 | $55.35 | goodwill |  | 2026-08-18T18:28 |
-| 257 | [Vintage Polaroid Folding SX-70 Land Camera Not Tested](https://shopgoodwill.com/item/274071165) | Polaroid SX-70 (folding) | $9.99 | $45.34 | $55.35 | goodwill |  | 2026-08-22T19:16 |
-| 258 | [Citizen & Nixon Watches](https://hibid.com/lot/315682370) | Citizen watch (Eco-Drive / quartz) | $3.00 | $38.34 | $55.34 | hibid | Fort Wayne, IN | - |
-| 259 | [Citizen Elegance Vintage Watch](https://hibid.com/lot/315619123) | Citizen watch (Eco-Drive / quartz) | $3.00 | $38.34 | $55.34 | hibid | Bradenton, FL | - |
-| 260 | [Watches from LAExpress, Citizen, Etc.](https://hibid.com/lot/316477717) | Citizen watch (Eco-Drive / quartz) | $3.00 | $38.34 | $55.34 | hibid | Warsaw, IN | - |
-| 261 | [Mitutoyo digital protractor](https://hibid.com/lot/316184312) | Mitutoyo micrometer/caliper/indicator | $3.00 | $38.12 | $55.12 | hibid | Denfield, ON | - |
-| 262 | [Mitutoyo caliper in case](https://hibid.com/lot/316184020) | Mitutoyo micrometer/caliper/indicator | $3.00 | $38.12 | $55.12 | hibid | Denfield, ON | - |
-| 263 | [Mitutoyo Telescoping Gage Set](https://hibid.com/lot/316546767) | Mitutoyo micrometer/caliper/indicator | $3.00 | $38.12 | $55.12 | hibid | Clinton, TN | - |
-| 264 | [Vintage Sega Dreamcast RWE](https://hibid.com/lot/317544798) | Sega Dreamcast console | $4.00 | $39.01 | $55.01 | hibid | Clinton, IL | - |
-| 265 | [Vintage Polaroid Pronto! Instant Film Camera with Original C](https://shopgoodwill.com/item/273275849) | Polaroid SX-70 (folding) | $10.99 | $45.84 | $54.85 | goodwill |  | 2026-08-16T18:23 |
-| 266 | [FLUKE Digital Multimeter: TRMS, CAT III 600V](https://hibid.com/lot/314954759) | Fluke meter (unspecified model) | $5.00 | $39.67 | $54.67 | hibid | Warsaw, IN | - |
-| 267 | [Fluke automotive meter](https://hibid.com/lot/317668877) | Fluke meter (unspecified model) | $5.00 | $39.67 | $54.67 | hibid | Post Falls, ID | - |
-| 268 | [Assorted Electrical Hardware & Fluke Testers](https://hibid.com/lot/316999031) | Fluke meter (unspecified model) | $5.00 | $39.67 | $54.67 | hibid | Upper Sandusky, OH | - |
-| 269 | [Vintage Polaroid SX-70 Instant Land Camera w/Q-Light Attachm](https://shopgoodwill.com/item/273682968) | Polaroid SX-70 (folding) | $10.99 | $45.35 | $54.36 | goodwill |  | 2026-08-18T20:02 |
-| 270 | [Polaroid Sx-70 Land Camera Instant](https://hibid.com/lot/316633271) | Polaroid SX-70 (folding) | $14.00 | $48.34 | $54.34 | hibid | Madison Heights, MI | - |
-| 271 | [Men's Watches Citizen Seiko Timex](https://hibid.com/lot/316010583) | Citizen watch (Eco-Drive / quartz) | $4.00 | $38.34 | $54.34 | hibid | Sycamore, OH | - |
-| 272 | [Lot of Watches - Citizen, Pulsar, ESQ,](https://hibid.com/lot/317369350) | Citizen watch (Eco-Drive / quartz) | $4.00 | $38.34 | $54.34 | hibid | Madison, WI | - |
-| 273 | [Car Parts, Mitutoyo gauge, misc](https://hibid.com/lot/316128931) | Mitutoyo micrometer/caliper/indicator | $4.00 | $38.12 | $54.12 | hibid | Columbia City, IN | - |
-| 274 | [Canon AE-1 Program w/ 50mm f1.4 & Konica Auto-Reflex w/ 52mm](https://shopgoodwill.com/item/273759698) | Canon AE-1 / AE-1 Program (35mm SLR) | $55.88 | $89.90 | $54.02 | goodwill |  | 2026-08-17T18:13 |
-| 275 | [Mititoyo Number 2410-60  AGD Dial Indicator .250” Range, .00](https://www.ebay.com/itm/335199543894?_skw=mititoyo&hash=item4e0b732256:g:~qcAAOSw9vJlmvkd) | Dial / test indicator (brand-name) | $35.00 | $68.87 | $53.87 | ebay |  | - |
-| 276 | [Nintendo Switch Model HAC-001 Handheld Game Console + 2 Cont](https://shopgoodwill.com/item/273466244) | Nintendo Switch console (v1/v2, non-OLED) | $31.00 | $64.70 | $53.70 | goodwill |  | 2026-08-17T18:59 |
-| 277 | [Fluke 1550C 5kV Insulation Tester](https://hibid.com/lot/317044174) | Fluke meter (unspecified model) | $6.00 | $39.67 | $53.67 | hibid | San Mateo, CA | - |
-| 278 | [Clean Used Fluke 87 TRMS Handheld Digital Meter Multimeter w](https://www.ebay.com/itm/198571452210?_skw=fluke+meter&hash=item2e3bc7e732:g:LQAAAeSwGbJqf31H) | Fluke 87/87V multimeter | $139.00 | $172.49 | $53.49 | ebay |  | - |
-| 279 | [Nintendo Switch OLED Model HEG-001 White Console w/ Accessor](https://shopgoodwill.com/item/274000140) | Nintendo Switch OLED console | $77.00 | $110.41 | $53.41 | goodwill |  | 2026-08-19T18:27 |
-| 280 | [Milwaukee M18 FUEL 1/4" Hex Impact Driver](https://hibid.com/lot/316683062) | Milwaukee M18 FUEL tool | $1.00 | $34.34 | $53.34 | hibid | Hastings, NE | - |
-| 281 | [CITIZEN ECO-DRIVE CORSO LADIE'S WATCH POLYGON](https://hibid.com/lot/317966120) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Williamsport, MD | - |
-| 282 | [CITIZEN CORSO ECO-DRIVE DAY DATE 36MM WATCH](https://hibid.com/lot/317966097) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Williamsport, MD | - |
-| 283 | [Citizen Eco-Drive E11 Titanium WR 100 Dress Watch](https://hibid.com/lot/316822671) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Sun Prairie, WI | - |
-| 284 | [MEN'S DIGITAL CITIZEN WATCH](https://hibid.com/lot/317539291) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Ottawa, ON | - |
-| 285 | [CITIZEN QUARTZ RECTANGULAR TANK WATCH](https://hibid.com/lot/317966125) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Williamsport, MD | - |
-| 286 | [Citizen Stars & Stripes Yachting Watch](https://hibid.com/lot/317258023) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Madisonville, TN | - |
-| 287 | [CITIZEN WOMEN'S ARIEL DISNEY PRINCESS WATCH  TEAL](https://hibid.com/lot/317966121) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Williamsport, MD | - |
-| 288 | [Polaroid Pronto! Land Camera Black Vintage SX-70 Instant Fil](https://www.ebay.com/itm/198570893631?_skw=polaroid+sx-70&hash=item2e3bbf613f:g:j7sAAeSw01lqBeed) | Polaroid SX-70 (folding) | $15.10 | $48.34 | $53.24 | ebay |  | - |
-| 289 | [Canon Body Cap For AE-1 Program A-1 (Canon FD)](https://www.ebay.com/itm/318739605098?_skw=canon+ae-1&hash=item4a365c666a:g:1lMAAeSw65pqgct0) | Canon AE-1 / AE-1 Program (35mm SLR) | $10.16 | $43.33 | $53.17 | ebay |  | - |
-| 290 | [Mitutoyo Vernier Caliper](https://hibid.com/lot/316037805) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
-| 291 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/316037561) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
-| 292 | [Mitutoyo 3-Point Internal Micrometer](https://hibid.com/lot/316038021) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
-| 293 | [Mitutoyo Micrometer Adjustable Torque Wrench](https://hibid.com/lot/317519888) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Westlake, OH | - |
-| 294 | [NINTENDO GAME BOY ADVANCE SP- UNTESTED- NO CHARGER](https://hibid.com/lot/317851254) | Game Boy Advance SP (AGS-001/unspecified) | $2.00 | $35.00 | $53.00 | hibid | Lebanon, MO | - |
-| 295 | [Sony Handycam CCD-F77 Video8 Camcorder with AC Adapter Batte](https://shopgoodwill.com/item/273692099) | Sony Handycam camcorder | $29.99 | $62.70 | $52.71 | goodwill |  | 2026-08-16T18:21 |
-| 296 | [2 Vintage Camcorders Panasonic Palmcorder X20 & Sony Handyca](https://shopgoodwill.com/item/273786400) | Sony Handycam camcorder | $29.99 | $62.70 | $52.71 | goodwill |  | 2026-08-17T18:40 |
-| 297 | [Sony Handycam Video8 CCD-F401 Video Camcorder - Powers On](https://shopgoodwill.com/item/273924617) | Sony Handycam camcorder | $29.99 | $62.70 | $52.71 | goodwill |  | 2026-08-18T18:50 |
-| 298 | [Sony Handycam Model # HDR-SR12](https://hibid.com/lot/317053830) | Sony Handycam camcorder | $32.00 | $64.70 | $52.70 | hibid | Taylor, MI | - |
-| 299 | [Starrett inside micrometer](https://hibid.com/lot/317281832) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Hillsboro, OR | - |
-| 300 | [2 STARRETT GAUGES & CALIPERS](https://hibid.com/lot/317520838) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Cumby, TX | - |
-| 301 | [STARRETT 5”-6” CALIPER NO 436](https://hibid.com/lot/317520839) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Cumby, TX | - |
-| 302 | [working game boy advance SP with Games](https://hibid.com/lot/317977327) | Game Boy Advance SP (AGS-001/unspecified) | $2.50 | $35.00 | $52.50 | hibid | Candor, NY | - |
-| 303 | [Mititoyo 2424-10 Dial indicator](https://www.ebay.com/itm/187479531278?_skw=mititoyo&hash=item2ba6a69f0e:g:Uq8AAeSwQRRomRgK) | Dial / test indicator (brand-name) | $36.40 | $68.87 | $52.47 | ebay |  | - |
-| 304 | [CHANGING TIMES 5 1973 Polaroid SX-70; microwave ovens; funer](https://www.ebay.com/itm/377418774129?_skw=polaroid+sx-70&hash=item57dfe97671:g:2b4AAeSw7-lqf2ox) | Polaroid SX-70 (folding) | $9.99 | $42.40 | $52.41 | ebay |  | - |
-| 305 | [POPULAR MECHANICS 3 1973 Mini-pickup Camper; Pontiac Grand A](https://www.ebay.com/itm/377412861247?_skw=polaroid+sx-70&hash=item57df8f3d3f:g:O4YAAeSwbqVqfImD) | Polaroid SX-70 (folding) | $9.99 | $42.40 | $52.41 | ebay |  | - |
-| 306 | ["The Button" Polaroid Land Camera uses SX-70 film](https://www.ebay.com/itm/336739431996?_skw=polaroid+sx-70&hash=item4e673bf63c:g:eaUAAeSwKpxpj03g) | Polaroid SX-70 (folding) | $15.99 | $48.34 | $52.35 | ebay |  | - |
-| 307 | [$175, citizen watch,like new MSRP $175](https://hibid.com/lot/317952256) | Citizen watch (Eco-Drive / quartz) | $6.00 | $38.34 | $52.34 | hibid | Toronto, ON | - |
-| 308 | [$175, citizen watch,like new MSRP $175](https://hibid.com/lot/317952258) | Citizen watch (Eco-Drive / quartz) | $6.00 | $38.34 | $52.34 | hibid | Toronto, ON | - |
-| 309 | [Performance Superpad 64 Gray Controller P-305 for Nintendo 6](https://shopgoodwill.com/item/273804607) | Nintendo 64 console | $8.99 | $41.01 | $52.02 | goodwill |  | 2026-08-19T19:21 |
-| 310 | [Nintendo 64 Console W/Four Games See Info](https://hibid.com/lot/316265177) | Nintendo 64 console | $11.00 | $43.01 | $52.01 | hibid | Albuquerque, NM | - |
-| 311 | [STARRETT 196 DIAL INDICATOR And Hole Attachment.](https://www.ebay.com/itm/298593799396?_skw=starrett&hash=item458593cce4:g:6LYAAeSwsJVqgh~Q) | Dial / test indicator (brand-name) | $29.99 | $61.87 | $51.88 | ebay |  | - |
-| 312 | [VINTAGE..4-PC) POLARIOD SX-70 ..1 & 2-PAGE SALES ADS..RARE! ](https://www.ebay.com/itm/165767196707?_skw=polariod+sx-70&hash=item26987eb023:g:ZBQAAOSw88VdxELi) | Polaroid SX-70 (folding) | $9.99 | $41.84 | $51.85 | ebay |  | - |
-| 313 | [Starrett 230RL Micrometer in Case](https://hibid.com/lot/317160178) | Starrett precision tool | $2.00 | $33.69 | $51.69 | hibid | Mooresville, IN | - |
-| 314 | [Starrett 98-6 Machinist's Level](https://hibid.com/lot/317160166) | Starrett precision tool | $2.00 | $33.69 | $51.69 | hibid | Mooresville, IN | - |
-| 315 | [Fluke 77 Series II Digital Multimeter](https://hibid.com/lot/317160332) | Fluke meter (unspecified model) | $8.00 | $39.67 | $51.67 | hibid | Mooresville, IN | - |
-| 316 | [Polaroid The Button Land Camera Vintage SX-70 Instant Film C](https://www.ebay.com/itm/227474957150?_skw=polaroid+sx-70&hash=item34f690635e:g:BiMAAeSw1WFqfnEt) | Polaroid SX-70 (folding) | $17.10 | $48.34 | $51.24 | ebay |  | - |
-| 317 | [Starrett Micrometers & Telescoping Gages](https://hibid.com/lot/317192935) | Starrett precision tool | $2.50 | $33.69 | $51.19 | hibid | Troy, OH | - |
-| 318 | [Starrett & Assorted Machinist Squares and Rules](https://hibid.com/lot/317192922) | Starrett precision tool | $2.50 | $33.69 | $51.19 | hibid | Troy, OH | - |
-| 319 | [Starrett No. 823B Inside Micrometer & Calipers](https://hibid.com/lot/317192932) | Starrett precision tool | $2.50 | $33.69 | $51.19 | hibid | Troy, OH | - |
-| 320 | [1 USED MITITOYO DIGITAL DIGIMATIC INDICATOR IDC-112T WITH ME](https://www.ebay.com/itm/257444485132?_skw=mititoyo&hash=item3bf0e3180c:g:Aq8AAeSwPO5p0t3y) | Dial / test indicator (brand-name) | $38.00 | $68.87 | $50.87 | ebay |  | - |
-| 321 | [Citizen Eco-Drive Paradigm Titanium Dress Watch](https://hibid.com/lot/316822670) | Citizen watch (Eco-Drive / quartz) | $7.50 | $38.34 | $50.84 | hibid | Sun Prairie, WI | - |
-| 322 | [Citizen-Eco Drive Day/Date Black Dial Dress Watch](https://hibid.com/lot/316822740) | Citizen watch (Eco-Drive / quartz) | $7.50 | $38.34 | $50.84 | hibid | Sun Prairie, WI | - |
-| 323 | [Nice Citizen Gold-tone Ladies Watch](https://hibid.com/lot/316403505) | Citizen watch (Eco-Drive / quartz) | $7.50 | $38.34 | $50.84 | hibid | Springdale, AR | - |
-| 324 | [Sony Playstation Vita Ps Vita Pch-1001 White](https://shopgoodwill.com/item/274026071) | PlayStation Vita console | $62.00 | $92.72 | $50.72 | goodwill |  | 2026-08-21T18:11 |
-| 325 | [Starrett No. 270 Taper Gage](https://hibid.com/lot/317160176) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Mooresville, IN | - |
-| 326 | [Starret micrometer](https://hibid.com/lot/316183990) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Denfield, ON | - |
-| 327 | [Starret micrometer](https://hibid.com/lot/316183994) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Denfield, ON | - |
-| 328 | [Starret digital caliper](https://hibid.com/lot/316184329) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Denfield, ON | - |
-| 329 | [Starret electronic digital caliper](https://hibid.com/lot/316184322) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Denfield, ON | - |
-| 330 | [Nintendo 3DS XL, It Works!](https://hibid.com/lot/317322086) | Nintendo 3DS XL / New 3DS XL | $60.00 | $90.39 | $50.39 | hibid | Clearfield, UT | - |
-| 331 | [FAMILIAR SUBJECTS: POLAROID SX-70 IMPRESSIONS By Norman Lock](https://www.ebay.com/itm/227473473947?_skw=polaroid+sx-70&hash=item34f679c19b:g:2w4AAeSwg3NqfQkW) | Polaroid SX-70 (folding) | $17.95 | $48.34 | $50.39 | ebay |  | - |
-| 332 | [$225, citizen watch,like new MSRP $225](https://hibid.com/lot/317952254) | Citizen watch (Eco-Drive / quartz) | $8.00 | $38.34 | $50.34 | hibid | Toronto, ON | - |
-| 333 | [Sony Handycam DCR-DVD108 Digital Video Camera Recorder 40x O](https://shopgoodwill.com/item/273566798) | Sony Handycam camcorder | $34.93 | $64.70 | $49.77 | goodwill |  | 2026-08-17T19:46 |
-| 334 | [Nintendo Switch Video Game Console Used Powers On / Parts & ](https://shopgoodwill.com/item/273580798) | Nintendo Switch console (v1/v2, non-OLED) | $32.00 | $61.71 | $49.71 | goodwill |  | 2026-08-16T19:33 |
-| 335 | [Sony Handycam Video8 and HDD Camcorders Set](https://hibid.com/lot/316123365) | Sony Handycam camcorder | $35.00 | $64.70 | $49.70 | hibid | Mesa, AZ | - |
+| 237 | [Ladies Citizen quartz watch](https://hibid.com/lot/317000612) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Hollsoppple, PA | - |
+| 238 | [Citizen America's Cup Vintage Watch](https://hibid.com/lot/315619115) | Citizen watch (Eco-Drive / quartz) | $2.00 | $38.34 | $56.34 | hibid | Bradenton, FL | - |
+| 239 | [Polaroid Film Camera the Button Land Camera Gray Instant Sx-](https://shopgoodwill.com/item/273811439) | Polaroid SX-70 (folding) | $8.09 | $44.35 | $56.26 | goodwill |  | 2026-08-17T20:18 |
+| 240 | [Mitutoyo Caliper, Micrometer, and Protractor](https://hibid.com/lot/317396657) | Mitutoyo micrometer/caliper/indicator | $2.00 | $38.12 | $56.12 | hibid | Plymouth, OH | - |
+| 241 | [Vintage Citizen Ladies Wristwatch](https://hibid.com/lot/316195528) | Citizen watch (Eco-Drive / quartz) | $2.50 | $38.34 | $55.84 | hibid | Sioux Falls, SD | - |
+| 242 | [Vintage Citizen Ladies Wristwatch](https://hibid.com/lot/316195529) | Citizen watch (Eco-Drive / quartz) | $2.50 | $38.34 | $55.84 | hibid | Sioux Falls, SD | - |
+| 243 | [Vintage Brown Polaroid  SX-70 Leather Camera Bag Crossbody](https://www.ebay.com/itm/267752376041?_skw=polaroid+sx-70&hash=item3e574906e9:g:iOMAAeSwDzRqeS5c) | Polaroid SX-70 (folding) | $12.50 | $48.34 | $55.84 | ebay |  | - |
+| 244 | [Apple iPod Classic 6th Gen 80GB Black MB147LL MP3 Player Tes](https://shopgoodwill.com/item/273604497) | iPod Classic/Video (capacity unknown) | $39.00 | $74.76 | $55.76 | goodwill |  | 2026-08-18T18:57 |
+| 245 | [Sony Handycam DCR TRV240 Digital 8 Hi8 8mm NTSC Camcorder 25](https://shopgoodwill.com/item/273742613) | Sony Handycam camcorder | $27.00 | $62.70 | $55.70 | goodwill |  | 2026-08-17T18:33 |
+| 246 | [Sony Handycam Vision CCD TRV68 Hi8 Digital Video Camcorder 2](https://shopgoodwill.com/item/273746598) | Sony Handycam camcorder | $27.00 | $62.70 | $55.70 | goodwill |  | 2026-08-17T18:33 |
+| 247 | [FLUKE T+PRO TESTER, 4 BATTERY CHARGERS](https://hibid.com/lot/316622025) | Fluke meter (unspecified model) | $4.00 | $39.67 | $55.67 | hibid | Lafollette, TN | - |
+| 248 | [Mitutoyo Small Hole Gage](https://hibid.com/lot/317586638) | Mitutoyo micrometer/caliper/indicator | $2.50 | $38.12 | $55.62 | hibid | Nicholls, GA | - |
+| 249 | [Mitutoyo Small Hole Gage](https://hibid.com/lot/317586633) | Mitutoyo micrometer/caliper/indicator | $2.50 | $38.12 | $55.62 | hibid | Nicholls, GA | - |
+| 250 | [NEW MITUTOYO MICROMETER SET](https://hibid.com/lot/317550597) | Mitutoyo micrometer/caliper/indicator | $2.50 | $38.12 | $55.62 | hibid | Chilton, WI | - |
+| 251 | [Mitutoyo 0-6 in. Outside Micrometer Set](https://hibid.com/lot/317192927) | Mitutoyo micrometer/caliper/indicator | $2.50 | $38.12 | $55.62 | hibid | Troy, OH | - |
+| 252 | [Mitutoyo Height Gage, Dial Caliper & B&S Tools](https://hibid.com/lot/317192940) | Mitutoyo micrometer/caliper/indicator | $2.50 | $38.12 | $55.62 | hibid | Troy, OH | - |
+| 253 | [Polaroid Pronto! B SX-70 Instant Film Camera Untested](https://shopgoodwill.com/item/273618120) | Polaroid SX-70 (folding) | $9.99 | $45.34 | $55.35 | goodwill |  | 2026-08-18T18:28 |
+| 254 | [Vintage Polaroid Folding SX-70 Land Camera Not Tested](https://shopgoodwill.com/item/274071165) | Polaroid SX-70 (folding) | $9.99 | $45.34 | $55.35 | goodwill |  | 2026-08-22T19:16 |
+| 255 | [Citizen & Nixon Watches](https://hibid.com/lot/315682370) | Citizen watch (Eco-Drive / quartz) | $3.00 | $38.34 | $55.34 | hibid | Fort Wayne, IN | - |
+| 256 | [Citizen Elegance Vintage Watch](https://hibid.com/lot/315619123) | Citizen watch (Eco-Drive / quartz) | $3.00 | $38.34 | $55.34 | hibid | Bradenton, FL | - |
+| 257 | [Mitutoyo digital protractor](https://hibid.com/lot/316184312) | Mitutoyo micrometer/caliper/indicator | $3.00 | $38.12 | $55.12 | hibid | Denfield, ON | - |
+| 258 | [Mitutoyo caliper in case](https://hibid.com/lot/316184020) | Mitutoyo micrometer/caliper/indicator | $3.00 | $38.12 | $55.12 | hibid | Denfield, ON | - |
+| 259 | [Pokemon FireRed for Nintendo Gameboy Advance GBA](https://shopgoodwill.com/item/274143270) | Pokemon FireRed / LeafGreen (GBA) | $9.99 | $45.01 | $55.02 | goodwill |  | 2026-08-23T18:25 |
+| 260 | [Vintage Sega Dreamcast RWE](https://hibid.com/lot/317544798) | Sega Dreamcast console | $4.00 | $39.01 | $55.01 | hibid | Clinton, IL | - |
+| 261 | [Vintage Polaroid Pronto! Instant Film Camera with Original C](https://shopgoodwill.com/item/273275849) | Polaroid SX-70 (folding) | $10.99 | $45.84 | $54.85 | goodwill |  | 2026-08-16T18:23 |
+| 262 | [FLUKE Digital Multimeter: TRMS, CAT III 600V](https://hibid.com/lot/314954759) | Fluke meter (unspecified model) | $5.00 | $39.67 | $54.67 | hibid | Warsaw, IN | - |
+| 263 | [Fluke automotive meter](https://hibid.com/lot/317668877) | Fluke meter (unspecified model) | $5.00 | $39.67 | $54.67 | hibid | Post Falls, ID | - |
+| 264 | [Assorted Electrical Hardware & Fluke Testers](https://hibid.com/lot/316999031) | Fluke meter (unspecified model) | $5.00 | $39.67 | $54.67 | hibid | Upper Sandusky, OH | - |
+| 265 | [Vintage Polaroid SX-70 Instant Land Camera w/Q-Light Attachm](https://shopgoodwill.com/item/273682968) | Polaroid SX-70 (folding) | $10.99 | $45.35 | $54.36 | goodwill |  | 2026-08-18T20:02 |
+| 266 | [Polaroid Sx-70 Land Camera Instant](https://hibid.com/lot/316633271) | Polaroid SX-70 (folding) | $14.00 | $48.34 | $54.34 | hibid | Madison Heights, MI | - |
+| 267 | [Men's Watches Citizen Seiko Timex](https://hibid.com/lot/316010583) | Citizen watch (Eco-Drive / quartz) | $4.00 | $38.34 | $54.34 | hibid | Sycamore, OH | - |
+| 268 | [Watches from LAExpress, Citizen, Etc.](https://hibid.com/lot/316477717) | Citizen watch (Eco-Drive / quartz) | $4.00 | $38.34 | $54.34 | hibid | Warsaw, IN | - |
+| 269 | [Lot of Watches - Citizen, Pulsar, ESQ,](https://hibid.com/lot/317369350) | Citizen watch (Eco-Drive / quartz) | $4.00 | $38.34 | $54.34 | hibid | Madison, WI | - |
+| 270 | [Car Parts, Mitutoyo gauge, misc](https://hibid.com/lot/316128931) | Mitutoyo micrometer/caliper/indicator | $4.00 | $38.12 | $54.12 | hibid | Columbia City, IN | - |
+| 271 | [Canon AE-1 Program w/ 50mm f1.4 & Konica Auto-Reflex w/ 52mm](https://shopgoodwill.com/item/273759698) | Canon AE-1 / AE-1 Program (35mm SLR) | $55.88 | $89.90 | $54.02 | goodwill |  | 2026-08-17T18:13 |
+| 272 | [Mititoyo Number 2410-60  AGD Dial Indicator .250” Range, .00](https://www.ebay.com/itm/335199543894?_skw=mititoyo&hash=item4e0b732256:g:~qcAAOSw9vJlmvkd) | Dial / test indicator (brand-name) | $35.00 | $68.87 | $53.87 | ebay |  | - |
+| 273 | [Canon ELPH Z3/Minolta Vectis Weathermatic Cameras w/Cases](https://www.ebay.com/itm/158195042423?_skw=canon+elph&hash=item24d528c877:g:SKEAAeSwli9qgent) | Canon PowerShot ELPH / IXUS (digital) | $35.00 | $68.70 | $53.70 | ebay |  | - |
+| 274 | [Fluke 1550C 5kV Insulation Tester](https://hibid.com/lot/317044174) | Fluke meter (unspecified model) | $6.00 | $39.67 | $53.67 | hibid | San Mateo, CA | - |
+| 275 | [Clean Used Fluke 87 TRMS Handheld Digital Meter Multimeter w](https://www.ebay.com/itm/198571452210?_skw=fluke+meter&hash=item2e3bc7e732:g:LQAAAeSwGbJqf31H) | Fluke 87/87V multimeter | $139.00 | $172.49 | $53.49 | ebay |  | - |
+| 276 | [Nintendo Switch OLED Model HEG-001 White Console w/ Accessor](https://shopgoodwill.com/item/274000140) | Nintendo Switch OLED console | $77.00 | $110.41 | $53.41 | goodwill |  | 2026-08-19T18:27 |
+| 277 | [Milwaukee M18 FUEL 1/4" Hex Impact Driver](https://hibid.com/lot/316683062) | Milwaukee M18 FUEL tool | $1.00 | $34.34 | $53.34 | hibid | Hastings, NE | - |
+| 278 | [CITIZEN ECO-DRIVE CORSO LADIE'S WATCH POLYGON](https://hibid.com/lot/317966120) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Williamsport, MD | - |
+| 279 | [CITIZEN CORSO ECO-DRIVE DAY DATE 36MM WATCH](https://hibid.com/lot/317966097) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Williamsport, MD | - |
+| 280 | [Citizen Eco-Drive E11 Titanium WR 100 Dress Watch](https://hibid.com/lot/316822671) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Sun Prairie, WI | - |
+| 281 | [MEN'S DIGITAL CITIZEN WATCH](https://hibid.com/lot/317539291) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Ottawa, ON | - |
+| 282 | [CITIZEN QUARTZ RECTANGULAR TANK WATCH](https://hibid.com/lot/317966125) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Williamsport, MD | - |
+| 283 | [Citizen Stars & Stripes Yachting Watch](https://hibid.com/lot/317258023) | Citizen watch (Eco-Drive / quartz) | $5.00 | $38.34 | $53.34 | hibid | Madisonville, TN | - |
+| 284 | [Polaroid Pronto! Land Camera Black Vintage SX-70 Instant Fil](https://www.ebay.com/itm/198570893631?_skw=polaroid+sx-70&hash=item2e3bbf613f:g:j7sAAeSw01lqBeed) | Polaroid SX-70 (folding) | $15.10 | $48.34 | $53.24 | ebay |  | - |
+| 285 | [Canon Body Cap For AE-1 Program A-1 (Canon FD)](https://www.ebay.com/itm/318739605098?_skw=canon+ae-1&hash=item4a365c666a:g:1lMAAeSw65pqgct0) | Canon AE-1 / AE-1 Program (35mm SLR) | $10.16 | $43.33 | $53.17 | ebay |  | - |
+| 286 | [Mitutoyo Vernier Caliper](https://hibid.com/lot/316037805) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
+| 287 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/316037561) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
+| 288 | [Mitutoyo 3-Point Internal Micrometer](https://hibid.com/lot/316038021) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Nicholls, GA | - |
+| 289 | [Mitutoyo Micrometer Adjustable Torque Wrench](https://hibid.com/lot/317519888) | Mitutoyo micrometer/caliper/indicator | $5.00 | $38.12 | $53.12 | hibid | Westlake, OH | - |
+| 290 | [NINTENDO GAME BOY ADVANCE SP- UNTESTED- NO CHARGER](https://hibid.com/lot/317851254) | Game Boy Advance SP (AGS-001/unspecified) | $2.00 | $35.00 | $53.00 | hibid | Lebanon, MO | - |
+| 291 | [Sony Handycam CCD-F77 Video8 Camcorder with AC Adapter Batte](https://shopgoodwill.com/item/273692099) | Sony Handycam camcorder | $29.99 | $62.70 | $52.71 | goodwill |  | 2026-08-16T18:21 |
+| 292 | [2 Vintage Camcorders Panasonic Palmcorder X20 & Sony Handyca](https://shopgoodwill.com/item/273786400) | Sony Handycam camcorder | $29.99 | $62.70 | $52.71 | goodwill |  | 2026-08-17T18:40 |
+| 293 | [Sony Handycam Video8 CCD-F401 Video Camcorder - Powers On](https://shopgoodwill.com/item/273924617) | Sony Handycam camcorder | $29.99 | $62.70 | $52.71 | goodwill |  | 2026-08-18T18:50 |
+| 294 | [Nintendo Switch Model HAC-001 Handheld Game Console + 2 Cont](https://shopgoodwill.com/item/273466244) | Nintendo Switch console (v1/v2, non-OLED) | $32.00 | $64.70 | $52.70 | goodwill |  | 2026-08-17T18:59 |
+| 295 | [Sony Handycam Model # HDR-SR12](https://hibid.com/lot/317053830) | Sony Handycam camcorder | $32.00 | $64.70 | $52.70 | hibid | Taylor, MI | - |
+| 296 | [Starrett inside micrometer](https://hibid.com/lot/317281832) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Hillsboro, OR | - |
+| 297 | [2 STARRETT GAUGES & CALIPERS](https://hibid.com/lot/317520838) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Cumby, TX | - |
+| 298 | [STARRETT 5”-6” CALIPER NO 436](https://hibid.com/lot/317520839) | Starrett precision tool | $1.00 | $33.69 | $52.69 | hibid | Cumby, TX | - |
+| 299 | [working game boy advance SP with Games](https://hibid.com/lot/317977327) | Game Boy Advance SP (AGS-001/unspecified) | $2.50 | $35.00 | $52.50 | hibid | Candor, NY | - |
+| 300 | [Mititoyo 2424-10 Dial indicator](https://www.ebay.com/itm/187479531278?_skw=mititoyo&hash=item2ba6a69f0e:g:Uq8AAeSwQRRomRgK) | Dial / test indicator (brand-name) | $36.40 | $68.87 | $52.47 | ebay |  | - |
+| 301 | [CHANGING TIMES 5 1973 Polaroid SX-70; microwave ovens; funer](https://www.ebay.com/itm/377418774129?_skw=polaroid+sx-70&hash=item57dfe97671:g:2b4AAeSw7-lqf2ox) | Polaroid SX-70 (folding) | $9.99 | $42.40 | $52.41 | ebay |  | - |
+| 302 | [POPULAR MECHANICS 3 1973 Mini-pickup Camper; Pontiac Grand A](https://www.ebay.com/itm/377412861247?_skw=polaroid+sx-70&hash=item57df8f3d3f:g:O4YAAeSwbqVqfImD) | Polaroid SX-70 (folding) | $9.99 | $42.40 | $52.41 | ebay |  | - |
+| 303 | ["The Button" Polaroid Land Camera uses SX-70 film](https://www.ebay.com/itm/336739431996?_skw=polaroid+sx-70&hash=item4e673bf63c:g:eaUAAeSwKpxpj03g) | Polaroid SX-70 (folding) | $15.99 | $48.34 | $52.35 | ebay |  | - |
+| 304 | [Performance Superpad 64 Gray Controller P-305 for Nintendo 6](https://shopgoodwill.com/item/273804607) | Nintendo 64 console | $8.99 | $41.01 | $52.02 | goodwill |  | 2026-08-19T19:21 |
+| 305 | [Nintendo 64 Console W/Four Games See Info](https://hibid.com/lot/316265177) | Nintendo 64 console | $11.00 | $43.01 | $52.01 | hibid | Albuquerque, NM | - |
+| 306 | [STARRETT 196 DIAL INDICATOR And Hole Attachment.](https://www.ebay.com/itm/298593799396?_skw=starrett&hash=item458593cce4:g:6LYAAeSwsJVqgh~Q) | Dial / test indicator (brand-name) | $29.99 | $61.87 | $51.88 | ebay |  | - |
+| 307 | [VINTAGE..4-PC) POLARIOD SX-70 ..1 & 2-PAGE SALES ADS..RARE! ](https://www.ebay.com/itm/165767196707?_skw=polariod+sx-70&hash=item26987eb023:g:ZBQAAOSw88VdxELi) | Polaroid SX-70 (folding) | $9.99 | $41.84 | $51.85 | ebay |  | - |
+| 308 | [Starrett 230RL Micrometer in Case](https://hibid.com/lot/317160178) | Starrett precision tool | $2.00 | $33.69 | $51.69 | hibid | Mooresville, IN | - |
+| 309 | [Starrett 98-6 Machinist's Level](https://hibid.com/lot/317160166) | Starrett precision tool | $2.00 | $33.69 | $51.69 | hibid | Mooresville, IN | - |
+| 310 | [Fluke 77 Series II Digital Multimeter](https://hibid.com/lot/317160332) | Fluke meter (unspecified model) | $8.00 | $39.67 | $51.67 | hibid | Mooresville, IN | - |
+| 311 | [Citizen Eco-Drive Women's Silver Tone/Gold Tone Watch](https://shopgoodwill.com/item/273931488) | Citizen watch (Eco-Drive / quartz) | $6.99 | $38.34 | $51.35 | goodwill |  | 2026-08-16T20:23 |
+| 312 | [Polaroid The Button Land Camera Vintage SX-70 Instant Film C](https://www.ebay.com/itm/227474957150?_skw=polaroid+sx-70&hash=item34f690635e:g:BiMAAeSw1WFqfnEt) | Polaroid SX-70 (folding) | $17.10 | $48.34 | $51.24 | ebay |  | - |
+| 313 | [Starrett Micrometers & Telescoping Gages](https://hibid.com/lot/317192935) | Starrett precision tool | $2.50 | $33.69 | $51.19 | hibid | Troy, OH | - |
+| 314 | [Starrett & Assorted Machinist Squares and Rules](https://hibid.com/lot/317192922) | Starrett precision tool | $2.50 | $33.69 | $51.19 | hibid | Troy, OH | - |
+| 315 | [Starrett No. 823B Inside Micrometer & Calipers](https://hibid.com/lot/317192932) | Starrett precision tool | $2.50 | $33.69 | $51.19 | hibid | Troy, OH | - |
+| 316 | [1 USED MITITOYO DIGITAL DIGIMATIC INDICATOR IDC-112T WITH ME](https://www.ebay.com/itm/257444485132?_skw=mititoyo&hash=item3bf0e3180c:g:Aq8AAeSwPO5p0t3y) | Dial / test indicator (brand-name) | $38.00 | $68.87 | $50.87 | ebay |  | - |
+| 317 | [Citizen Eco-Drive Paradigm Titanium Dress Watch](https://hibid.com/lot/316822670) | Citizen watch (Eco-Drive / quartz) | $7.50 | $38.34 | $50.84 | hibid | Sun Prairie, WI | - |
+| 318 | [Citizen-Eco Drive Day/Date Black Dial Dress Watch](https://hibid.com/lot/316822740) | Citizen watch (Eco-Drive / quartz) | $7.50 | $38.34 | $50.84 | hibid | Sun Prairie, WI | - |
+| 319 | [Nice Citizen Gold-tone Ladies Watch](https://hibid.com/lot/316403505) | Citizen watch (Eco-Drive / quartz) | $7.50 | $38.34 | $50.84 | hibid | Springdale, AR | - |
+| 320 | [~Seiko, Citizen, Waltham Quartz Watches, 3 Pieces](https://hibid.com/lot/316123837) | Citizen watch (Eco-Drive / quartz) | $7.50 | $38.34 | $50.84 | hibid | Mesa, AZ | - |
+| 321 | [Sony Playstation Vita Ps Vita Pch-1001 White](https://shopgoodwill.com/item/274026071) | PlayStation Vita console | $62.00 | $92.72 | $50.72 | goodwill |  | 2026-08-21T18:11 |
+| 322 | [Starrett No. 270 Taper Gage](https://hibid.com/lot/317160176) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Mooresville, IN | - |
+| 323 | [Starret micrometer](https://hibid.com/lot/316183994) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Denfield, ON | - |
+| 324 | [Starret micrometer](https://hibid.com/lot/316183990) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Denfield, ON | - |
+| 325 | [Starret digital caliper](https://hibid.com/lot/316184329) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Denfield, ON | - |
+| 326 | [Starret electronic digital caliper](https://hibid.com/lot/316184322) | Starrett precision tool | $3.00 | $33.69 | $50.69 | hibid | Denfield, ON | - |
+| 327 | [Nintendo 3DS XL, It Works!](https://hibid.com/lot/317322086) | Nintendo 3DS XL / New 3DS XL | $60.00 | $90.39 | $50.39 | hibid | Clearfield, UT | - |
+| 328 | [FAMILIAR SUBJECTS: POLAROID SX-70 IMPRESSIONS By Norman Lock](https://www.ebay.com/itm/227473473947?_skw=polaroid+sx-70&hash=item34f679c19b:g:2w4AAeSwg3NqfQkW) | Polaroid SX-70 (folding) | $17.95 | $48.34 | $50.39 | ebay |  | - |
+| 329 | [$450, citizen watch,like new MSRP $450](https://hibid.com/lot/317952262) | Citizen watch (Eco-Drive / quartz) | $8.00 | $38.34 | $50.34 | hibid | Toronto, ON | - |
+| 330 | [Mitutoyo Micrometer in Case](https://hibid.com/lot/316546776) | Mitutoyo micrometer/caliper/indicator | $8.00 | $38.12 | $50.12 | hibid | Clinton, TN | - |
+| 331 | [Sony Handycam DCR-DVD108 Digital Video Camera Recorder 40x O](https://shopgoodwill.com/item/273566798) | Sony Handycam camcorder | $34.93 | $64.70 | $49.77 | goodwill |  | 2026-08-17T19:46 |
+| 332 | [Nintendo Switch Video Game Console Used Powers On / Parts & ](https://shopgoodwill.com/item/273580798) | Nintendo Switch console (v1/v2, non-OLED) | $32.00 | $61.71 | $49.71 | goodwill |  | 2026-08-16T19:33 |
+| 333 | [Sony Handycam Video Flash Flash Video HVL F7 S New old stock](https://www.ebay.com/itm/198576081587?_skw=camcorder&hash=item2e3c0e8ab3:g:~3cAAeSwxkhqfiPN) | Sony Handycam camcorder | $34.99 | $64.70 | $49.71 | ebay |  | - |
+| 334 | [Sony Handycam Video8 and HDD Camcorders Set](https://hibid.com/lot/316123365) | Sony Handycam camcorder | $35.00 | $64.70 | $49.70 | hibid | Mesa, AZ | - |
+| 335 | [L.S. Starrett Co. Micrometer](https://hibid.com/lot/316546769) | Starrett precision tool | $4.00 | $33.69 | $49.69 | hibid | Clinton, TN | - |
 | 336 | [Starrett No. 66 Thickness Gage](https://hibid.com/lot/317160172) | Starrett precision tool | $4.00 | $33.69 | $49.69 | hibid | Mooresville, IN | - |
-| 337 | [L.S. Starrett Co. Micrometer](https://hibid.com/lot/316546769) | Starrett precision tool | $4.00 | $33.69 | $49.69 | hibid | Clinton, TN | - |
-| 338 | [Starrett No. 136 Machinist Level](https://hibid.com/lot/317160180) | Starrett precision tool | $4.00 | $33.69 | $49.69 | hibid | Mooresville, IN | - |
+| 337 | [Starrett No. 136 Machinist Level](https://hibid.com/lot/317160180) | Starrett precision tool | $4.00 | $33.69 | $49.69 | hibid | Mooresville, IN | - |
+| 338 | [Nintendo Switch Lite Yellow Handheld Console 5.5 Inch HDH-00](https://shopgoodwill.com/item/273737397) | Nintendo Switch Lite | $10.99 | $40.67 | $49.68 | goodwill |  | 2026-08-19T18:01 |
 | 339 | [Fluke Volt Meter](https://hibid.com/lot/316037834) | Fluke meter (unspecified model) | $10.00 | $39.67 | $49.67 | hibid | Nicholls, GA | - |
 | 340 | [Fluke Meter With Bag](https://hibid.com/lot/316536545) | Fluke meter (unspecified model) | $10.00 | $39.67 | $49.67 | hibid | Tacoma, WA | - |
 | 341 | [$600 NEW Fluke 902 FC HVAC True-RMS Clamp Meter](https://hibid.com/lot/317742544) | Fluke meter (unspecified model) | $10.00 | $39.67 | $49.67 | hibid | Mississauga, ON | - |
-| 342 | [Gold Tone Citizen Ladies Stainless-Steel Back Watch 49.7g](https://shopgoodwill.com/item/273539973) | Citizen watch (Eco-Drive / quartz) | $8.99 | $38.34 | $49.35 | goodwill |  | 2026-08-17T18:03 |
-| 343 | [iPod Classic 4GB](https://www.ebay.com/itm/117363236467?_skw=ipod+classic&hash=item1b5364de73:g:3z0AAeSwQzFqginS) | iPod Classic/Video (capacity unknown) | $49.50 | $78.75 | $49.25 | ebay |  | - |
-| 344 | [[PS Vita] Minna no GOLF 6 PlayStation Vita the Best](https://www.ebay.com/itm/318738599472?_skw=playstation+vita&hash=item4a364d0e30:g:644AAeSwbqVqgaiG) | PlayStation Vita console | $53.60 | $82.72 | $49.12 | ebay |  | - |
-| 345 | [Vintage Pentax K1000 SLR Film Camera w/ Accs. Bundle](https://shopgoodwill.com/item/273749652) | Pentax K1000 (35mm SLR) | $52.00 | $81.04 | $49.04 | goodwill |  | 2026-08-19T18:09 |
-| 346 | [OEM LCD Game Boy Advance SP plus extra lamination.](https://www.ebay.com/itm/168618964891?_skw=gameboy+advance+sp&hash=item274279379b:g:gzkAAeSwOfRqgj8~) | Game Boy Advance SP (AGS-001/unspecified) | $6.00 | $35.00 | $49.00 | ebay |  | - |
-| 347 | [Canon AE-1 Vintage camera](https://hibid.com/lot/315604658) | Canon AE-1 / AE-1 Program (35mm SLR) | $72.00 | $100.90 | $48.90 | hibid 📍 | Lexington, TX | - |
-| 348 | [Apple iPod Video 5th Gen MA446LL 30GB Black Silver Classic C](https://shopgoodwill.com/item/274060623) | iPod Classic/Video (capacity unknown) | $49.99 | $78.75 | $48.76 | goodwill |  | 2026-08-22T05:27 |
-| 349 | [Canon PowerShot S110 Digital ELPH Camera - Untested](https://shopgoodwill.com/item/273970406) | Canon PowerShot ELPH / IXUS (digital) | $39.94 | $68.70 | $48.76 | goodwill |  | 2026-08-21T19:07 |
-| 350 | [Sony Handycam DCR-SR82 HDD Camcorder Bundle - UNTESTED](https://shopgoodwill.com/item/273625589) | Sony Handycam camcorder | $36.00 | $64.70 | $48.70 | goodwill |  | 2026-08-16T20:55 |
-| 351 | [Starrett micrometer](https://hibid.com/lot/317281829) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Hillsboro, OR | - |
-| 352 | [Vintage Starrett Micrometer](https://hibid.com/lot/316037954) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
-| 353 | [Vintage Starrett Micrometer](https://hibid.com/lot/316037955) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
-| 354 | [Vintage Starrett Micrometer](https://hibid.com/lot/316037963) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
-| 355 | [Starrett micrometer depth gauge](https://hibid.com/lot/317281828) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Hillsboro, OR | - |
-| 356 | [Machinist Tools Starrett Micrometer, Divider, Ga+](https://hibid.com/lot/317841809) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Muncie, IN | - |
-| 357 | [Starrett Feeler Thickness Gage Gauge #172A USA](https://www.ebay.com/itm/298593828798?_skw=starrett&hash=item4585943fbe:g:36AAAeSwHdJqgiQ-) | Starrett precision tool | $5.00 | $33.69 | $48.69 | ebay |  | - |
-| 358 | [Milwaukee M18 FUEL 7-1/4" Circular Saw (Bare)](https://hibid.com/lot/317866434) | Milwaukee M18 FUEL tool | $5.75 | $34.34 | $48.59 | hibid | Salt Lake City, UT | - |
-| 359 | [VNTG Citizen Quartz Ladies Gold Tone Wristwatch 18.8g](https://shopgoodwill.com/item/273433015) | Citizen watch (Eco-Drive / quartz) | $9.99 | $38.34 | $48.35 | goodwill |  | 2026-08-16T18:04 |
-| 360 | [VNTG Citizen Quartz Gold Tone Stainless Steel Watch 32.6g](https://shopgoodwill.com/item/273441068) | Citizen watch (Eco-Drive / quartz) | $9.99 | $38.34 | $48.35 | goodwill |  | 2026-08-16T19:17 |
-| 361 | [Citizen Day Date Mother Of Pearl Dial Ladies Wristwatch 31.2](https://shopgoodwill.com/item/273440803) | Citizen watch (Eco-Drive / quartz) | $9.99 | $38.34 | $48.35 | goodwill |  | 2026-08-16T20:06 |
-| 362 | [Citizen Eco-Drive & Bucherer Dress Men Watches](https://hibid.com/lot/316904310) | Citizen watch (Eco-Drive / quartz) | $10.00 | $38.34 | $48.34 | hibid | Westminister, MD | - |
-| 363 | [Three Citizen Quartz Gold-Tone Watches with...](https://hibid.com/lot/315871270) | Citizen watch (Eco-Drive / quartz) | $10.00 | $38.34 | $48.34 | hibid | Gastonia, NC | - |
-| 364 | [Vintage Polaroid SX-70 Folding Camera Bag Brown Crossbody Zi](https://www.ebay.com/itm/267752377123?_skw=polaroid+sx-70&hash=item3e57490b23:g:4B4AAeSwVNpqeS6L) | Polaroid SX-70 (folding) | $20.00 | $48.34 | $48.34 | ebay |  | - |
-| 365 | [Mitutoyo Micrometers](https://hibid.com/lot/301352834) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
-| 366 | [Mitutoyo Micrometers](https://hibid.com/lot/301352833) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
-| 367 | [Vintage Mitutoyo Micrometers](https://hibid.com/lot/316037553) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 368 | [Mitutoyo Measuring Gauge](https://hibid.com/lot/316037458) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 369 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/316037556) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 370 | [Mitutoyo Vernier Caliper](https://hibid.com/lot/316037809) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 371 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/316037535) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 372 | [Vintage Mitutoyo Bore Guage](https://hibid.com/lot/316037537) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 373 | [Mitutoyo Electric Micrometer & Content](https://hibid.com/lot/316037812) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
-| 374 | [Mitutoyo 500-197-30 8” Calipers](https://hibid.com/lot/301352831) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
-| 375 | [Vintage Mitutoyo digimatic micrometer in wood](https://hibid.com/lot/316663171) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Georgetown, IL | - |
-| 376 | [Mitutoyo MDC-4 PXT Digital Micrometer](https://hibid.com/lot/317279211) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
-| 377 | [Mitutoyo TMC-2"& 1" U Micrometers](https://hibid.com/lot/317279213) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
-| 378 | [Milwaukee M18 Fuel 1/2" Impact Wrench](https://hibid.com/lot/317866193) | Milwaukee M18 FUEL tool | $6.25 | $34.34 | $48.09 | hibid | Salt Lake City, UT | - |
-| 379 | [Nintendo 64 N64 Console Model NUS-001 USA Dark Gray Home Vid](https://shopgoodwill.com/item/273725478) | Nintendo 64 console | $14.95 | $43.01 | $48.06 | goodwill |  | 2026-08-19T16:38 |
-| 380 | [Asahi Pentax K1000 35mm Film SLR Camera w/50mm Lens - Shutte](https://shopgoodwill.com/item/273613518) | Pentax K1000 (35mm SLR) | $52.00 | $80.04 | $48.04 | goodwill |  | 2026-08-18T18:15 |
-| 381 | [35mm Film Cameras Vintage Pentax PC35AF Camera & Olympus Sty](https://shopgoodwill.com/item/273597451) | Olympus Stylus Epic Zoom 80/115/170 | $87.00 | $115.00 | $48.00 | goodwill |  | 2026-08-16T18:24 |
-| 382 | [Starrett Micrometer Calipers](https://hibid.com/lot/317199962) | Starrett precision tool | $6.00 | $33.69 | $47.69 | hibid | Evansville, IN | - |
-| 383 | [vintage Starrett outside micrometer](https://hibid.com/lot/316631342) | Starrett precision tool | $6.00 | $33.69 | $47.69 | hibid | Wilmington, NC | - |
+| 342 | [Ann Klein, Seiko, and Citizen Watch Lot](https://shopgoodwill.com/item/273582546) | Citizen watch (Eco-Drive / quartz) | $8.99 | $38.34 | $49.35 | goodwill |  | 2026-08-16T19:26 |
+| 343 | [Gold Tone Citizen Ladies Stainless-Steel Back Watch 49.7g](https://shopgoodwill.com/item/273539973) | Citizen watch (Eco-Drive / quartz) | $8.99 | $38.34 | $49.35 | goodwill |  | 2026-08-17T18:03 |
+| 344 | [iPod Classic 4GB](https://www.ebay.com/itm/117363236467?_skw=ipod+classic&hash=item1b5364de73:g:3z0AAeSwQzFqginS) | iPod Classic/Video (capacity unknown) | $49.50 | $78.75 | $49.25 | ebay |  | - |
+| 345 | [[PS Vita] Minna no GOLF 6 PlayStation Vita the Best](https://www.ebay.com/itm/318738599472?_skw=playstation+vita&hash=item4a364d0e30:g:644AAeSwbqVqgaiG) | PlayStation Vita console | $53.60 | $82.72 | $49.12 | ebay |  | - |
+| 346 | [Vintage Pentax K1000 SLR Film Camera w/ Accs. Bundle](https://shopgoodwill.com/item/273749652) | Pentax K1000 (35mm SLR) | $52.00 | $81.04 | $49.04 | goodwill |  | 2026-08-19T18:09 |
+| 347 | [OEM LCD Game Boy Advance SP plus extra lamination.](https://www.ebay.com/itm/168618964891?_skw=gameboy+advance+sp&hash=item274279379b:g:gzkAAeSwOfRqgj8~) | Game Boy Advance SP (AGS-001/unspecified) | $6.00 | $35.00 | $49.00 | ebay |  | - |
+| 348 | [Canon AE-1 Vintage camera](https://hibid.com/lot/315604658) | Canon AE-1 / AE-1 Program (35mm SLR) | $72.00 | $100.90 | $48.90 | hibid 📍 | Lexington, TX | - |
+| 349 | [Apple iPod Video 5th Gen MA446LL 30GB Black Silver Classic C](https://shopgoodwill.com/item/274060623) | iPod Classic/Video (capacity unknown) | $49.99 | $78.75 | $48.76 | goodwill |  | 2026-08-22T05:27 |
+| 350 | [Canon PowerShot S110 Digital ELPH Camera - Untested](https://shopgoodwill.com/item/273970406) | Canon PowerShot ELPH / IXUS (digital) | $39.94 | $68.70 | $48.76 | goodwill |  | 2026-08-21T19:07 |
+| 351 | [Sony Handycam DCR-SR82 HDD Camcorder Bundle - UNTESTED](https://shopgoodwill.com/item/273625589) | Sony Handycam camcorder | $36.00 | $64.70 | $48.70 | goodwill |  | 2026-08-16T20:55 |
+| 352 | [Starrett micrometer](https://hibid.com/lot/317281829) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Hillsboro, OR | - |
+| 353 | [Vintage Starrett Micrometer](https://hibid.com/lot/316037954) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
+| 354 | [Vintage Starrett Micrometer](https://hibid.com/lot/316037955) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
+| 355 | [Vintage Starrett Micrometer](https://hibid.com/lot/316037963) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Nicholls, GA | - |
+| 356 | [Starrett micrometer depth gauge](https://hibid.com/lot/317281828) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Hillsboro, OR | - |
+| 357 | [Machinist Tools Starrett Micrometer, Divider, Ga+](https://hibid.com/lot/317841809) | Starrett precision tool | $5.00 | $33.69 | $48.69 | hibid | Muncie, IN | - |
+| 358 | [Starrett Feeler Thickness Gage Gauge #172A USA](https://www.ebay.com/itm/298593828798?_skw=starrett&hash=item4585943fbe:g:36AAAeSwHdJqgiQ-) | Starrett precision tool | $5.00 | $33.69 | $48.69 | ebay |  | - |
+| 359 | [Milwaukee M18 FUEL 7-1/4" Circular Saw (Bare)](https://hibid.com/lot/317866434) | Milwaukee M18 FUEL tool | $5.75 | $34.34 | $48.59 | hibid | Salt Lake City, UT | - |
+| 360 | [Timex Seiko Fossil Citizen Quartz Watch Lot of 10 Untested A](https://shopgoodwill.com/item/273752831) | Citizen watch (Eco-Drive / quartz) | $9.99 | $38.34 | $48.35 | goodwill |  | 2026-08-18T20:00 |
+| 361 | [VNTG Citizen Quartz Ladies Gold Tone Wristwatch 18.8g](https://shopgoodwill.com/item/273433015) | Citizen watch (Eco-Drive / quartz) | $9.99 | $38.34 | $48.35 | goodwill |  | 2026-08-16T18:04 |
+| 362 | [Vintage Citizen Ladies Wristwatch Gold Tone Stainless Steel ](https://shopgoodwill.com/item/273457056) | Citizen watch (Eco-Drive / quartz) | $9.99 | $38.34 | $48.35 | goodwill |  | 2026-08-16T18:10 |
+| 363 | [Citizen Day Date Mother Of Pearl Dial Ladies Wristwatch 31.2](https://shopgoodwill.com/item/273440803) | Citizen watch (Eco-Drive / quartz) | $9.99 | $38.34 | $48.35 | goodwill |  | 2026-08-16T20:06 |
+| 364 | [Citizen Eco Drive Black Stainless Steel & Leather Date Windo](https://shopgoodwill.com/item/273752545) | Citizen watch (Eco-Drive / quartz) | $10.00 | $38.34 | $48.34 | goodwill |  | 2026-08-17T18:07 |
+| 365 | [Citizen Eco-Drive & Bucherer Dress Men Watches](https://hibid.com/lot/316904310) | Citizen watch (Eco-Drive / quartz) | $10.00 | $38.34 | $48.34 | hibid | Westminister, MD | - |
+| 366 | [Three Citizen Quartz Gold-Tone Watches with...](https://hibid.com/lot/315871270) | Citizen watch (Eco-Drive / quartz) | $10.00 | $38.34 | $48.34 | hibid | Gastonia, NC | - |
+| 367 | [Vintage Polaroid SX-70 Folding Camera Bag Brown Crossbody Zi](https://www.ebay.com/itm/267752377123?_skw=polaroid+sx-70&hash=item3e57490b23:g:4B4AAeSwVNpqeS6L) | Polaroid SX-70 (folding) | $20.00 | $48.34 | $48.34 | ebay |  | - |
+| 368 | [Mitutoyo Micrometers](https://hibid.com/lot/301352834) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
+| 369 | [Mitutoyo Micrometers](https://hibid.com/lot/301352833) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
+| 370 | [Mitutoyo Measuring Gauge](https://hibid.com/lot/316037458) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 371 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/316037556) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 372 | [Mitutoyo Vernier Caliper](https://hibid.com/lot/316037809) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 373 | [Vintage Mitutoyo Micrometers](https://hibid.com/lot/316037553) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 374 | [Vintage Mitutoyo Micrometer](https://hibid.com/lot/316037535) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 375 | [Vintage Mitutoyo Bore Guage](https://hibid.com/lot/316037537) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 376 | [Mitutoyo Electric Micrometer & Content](https://hibid.com/lot/316037812) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Nicholls, GA | - |
+| 377 | [Mitutoyo 500-197-30 8” Calipers](https://hibid.com/lot/301352831) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | San Mateo, CA | - |
+| 378 | [Vintage Mitutoyo digimatic micrometer in wood](https://hibid.com/lot/316663171) | Mitutoyo micrometer/caliper/indicator | $10.00 | $38.12 | $48.12 | hibid | Georgetown, IL | - |
+| 379 | [Milwaukee M18 Fuel 1/2" Impact Wrench](https://hibid.com/lot/317866193) | Milwaukee M18 FUEL tool | $6.25 | $34.34 | $48.09 | hibid | Salt Lake City, UT | - |
+| 380 | [Nintendo 64 N64 Console Model NUS-001 USA Dark Gray Home Vid](https://shopgoodwill.com/item/273725478) | Nintendo 64 console | $14.95 | $43.01 | $48.06 | goodwill |  | 2026-08-19T16:38 |
+| 381 | [Asahi Pentax K1000 35mm Film SLR Camera w/50mm Lens - Shutte](https://shopgoodwill.com/item/273613518) | Pentax K1000 (35mm SLR) | $52.00 | $80.04 | $48.04 | goodwill |  | 2026-08-18T18:15 |
+| 382 | [35mm Film Cameras Vintage Pentax PC35AF Camera & Olympus Sty](https://shopgoodwill.com/item/273597451) | Olympus Stylus Epic Zoom 80/115/170 | $87.00 | $115.00 | $48.00 | goodwill |  | 2026-08-16T18:24 |
+| 383 | [Starrett Micrometer Calipers](https://hibid.com/lot/317199962) | Starrett precision tool | $6.00 | $33.69 | $47.69 | hibid | Evansville, IN | - |
 | 384 | [Starret thickness gage](https://hibid.com/lot/316184328) | Starrett precision tool | $6.00 | $33.69 | $47.69 | hibid | Denfield, ON | - |
-| 385 | [Nintendo Switch Lite Yellow Handheld Console 5.5 Inch HDH-00](https://shopgoodwill.com/item/273737397) | Nintendo Switch Lite | $10.99 | $38.67 | $47.68 | goodwill |  | 2026-08-19T18:01 |
-| 386 | [Sony Cyber-shot DSC-S750 digital camera](https://hibid.com/lot/317638600) | Sony Cyber-shot compact (non-RX) | $2.00 | $29.66 | $47.66 | hibid | Winnipeg, MB | - |
-| 387 | [Nintendo 3DS XL Blue/Black Handheld Console (SPR-001) w/ OEM](https://shopgoodwill.com/item/273875045) | Nintendo 3DS XL / New 3DS XL | $63.00 | $90.39 | $47.39 | goodwill |  | 2026-08-20T20:38 |
-| 388 | [Citizen Quartz 6000-R00421 Analog Day Date Dial Gold Tone Wo](https://shopgoodwill.com/item/273412759) | Citizen watch (Eco-Drive / quartz) | $10.99 | $38.34 | $47.35 | goodwill |  | 2026-08-16T20:05 |
-| 389 | [FLUKE CAT THREE DIGITAL MULTIMETER](https://hibid.com/lot/317842347) | Fluke meter (unspecified model) | $12.50 | $39.67 | $47.17 | hibid | Port Richey, FL | - |
-| 390 | [CANON ZOOM LENS 75-300, SONY CYBER SHOT CAMRA &](https://hibid.com/lot/317751535) | Sony Cyber-shot compact (non-RX) | $2.50 | $29.66 | $47.16 | hibid | Custer, SD | - |
-| 391 | [Untested Metal Mitutoyo Lamina-Checker Gauge Device Model DG](https://shopgoodwill.com/item/273468721) | Mitutoyo micrometer/caliper/indicator | $10.99 | $38.12 | $47.13 | goodwill |  | 2026-08-17T18:58 |
-| 392 | [Pokemon Firered for Nintendo Game Boy Advance](https://shopgoodwill.com/item/274002876) | Pokemon FireRed / LeafGreen (GBA) | $20.99 | $48.01 | $47.02 | goodwill |  | 2026-08-18T19:03 |
-| 393 | [Canon AE-1 35mm Film Camera W/Lens](https://shopgoodwill.com/item/273408233) | Canon AE-1 / AE-1 Program (35mm SLR) | $62.00 | $88.90 | $46.90 | goodwill |  | 2026-08-16T19:58 |
-| 394 | [Vintage Canon AE-1 Program with 50/1.8 FD SLR Camera w/ Acce](https://shopgoodwill.com/item/273497774) | Canon AE-1 / AE-1 Program (35mm SLR) | $62.00 | $88.90 | $46.90 | goodwill |  | 2026-08-17T16:51 |
-| 395 | [starrett digital caliper w/case](https://hibid.com/lot/316639074) | Starrett precision tool | $7.00 | $33.69 | $46.69 | hibid | Cicero, IN | - |
-| 396 | [Sony Cybershot Camera with Case & Accessories](https://hibid.com/lot/317834196) | Sony Cyber-shot compact (non-RX) | $3.00 | $29.66 | $46.66 | hibid | Pulaski, TN | - |
-| 397 | [Ann Klein, Seiko, and Citizen Watch Lot](https://shopgoodwill.com/item/273582546) | Citizen watch (Eco-Drive / quartz) | $8.99 | $35.35 | $46.36 | goodwill |  | 2026-08-16T19:26 |
-| 398 | [6.75" Silver Toned Citizen Eco-Drive Wrist Watch w/ Iridesce](https://shopgoodwill.com/item/273646226) | Citizen watch (Eco-Drive / quartz) | $11.99 | $38.34 | $46.35 | goodwill |  | 2026-08-18T18:19 |
-| 399 | [Vintage Citizen Ladies Wristwatch Gold Tone Stainless Steel ](https://shopgoodwill.com/item/273457056) | Citizen watch (Eco-Drive / quartz) | $9.99 | $36.34 | $46.35 | goodwill |  | 2026-08-16T18:10 |
-| 400 | [Starrett Micrometer W/ Mitutoyo Micrometer](https://hibid.com/lot/316452144) | Mitutoyo micrometer/caliper/indicator | $12.00 | $38.12 | $46.12 | hibid | Baldwin, WI | - |
-| 401 | [Nintendo Game Boy Advance Pokemon Leafgreen](https://hibid.com/lot/316545913) | Pokemon FireRed / LeafGreen (GBA) | $22.00 | $48.01 | $46.01 | hibid | Henderson, TX | - |
-| 402 | [Sony Handycam DCR-TRV20 MiniDV Camcorder W/ Case & Cord - Po](https://shopgoodwill.com/item/273460669) | Sony Handycam camcorder | $36.00 | $61.71 | $45.71 | goodwill |  | 2026-08-17T18:02 |
-| 403 | [Sony Cybershot Digital Camera - Used condition/No](https://hibid.com/lot/317240295) | Sony Cyber-shot compact (non-RX) | $4.00 | $29.66 | $45.66 | hibid | Green Bay, WI | - |
-| 404 | [Sony Cyber Shot camera/phone case](https://hibid.com/lot/316483830) | Sony Cyber-shot compact (non-RX) | $4.00 | $29.66 | $45.66 | hibid | Evansville, IN | - |
-| 405 | [Gopro Hero11 Black Mini Action Camera](https://shopgoodwill.com/item/273661811) | GoPro HERO 11 Black | $78.00 | $103.40 | $45.40 | goodwill |  | 2026-08-16T18:21 |
-| 406 | [Citizen Eco-Drive E110-K16385 Men's Stainless Steel Solar Wa](https://shopgoodwill.com/item/273489648) | Citizen watch (Eco-Drive / quartz) | $10.99 | $36.35 | $45.36 | goodwill |  | 2026-08-17T18:47 |
-| 407 | [Timex, Citizen ,bulova ,and Fossil Watch Lot](https://shopgoodwill.com/item/273582184) | Citizen watch (Eco-Drive / quartz) | $9.99 | $35.35 | $45.36 | goodwill |  | 2026-08-16T19:11 |
-| 408 | [Citizen Eco-Drive Women's Silver Tone/Gold Tone Watch](https://shopgoodwill.com/item/273931488) | Citizen watch (Eco-Drive / quartz) | $7.99 | $33.34 | $45.35 | goodwill |  | 2026-08-16T20:23 |
-| 409 | [Citizen 1112-S109205 Classic Black Dial Stainless Men's Quar](https://shopgoodwill.com/item/273427531) | Citizen watch (Eco-Drive / quartz) | $12.99 | $38.34 | $45.35 | goodwill |  | 2026-08-16T19:17 |
-| 410 | [Citizen Ladies Quartz Watch Two Tone Rectangular Tank 5421-K](https://shopgoodwill.com/item/273778170) | Citizen watch (Eco-Drive / quartz) | $12.99 | $38.34 | $45.35 | goodwill |  | 2026-08-17T17:00 |
-| 411 | [Citizen Eco Drive Black Stainless Steel & Leather Date Windo](https://shopgoodwill.com/item/273752545) | Citizen watch (Eco-Drive / quartz) | $10.00 | $35.34 | $45.34 | goodwill |  | 2026-08-17T18:07 |
-| 412 | [MITUTOYO DIGIMATIC CALIPER](https://hibid.com/lot/317782474) | Mitutoyo micrometer/caliper/indicator | $13.00 | $38.12 | $45.12 | hibid | Kalispell, MT | - |
-| 413 | [Vintage Asahi Pentax K1000 35mm SLR Camera with SMC Pentax-M](https://shopgoodwill.com/item/273454756) | Pentax K1000 (35mm SLR) | $56.00 | $81.04 | $45.04 | goodwill |  | 2026-08-17T18:01 |
-| 414 | [Official Nintendo OEM AC Adapter NTR-002 DS Gameboy Advance ](https://www.ebay.com/itm/188803188460?_skw=gameboy+advance+sp&hash=item2bf58c06ec:g:N18AAeSwY5dqgMNy) | Game Boy Advance SP (AGS-001/unspecified) | $9.99 | $35.00 | $45.01 | ebay |  | - |
-| 415 | [OEM Nintendo DS Game Boy Advance SP GBA SP Charger AC Adapte](https://www.ebay.com/itm/206496095502?_skw=gameboy+advance+sp&hash=item3014205d0e:g:qvoAAeSwU7hqbUtP) | Game Boy Advance SP (AGS-001/unspecified) | $9.99 | $35.00 | $45.01 | ebay |  | - |
-| 416 | [Seiko Timex Citizen Fossil Quartz Watch Lot Mens Womens 8pc ](https://shopgoodwill.com/item/273621952) | Citizen watch (Eco-Drive / quartz) | $9.99 | $34.99 | $45.00 | goodwill |  | 2026-08-17T20:38 |
-| 417 | [Timex Seiko Fossil Citizen Quartz Watch Lot of 10 Untested A](https://shopgoodwill.com/item/273752831) | Citizen watch (Eco-Drive / quartz) | $9.99 | $34.99 | $45.00 | goodwill |  | 2026-08-18T20:00 |
-| 418 | [Nintendo Switch Lite Turquoise Handheld Console](https://shopgoodwill.com/item/273998084) | Nintendo Switch Lite | $15.95 | $40.67 | $44.72 | goodwill |  | 2026-08-23T16:28 |
-| 419 | [starrett micrometer w/box](https://hibid.com/lot/316639058) | Starrett precision tool | $9.00 | $33.69 | $44.69 | hibid | Cicero, IN | - |
-| 420 | [starrett micrometer w/box](https://hibid.com/lot/316639059) | Starrett precision tool | $9.00 | $33.69 | $44.69 | hibid | Cicero, IN | - |
-| 421 | [FLUKE ET73 DMMA METER & FUSE METER](https://hibid.com/lot/317281199) | Fluke meter (unspecified model) | $15.00 | $39.67 | $44.67 | hibid | Lewiston, ID | - |
-| 422 | [SONY Cyber-Shot Camera](https://hibid.com/lot/316844833) | Sony Cyber-shot compact (non-RX) | $5.00 | $29.66 | $44.66 | hibid | Vancouver, WA | - |
-| 423 | [2005 Sony Cyber Shot Camera](https://hibid.com/lot/317793877) | Sony Cyber-shot compact (non-RX) | $5.00 | $29.66 | $44.66 | hibid | Vancouver, WA | - |
-| 424 | [LR 1090: Sony Cyber-Shot Camera & More](https://hibid.com/lot/317411731) | Sony Cyber-shot compact (non-RX) | $5.00 | $29.66 | $44.66 | hibid | St. Louis, MO | - |
-| 425 | [Citizen Eco-Drive Gold Tone E011-S039969 Watch](https://shopgoodwill.com/item/273909944) | Citizen watch (Eco-Drive / quartz) | $11.99 | $36.34 | $44.35 | goodwill |  | 2026-08-16T18:28 |
-| 426 | [Citizen Eco-Drive Model 771311811 Wristwatch 37.1g](https://shopgoodwill.com/item/273682232) | Citizen watch (Eco-Drive / quartz) | $10.99 | $35.34 | $44.35 | goodwill |  | 2026-08-18T18:07 |
+| 385 | [Sony Cyber-shot DSC-S750 digital camera](https://hibid.com/lot/317638600) | Sony Cyber-shot compact (non-RX) | $2.00 | $29.66 | $47.66 | hibid | Winnipeg, MB | - |
+| 386 | [Nintendo 3DS XL Blue/Black Handheld Console (SPR-001) w/ OEM](https://shopgoodwill.com/item/273875045) | Nintendo 3DS XL / New 3DS XL | $63.00 | $90.39 | $47.39 | goodwill |  | 2026-08-20T20:38 |
+| 387 | [Anne Klein & Citizen Eco-Drive Ladies Wristwatch Lot 4 Gold ](https://shopgoodwill.com/item/273898889) | Citizen watch (Eco-Drive / quartz) | $10.99 | $38.34 | $47.35 | goodwill |  | 2026-08-17T17:00 |
+| 388 | [Citizen Eco-Drive E110-K16385 Men's Stainless Steel Solar Wa](https://shopgoodwill.com/item/273489648) | Citizen watch (Eco-Drive / quartz) | $10.99 | $38.34 | $47.35 | goodwill |  | 2026-08-17T18:47 |
+| 389 | [Citizen Eco-Drive Model 771311811 Wristwatch 37.1g](https://shopgoodwill.com/item/273682232) | Citizen watch (Eco-Drive / quartz) | $10.99 | $38.34 | $47.35 | goodwill |  | 2026-08-18T18:07 |
+| 390 | [Citizen Quartz 6000-R00421 Analog Day Date Dial Gold Tone Wo](https://shopgoodwill.com/item/273412759) | Citizen watch (Eco-Drive / quartz) | $10.99 | $38.34 | $47.35 | goodwill |  | 2026-08-16T20:05 |
+| 391 | [FLUKE CAT THREE DIGITAL MULTIMETER](https://hibid.com/lot/317842347) | Fluke meter (unspecified model) | $12.50 | $39.67 | $47.17 | hibid | Port Richey, FL | - |
+| 392 | [CANON ZOOM LENS 75-300, SONY CYBER SHOT CAMRA &](https://hibid.com/lot/317751535) | Sony Cyber-shot compact (non-RX) | $2.50 | $29.66 | $47.16 | hibid | Custer, SD | - |
+| 393 | [Untested Metal Mitutoyo Lamina-Checker Gauge Device Model DG](https://shopgoodwill.com/item/273468721) | Mitutoyo micrometer/caliper/indicator | $10.99 | $38.12 | $47.13 | goodwill |  | 2026-08-17T18:58 |
+| 394 | [Mitutoyo Telescoping Gage Set](https://hibid.com/lot/316546767) | Mitutoyo micrometer/caliper/indicator | $11.00 | $38.12 | $47.12 | hibid | Clinton, TN | - |
+| 395 | [Pokemon Firered for Nintendo Game Boy Advance](https://shopgoodwill.com/item/274002876) | Pokemon FireRed / LeafGreen (GBA) | $20.99 | $48.01 | $47.02 | goodwill |  | 2026-08-18T19:03 |
+| 396 | [Canon AE-1 35mm Film Camera W/Lens](https://shopgoodwill.com/item/273408233) | Canon AE-1 / AE-1 Program (35mm SLR) | $62.00 | $88.90 | $46.90 | goodwill |  | 2026-08-16T19:58 |
+| 397 | [Vintage Canon AE-1 Program with 50/1.8 FD SLR Camera w/ Acce](https://shopgoodwill.com/item/273497774) | Canon AE-1 / AE-1 Program (35mm SLR) | $62.00 | $88.90 | $46.90 | goodwill |  | 2026-08-17T16:51 |
+| 398 | [starrett digital caliper w/case](https://hibid.com/lot/316639074) | Starrett precision tool | $7.00 | $33.69 | $46.69 | hibid | Cicero, IN | - |
+| 399 | [Sony Cybershot Camera with Case & Accessories](https://hibid.com/lot/317834196) | Sony Cyber-shot compact (non-RX) | $3.00 | $29.66 | $46.66 | hibid | Pulaski, TN | - |
+| 400 | [CITIZEN Eco-Drive Day/Date Two-Tone Stainless Steel Watch](https://shopgoodwill.com/item/273660231) | Citizen watch (Eco-Drive / quartz) | $11.99 | $38.34 | $46.35 | goodwill |  | 2026-08-16T17:00 |
+| 401 | [Citizen Eco-Drive Gold Tone E011-S039969 Watch](https://shopgoodwill.com/item/273909944) | Citizen watch (Eco-Drive / quartz) | $11.99 | $38.34 | $46.35 | goodwill |  | 2026-08-16T18:28 |
+| 402 | [6.75" Silver Toned Citizen Eco-Drive Wrist Watch w/ Iridesce](https://shopgoodwill.com/item/273646226) | Citizen watch (Eco-Drive / quartz) | $11.99 | $38.34 | $46.35 | goodwill |  | 2026-08-18T18:19 |
+| 403 | [VNTG Citizen Quartz Gold Tone Stainless Steel Watch 32.6g](https://shopgoodwill.com/item/273441068) | Citizen watch (Eco-Drive / quartz) | $9.99 | $36.34 | $46.35 | goodwill |  | 2026-08-16T19:17 |
+| 404 | [Starrett Micrometer W/ Mitutoyo Micrometer](https://hibid.com/lot/316452144) | Mitutoyo micrometer/caliper/indicator | $12.00 | $38.12 | $46.12 | hibid | Baldwin, WI | - |
+| 405 | [Nintendo Game Boy Advance SP + DS Charger OEM Official Cable](https://www.ebay.com/itm/158195944391?_skw=gameboy+advance+sp&hash=item24d5368bc7:g:sj4AAeSwfoNqgkFq) | Game Boy Advance SP (AGS-001/unspecified) | $8.95 | $35.00 | $46.05 | ebay |  | - |
+| 406 | [Nintendo Game Boy Advance Pokemon Leafgreen](https://hibid.com/lot/316545913) | Pokemon FireRed / LeafGreen (GBA) | $22.00 | $48.01 | $46.01 | hibid | Henderson, TX | - |
+| 407 | [Sony Handycam DCR-TRV20 MiniDV Camcorder W/ Case & Cord - Po](https://shopgoodwill.com/item/273460669) | Sony Handycam camcorder | $36.00 | $61.71 | $45.71 | goodwill |  | 2026-08-17T18:02 |
+| 408 | [Sony Cybershot Digital Camera - Used condition/No](https://hibid.com/lot/317240295) | Sony Cyber-shot compact (non-RX) | $4.00 | $29.66 | $45.66 | hibid | Green Bay, WI | - |
+| 409 | [SONY Cyber-Shot Camera](https://hibid.com/lot/316844833) | Sony Cyber-shot compact (non-RX) | $4.00 | $29.66 | $45.66 | hibid | Vancouver, WA | - |
+| 410 | [2005 Sony Cyber Shot Camera](https://hibid.com/lot/317793877) | Sony Cyber-shot compact (non-RX) | $4.00 | $29.66 | $45.66 | hibid | Vancouver, WA | - |
+| 411 | [Sony Cyber Shot camera/phone case](https://hibid.com/lot/316483830) | Sony Cyber-shot compact (non-RX) | $4.00 | $29.66 | $45.66 | hibid | Evansville, IN | - |
+| 412 | [Gopro Hero11 Black Mini Action Camera](https://shopgoodwill.com/item/273661811) | GoPro HERO 11 Black | $78.00 | $103.40 | $45.40 | goodwill |  | 2026-08-16T18:21 |
+| 413 | [Timex, Citizen ,bulova ,and Fossil Watch Lot](https://shopgoodwill.com/item/273582184) | Citizen watch (Eco-Drive / quartz) | $9.99 | $35.35 | $45.36 | goodwill |  | 2026-08-16T19:11 |
+| 414 | [2 Assorted Women's Designer Watches - Citizen Eco Drive & Fo](https://shopgoodwill.com/item/273511002) | Citizen watch (Eco-Drive / quartz) | $12.99 | $38.34 | $45.35 | goodwill |  | 2026-08-17T19:49 |
+| 415 | [Citizen 1112-S109205 Classic Black Dial Stainless Men's Quar](https://shopgoodwill.com/item/273427531) | Citizen watch (Eco-Drive / quartz) | $12.99 | $38.34 | $45.35 | goodwill |  | 2026-08-16T19:17 |
+| 416 | [Citizen Ladies Quartz Watch Two Tone Rectangular Tank 5421-K](https://shopgoodwill.com/item/273778170) | Citizen watch (Eco-Drive / quartz) | $12.99 | $38.34 | $45.35 | goodwill |  | 2026-08-17T17:00 |
+| 417 | [MITUTOYO DIGIMATIC CALIPER](https://hibid.com/lot/317782474) | Mitutoyo micrometer/caliper/indicator | $13.00 | $38.12 | $45.12 | hibid | Kalispell, MT | - |
+| 418 | [Vintage Asahi Pentax K1000 35mm SLR Camera with SMC Pentax-M](https://shopgoodwill.com/item/273454756) | Pentax K1000 (35mm SLR) | $56.00 | $81.04 | $45.04 | goodwill |  | 2026-08-17T18:01 |
+| 419 | [Official Nintendo OEM AC Adapter NTR-002 DS Gameboy Advance ](https://www.ebay.com/itm/188803188460?_skw=gameboy+advance+sp&hash=item2bf58c06ec:g:N18AAeSwY5dqgMNy) | Game Boy Advance SP (AGS-001/unspecified) | $9.99 | $35.00 | $45.01 | ebay |  | - |
+| 420 | [OEM Nintendo DS Game Boy Advance SP GBA SP Charger AC Adapte](https://www.ebay.com/itm/206496095502?_skw=gameboy+advance+sp&hash=item3014205d0e:g:qvoAAeSwU7hqbUtP) | Game Boy Advance SP (AGS-001/unspecified) | $9.99 | $35.00 | $45.01 | ebay |  | - |
+| 421 | [Seiko Timex Citizen Fossil Quartz Watch Lot Mens Womens 8pc ](https://shopgoodwill.com/item/273621952) | Citizen watch (Eco-Drive / quartz) | $9.99 | $34.99 | $45.00 | goodwill |  | 2026-08-17T20:38 |
+| 422 | [Nintendo Switch Lite Turquoise Handheld Console](https://shopgoodwill.com/item/273998084) | Nintendo Switch Lite | $15.95 | $40.67 | $44.72 | goodwill |  | 2026-08-23T16:28 |
+| 423 | [starrett micrometer w/box](https://hibid.com/lot/316639058) | Starrett precision tool | $9.00 | $33.69 | $44.69 | hibid | Cicero, IN | - |
+| 424 | [starrett micrometer w/box](https://hibid.com/lot/316639059) | Starrett precision tool | $9.00 | $33.69 | $44.69 | hibid | Cicero, IN | - |
+| 425 | [FLUKE ET73 DMMA METER & FUSE METER](https://hibid.com/lot/317281199) | Fluke meter (unspecified model) | $15.00 | $39.67 | $44.67 | hibid | Lewiston, ID | - |
+| 426 | [LR 1090: Sony Cyber-Shot Camera & More](https://hibid.com/lot/317411731) | Sony Cyber-shot compact (non-RX) | $5.00 | $29.66 | $44.66 | hibid | St. Louis, MO | - |
 | 427 | [SONY PLAYSTATION 3 CONSOLE](https://hibid.com/lot/317963927) | Sony PlayStation 3 console | $1.00 | $25.13 | $44.13 | hibid | Lebanon, MO | - |
 | 428 | [Tom & Jerry in the Infurnal Escape Nintendo Game Boy Advance](https://www.ebay.com/itm/398293276310?_skw=gameboy+advance+sp&hash=item5cbc211696:g:iUMAAeSwndBqghLy) | Game Boy Advance SP (AGS-001/unspecified) | $10.95 | $35.00 | $44.05 | ebay |  | - |
-| 429 | [720P HDTV Converter Adapter for N64 Console](https://www.ebay.com/itm/298593686291?_skw=nintendo+64+console&hash=item4585921313:g:yHEAAeSwKbZoKIbm) | Nintendo 64 console | $18.99 | $43.01 | $44.02 | ebay |  | - |
-| 430 | [Seiko Citizen Fossil Timex Quartz Watch Lot 20pc Mens Womens](https://shopgoodwill.com/item/273742915) | Citizen watch (Eco-Drive / quartz) | $10.99 | $34.99 | $44.00 | goodwill |  | 2026-08-18T19:32 |
-| 431 | [Canon PowerShot Digital ELPH S110 Digital Camera Silver No c](https://www.ebay.com/itm/327313429092?_skw=canon+elph&hash=item4c35669264:g:Ny4AAeSwOxhpxej0) | Canon PowerShot ELPH / IXUS (digital) | $44.99 | $68.70 | $43.71 | ebay |  | - |
-| 432 | [Starrett Depth Micrometer W/ Starrett Micrometer](https://hibid.com/lot/316452194) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Baldwin, WI | - |
-| 433 | [(2) Starrett Micrometers](https://hibid.com/lot/316452136) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Baldwin, WI | - |
-| 434 | [Vintage Starrett Micrometer](https://hibid.com/lot/316037961) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Nicholls, GA | - |
-| 435 | [Assorted Starrett Outside Micrometers](https://hibid.com/lot/316114038) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Bluefield, VA | - |
-| 436 | [Starrett Micrometer Depth Gauge](https://hibid.com/lot/316114035) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Bluefield, VA | - |
-| 437 | [Starrett 0-25mm Outside Micrometer](https://hibid.com/lot/317095847) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Tullamarine Victoria, -- | - |
-| 438 | [Vintage Starret Micrometer](https://hibid.com/lot/316037526) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Nicholls, GA | - |
-| 439 | [Vintage Starret Large Micrometer](https://hibid.com/lot/316037530) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Nicholls, GA | - |
-| 440 | [Vintage Starret Large Micrometer](https://hibid.com/lot/316037528) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Nicholls, GA | - |
-| 441 | [Vintage Starret No.124 Inside Micrometer Set](https://hibid.com/lot/316037512) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Nicholls, GA | - |
-| 442 | [Starrett No. 391 center gage](https://www.ebay.com/itm/137629216006?_skw=starrett&hash=item200b572d06:g:bYEAAeSweu9qgiBX) | Starrett precision tool | $10.00 | $33.69 | $43.69 | ebay |  | - |
-| 443 | [Pink Gameboy Advance SP Handheld Game (Model:AGS-101) W/ Cas](https://shopgoodwill.com/item/273981632) | Game Boy Advance SP AGS-101 (backlit) | $52.00 | $75.39 | $43.38 | goodwill |  | 2026-08-21T19:45 |
-| 444 | [CITIZEN Eco-Drive Day/Date Two-Tone Stainless Steel Watch](https://shopgoodwill.com/item/273660231) | Citizen watch (Eco-Drive / quartz) | $11.99 | $35.35 | $43.36 | goodwill |  | 2026-08-16T17:00 |
-| 445 | [Citizen Eco-Drive Titanium Solar-Tech Watch 40mm Titanium Br](https://shopgoodwill.com/item/273881960) | Citizen watch (Eco-Drive / quartz) | $14.99 | $38.34 | $43.35 | goodwill |  | 2026-08-18T17:35 |
-| 446 | [Citizen Gold-Tone Quartz Watch](https://shopgoodwill.com/item/273775102) | Citizen watch (Eco-Drive / quartz) | $14.99 | $38.34 | $43.35 | goodwill |  | 2026-08-17T17:21 |
-| 447 | [Vintage Citizen Spicer Logo Quartz Watch](https://shopgoodwill.com/item/273758280) | Citizen watch (Eco-Drive / quartz) | $14.99 | $38.34 | $43.35 | goodwill |  | 2026-08-17T17:45 |
-| 448 | [MILWAUKEE M18 FUEL JIGSAW Vacuum Attachment  2737-20](https://www.ebay.com/itm/377422492856?_skw=m18+fuel&hash=item57e02234b8:g:IsoAAeSwTgpph6sS) | Milwaukee M18 FUEL tool | $10.99 | $34.34 | $43.35 | ebay |  | - |
+| 429 | [Seiko Citizen Fossil Timex Quartz Watch Lot 20pc Mens Womens](https://shopgoodwill.com/item/273742915) | Citizen watch (Eco-Drive / quartz) | $10.99 | $34.99 | $44.00 | goodwill |  | 2026-08-18T19:32 |
+| 430 | [Canon PowerShot Digital ELPH S110 Digital Camera Silver No c](https://www.ebay.com/itm/327313429092?_skw=canon+elph&hash=item4c35669264:g:Ny4AAeSwOxhpxej0) | Canon PowerShot ELPH / IXUS (digital) | $44.99 | $68.70 | $43.71 | ebay |  | - |
+| 431 | [Starrett Depth Micrometer W/ Starrett Micrometer](https://hibid.com/lot/316452194) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Baldwin, WI | - |
+| 432 | [(2) Starrett Micrometers](https://hibid.com/lot/316452136) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Baldwin, WI | - |
+| 433 | [Vintage Starrett Micrometer](https://hibid.com/lot/316037961) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Nicholls, GA | - |
+| 434 | [Assorted Starrett Outside Micrometers](https://hibid.com/lot/316114038) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Bluefield, VA | - |
+| 435 | [Starrett Micrometer Depth Gauge](https://hibid.com/lot/316114035) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Bluefield, VA | - |
+| 436 | [Starrett 0-25mm Outside Micrometer](https://hibid.com/lot/317095847) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Tullamarine Victoria, -- | - |
+| 437 | [Vintage Starret Micrometer](https://hibid.com/lot/316037526) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Nicholls, GA | - |
+| 438 | [Vintage Starret Large Micrometer](https://hibid.com/lot/316037530) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Nicholls, GA | - |
+| 439 | [Vintage Starret Large Micrometer](https://hibid.com/lot/316037528) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Nicholls, GA | - |
+| 440 | [Vintage Starret No.124 Inside Micrometer Set](https://hibid.com/lot/316037512) | Starrett precision tool | $10.00 | $33.69 | $43.69 | hibid | Nicholls, GA | - |
+| 441 | [Starrett No. 391 center gage](https://www.ebay.com/itm/137629216006?_skw=starrett&hash=item200b572d06:g:bYEAAeSweu9qgiBX) | Starrett precision tool | $10.00 | $33.69 | $43.69 | ebay |  | - |
+| 442 | [Pink Gameboy Advance SP Handheld Game (Model:AGS-101) W/ Cas](https://shopgoodwill.com/item/273981632) | Game Boy Advance SP AGS-101 (backlit) | $52.00 | $75.39 | $43.38 | goodwill |  | 2026-08-21T19:45 |
+| 443 | [Women's 6" Citizen Corso Eco-Drive Two Tone Day/date Watch](https://shopgoodwill.com/item/273495398) | Citizen watch (Eco-Drive / quartz) | $14.99 | $38.34 | $43.35 | goodwill |  | 2026-08-17T20:21 |
+| 444 | [Citizen Eco-Drive Titanium Solar-Tech Watch 40mm Titanium Br](https://shopgoodwill.com/item/273881960) | Citizen watch (Eco-Drive / quartz) | $14.99 | $38.34 | $43.35 | goodwill |  | 2026-08-18T17:35 |
+| 445 | [Citizen Gold-Tone Quartz Watch](https://shopgoodwill.com/item/273775102) | Citizen watch (Eco-Drive / quartz) | $14.99 | $38.34 | $43.35 | goodwill |  | 2026-08-17T17:21 |
+| 446 | [Vintage Citizen Spicer Logo Quartz Watch](https://shopgoodwill.com/item/273758280) | Citizen watch (Eco-Drive / quartz) | $14.99 | $38.34 | $43.35 | goodwill |  | 2026-08-17T17:45 |
+| 447 | [MILWAUKEE M18 FUEL JIGSAW Vacuum Attachment  2737-20](https://www.ebay.com/itm/377422492856?_skw=m18+fuel&hash=item57e02234b8:g:IsoAAeSwTgpph6sS) | Milwaukee M18 FUEL tool | $10.99 | $34.34 | $43.35 | ebay |  | - |
+| 448 | [Citizen Eco Drive Solar Tech Stainless Steel Women 6 1/2" Wr](https://shopgoodwill.com/item/273850850) | Citizen watch (Eco-Drive / quartz) | $15.00 | $38.34 | $43.34 | goodwill |  | 2026-08-18T18:09 |
 | 449 | [Citizen Eco-Drive Titanium Calendar Dress Watch](https://hibid.com/lot/316822742) | Citizen watch (Eco-Drive / quartz) | $15.00 | $38.34 | $43.34 | hibid | Sun Prairie, WI | - |
 | 450 | [~Seiko and Citizen Watches, In Need of Repair](https://hibid.com/lot/316123836) | Citizen watch (Eco-Drive / quartz) | $15.00 | $38.34 | $43.34 | hibid | Mesa, AZ | - |
 | 451 | [Large Mitutoyo Vernier Caliper](https://hibid.com/lot/316037511) | Mitutoyo micrometer/caliper/indicator | $15.00 | $38.12 | $43.12 | hibid | Nicholls, GA | - |
 | 452 | [Pentax K1000 Camera.](https://hibid.com/lot/315714059) | Pentax K1000 (35mm SLR) | $60.00 | $83.04 | $43.04 | hibid | Claremont, ON | - |
-| 453 | [Anne Klein & Citizen Eco-Drive Ladies Wristwatch Lot 4 Gold ](https://shopgoodwill.com/item/273898889) | Citizen watch (Eco-Drive / quartz) | $11.99 | $34.84 | $42.85 | goodwill |  | 2026-08-17T17:00 |
-| 454 | [Sony Discman ESP, Sony Cybershot Camera & More](https://hibid.com/lot/316947183) | Sony Cyber-shot compact (non-RX) | $7.00 | $29.66 | $42.66 | hibid | Clinton Twp, MI | - |
-| 455 | [2- Sony Cyber-shot Cameras w Memeory Sticks,](https://hibid.com/lot/317890319) | Sony Cyber-shot compact (non-RX) | $7.00 | $29.66 | $42.66 | hibid | Fort Worth, TX | - |
-| 456 | [2 Assorted Women's Designer Watches - Citizen Eco Drive & Fo](https://shopgoodwill.com/item/273511002) | Citizen watch (Eco-Drive / quartz) | $12.99 | $35.35 | $42.36 | goodwill |  | 2026-08-17T19:49 |
+| 453 | [Official Gameboy Advance SP Travel Bag (Fanny Pack) With Str](https://www.ebay.com/itm/820011496663?_skw=gameboy+advance+sp&hash=itembeec7e74d7:g:lOAAAeSwYTBqfxPj) | Game Boy Advance SP (AGS-001/unspecified) | $12.00 | $35.00 | $43.00 | ebay |  | - |
+| 454 | [God of War Collection Sony Playstation Vita PS Vita - Cib](https://www.ebay.com/itm/307130448809?_skw=video+game+console&hash=item478266bba9:g:~J4AAeSwRQxqgkgP) | PlayStation Vita console | $69.96 | $92.72 | $42.77 | ebay |  | - |
+| 455 | [Sony Discman ESP, Sony Cybershot Camera & More](https://hibid.com/lot/316947183) | Sony Cyber-shot compact (non-RX) | $7.00 | $29.66 | $42.66 | hibid | Clinton Twp, MI | - |
+| 456 | [2- Sony Cyber-shot Cameras w Memeory Sticks,](https://hibid.com/lot/317890319) | Sony Cyber-shot compact (non-RX) | $7.00 | $29.66 | $42.66 | hibid | Fort Worth, TX | - |
 | 457 | [Nintendo GameCube Console DOL-001 Silver Model USA Used Test](https://shopgoodwill.com/item/273855249) | Nintendo GameCube console | $7.99 | $30.34 | $42.35 | goodwill |  | 2026-08-20T19:07 |
-| 458 | [Vintage Canon AE-1 35mm Film SLR Camera W/Lens & Flash Unit ](https://shopgoodwill.com/item/273459417) | Canon AE-1 / AE-1 Program (35mm SLR) | $67.00 | $88.91 | $41.91 | goodwill |  | 2026-08-17T17:13 |
-| 459 | [Starrett Dial Plunge Indicator with Magnetic Base Holder](https://www.ebay.com/itm/137629167173?_skw=starrett&hash=item200b566e45:g:uwYAAeSw~wRqghns) | Dial / test indicator (brand-name) | $47.00 | $68.87 | $41.87 | ebay |  | - |
-| 460 | [Pentax K1000 35mm SLR Film Camera!](https://www.ebay.com/itm/267758664633?_skw=pentax+k1000&hash=item3e57a8fbb9:g:VWgAAeSw8TRqgTnj) | Pentax K1000 (35mm SLR) | $61.26 | $83.04 | $41.78 | ebay |  | - |
+| 458 | [1lb. 13.0oz. Various Citizen Wristwatches Mix Lot](https://shopgoodwill.com/item/273754771) | Citizen watch (Eco-Drive / quartz) | $15.99 | $38.34 | $42.35 | goodwill |  | 2026-08-17T20:15 |
+| 459 | [Vintage Canon AE-1 35mm Film SLR Camera W/Lens & Flash Unit ](https://shopgoodwill.com/item/273459417) | Canon AE-1 / AE-1 Program (35mm SLR) | $67.00 | $88.91 | $41.91 | goodwill |  | 2026-08-17T17:13 |
+| 460 | [Starrett Dial Plunge Indicator with Magnetic Base Holder](https://www.ebay.com/itm/137629167173?_skw=starrett&hash=item200b566e45:g:uwYAAeSw~wRqghns) | Dial / test indicator (brand-name) | $47.00 | $68.87 | $41.87 | ebay |  | - |
 | 461 | [Sony Handycam Dcr-sr40 30gb Hdd Digital Camcorder 20x Optica](https://shopgoodwill.com/item/273721007) | Sony Handycam camcorder | $41.00 | $62.70 | $41.70 | goodwill |  | 2026-08-17T06:59 |
 | 462 | [Starrett Telescoping Gauges, Starrett Dial](https://hibid.com/lot/317546408) | Starrett precision tool | $12.00 | $33.69 | $41.69 | hibid | Wellington, KS | - |
 | 463 | [(3) Starrett Micrometers](https://hibid.com/lot/316452123) | Starrett precision tool | $12.00 | $33.69 | $41.69 | hibid | Baldwin, WI | - |
@@ -470,16 +470,16 @@ _Generated 2026-08-16T23:08:35+00:00 - best profit first. 'Open' is what it cost
 | 465 | [Sony Cyber-Shot DSC-W350 Non OEM Aftermarket Door Finger Sli](https://www.ebay.com/itm/206496281734?_skw=sony+cybershot&hash=item3014233486:g:z0cAAeSwd3dqgifa) | Sony Cyber-shot compact (non-RX) | $8.00 | $29.66 | $41.66 | ebay |  | - |
 | 466 | [Vintage Starrett Universal Dial Test Indicator No. 196 ~ Mad](https://www.ebay.com/itm/178413716854?_skw=dial+indicator&hash=item298a494576:g:aKEAAeSwW4tqgfa2) | Dial / test indicator (brand-name) | $47.49 | $68.87 | $41.38 | ebay |  | - |
 | 467 | [Citizen Brown Leather Silver-Tone Quartz Watch](https://shopgoodwill.com/item/273612349) | Citizen watch (Eco-Drive / quartz) | $16.99 | $38.34 | $41.35 | goodwill |  | 2026-08-16T17:16 |
-| 468 | [New unopened PSVITA Phantasy Star Nova](https://www.ebay.com/itm/318738599126?_skw=playstation+vita&hash=item4a364d0cd6:g:zycAAeSwqylqgag6) | PlayStation Vita console | $61.37 | $82.72 | $41.35 | ebay |  | - |
-| 469 | [Polaroid Sx-70 Land Camera Folding Instant Camera Brown](https://shopgoodwill.com/item/273631520) | Polaroid SX-70 (folding) | $27.00 | $48.34 | $41.34 | goodwill |  | 2026-08-18T18:39 |
-| 470 | [Sony Hanycam DCR-DVD610 2000X Zoom](https://www.ebay.com/itm/298593827830?_skw=sony+handycam&hash=item4585943bf6:g:t4oAAeSwE-hqeiAg) | Sony Handycam camcorder | $43.50 | $64.70 | $41.20 | ebay |  | - |
-| 471 | [Nintendo DS & 3DS Handheld Video Game Lot of 16 w/ Mario, Po](https://shopgoodwill.com/item/273605029) | Nintendo 3DS (non-XL) | $37.00 | $58.03 | $41.03 | goodwill |  | 2026-08-18T19:07 |
-| 472 | [Sony PlayStation 4 Slim Home Console](https://hibid.com/lot/317850552) | Sony PlayStation 4 console | $2.00 | $22.80 | $40.80 | hibid | Des Moines, IA | - |
-| 473 | [Used Nintendo Switch Lite Turquoise HDH-001 w/ Power Adapter](https://shopgoodwill.com/item/273877054) | Nintendo Switch Lite | $19.99 | $40.67 | $40.69 | goodwill |  | 2026-08-20T19:17 |
-| 474 | [Casio G-Shock Natural Resin Band Replacement](https://hibid.com/lot/317776726) | Casio G-Shock | $2.00 | $22.31 | $40.31 | hibid 📍 | The Woodlands, TX | - |
-| 475 | [SEGA Dreamcast MXT-3020 Retro Console](https://shopgoodwill.com/item/273832558) | Sega Dreamcast console | $15.99 | $36.01 | $40.02 | goodwill |  | 2026-08-20T16:24 |
-| 476 | [Nintendo 64 Console Model NUS-001](https://shopgoodwill.com/item/273462661) | Nintendo 64 console | $21.00 | $41.01 | $40.01 | goodwill |  | 2026-08-17T18:22 |
-| 477 | [Women's 6" Citizen Corso Eco-Drive Two Tone Day/date Watch](https://shopgoodwill.com/item/273495398) | Citizen watch (Eco-Drive / quartz) | $14.99 | $34.84 | $39.85 | goodwill |  | 2026-08-17T20:21 |
+| 468 | [Polaroid Sx-70 Land Camera Folding Instant Camera Brown](https://shopgoodwill.com/item/273631520) | Polaroid SX-70 (folding) | $27.00 | $48.34 | $41.34 | goodwill |  | 2026-08-18T18:39 |
+| 469 | [Sony Hanycam DCR-DVD610 2000X Zoom](https://www.ebay.com/itm/298593827830?_skw=sony+handycam&hash=item4585943bf6:g:t4oAAeSwE-hqeiAg) | Sony Handycam camcorder | $43.50 | $64.70 | $41.20 | ebay |  | - |
+| 470 | [Nintendo DS & 3DS Handheld Video Game Lot of 16 w/ Mario, Po](https://shopgoodwill.com/item/273605029) | Nintendo 3DS (non-XL) | $37.00 | $58.03 | $41.03 | goodwill |  | 2026-08-18T19:07 |
+| 471 | [Sony PlayStation 4 Slim Home Console](https://hibid.com/lot/317850552) | Sony PlayStation 4 console | $2.00 | $22.80 | $40.80 | hibid | Des Moines, IA | - |
+| 472 | [Used Nintendo Switch Lite Turquoise HDH-001 w/ Power Adapter](https://shopgoodwill.com/item/273877054) | Nintendo Switch Lite | $19.99 | $40.67 | $40.69 | goodwill |  | 2026-08-20T19:17 |
+| 473 | [Casio G-Shock Natural Resin Band Replacement](https://hibid.com/lot/317776726) | Casio G-Shock | $2.00 | $22.31 | $40.31 | hibid 📍 | The Woodlands, TX | - |
+| 474 | [PlayStation 3 Video Game Console](https://hibid.com/lot/317997937) | Sony PlayStation 3 console | $5.00 | $25.13 | $40.13 | hibid | Olympia, WA | - |
+| 475 | [Hydro Thunder Sega Dreamcast](https://shopgoodwill.com/item/273563273) | Sega Dreamcast console | $18.99 | $39.01 | $40.02 | goodwill |  | 2026-08-17T19:03 |
+| 476 | [SEGA Dreamcast MXT-3020 Retro Console](https://shopgoodwill.com/item/273832558) | Sega Dreamcast console | $15.99 | $36.01 | $40.02 | goodwill |  | 2026-08-20T16:24 |
+| 477 | [Nintendo 64 Console Model NUS-001](https://shopgoodwill.com/item/273462661) | Nintendo 64 console | $21.00 | $41.01 | $40.01 | goodwill |  | 2026-08-17T18:22 |
 | 478 | [Vintage Polaroid SX-70 Land Camera W/ Case Camera](https://shopgoodwill.com/item/273630314) | Polaroid SX-70 (folding) | $28.57 | $48.34 | $39.77 | goodwill |  | 2026-08-18T19:06 |
 | 479 | [Nintendo Switch Lite HDH-001 Coral Pink Hand-Painted Floral ](https://shopgoodwill.com/item/274135510) | Nintendo Switch Lite | $20.99 | $40.67 | $39.69 | goodwill |  | 2026-08-21T18:20 |
 | 480 | [(2) Fluke Multimeters & (2) Sets of Test Cables](https://hibid.com/lot/316114137) | Fluke meter (unspecified model) | $20.00 | $39.67 | $39.67 | hibid | Bluefield, VA | - |
@@ -487,282 +487,266 @@ _Generated 2026-08-16T23:08:35+00:00 - best profit first. 'Open' is what it cost
 | 482 | [Sony Model HDR-XR100 Digital HD Video Handycam](https://shopgoodwill.com/item/273583154) | Sony Handycam camcorder | $41.00 | $60.20 | $39.20 | goodwill |  | 2026-08-16T18:07 |
 | 483 | [Asahi Pentax K1000 Slr Camera Kit W/ 50mm Lens, 135mm Lens, ](https://shopgoodwill.com/item/273630566) | Pentax K1000 (35mm SLR) | $62.00 | $81.04 | $39.04 | goodwill |  | 2026-08-18T20:03 |
 | 484 | [LEGO Star Wars III Wreck-It Ralph 22 Nintendo DS 3DS Game Lo](https://shopgoodwill.com/item/273583438) | Nintendo 3DS (non-XL) | $39.00 | $58.03 | $39.03 | goodwill |  | 2026-08-18T19:26 |
-| 485 | [Pokemon Fire Red Version, Gameboy Advance, Japanese, GBA, 20](https://www.ebay.com/itm/168618735112?_skw=pokemon+game+boy+advance&hash=item274275b608:g:eYcAAeSweu9qgiHe) | Pokemon FireRed / LeafGreen (GBA) | $28.99 | $48.01 | $39.02 | ebay |  | - |
-| 486 | [Resident Evil CODE Veronica Sega Dreamcast 2000 TESTED](https://www.ebay.com/itm/800519712881?_skw=sega+dreamcast&hash=itemba62b17071:g:g4cAAeSwwyJqeVKu) | Sega Dreamcast console | $19.99 | $39.01 | $39.02 | ebay |  | - |
-| 487 | [Dreamcast Tomb Raider Chronicles](https://www.ebay.com/itm/188802760410?_skw=sega+dreamcast&hash=item2bf5857eda:g:iBsAAeSwPTdqggTW) | Sega Dreamcast console | $19.99 | $39.01 | $39.02 | ebay |  | - |
-| 488 | [Sega GT (Sega Dreamcast, 2000)](https://www.ebay.com/itm/188802757172?_skw=sega+dreamcast&hash=item2bf5857234:g:EEEAAeSwli9qggO2) | Sega Dreamcast console | $19.99 | $39.01 | $39.02 | ebay |  | - |
-| 489 | [Xevious The Avenger Classic NES Series Game Boy Advance SP](https://www.ebay.com/itm/398293617423?_skw=gameboy+advance+sp&hash=item5cbc264b0f:g:PIMAAeSwxvxqgjdx) | Game Boy Advance SP (AGS-001/unspecified) | $15.99 | $35.00 | $39.01 | ebay |  | - |
-| 490 | [Nintendo DSi XL Metallic Rose Console Bundle w Charger Stylu](https://shopgoodwill.com/item/273883643) | Nintendo DSi XL / LL | $22.88 | $41.81 | $38.93 | goodwill |  | 2026-08-18T18:19 |
-| 491 | [Vintage Federal C81 Dial Indicator Gauge .0001 Machinist Too](https://www.ebay.com/itm/227478781762?_skw=dial+indicator&hash=item34f6cabf42:g:rOIAAeSwFbNp8PdN) | Dial / test indicator (brand-name) | $40.00 | $58.87 | $38.87 | ebay |  | - |
-| 492 | [Citizen Eco Drive Solar Tech Stainless Steel Women 6 1/2" Wr](https://shopgoodwill.com/item/273850850) | Citizen watch (Eco-Drive / quartz) | $15.00 | $33.84 | $38.84 | goodwill |  | 2026-08-18T18:09 |
-| 493 | [My Vu Personal Media Viewer Glasses For iPod Video MyVu - EX](https://www.ebay.com/itm/178397373599?_skw=ipod+video&hash=item29894fe49f:g:TFYAAeSwnCZqe4Ed) | iPod Classic/Video (capacity unknown) | $59.99 | $78.75 | $38.76 | ebay |  | - |
-| 494 | [Seiko Automatic watch, working](https://hibid.com/lot/317733272) | Seiko Automatic watch | $5.00 | $23.72 | $38.72 | hibid | Chatham, ON | - |
-| 495 | [Vintage Starrett Electronic Caliper](https://hibid.com/lot/316037948) | Starrett precision tool | $15.00 | $33.69 | $38.69 | hibid | Nicholls, GA | - |
-| 496 | [Vintage Starrett Depth Gauge](https://hibid.com/lot/316114033) | Starrett precision tool | $15.00 | $33.69 | $38.69 | hibid | Bluefield, VA | - |
-| 497 | [Vintage L.S. Starrett Outside 4 inch Calipers](https://www.ebay.com/itm/147509308475?_skw=starrett&hash=item22583d6c3b:g:nOIAAeSwT0pqgf1N) | Starrett precision tool | $15.00 | $33.69 | $38.69 | ebay |  | - |
-| 498 | [$388 DEWALT 20V MAX XR 1/2 in. High Torque Impact](https://hibid.com/lot/317790565) | DeWalt 20V MAX drill/driver | $3.00 | $21.65 | $38.65 | hibid 📍 | Kemah, TX | - |
-| 499 | [1lb. 13.0oz. Various Citizen Wristwatches Mix Lot](https://shopgoodwill.com/item/273754771) | Citizen watch (Eco-Drive / quartz) | $15.99 | $34.35 | $38.36 | goodwill |  | 2026-08-17T20:15 |
+| 485 | [Sega Dreamcast Web Browser AT&T WorldNet Service Factory Sea](https://shopgoodwill.com/item/273941635) | Sega Dreamcast console | $19.99 | $39.01 | $39.02 | goodwill |  | 2026-08-20T19:11 |
+| 486 | [Pokemon Fire Red Version, Gameboy Advance, Japanese, GBA, 20](https://www.ebay.com/itm/168618735112?_skw=pokemon+game+boy+advance&hash=item274275b608:g:eYcAAeSweu9qgiHe) | Pokemon FireRed / LeafGreen (GBA) | $28.99 | $48.01 | $39.02 | ebay |  | - |
+| 487 | [Resident Evil CODE Veronica Sega Dreamcast 2000 TESTED](https://www.ebay.com/itm/800519712881?_skw=sega+dreamcast&hash=itemba62b17071:g:g4cAAeSwwyJqeVKu) | Sega Dreamcast console | $19.99 | $39.01 | $39.02 | ebay |  | - |
+| 488 | [Dreamcast Tomb Raider Chronicles](https://www.ebay.com/itm/188802760410?_skw=sega+dreamcast&hash=item2bf5857eda:g:iBsAAeSwPTdqggTW) | Sega Dreamcast console | $19.99 | $39.01 | $39.02 | ebay |  | - |
+| 489 | [Sega GT (Sega Dreamcast, 2000)](https://www.ebay.com/itm/188802757172?_skw=sega+dreamcast&hash=item2bf5857234:g:EEEAAeSwli9qggO2) | Sega Dreamcast console | $19.99 | $39.01 | $39.02 | ebay |  | - |
+| 490 | [Xevious The Avenger Classic NES Series Game Boy Advance SP](https://www.ebay.com/itm/398293617423?_skw=gameboy+advance+sp&hash=item5cbc264b0f:g:PIMAAeSwxvxqgjdx) | Game Boy Advance SP (AGS-001/unspecified) | $15.99 | $35.00 | $39.01 | ebay |  | - |
+| 491 | [Ubisoft Evolution Sega Dreamcast Tested Working. Crack In Ca](https://www.ebay.com/itm/820011534931?_skw=sega+dreamcast&hash=itembeec7f0a53:g:tDEAAeSwuvdqgkRK) | Sega Dreamcast console | $20.00 | $39.01 | $39.01 | ebay |  | - |
+| 492 | [Nintendo DSi XL Metallic Rose Console Bundle w Charger Stylu](https://shopgoodwill.com/item/273883643) | Nintendo DSi XL / LL | $22.88 | $41.81 | $38.93 | goodwill |  | 2026-08-18T18:19 |
+| 493 | [Vintage Federal C81 Dial Indicator Gauge .0001 Machinist Too](https://www.ebay.com/itm/227478781762?_skw=dial+indicator&hash=item34f6cabf42:g:rOIAAeSwFbNp8PdN) | Dial / test indicator (brand-name) | $40.00 | $58.87 | $38.87 | ebay |  | - |
+| 494 | [My Vu Personal Media Viewer Glasses For iPod Video MyVu - EX](https://www.ebay.com/itm/178397373599?_skw=ipod+video&hash=item29894fe49f:g:TFYAAeSwnCZqe4Ed) | iPod Classic/Video (capacity unknown) | $59.99 | $78.75 | $38.76 | ebay |  | - |
+| 495 | [Seiko Automatic watch, working](https://hibid.com/lot/317733272) | Seiko Automatic watch | $5.00 | $23.72 | $38.72 | hibid | Chatham, ON | - |
+| 496 | [Vintage Starrett Electronic Caliper](https://hibid.com/lot/316037948) | Starrett precision tool | $15.00 | $33.69 | $38.69 | hibid | Nicholls, GA | - |
+| 497 | [Vintage Starrett Depth Gauge](https://hibid.com/lot/316114033) | Starrett precision tool | $15.00 | $33.69 | $38.69 | hibid | Bluefield, VA | - |
+| 498 | [Vintage L.S. Starrett Outside 4 inch Calipers](https://www.ebay.com/itm/147509308475?_skw=starrett&hash=item22583d6c3b:g:nOIAAeSwT0pqgf1N) | Starrett precision tool | $15.00 | $33.69 | $38.69 | ebay |  | - |
+| 499 | [$388 DEWALT 20V MAX XR 1/2 in. High Torque Impact](https://hibid.com/lot/317790565) | DeWalt 20V MAX drill/driver | $3.00 | $21.65 | $38.65 | hibid 📍 | Kemah, TX | - |
 | 500 | [Sony DCR-HC26 Handycam & Bell+Howell HD Camcorder 3 Piece Di](https://shopgoodwill.com/item/273606957) | Sony Handycam camcorder | $43.00 | $61.35 | $38.35 | goodwill |  | 2026-08-16T18:18 |
-| 501 | [Citizen Eco Drive BG169R Mother of Pearl Dial Stainless Stee](https://shopgoodwill.com/item/274033491) | Citizen watch (Eco-Drive / quartz) | $19.99 | $38.34 | $38.35 | goodwill |  | 2026-08-18T18:21 |
-| 502 | [Vintage Citizen Quartz Gold Tone Rectangular Black Dial Wris](https://shopgoodwill.com/item/274032073) | Citizen watch (Eco-Drive / quartz) | $19.99 | $38.34 | $38.35 | goodwill |  | 2026-08-17T18:19 |
-| 503 | [Citizen 261002 Gold Tone Women's Watch](https://shopgoodwill.com/item/274127980) | Citizen watch (Eco-Drive / quartz) | $20.00 | $38.34 | $38.34 | goodwill |  | 2026-08-18T06:00 |
-| 504 | [Milwaukee M18 FUEL Compact Band Saws](https://hibid.com/lot/317193162) | Milwaukee M18 FUEL tool | $16.00 | $34.34 | $38.34 | hibid | Orlando, FL | - |
-| 505 | [Citizen Men's Eco-Drive Dress Classic Watch,](https://hibid.com/lot/316047096) | Citizen watch (Eco-Drive / quartz) | $20.00 | $38.34 | $38.34 | hibid | Winston-Salem, NC | - |
-| 506 | [Citizen Eco-Drive Day Date Calendar Gold Tone](https://hibid.com/lot/316904288) | Citizen watch (Eco-Drive / quartz) | $20.00 | $38.34 | $38.34 | hibid | Westminister, MD | - |
-| 507 | [Sony Ps2 Slim Console Scph-70012](https://hibid.com/lot/317800693) | Sony PlayStation 2 console | $1.00 | $19.33 | $38.33 | hibid | Cleveland, OH | - |
-| 508 | [Mitutoyo 2-6" Outside Micrometer](https://hibid.com/lot/317095827) | Mitutoyo micrometer/caliper/indicator | $20.00 | $38.12 | $38.12 | hibid | Tullamarine Victoria, -- | - |
-| 509 | [Vintage Starrett outside micrometers](https://hibid.com/lot/317745747) | Starrett precision tool | $16.00 | $33.69 | $37.69 | hibid | Hedgesville, WV | - |
-| 510 | [Sony Cybershot Digital Still Camera DSC-S70](https://shopgoodwill.com/item/273786648) | Sony Cyber-shot compact (non-RX) | $9.99 | $27.66 | $37.67 | goodwill |  | 2026-08-17T18:52 |
-| 511 | [Sony Cybershot Camera, +](https://hibid.com/lot/313950320) | Sony Cyber-shot compact (non-RX) | $12.00 | $29.66 | $37.66 | hibid | Washington, IN | - |
-| 512 | [Nintendo GameCube Wired Controller Black Plastic (DOL-003) F](https://www.ebay.com/itm/366609969008?_skw=gamecube+console&hash=item555ba82f70:g:wAEAAeSwvl9qgkDy) | Nintendo GameCube console | $17.00 | $34.34 | $37.34 | ebay |  | - |
-| 513 | [PlayStation 2 Console *Only*](https://hibid.com/lot/315748640) | Sony PlayStation 2 console | $2.00 | $19.33 | $37.33 | hibid | Greenville, MI | - |
-| 514 | [Ps2 Gaming Console and game RWE](https://hibid.com/lot/317544774) | Sony PlayStation 2 console | $2.00 | $19.33 | $37.33 | hibid | Clinton, IL | - |
-| 515 | [Mitutoyo Dial Caliper With Case and Instructions](https://hibid.com/lot/317489023) | Mitutoyo micrometer/caliper/indicator | $21.00 | $38.12 | $37.12 | hibid | Myrtle Beach, SC | - |
-| 516 | [SMALL HOLE GAGE SET (MITUTOYO)](https://houston.craigslist.org/search/sss?query=SMALL+HOLE+GAGE+SET+%28MITUTOYO%29) | Mitutoyo micrometer/caliper/indicator | $30.00 | $47.12 | $37.12 | craigslist | houston | - |
-| 517 | [PS2 SILVER SLIM VIDEO GAME CONSOLE](https://hibid.com/lot/317784775) | Sony PlayStation 2 console | $2.50 | $19.33 | $36.83 | hibid | Alvinston, ON | - |
-| 518 | [Sony Cyber-shot Dsc-w230 12.1mp Digital Camera Black Unteste](https://shopgoodwill.com/item/273770180) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.67 | $36.68 | goodwill |  | 2026-08-17T18:42 |
-| 519 | [Lot of 5 Digital Cameras/Camcorders (Sony CyberShot, Kodak E](https://shopgoodwill.com/item/273717645) | Sony Cyber-shot compact (non-RX) | $10.99 | $27.66 | $36.67 | goodwill |  | 2026-08-17T18:41 |
-| 520 | [Sony Cybershot DSC-S750 7.2MP 3X Zoom Digital Camera Powers ](https://shopgoodwill.com/item/274137304) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.66 | $36.67 | goodwill |  | 2026-08-23T19:11 |
-| 521 | [Sony Cybershot DSC-F707 5MP 10X Zoom Vintage Digital Camera ](https://shopgoodwill.com/item/274135724) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.66 | $36.67 | goodwill |  | 2026-08-23T20:43 |
-| 522 | [Polaroid Land Camera Square Shooter Gray Instant Film Camera](https://shopgoodwill.com/item/273506086) | Sony Cyber-shot compact (non-RX) | $10.99 | $27.66 | $36.67 | goodwill |  | 2026-08-17T12:53 |
-| 523 | [Blue Nintendo Switch Lite Handheld Console Used](https://shopgoodwill.com/item/273607082) | Nintendo Switch Lite | $24.00 | $40.67 | $36.67 | goodwill |  | 2026-08-18T18:31 |
-| 524 | [Sony Cyber-shot DSC-W350 Camera](https://hibid.com/lot/316955979) | Sony Cyber-shot compact (non-RX) | $13.00 | $29.66 | $36.66 | hibid | Pinebuff, NC | - |
-| 525 | [$169 DEWALT 20V MAX XR Impact Driver, 1/4 Inch Hig](https://hibid.com/lot/317790619) | DeWalt 20V MAX drill/driver | $5.00 | $21.65 | $36.65 | hibid 📍 | Kemah, TX | - |
-| 526 | [Hydro Thunder Sega Dreamcast](https://shopgoodwill.com/item/273563273) | Sega Dreamcast console | $18.99 | $35.51 | $36.52 | goodwill |  | 2026-08-17T19:03 |
-| 527 | [Nintendo GameCube DOL-001 Console Bundle W/ 2 Games Mario Pa](https://shopgoodwill.com/item/273993959) | Nintendo GameCube console | $15.99 | $32.34 | $36.35 | goodwill |  | 2026-08-19T18:58 |
-| 528 | [Watch Lot - Citizen, Elgin, Bulova, Louis, Seiko](https://shopgoodwill.com/item/273956052) | Citizen watch (Eco-Drive / quartz) | $19.00 | $35.34 | $36.34 | goodwill |  | 2026-08-17T16:03 |
-| 529 | [Playstation & PS2 Video Game Console - Untested](https://hibid.com/lot/317683559) | Sony PlayStation 2 console | $3.00 | $19.33 | $36.33 | hibid | Denver, PA | - |
-| 530 | [citizen women's quartz watch 18k gold plated 17632](https://www.ebay.com/itm/267759460357?_skw=citizen+watch&hash=item3e57b52005:g:s-oAAeSwlmRo~oud) | Citizen watch (Eco-Drive / quartz) | $22.50 | $38.34 | $35.84 | ebay |  | - |
-| 531 | [Sony PS4 game console. Untested.](https://hibid.com/lot/317272901) | Sony PlayStation 4 console | $7.00 | $22.80 | $35.80 | hibid | Belvidere, IL | - |
-| 532 | [Canon PowerShot SD450 Digital ELPH 5MP Compact Camera Silver](https://shopgoodwill.com/item/273611831) | Canon PowerShot ELPH / IXUS (digital) | $51.00 | $66.70 | $35.70 | goodwill |  | 2026-08-16T18:36 |
-| 533 | [Silver Canon Powershot Elph 135 Compact Digital Camera W/ Ca](https://shopgoodwill.com/item/273700884) | Canon PowerShot ELPH / IXUS (digital) | $53.00 | $68.70 | $35.70 | goodwill |  | 2026-08-17T20:21 |
-| 534 | [Starrett 0-1" Micrometer W/ Starrett No. 258M 25-5](https://hibid.com/lot/314269192) | Starrett precision tool | $18.00 | $33.69 | $35.69 | hibid | Baldwin, WI | - |
-| 535 | [Sony Cybershot DSC-HX30V 18.2MP 20X Zoom Digital Camera Powe](https://shopgoodwill.com/item/274135004) | Sony Cyber-shot compact (non-RX) | $10.99 | $26.66 | $35.67 | goodwill |  | 2026-08-23T19:15 |
-| 536 | [New and unopened PSVITA Chaos Rings III Prequel Trilogy](https://www.ebay.com/itm/318738599140?_skw=playstation+vita&hash=item4a364d0ce4:g:hg8AAeSwpAlqgagK) | PlayStation Vita console | $67.08 | $82.72 | $35.64 | ebay |  | - |
-| 537 | [Nintendo GameCube DOL-001 Indigo Console Original Model Unte](https://shopgoodwill.com/item/273847930) | Nintendo GameCube console | $16.99 | $32.34 | $35.35 | goodwill |  | 2026-08-20T15:48 |
-| 538 | [PLAYSTATION 3 CONSOLE](https://hibid.com/lot/316326345) | Sony PlayStation 3 console | $10.00 | $25.13 | $35.13 | hibid | Caledon, ON | - |
-| 539 | [World Series Baseball 2K1 Sega Dreamcast Sega All Stars Unte](https://shopgoodwill.com/item/273929560) | Sega Dreamcast console | $19.99 | $35.02 | $35.03 | goodwill |  | 2026-08-20T18:17 |
-| 540 | [Sega Dreamcast Web Browser AT&T WorldNet Service Factory Sea](https://shopgoodwill.com/item/273941635) | Sega Dreamcast console | $19.99 | $35.02 | $35.03 | goodwill |  | 2026-08-20T19:11 |
-| 541 | [Megaman Battle Network 3 White Version Game Boy Advance SP](https://www.ebay.com/itm/398293648276?_skw=gameboy+advance+sp&hash=item5cbc26c394:g:S~MAAeSwjWhqgjrZ) | Game Boy Advance SP (AGS-001/unspecified) | $19.99 | $35.00 | $35.01 | ebay |  | - |
-| 542 | [Game Boy Adv SP AGS-001 Silver New 3000mAh Batt](https://hibid.com/lot/317533330) | Game Boy Advance SP (AGS-001/unspecified) | $20.00 | $35.00 | $35.00 | hibid | Lititz, PA | - |
-| 543 | [Stylish Ladies Citizen  B22-7  Watch 18mm](https://www.ebay.com/itm/237010557019?_skw=citizen+eco-drive&hash=item372eee185b:g:NCoAAeSwFJtprIQZ) | Citizen watch (Eco-Drive / quartz) | $17.95 | $32.84 | $34.89 | ebay |  | - |
-| 544 | [Wipeout 2048 / Sony Playstation Vita PSVITA / Wipe Out](https://www.ebay.com/itm/188802211849?_skw=playstation+vita&hash=item2bf57d2009:g:jeYAAeSwseNqgGSh) | PlayStation Vita console | $53.12 | $67.94 | $34.81 | ebay |  | - |
-| 545 | [Sony Handycam DCR-DVD105 USED WORKS See Description](https://www.ebay.com/itm/158195530305?_skw=sony+handycam&hash=item24d5303a41:g:uzwAAeSwvLhqgho9) | Sony Handycam camcorder | $50.00 | $64.70 | $34.70 | ebay |  | - |
-| 546 | [Untested Sony Model DSC-S75 Cyber-Shot 3.3 MP Digital Camera](https://shopgoodwill.com/item/273888655) | Sony Cyber-shot compact (non-RX) | $12.99 | $27.66 | $34.67 | goodwill |  | 2026-08-17T19:07 |
-| 547 | [Sony Cybershot DSC-W50 6MP 3X Zoom Digital Camera Powers On ](https://shopgoodwill.com/item/273488810) | Sony Cyber-shot compact (non-RX) | $12.00 | $26.66 | $34.66 | goodwill |  | 2026-08-17T18:03 |
-| 548 | [DeWalt 20V MAX XR Cordless Brushless Drill Driver](https://hibid.com/lot/317080724) | DeWalt 20V MAX drill/driver | $7.00 | $21.65 | $34.65 | hibid 📍 | Kemah, TX | - |
-| 549 | [Citizen Women's Eco-Drive Silhouette Watch - 8635-S070945](https://shopgoodwill.com/item/273770751) | Citizen watch (Eco-Drive / quartz) | $19.99 | $34.59 | $34.60 | goodwill |  | 2026-08-17T19:40 |
-| 550 | [Women's Citizen Eco-Drive Day-Date Watch - E001-K17578](https://shopgoodwill.com/item/273757897) | Citizen watch (Eco-Drive / quartz) | $19.99 | $34.59 | $34.60 | goodwill |  | 2026-08-17T20:41 |
+| 501 | [Citizen Women's Eco-Drive Silhouette Watch - 8635-S070945](https://shopgoodwill.com/item/273770751) | Citizen watch (Eco-Drive / quartz) | $19.99 | $38.34 | $38.35 | goodwill |  | 2026-08-17T19:40 |
+| 502 | [Women's Citizen Eco-Drive Day-Date Watch - E001-K17578](https://shopgoodwill.com/item/273757897) | Citizen watch (Eco-Drive / quartz) | $19.99 | $38.34 | $38.35 | goodwill |  | 2026-08-17T20:41 |
+| 503 | [Citizen Eco Drive BG169R Mother of Pearl Dial Stainless Stee](https://shopgoodwill.com/item/274033491) | Citizen watch (Eco-Drive / quartz) | $19.99 | $38.34 | $38.35 | goodwill |  | 2026-08-18T18:21 |
+| 504 | [Vintage Citizen Quartz Gold Tone Rectangular Black Dial Wris](https://shopgoodwill.com/item/274032073) | Citizen watch (Eco-Drive / quartz) | $19.99 | $38.34 | $38.35 | goodwill |  | 2026-08-17T18:19 |
+| 505 | [Citizen 261002 Gold Tone Women's Watch](https://shopgoodwill.com/item/274127980) | Citizen watch (Eco-Drive / quartz) | $20.00 | $38.34 | $38.34 | goodwill |  | 2026-08-18T06:00 |
+| 506 | [Milwaukee M18 FUEL Compact Band Saws](https://hibid.com/lot/317193162) | Milwaukee M18 FUEL tool | $16.00 | $34.34 | $38.34 | hibid | Orlando, FL | - |
+| 507 | [Citizen Men's Eco-Drive Dress Classic Watch,](https://hibid.com/lot/316047096) | Citizen watch (Eco-Drive / quartz) | $20.00 | $38.34 | $38.34 | hibid | Winston-Salem, NC | - |
+| 508 | [Citizen Eco-Drive Day Date Calendar Gold Tone](https://hibid.com/lot/316904288) | Citizen watch (Eco-Drive / quartz) | $20.00 | $38.34 | $38.34 | hibid | Westminister, MD | - |
+| 509 | [Seiko & Citizen Elegance Calendar Dress Wrist](https://hibid.com/lot/316904297) | Citizen watch (Eco-Drive / quartz) | $20.00 | $38.34 | $38.34 | hibid | Westminister, MD | - |
+| 510 | [Sony Ps2 Slim Console Scph-70012](https://hibid.com/lot/317800693) | Sony PlayStation 2 console | $1.00 | $19.33 | $38.33 | hibid | Cleveland, OH | - |
+| 511 | [Mitutoyo 2-6" Outside Micrometer](https://hibid.com/lot/317095827) | Mitutoyo micrometer/caliper/indicator | $20.00 | $38.12 | $38.12 | hibid | Tullamarine Victoria, -- | - |
+| 512 | [Vintage Starrett outside micrometers](https://hibid.com/lot/317745747) | Starrett precision tool | $16.00 | $33.69 | $37.69 | hibid | Hedgesville, WV | - |
+| 513 | [Sony Cybershot Digital Still Camera DSC-S70](https://shopgoodwill.com/item/273786648) | Sony Cyber-shot compact (non-RX) | $9.99 | $27.66 | $37.67 | goodwill |  | 2026-08-17T18:52 |
+| 514 | [Sony Cybershot Camera, +](https://hibid.com/lot/313950320) | Sony Cyber-shot compact (non-RX) | $12.00 | $29.66 | $37.66 | hibid | Washington, IN | - |
+| 515 | [Nintendo GameCube Wired Controller Black Plastic (DOL-003) F](https://www.ebay.com/itm/366609969008?_skw=gamecube+console&hash=item555ba82f70:g:wAEAAeSwvl9qgkDy) | Nintendo GameCube console | $17.00 | $34.34 | $37.34 | ebay |  | - |
+| 516 | [PlayStation 2 Console *Only*](https://hibid.com/lot/315748640) | Sony PlayStation 2 console | $2.00 | $19.33 | $37.33 | hibid | Greenville, MI | - |
+| 517 | [Ps2 Gaming Console and game RWE](https://hibid.com/lot/317544774) | Sony PlayStation 2 console | $2.00 | $19.33 | $37.33 | hibid | Clinton, IL | - |
+| 518 | [Mitutoyo Dial Caliper With Case and Instructions](https://hibid.com/lot/317489023) | Mitutoyo micrometer/caliper/indicator | $21.00 | $38.12 | $37.12 | hibid | Myrtle Beach, SC | - |
+| 519 | [SMALL HOLE GAGE SET (MITUTOYO)](https://houston.craigslist.org/search/sss?query=SMALL+HOLE+GAGE+SET+%28MITUTOYO%29) | Mitutoyo micrometer/caliper/indicator | $30.00 | $47.12 | $37.12 | craigslist | houston | - |
+| 520 | [Scooby-Doo Unmasked (Gameboy Advance, 2003) -Tested Authenti](https://www.ebay.com/itm/278287605344?_skw=gameboy+advance+sp&hash=item40cb3bde60:g:IjsAAeSwls1qgkja) | Game Boy Advance SP (AGS-001/unspecified) | $17.99 | $35.00 | $37.01 | ebay |  | - |
+| 521 | [PS2 SILVER SLIM VIDEO GAME CONSOLE](https://hibid.com/lot/317784775) | Sony PlayStation 2 console | $2.50 | $19.33 | $36.83 | hibid | Alvinston, ON | - |
+| 522 | [Sony Cyber-shot Dsc-w230 12.1mp Digital Camera Black Unteste](https://shopgoodwill.com/item/273770180) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.67 | $36.68 | goodwill |  | 2026-08-17T18:42 |
+| 523 | [Sony Digital Camera Dsc-s85 Black 4.1 Megapixel 6x Optical Z](https://shopgoodwill.com/item/273632217) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.67 | $36.68 | goodwill |  | 2026-08-16T18:09 |
+| 524 | [Lot of 5 Digital Cameras/Camcorders (Sony CyberShot, Kodak E](https://shopgoodwill.com/item/273717645) | Sony Cyber-shot compact (non-RX) | $10.99 | $27.66 | $36.67 | goodwill |  | 2026-08-17T18:41 |
+| 525 | [Sony Cybershot DSC-S750 7.2MP 3X Zoom Digital Camera Powers ](https://shopgoodwill.com/item/274137304) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.66 | $36.67 | goodwill |  | 2026-08-23T19:11 |
+| 526 | [Sony Cybershot DSC-F707 5MP 10X Zoom Vintage Digital Camera ](https://shopgoodwill.com/item/274135724) | Sony Cyber-shot compact (non-RX) | $9.99 | $26.66 | $36.67 | goodwill |  | 2026-08-23T20:43 |
+| 527 | [Polaroid Land Camera Square Shooter Gray Instant Film Camera](https://shopgoodwill.com/item/273506086) | Sony Cyber-shot compact (non-RX) | $10.99 | $27.66 | $36.67 | goodwill |  | 2026-08-17T12:53 |
+| 528 | [Blue Nintendo Switch Lite Handheld Console Used](https://shopgoodwill.com/item/273607082) | Nintendo Switch Lite | $24.00 | $40.67 | $36.67 | goodwill |  | 2026-08-18T18:31 |
+| 529 | [Sony Cyber-shot DSC-W350 Camera](https://hibid.com/lot/316955979) | Sony Cyber-shot compact (non-RX) | $13.00 | $29.66 | $36.66 | hibid | Pinebuff, NC | - |
+| 530 | [$169 DEWALT 20V MAX XR Impact Driver, 1/4 Inch Hig](https://hibid.com/lot/317790619) | DeWalt 20V MAX drill/driver | $5.00 | $21.65 | $36.65 | hibid 📍 | Kemah, TX | - |
+| 531 | [Nintendo GameCube DOL-001 Console Bundle W/ 2 Games Mario Pa](https://shopgoodwill.com/item/273993959) | Nintendo GameCube console | $15.99 | $32.34 | $36.35 | goodwill |  | 2026-08-19T18:58 |
+| 532 | [Watch Lot - Citizen, Elgin, Bulova, Louis, Seiko](https://shopgoodwill.com/item/273956052) | Citizen watch (Eco-Drive / quartz) | $19.00 | $35.34 | $36.34 | goodwill |  | 2026-08-17T16:03 |
+| 533 | [Playstation & PS2 Video Game Console - Untested](https://hibid.com/lot/317683559) | Sony PlayStation 2 console | $3.00 | $19.33 | $36.33 | hibid | Denver, PA | - |
+| 534 | [Sony PS4 game console. Untested.](https://hibid.com/lot/317272901) | Sony PlayStation 4 console | $7.00 | $22.80 | $35.80 | hibid | Belvidere, IL | - |
+| 535 | [Canon PowerShot SD450 Digital ELPH 5MP Compact Camera Silver](https://shopgoodwill.com/item/273611831) | Canon PowerShot ELPH / IXUS (digital) | $51.00 | $66.70 | $35.70 | goodwill |  | 2026-08-16T18:36 |
+| 536 | [Silver Canon Powershot Elph 135 Compact Digital Camera W/ Ca](https://shopgoodwill.com/item/273700884) | Canon PowerShot ELPH / IXUS (digital) | $53.00 | $68.70 | $35.70 | goodwill |  | 2026-08-17T20:21 |
+| 537 | [Starrett 0-1" Micrometer W/ Starrett No. 258M 25-5](https://hibid.com/lot/314269192) | Starrett precision tool | $18.00 | $33.69 | $35.69 | hibid | Baldwin, WI | - |
+| 538 | [Sony Cybershot DSC-HX30V 18.2MP 20X Zoom Digital Camera Powe](https://shopgoodwill.com/item/274135004) | Sony Cyber-shot compact (non-RX) | $10.99 | $26.66 | $35.67 | goodwill |  | 2026-08-23T19:15 |
+| 539 | [New and unopened PSVITA Chaos Rings III Prequel Trilogy](https://www.ebay.com/itm/318738599140?_skw=playstation+vita&hash=item4a364d0ce4:g:hg8AAeSwpAlqgagK) | PlayStation Vita console | $67.08 | $82.72 | $35.64 | ebay |  | - |
+| 540 | [Nintendo GameCube DOL-001 Indigo Console Original Model Unte](https://shopgoodwill.com/item/273847930) | Nintendo GameCube console | $16.99 | $32.34 | $35.35 | goodwill |  | 2026-08-20T15:48 |
+| 541 | [PLAYSTATION 3 CONSOLE](https://hibid.com/lot/316326345) | Sony PlayStation 3 console | $10.00 | $25.13 | $35.13 | hibid | Caledon, ON | - |
+| 542 | [World Series Baseball 2K1 Sega Dreamcast Sega All Stars Unte](https://shopgoodwill.com/item/273929560) | Sega Dreamcast console | $19.99 | $35.02 | $35.03 | goodwill |  | 2026-08-20T18:17 |
+| 543 | [Megaman Battle Network 3 White Version Game Boy Advance SP](https://www.ebay.com/itm/398293648276?_skw=gameboy+advance+sp&hash=item5cbc26c394:g:S~MAAeSwjWhqgjrZ) | Game Boy Advance SP (AGS-001/unspecified) | $19.99 | $35.00 | $35.01 | ebay |  | - |
+| 544 | [Game Boy Adv SP AGS-001 Silver New 3000mAh Batt](https://hibid.com/lot/317533330) | Game Boy Advance SP (AGS-001/unspecified) | $20.00 | $35.00 | $35.00 | hibid | Lititz, PA | - |
+| 545 | [Wipeout 2048 / Sony Playstation Vita PSVITA / Wipe Out](https://www.ebay.com/itm/188802211849?_skw=playstation+vita&hash=item2bf57d2009:g:jeYAAeSwseNqgGSh) | PlayStation Vita console | $53.12 | $67.94 | $34.81 | ebay |  | - |
+| 546 | [Sony Handycam DCR-DVD105 USED WORKS See Description](https://www.ebay.com/itm/158195530305?_skw=handy+cam+sony&hash=item24d5303a41:g:uzwAAeSwvLhqgho9) | Sony Handycam camcorder | $50.00 | $64.70 | $34.70 | ebay |  | - |
+| 547 | [Untested Sony Model DSC-S75 Cyber-Shot 3.3 MP Digital Camera](https://shopgoodwill.com/item/273888655) | Sony Cyber-shot compact (non-RX) | $12.99 | $27.66 | $34.67 | goodwill |  | 2026-08-17T19:07 |
+| 548 | [Sony Cybershot DSC-W50 6MP 3X Zoom Digital Camera Powers On ](https://shopgoodwill.com/item/273488810) | Sony Cyber-shot compact (non-RX) | $12.00 | $26.66 | $34.66 | goodwill |  | 2026-08-17T18:03 |
+| 549 | [DeWalt 20V MAX XR Cordless Brushless Drill Driver](https://hibid.com/lot/317080724) | DeWalt 20V MAX drill/driver | $7.00 | $21.65 | $34.65 | hibid 📍 | Kemah, TX | - |
+| 550 | [Sony PlayStation 4 Pro 1TB 4K UHD Black Blu-Ray Compatible H](https://www.ebay.com/itm/318740753023?_skw=playstation+4&hash=item4a366dea7f:g:z6wAAeSwWQxqgkbZ) | Sony PlayStation 4 Pro console | $55.00 | $69.64 | $34.64 | ebay |  | - |
 | 551 | [Starrett Dial Indicator Set in Case](https://shopgoodwill.com/item/273471540) | Dial / test indicator (brand-name) | $52.50 | $66.87 | $34.37 | goodwill |  | 2026-08-17T17:00 |
 | 552 | [Nintendo GameCube Console DOL-001 Black USA Model Retro Gami](https://shopgoodwill.com/item/273845893) | Nintendo GameCube console | $17.99 | $32.34 | $34.35 | goodwill |  | 2026-08-20T15:17 |
 | 553 | [Citizen Eco-Drive & Elegance Watches](https://shopgoodwill.com/item/273953201) | Citizen watch (Eco-Drive / quartz) | $20.99 | $35.34 | $34.35 | goodwill |  | 2026-08-22T18:13 |
 | 554 | [Citizen Gold Tone Watch](https://shopgoodwill.com/item/273260802) | Citizen watch (Eco-Drive / quartz) | $23.99 | $38.34 | $34.35 | goodwill |  | 2026-08-16T18:13 |
-| 555 | [Bulova Emporio Armani Citizen Skagen Dress Watch Lot](https://shopgoodwill.com/item/273446316) | Citizen watch (Eco-Drive / quartz) | $24.00 | $38.34 | $34.34 | goodwill |  | 2026-08-16T19:02 |
-| 556 | [Nintendo GameCube WaveBird Wireless Controller for GameCube ](https://www.ebay.com/itm/398293630586?_skw=gamecube+console&hash=item5cbc267e7a:g:w~gAAeSwaRZqgjnt) | Nintendo GameCube console | $20.00 | $34.34 | $34.34 | ebay |  | - |
-| 557 | [PlayStation 2 Console](https://hibid.com/lot/317176252) | Sony PlayStation 2 console | $5.00 | $19.33 | $34.33 | hibid | New Haven, IN | - |
-| 558 | [Asahi Pentax K1000 35mm Film SLR Camera with SMC Pentax-A 50](https://shopgoodwill.com/item/273623457) | Pentax K1000 (35mm SLR) | $67.00 | $81.04 | $34.04 | goodwill |  | 2026-08-16T18:04 |
-| 559 | [Star Wars: Demolition (Sega Dreamcast, 2000)](https://www.ebay.com/itm/188802689937?_skw=sega+dreamcast&hash=item2bf5846b91:g:PeUAAeSwYVRqgf~g) | Sega Dreamcast console | $24.99 | $39.01 | $34.02 | ebay |  | - |
-| 560 | [Sega Rally 2 Sega Rally Championship Dreamcast CIB Great Con](https://www.ebay.com/itm/227478575207?_skw=sega+dreamcast&hash=item34f6c79867:g:FzAAAeSwBidqgfz7) | Sega Dreamcast console | $25.00 | $39.01 | $34.01 | ebay |  | - |
-| 561 | [Nintendo Game Boy Advance SP AGS-101 w/ Hello Kitty, Kim Pos](https://shopgoodwill.com/item/273725182) | Game Boy Advance SP AGS-101 (backlit) | $62.00 | $75.88 | $33.88 | goodwill |  | 2026-08-19T18:36 |
-| 562 | [Sony Playstation 4 Slim Ps4 Video Game Console Used Untested](https://shopgoodwill.com/item/273872940) | Sony PlayStation 4 console | $8.99 | $22.80 | $33.80 | goodwill |  | 2026-08-18T20:10 |
-| 563 | [Sony Playstation 4 Ps4 Video Game Console Used (powers On)](https://shopgoodwill.com/item/273879979) | Sony PlayStation 4 console | $8.99 | $22.80 | $33.80 | goodwill |  | 2026-08-18T20:46 |
-| 564 | [Vintage. LS Starrett Co. No 203 0-1" Micrometer Atholl Mass ](https://www.ebay.com/itm/206496395633?_skw=starrett&hash=item301424f171:g:c7gAAeSwknRpatcv) | Starrett precision tool | $19.99 | $33.69 | $33.70 | ebay |  | - |
-| 565 | [Starrett Combination Square Set](https://hibid.com/lot/316114029) | Starrett precision tool | $20.00 | $33.69 | $33.69 | hibid | Bluefield, VA | - |
-| 566 | [Vintage Starrett Vernier Caliper](https://hibid.com/lot/316037507) | Starrett precision tool | $20.00 | $33.69 | $33.69 | hibid | Nicholls, GA | - |
-| 567 | [Citizen Eco-Drive Quartz Watch 890701 Stainless Steel Case 2](https://shopgoodwill.com/item/273900249) | Citizen watch (Eco-Drive / quartz) | $24.99 | $38.34 | $33.35 | goodwill |  | 2026-08-18T17:41 |
+| 555 | [Watch Lot - Bulova, Seiko, Citizen, Jules Jurgenson](https://shopgoodwill.com/item/273995395) | Citizen watch (Eco-Drive / quartz) | $24.00 | $38.34 | $34.34 | goodwill |  | 2026-08-17T18:53 |
+| 556 | [Citizen Eco-Drive Chronograph Silver Tone Stainless Steel Wa](https://shopgoodwill.com/item/273473079) | Citizen watch (Eco-Drive / quartz) | $24.00 | $38.34 | $34.34 | goodwill |  | 2026-08-17T20:55 |
+| 557 | [Nintendo GameCube WaveBird Wireless Controller for GameCube ](https://www.ebay.com/itm/398293630586?_skw=gamecube+console&hash=item5cbc267e7a:g:w~gAAeSwaRZqgjnt) | Nintendo GameCube console | $20.00 | $34.34 | $34.34 | ebay |  | - |
+| 558 | [PlayStation 2 Console](https://hibid.com/lot/317176252) | Sony PlayStation 2 console | $5.00 | $19.33 | $34.33 | hibid | New Haven, IN | - |
+| 559 | [Asahi Pentax K1000 35mm Film SLR Camera with SMC Pentax-A 50](https://shopgoodwill.com/item/273623457) | Pentax K1000 (35mm SLR) | $67.00 | $81.04 | $34.04 | goodwill |  | 2026-08-16T18:04 |
+| 560 | [Star Wars: Demolition (Sega Dreamcast, 2000)](https://www.ebay.com/itm/188802689937?_skw=sega+dreamcast&hash=item2bf5846b91:g:PeUAAeSwYVRqgf~g) | Sega Dreamcast console | $24.99 | $39.01 | $34.02 | ebay |  | - |
+| 561 | [Sega Rally 2 Sega Rally Championship Dreamcast CIB Great Con](https://www.ebay.com/itm/227478575207?_skw=sega+dreamcast&hash=item34f6c79867:g:FzAAAeSwBidqgfz7) | Sega Dreamcast console | $25.00 | $39.01 | $34.01 | ebay |  | - |
+| 562 | [Nintendo Game Boy Advance SP AGS-101 w/ Hello Kitty, Kim Pos](https://shopgoodwill.com/item/273725182) | Game Boy Advance SP AGS-101 (backlit) | $62.00 | $75.88 | $33.88 | goodwill |  | 2026-08-19T18:36 |
+| 563 | [Vintage. LS Starrett Co. No 203 0-1" Micrometer Atholl Mass ](https://www.ebay.com/itm/206496395633?_skw=starrett&hash=item301424f171:g:c7gAAeSwknRpatcv) | Starrett precision tool | $19.99 | $33.69 | $33.70 | ebay |  | - |
+| 564 | [Starrett Combination Square Set](https://hibid.com/lot/316114029) | Starrett precision tool | $20.00 | $33.69 | $33.69 | hibid | Bluefield, VA | - |
+| 565 | [Vintage Starrett Vernier Caliper](https://hibid.com/lot/316037507) | Starrett precision tool | $20.00 | $33.69 | $33.69 | hibid | Nicholls, GA | - |
+| 566 | [Citizen Eco-Drive Quartz Watch 890701 Stainless Steel Case 2](https://shopgoodwill.com/item/273900249) | Citizen watch (Eco-Drive / quartz) | $24.99 | $38.34 | $33.35 | goodwill |  | 2026-08-18T17:41 |
+| 567 | [Citizen Eco-Drive B023-S068962 Ladies Black Dial Stainless S](https://shopgoodwill.com/item/273618547) | Citizen watch (Eco-Drive / quartz) | $24.99 | $38.34 | $33.35 | goodwill |  | 2026-08-16T20:43 |
 | 568 | [Women's Citizen Metal Diamond Watch 16.4g](https://shopgoodwill.com/item/273107617) | Citizen watch (Eco-Drive / quartz) | $24.99 | $38.34 | $33.35 | goodwill |  | 2026-08-16T20:19 |
-| 569 | [Five Citizen Ladies Analog Fashion Watches, Face Measurement](https://shopgoodwill.com/item/273425322) | Citizen watch (Eco-Drive / quartz) | $25.00 | $38.34 | $33.34 | goodwill |  | 2026-08-16T18:29 |
-| 570 | [MILWAUKEE M18 FUEL BLOWER](https://hibid.com/lot/316074862) | Milwaukee M18 FUEL tool | $21.00 | $34.34 | $33.34 | hibid | Kresgeville, PA | - |
-| 571 | [Accutron Quartz & Citizen Eco-Drive Mens Wrist](https://hibid.com/lot/316904293) | Citizen watch (Eco-Drive / quartz) | $25.00 | $38.34 | $33.34 | hibid | Westminister, MD | - |
-| 572 | [Mitutoyo micrometer](https://hibid.com/lot/316692333) | Mitutoyo micrometer/caliper/indicator | $25.00 | $38.12 | $33.12 | hibid | Fallon, NV | - |
-| 573 | [Mitutoyo & Other Depth Gauges](https://hibid.com/lot/317095848) | Mitutoyo micrometer/caliper/indicator | $25.00 | $38.12 | $33.12 | hibid | Tullamarine Victoria, -- | - |
-| 574 | [Pokemon Sapphire Version Instruction Manual - No Game Ninten](https://www.ebay.com/itm/158195381451?_skw=pokemon+game+boy+advance&hash=item24d52df4cb:g:ppYAAeSw-V9qggvW) | Pokemon Ruby / Sapphire (GBA) | $14.99 | $28.05 | $33.06 | ebay |  | - |
-| 575 | [Bratz Rock Angelz Sasha Red Nintendo Gameboy Advance SP Case](https://www.ebay.com/itm/267759190357?_skw=game+boy+advance+sp&hash=item3e57b10155:g:fDAAAeSwU21qge~5) | Game Boy Advance SP (AGS-001/unspecified) | $21.99 | $35.00 | $33.01 | ebay |  | - |
-| 576 | [Sony PlayStation 4 PS4 500GB Black Console](https://shopgoodwill.com/item/273515332) | Sony PlayStation 4 console | $9.99 | $22.80 | $32.80 | goodwill |  | 2026-08-17T19:39 |
-| 577 | [Sony PlayStation 4 PS4 Original Console / 1TB / Black](https://shopgoodwill.com/item/273626211) | Sony PlayStation 4 console | $9.99 | $22.80 | $32.80 | goodwill |  | 2026-08-18T18:44 |
-| 578 | [Sony PlayStation 4 PS4 Slim Console The Witcher 3 1 Game Bun](https://shopgoodwill.com/item/273752595) | Sony PlayStation 4 console | $9.99 | $22.80 | $32.80 | goodwill |  | 2026-08-19T18:18 |
-| 579 | [Vintage Starrett 0-1 In Micrometer](https://www.ebay.com/itm/298593948056?_skw=starrett&hash=item4585961198:g:I5EAAeSwawdqgjQu) | Starrett precision tool | $20.99 | $33.69 | $32.70 | ebay |  | - |
-| 580 | [Vintage L.S. Starrett Co No 183 Protractor Machinist Tool US](https://www.ebay.com/itm/278287121280?_skw=starrett&hash=item40cb347b80:g:NgUAAeSwR01qghPX) | Starrett precision tool | $15.00 | $27.70 | $32.70 | ebay |  | - |
-| 581 | [Micrometers, large (Starrett)s](https://houston.craigslist.org/search/sss?query=Micrometers%2C+large+%28Starrett%29s) | Starrett precision tool | $30.00 | $42.69 | $32.69 | craigslist | houston | - |
-| 582 | [Sony CyberShot DSC H300 20.1MP Digital Camera 35x Optical Zo](https://shopgoodwill.com/item/273905054) | Sony Cyber-shot compact (non-RX) | $14.99 | $27.66 | $32.67 | goodwill |  | 2026-08-19T03:42 |
-| 583 | [Sony Cyber-shot DSC-T5 5.1MP Digital Camera with Case and Ba](https://shopgoodwill.com/item/273706648) | Sony Cyber-shot compact (non-RX) | $14.99 | $27.66 | $32.67 | goodwill |  | 2026-08-17T18:25 |
-| 584 | [Fluke 17B+ Digital Multimeter](https://hibid.com/lot/316126353) | Fluke meter (unspecified model) | $27.00 | $39.67 | $32.67 | hibid | San Mateo, CA | - |
-| 585 | [PlayStation 3 Console](https://hibid.com/lot/317176244) | Sony PlayStation 3 console | $12.50 | $25.13 | $32.63 | hibid | New Haven, IN | - |
-| 586 | [Texas Instruments TI-84 plus CE Python Graphing calculator U](https://shopgoodwill.com/item/274086263) | TI-84 Plus CE Python | $10.99 | $23.33 | $32.34 | goodwill |  | 2026-08-22T19:51 |
-| 587 | [Citizen Eco-Drive Women's Gold Tone Stainless Steel Watch-Mo](https://shopgoodwill.com/item/273624965) | Citizen watch (Eco-Drive / quartz) | $26.00 | $38.34 | $32.34 | goodwill |  | 2026-08-16T17:48 |
-| 588 | [Nintendo Gamecube DOL-101(USA) & More See Info](https://hibid.com/lot/316265178) | Nintendo GameCube console | $22.00 | $34.34 | $32.34 | hibid | Albuquerque, NM | - |
-| 589 | [$250, citizen watch,like new MSRP $250](https://hibid.com/lot/317952263) | Citizen watch (Eco-Drive / quartz) | $26.00 | $38.34 | $32.34 | hibid | Toronto, ON | - |
-| 590 | [Casio G-shock Classic Ana-digi Men's Watch 45mm](https://hibid.com/lot/317709253) | Casio G-Shock | $10.00 | $22.31 | $32.31 | hibid 📍 | Houston, TX | - |
-| 591 | [CASIO GA-700UC-8ACR G-SHOCK WATCH, GREY](https://hibid.com/lot/317929669) | Casio G-Shock | $1.00 | $13.31 | $32.31 | hibid | London, ON | - |
-| 592 | [G-shock Mens Classic Flash Alert & World Time 50mm](https://hibid.com/lot/317710316) | Casio G-Shock | $10.00 | $22.31 | $32.31 | hibid 📍 | Houston, TX | - |
-| 593 | [Microsoft Xbox One Gaming Console](https://hibid.com/lot/317824688) | Xbox One / One S / One X console | $6.00 | $18.19 | $32.19 | hibid | Weatherford, TX | - |
-| 594 | [Pokemon Ruby Version - Game Boy Advance](https://shopgoodwill.com/item/273993196) | Pokemon Ruby / Sapphire (GBA) | $15.99 | $28.05 | $32.06 | goodwill |  | 2026-08-19T19:33 |
-| 595 | [Citizen Eco-Drive G820-T002922 Two Tone Men's Watch](https://shopgoodwill.com/item/273435995) | Citizen watch (Eco-Drive / quartz) | $23.00 | $34.84 | $31.84 | goodwill |  | 2026-08-16T18:23 |
-| 596 | [PlayStation 2 Console](https://hibid.com/lot/317176250) | Sony PlayStation 2 console | $7.50 | $19.33 | $31.83 | hibid | New Haven, IN | - |
-| 597 | [Starrett Machinist level in original dovetail](https://hibid.com/lot/317232272) | Starrett precision tool | $22.00 | $33.69 | $31.69 | hibid | Rising Sun, MD | - |
-| 598 | [$99 DEWALT 20V MAX Impact Driver DCF787D1](https://hibid.com/lot/317309468) | DeWalt 20V MAX drill/driver | $10.00 | $21.65 | $31.65 | hibid 📍 | New Braunfels, TX | - |
-| 599 | [Watch Lot - Bulova, Seiko, Citizen, Jules Jurgenson](https://shopgoodwill.com/item/273995395) | Citizen watch (Eco-Drive / quartz) | $24.00 | $35.34 | $31.34 | goodwill |  | 2026-08-17T18:53 |
-| 600 | [Citizen Eco-Drive Chronograph Silver Tone Stainless Steel Wa](https://shopgoodwill.com/item/273473079) | Citizen watch (Eco-Drive / quartz) | $24.00 | $35.34 | $31.34 | goodwill |  | 2026-08-17T20:55 |
-| 601 | [MANS CITIZEN WATCH IN BOX](https://hibid.com/lot/315755532) | Citizen watch (Eco-Drive / quartz) | $27.00 | $38.34 | $31.34 | hibid | Knoxville, TN | - |
-| 602 | [PS2 Console](https://hibid.com/lot/317019410) | Sony PlayStation 2 console | $8.00 | $19.33 | $31.33 | hibid | Manheim, PA | - |
-| 603 | [Nikon CoolPix Powers on            (Dining Room)](https://hibid.com/lot/317564995) | Nikon Coolpix compact | $1.00 | $12.31 | $31.31 | hibid | Burlington, WA | - |
-| 604 | [Nikon Coolpix 775 Digital Camera with Case](https://hibid.com/lot/316949412) | Nikon Coolpix compact | $1.00 | $12.31 | $31.31 | hibid | Johnstown, PA | - |
-| 605 | [Vintage Casio G-Shock Thermometer Digital Watch](https://hibid.com/lot/316693882) | Casio G-Shock | $2.00 | $13.31 | $31.31 | hibid | Tulsa, OK | - |
-| 606 | [LAST WORD UNIVERSAL TEST INDICATOR #711-C  L S STARRET CO PA](https://www.ebay.com/itm/168570693132?_skw=starret&hash=item273f98a60c:g:rAUAAeSwPXZpUwPd) | Starrett precision tool | $22.39 | $33.69 | $31.30 | ebay |  | - |
-| 607 | [Apple iPhone 4 & iPod Nano Lot](https://hibid.com/lot/317460981) | iPod Nano | $6.00 | $17.11 | $31.11 | hibid 📍 | Bacliff, TX | - |
-| 608 | [Box of Mitutoyo gauges](https://hibid.com/lot/316128936) | Mitutoyo micrometer/caliper/indicator | $27.50 | $38.12 | $30.62 | hibid | Columbia City, IN | - |
-| 609 | [Box of Mitutoyo gauges](https://hibid.com/lot/316128934) | Mitutoyo micrometer/caliper/indicator | $27.50 | $38.12 | $30.62 | hibid | Columbia City, IN | - |
-| 610 | [Box of Mitutoyo gauges and misc](https://hibid.com/lot/316128935) | Mitutoyo micrometer/caliper/indicator | $27.50 | $38.12 | $30.62 | hibid | Columbia City, IN | - |
-| 611 | [Box of Mitutoyo gauges and misc](https://hibid.com/lot/316128937) | Mitutoyo micrometer/caliper/indicator | $27.50 | $38.12 | $30.62 | hibid | Columbia City, IN | - |
-| 612 | [Citizen - vintage quartz ladies watch RUNS, lot1508](https://www.ebay.com/itm/336746029371?_skw=citizen+watch&hash=item4e67a0a13b:g:1d8AAeSwxthqgjZP) | Citizen watch (Eco-Drive / quartz) | $19.99 | $30.34 | $30.35 | ebay |  | - |
-| 613 | [Citizen - vintage quartz ladies watch RUNS, lot1508](https://www.ebay.com/itm/336746022205?_skw=citizen+watch&hash=item4e67a0853d:g:0iAAAeSw65pqgjKn) | Citizen watch (Eco-Drive / quartz) | $19.99 | $30.34 | $30.35 | ebay |  | - |
-| 614 | [Sony PlayStation 2 PS2 Video Game Console Bundle - Powers On](https://shopgoodwill.com/item/273867808) | Sony PlayStation 2 console | $8.99 | $19.33 | $30.34 | goodwill |  | 2026-08-20T18:32 |
-| 615 | [MILWAUKEE M18 FUEL BLOWER](https://hibid.com/lot/316074859) | Milwaukee M18 FUEL tool | $24.00 | $34.34 | $30.34 | hibid | Kresgeville, PA | - |
-| 616 | [Nikon Coolpix 4300 digital camera](https://hibid.com/lot/317522347) | Nikon Coolpix compact | $2.00 | $12.31 | $30.31 | hibid | Anderson, IN | - |
-| 617 | [Polaroid Land Camera The 800, Nikon Coolpix and](https://hibid.com/lot/317173466) | Nikon Coolpix compact | $2.00 | $12.31 | $30.31 | hibid | Columbia, TN | - |
-| 618 | [Nikon Coolpix L20 Digital Camera Lot](https://hibid.com/lot/317944078) | Nikon Coolpix compact | $2.00 | $12.31 | $30.31 | hibid | Varies; See Auction, MO | - |
-| 619 | [Puma & Casio G-Shock Watches](https://hibid.com/lot/315682369) | Casio G-Shock | $3.00 | $13.31 | $30.31 | hibid | Fort Wayne, IN | - |
-| 620 | [Casio G Shock white band](https://hibid.com/lot/317520978) | Casio G-Shock | $3.00 | $13.31 | $30.31 | hibid | Washington Township, NJ | - |
-| 621 | [Casio G Shock Pink Band](https://hibid.com/lot/317520983) | Casio G-Shock | $3.00 | $13.31 | $30.31 | hibid | Washington Township, NJ | - |
-| 622 | [2-Sony Cybershot Digital Cameras](https://shopgoodwill.com/item/273685344) | Sony Cyber-shot compact (non-RX) | $15.99 | $26.16 | $30.17 | goodwill |  | 2026-08-18T19:03 |
-| 623 | [Dewalt 20V Drill & Impact * Bits](https://hibid.com/lot/315771037) | DeWalt 20V MAX drill/driver | $2.50 | $12.65 | $30.15 | hibid | Swift Current, SK | - |
-| 624 | [PlayStation 3 Console](https://hibid.com/lot/317176242) | Sony PlayStation 3 console | $15.00 | $25.13 | $30.13 | hibid | New Haven, IN | - |
-| 625 | [Sony PlayStation 4 Slim PS4 500GB Console w/ Cords](https://shopgoodwill.com/item/273630288) | Sony PlayStation 4 console | $9.99 | $19.80 | $29.80 | goodwill |  | 2026-08-19T17:00 |
-| 626 | [Canon PowerShot SD1100 IS 8MP Digital ELPH Camera Silver PC1](https://shopgoodwill.com/item/273604584) | Canon PowerShot ELPH / IXUS (digital) | $57.00 | $66.70 | $29.70 | goodwill |  | 2026-08-16T18:50 |
-| 627 | [Sony Cybershot DSC-H70 16.1 megapixel Camera](https://shopgoodwill.com/item/273586533) | Sony Cyber-shot compact (non-RX) | $15.99 | $25.67 | $29.68 | goodwill |  | 2026-08-18T19:12 |
-| 628 | [Sony Cyber-Shot DSC-H50 Black Compact Digital Camera In Case](https://shopgoodwill.com/item/273827701) | Sony Cyber-shot compact (non-RX) | $14.99 | $24.66 | $29.67 | goodwill |  | 2026-08-16T20:17 |
-| 629 | [GM Emblems & Fluke 77 Multimeter.](https://hibid.com/lot/315132311) | Fluke meter (unspecified model) | $30.00 | $39.67 | $29.67 | hibid | Fort Wayne, IN | - |
-| 630 | [Fluke Meter](https://hibid.com/lot/315876912) | Fluke meter (unspecified model) | $30.00 | $39.67 | $29.67 | hibid | Homedale, ID | - |
-| 631 | [Sony Cyber-shot DSC-S500 Compact Digital Camera 6.0MP 3x Zoo](https://www.ebay.com/itm/227478796089?_skw=sony+cybershot&hash=item34f6caf739:g:jxQAAeSwNSNqgjqp) | Sony Cyber-shot compact (non-RX) | $20.00 | $29.66 | $29.66 | ebay |  | - |
-| 632 | [PlayStation 2 Console](https://hibid.com/lot/317176246) | Sony PlayStation 2 console | $10.00 | $19.33 | $29.33 | hibid | New Haven, IN | - |
-| 633 | [PlayStation 2 Console](https://hibid.com/lot/317176248) | Sony PlayStation 2 console | $10.00 | $19.33 | $29.33 | hibid | New Haven, IN | - |
-| 634 | [PlayStation 2 Console](https://hibid.com/lot/317176256) | Sony PlayStation 2 console | $10.00 | $19.33 | $29.33 | hibid | New Haven, IN | - |
-| 635 | [PlayStation 2 Console](https://hibid.com/lot/317176254) | Sony PlayStation 2 console | $10.00 | $19.33 | $29.33 | hibid | New Haven, IN | - |
-| 636 | [Nikon Coolpix 5700 With Accessories Untested](https://hibid.com/lot/317053834) | Nikon Coolpix compact | $3.00 | $12.31 | $29.31 | hibid | Taylor, MI | - |
-| 637 | [Seiko Stainless Steel Seiko 5 Women's Automatic Watch 53.3g](https://shopgoodwill.com/item/273993153) | Seiko Automatic watch | $10.99 | $20.22 | $29.23 | goodwill |  | 2026-08-19T19:12 |
-| 638 | [Mitutoyo 2416 Dial Indicator 0-1" Range, .001" Graduation](https://www.ebay.com/itm/318740295819?_skw=dial+indicator&hash=item4a3666f08b:g:BXoAAeSwJ2dqgh2l) | Dial / test indicator (brand-name) | $59.89 | $68.87 | $28.98 | ebay |  | - |
-| 639 | [Sony Video Game Console Psp Black Portable Handheld Gaming S](https://shopgoodwill.com/item/273764756) | Sony PSP handheld | $13.00 | $21.85 | $28.85 | goodwill |  | 2026-08-17T20:46 |
-| 640 | [Seiko Men's Automatic Wristwatch-Stainless Steel-Black Dial-](https://shopgoodwill.com/item/274133565) | Seiko Automatic watch | $14.99 | $23.72 | $28.73 | goodwill |  | 2026-08-21T17:01 |
-| 641 | [VTG. L.S. STARRETT MACHINIST PRECISION L](https://hibid.com/lot/316046288) | Starrett precision tool | $25.00 | $33.69 | $28.69 | hibid | Winston-Salem, NC | - |
-| 642 | [Starret 0”-1.0” Depth Gauge In Original Box With Pins](https://www.ebay.com/itm/128018033674?_skw=starret&hash=item1dce782c0a:g:JHoAAeSw8ChqeLrt) | Starrett precision tool | $25.00 | $33.69 | $28.69 | ebay |  | - |
-| 643 | [Starret No. 4 Thread Pitch Gage - Vintage](https://www.ebay.com/itm/127931433512?_skw=starret&hash=item1dc94ec228:g:JasAAeSwQMRqMYce) | Starrett precision tool | $25.00 | $33.69 | $28.69 | ebay |  | - |
-| 644 | [Citizen Eco-Drive B023-S068962 Ladies Black Dial Stainless S](https://shopgoodwill.com/item/273618547) | Citizen watch (Eco-Drive / quartz) | $24.99 | $33.34 | $28.35 | goodwill |  | 2026-08-16T20:43 |
-| 645 | [Sony PlayStation 2 PS2 Slim Game Console SCPH-70012 w/Medal ](https://shopgoodwill.com/item/273727393) | Sony PlayStation 2 console | $10.99 | $19.33 | $28.34 | goodwill |  | 2026-08-19T19:34 |
-| 646 | [Citizen Eco-Drive Tank Watch, Elgin Quartz Watch](https://hibid.com/lot/317587664) | Citizen watch (Eco-Drive / quartz) | $30.00 | $38.34 | $28.34 | hibid | Leslie, MI | - |
-| 647 | [CITIZEN WORLD PERPETUAL AT EVO-DRIVE MENS WATCH](https://hibid.com/lot/317365793) | Citizen watch (Eco-Drive / quartz) | $30.00 | $38.34 | $28.34 | hibid | Peoria, AZ | - |
-| 648 | [~Citizen Quartz 23K Gold Plated Watch](https://hibid.com/lot/316123832) | Citizen watch (Eco-Drive / quartz) | $30.00 | $38.34 | $28.34 | hibid | Mesa, AZ | - |
-| 649 | [Citizen ECO-Drive Womens watch Gold tone WR 100 [Works]](https://www.ebay.com/itm/188803185445?_skw=citizen+eco-drive&hash=item2bf58bfb25:g:rFMAAeSwhP1qgh9u) | Citizen watch (Eco-Drive / quartz) | $30.00 | $38.34 | $28.34 | ebay |  | - |
-| 650 | [Nikon Coolpix S3500 Digital Camera w/ Charger -](https://hibid.com/lot/317538071) | Nikon Coolpix compact | $4.00 | $12.31 | $28.31 | hibid | Green Bay, WI | - |
-| 651 | [Casio G Shock Clear Band](https://hibid.com/lot/317520988) | Casio G-Shock | $5.00 | $13.31 | $28.31 | hibid | Washington Township, NJ | - |
-| 652 | [vintage 1990s Casio G-Shock watch](https://hibid.com/lot/317720246) | Casio G-Shock | $5.00 | $13.31 | $28.31 | hibid | Mississauga, ON | - |
-| 653 | [Casio G-Shock GD-110 Digital Sports Watch](https://hibid.com/lot/316822685) | Casio G-Shock | $5.00 | $13.31 | $28.31 | hibid | Sun Prairie, WI | - |
-| 654 | [Nintendo Game Boy Advance SP Blue with Case](https://hibid.com/lot/316834845) | Game Boy Advance SP (AGS-001/unspecified) | $27.00 | $35.00 | $28.00 | hibid | Plainfield, IN | - |
-| 655 | [Sony Cyber-shot DSC-S75 3.3MP Digital Camera Lot with Box an](https://shopgoodwill.com/item/273796105) | Sony Cyber-shot compact (non-RX) | $17.99 | $25.91 | $27.92 | goodwill |  | 2026-08-22T19:34 |
-| 656 | [Sony PlayStation 4 PS4 Original 500GB Console Only CUH-1001A](https://shopgoodwill.com/item/273621633) | Sony PlayStation 4 console | $14.99 | $22.80 | $27.80 | goodwill |  | 2026-08-18T19:13 |
-| 657 | [Sony PlayStation 4 PS4 500GB Console Only CUH-1115A TESTED W](https://shopgoodwill.com/item/273621632) | Sony PlayStation 4 console | $14.99 | $22.80 | $27.80 | goodwill |  | 2026-08-18T19:44 |
-| 658 | [Sony PlayStation 4 PS4 500GB CUH-1215A Console Only TESTED W](https://shopgoodwill.com/item/273763600) | Sony PlayStation 4 console | $14.99 | $22.80 | $27.80 | goodwill |  | 2026-08-19T18:13 |
-| 659 | [Vintage Sony Handycam Vision CCD-TRV65 Video Hi8 Camcorder -](https://shopgoodwill.com/item/273459932) | Sony Handycam camcorder | $54.00 | $61.71 | $27.71 | goodwill |  | 2026-08-17T17:20 |
-| 660 | [STARRETT SURFACE GAUGE - VINTAGE - NO. 257](https://houston.craigslist.org/search/sss?query=STARRETT+SURFACE+GAUGE+-+VINTAGE+-+NO.+257) | Starrett precision tool | $35.00 | $42.69 | $27.69 | craigslist | houston | - |
-| 661 | [DeWalt 20V MAX Cordless Drill](https://hibid.com/lot/317366646) | DeWalt 20V MAX drill/driver | $5.00 | $12.65 | $27.65 | hibid | Statesboro, GA | - |
-| 662 | [Sony PlayStation 2 PS2 Slim Console - Tested Working](https://shopgoodwill.com/item/273601346) | Sony PlayStation 2 console | $11.75 | $19.33 | $27.58 | goodwill |  | 2026-08-18T20:20 |
-| 663 | [Texas Instruments TI-84 Plus CE Slide Cover Case Replacement](https://www.ebay.com/itm/307130011625?_skw=ti-84+plus+ce&hash=item4782600fe9:g:vSQAAeSwMoRpvp3T) | TI-84 Plus CE | $6.99 | $14.50 | $27.51 | ebay |  | - |
-| 664 | [Vintage Citizen Ladies Quartz Gold Tone Wristwatch Lot of 3](https://shopgoodwill.com/item/273605736) | Citizen watch (Eco-Drive / quartz) | $25.99 | $33.34 | $27.35 | goodwill |  | 2026-08-16T18:32 |
-| 665 | [Sony Playstation 2 PS2 Video Game Console Bundle, Powers On!](https://shopgoodwill.com/item/273738611) | Sony PlayStation 2 console | $11.99 | $19.33 | $27.34 | goodwill |  | 2026-08-19T20:01 |
-| 666 | [Sony PlayStation 2 PS2 Slim Console Only / Black](https://shopgoodwill.com/item/273635842) | Sony PlayStation 2 console | $12.00 | $19.33 | $27.33 | goodwill |  | 2026-08-18T20:34 |
-| 667 | [NIKON COOLPIX P100](https://hibid.com/lot/317908622) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Rochester, WA | - |
-| 668 | [Nikon Coolpix P90 Digital Camera Bundle](https://hibid.com/lot/316592940) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Bedminster, PA | - |
-| 669 | [Casio G-Shock DW-9052 Digital Watch](https://hibid.com/lot/317739185) | Casio G-Shock | $6.00 | $13.31 | $27.31 | hibid | Johnson City, TN | - |
-| 670 | [OPEN BOX - Casio Men's Watch XL Series G-Shock Qua](https://hibid.com/lot/317674617) | Casio G-Shock | $6.00 | $13.31 | $27.31 | hibid | London, ON | - |
-| 671 | [G-SHOCK WATCH as is](https://hibid.com/lot/316326209) | Casio G-Shock | $6.00 | $13.31 | $27.31 | hibid | Caledon, ON | - |
-| 672 | [Sony PlayStation 4 PS4 Slim 500GB Console Jet Black System v](https://shopgoodwill.com/item/273479666) | Sony PlayStation 4 console | $15.99 | $22.80 | $26.80 | goodwill |  | 2026-08-17T19:04 |
-| 673 | [Sony PlayStation 4 PS4 Slim 1TB CUH-2215B Console Only TESTE](https://shopgoodwill.com/item/273621634) | Sony PlayStation 4 console | $15.99 | $22.80 | $26.80 | goodwill |  | 2026-08-18T20:55 |
-| 674 | [Lot 3 Starrett Precision Tools Advertising Bullet Pencil Vin](https://www.ebay.com/itm/198520020243?_skw=precision+tools+lot&hash=item2e38b71d13:g:VWkAAeSwPGtqYtg2) | Starrett precision tool | $19.99 | $26.70 | $26.71 | ebay |  | - |
-| 675 | [Nintendo 64 Console NUS-001 USA with Controller and Power Su](https://shopgoodwill.com/item/273484388) | Nintendo 64 console | $34.00 | $40.51 | $26.51 | goodwill |  | 2026-08-17T18:25 |
-| 676 | [Milwaukee M18 Fuel 18V Cordless Impact Driver Tool](https://shopgoodwill.com/item/273763238) | Milwaukee M18 FUEL tool | $26.00 | $32.34 | $26.34 | goodwill |  | 2026-08-19T14:43 |
-| 677 | [2 Citizen Watches Lot](https://www.ebay.com/itm/147509423176?_skw=citizen+watch&hash=item22583f2c48:g:gAsAAeSwEi9qgj9-) | Citizen watch (Eco-Drive / quartz) | $32.00 | $38.34 | $26.34 | ebay |  | - |
-| 678 | [Nikon Coolpix 900 Digital Camera in Box](https://hibid.com/lot/317365335) | Nikon Coolpix compact | $6.00 | $12.31 | $26.31 | hibid | Holly, MI | - |
-| 679 | [CASIO GA-700UC-8ACR G-SHOCK WATCH, GREY](https://hibid.com/lot/317797809) | Casio G-Shock | $7.00 | $13.31 | $26.31 | hibid | London, ON | - |
-| 680 | [Vintage L. S. Starret Micrometer With Case And The Tools And](https://www.ebay.com/itm/407130527590?_skw=starret&hash=item5ecaded766:g:5ogAAeSwiX5qd-cQ) | Starrett precision tool | $27.49 | $33.69 | $26.20 | ebay |  | - |
-| 681 | [L.S. Starrett 6" No. 122  Inside / Outside Vernier Caliper](https://www.ebay.com/itm/287529135210?_skw=starrett&hash=item42f2126c6a:g:QGIAAeSw1~NqghRd) | Starrett precision tool | $22.00 | $27.70 | $25.70 | ebay |  | - |
-| 682 | [Vintage L. S. Starret No. 185 Drill & Wire Gage/Chart for Ma](https://www.ebay.com/itm/257631049752?_skw=starret&hash=item3bfc01d818:g:2E0AAeSwwzRqXVY~) | Starrett precision tool | $20.00 | $25.69 | $25.69 | ebay |  | - |
-| 683 | [Sony CyberShot DSC S600 6MP and Nikon Coolpix L100 10MP 15x ](https://shopgoodwill.com/item/273708645) | Sony Cyber-shot compact (non-RX) | $22.00 | $27.66 | $25.66 | goodwill |  | 2026-08-17T18:32 |
-| 684 | [Vintage Mitutoyo Digimatic Height Gauge](https://shopgoodwill.com/item/273596329) | Mitutoyo micrometer/caliper/indicator | $29.00 | $34.63 | $25.63 | goodwill |  | 2026-08-16T18:40 |
-| 685 | [Mitutoyo Absolute Digimatic Caliper Set](https://hibid.com/lot/317160186) | Mitutoyo micrometer/caliper/indicator | $32.50 | $38.12 | $25.62 | hibid | Mooresville, IN | - |
-| 686 | [PS2 game console & accessories.](https://hibid.com/lot/317272923) | Sony PlayStation 2 console | $14.00 | $19.33 | $25.33 | hibid | Belvidere, IL | - |
-| 687 | [Camera lot Nikon Coolpix S01 and Fuji A220 (as](https://hibid.com/lot/316574376) | Nikon Coolpix compact | $7.00 | $12.31 | $25.31 | hibid | Hollsoppple, PA | - |
-| 688 | [CASIO G-SHOCK GA-110SL-8A SLASH SERIES WATCH](https://hibid.com/lot/317301340) | Casio G-Shock | $8.00 | $13.31 | $25.31 | hibid | Hubbard, TX | - |
-| 689 | [Super Mario World Advance 2 Game Boy Advance SP AUTHENTIC & ](https://www.ebay.com/itm/398293635660?_skw=gameboy+advance+sp&hash=item5cbc26924c:g:VsgAAeSwCQJqgjl~) | Game Boy Advance SP (AGS-001/unspecified) | $29.99 | $35.00 | $25.01 | ebay |  | - |
-| 690 | [Sony Cyber-shot DSC-W290 Digital Camera 12.1MP 5x Optical Zo](https://shopgoodwill.com/item/273771307) | Sony Cyber-shot compact (non-RX) | $20.99 | $25.91 | $24.92 | goodwill |  | 2026-08-17T19:59 |
-| 691 | [Nintendo GameCube console w/ accessories](https://shopgoodwill.com/item/274007650) | Nintendo GameCube console | $25.00 | $29.84 | $24.84 | goodwill |  | 2026-08-19T18:33 |
-| 692 | [Seiko Automatic Wristwatch 5 7s26-02r0 Stainless Steel Day D](https://shopgoodwill.com/item/273839925) | Seiko Automatic watch | $16.00 | $20.73 | $24.73 | goodwill |  | 2026-08-18T19:50 |
-| 693 | [Seiko 6309-9009 Stainless Steel 17 Jewels Automatic Men's Wa](https://shopgoodwill.com/item/273882464) | Seiko Automatic watch | $16.00 | $20.73 | $24.73 | goodwill |  | 2026-08-18T20:35 |
-| 694 | [Sony Cybershot DSC-W230 12.1MP 4X Zoom Digital Camera Powers](https://shopgoodwill.com/item/273495101) | Sony Cyber-shot compact (non-RX) | $21.99 | $26.66 | $24.67 | goodwill |  | 2026-08-17T19:32 |
-| 695 | [Fluke 17B+ Digital Multimeter](https://hibid.com/lot/316126524) | Fluke meter (unspecified model) | $35.00 | $39.67 | $24.67 | hibid | San Mateo, CA | - |
-| 696 | [Fluke 15B+ Digital Multimeter, Gardner Bender GDT-](https://hibid.com/lot/316126525) | Fluke meter (unspecified model) | $35.00 | $39.67 | $24.67 | hibid | San Mateo, CA | - |
-| 697 | [Fluke, Milliamp Process Clamp Meter](https://hibid.com/lot/316126447) | Fluke meter (unspecified model) | $35.00 | $39.67 | $24.67 | hibid | San Mateo, CA | - |
-| 698 | [Fluke, Electrical Tester, With Breaker Finder CS61](https://hibid.com/lot/316126446) | Fluke meter (unspecified model) | $35.00 | $39.67 | $24.67 | hibid | San Mateo, CA | - |
-| 699 | [NO RESERVE: Gameboy Advance SP Switch N Carry Case Black Red](https://www.ebay.com/itm/307130264929?_skw=gameboy+advance+sp&hash=item478263ed61:g:XJMAAeSw3C1qghqq) | Game Boy Advance SP (AGS-001/unspecified) | $24.99 | $29.42 | $24.43 | ebay |  | - |
-| 700 | [Polaroid Land Camera Sx-70](https://shopgoodwill.com/item/273903799) | Polaroid SX-70 (folding) | $42.00 | $46.34 | $24.34 | goodwill |  | 2026-08-20T18:28 |
-| 701 | [Sony PlayStation 2 PS2 FAT Console Only Black SCPH-30001 TES](https://shopgoodwill.com/item/273508674) | Sony PlayStation 2 console | $14.99 | $19.33 | $24.34 | goodwill |  | 2026-08-17T19:52 |
-| 702 | [Sony PlayStation 2 PS2 Console Bundle SCPH-39001/N w/ Games](https://shopgoodwill.com/item/273967138) | Sony PlayStation 2 console | $14.99 | $19.33 | $24.34 | goodwill |  | 2026-08-21T16:00 |
-| 703 | [NIKON COOLPIX S6100 CAMERA](https://hibid.com/lot/316326270) | Nikon Coolpix compact | $8.00 | $12.31 | $24.31 | hibid | Caledon, ON | - |
-| 704 | [Vntg Seiko Automatic Hi-Beat Silver Tone Ladies Watch](https://shopgoodwill.com/item/273512892) | Seiko Automatic watch | $15.99 | $20.22 | $24.23 | goodwill |  | 2026-08-17T18:37 |
-| 705 | [Vntg Seiko 5 7009-403R Automatic Gold Tone Men's Watch](https://shopgoodwill.com/item/273909698) | Seiko Automatic watch | $15.99 | $20.22 | $24.23 | goodwill |  | 2026-08-20T19:23 |
-| 706 | [Nintendo Gameboy Advance SP Handheld Game Console Model: AGS](https://shopgoodwill.com/item/273956464) | Game Boy Advance SP (AGS-001/unspecified) | $28.00 | $32.01 | $24.01 | goodwill |  | 2026-08-21T20:22 |
-| 707 | [Nintendo N64 Console NUS-001 w/ Cables & Controllers - Power](https://shopgoodwill.com/item/273624274) | Nintendo 64 console | $39.00 | $43.01 | $24.01 | goodwill |  | 2026-08-18T18:48 |
-| 708 | [Starret Dial Indicator 25-144P](https://www.ebay.com/itm/168553416342?_skw=starret&hash=item273e910696:g:od4AAeSwfCxqX~lS) | Dial / test indicator (brand-name) | $49.99 | $53.88 | $23.89 | ebay |  | - |
-| 709 | [Seiko Women's Silver Tone Automatic Watch](https://shopgoodwill.com/item/273826328) | Seiko Automatic watch | $14.99 | $18.72 | $23.73 | goodwill |  | 2026-08-16T20:37 |
-| 710 | [Vintage L.S. Starret Co. No. 185 Time Saver Drill and Wire G](https://www.ebay.com/itm/206383747351?_skw=starret&hash=item300d6e1117:g:GloAAeSwmo9qQ7z5) | Starrett precision tool | $23.99 | $27.69 | $23.70 | ebay |  | - |
-| 711 | [LS Starrett No 56 Toolmakers Surface Gauge Machinist Tool - ](https://www.ebay.com/itm/206496136979?_skw=starrett&hash=item301420ff13:g:JPEAAeSwvnpqghPz) | Starrett precision tool | $30.00 | $33.69 | $23.69 | ebay |  | - |
-| 712 | [Vintage Starrett No. 436 Outside Micrometer 0-1” Machinest T](https://www.ebay.com/itm/820010528663?_skw=micrometer&hash=itembeec6faf97:g:YBAAAeSwEe9qgfLX) | Starrett precision tool | $30.00 | $33.69 | $23.69 | ebay |  | - |
-| 713 | [Nintendo Switch Lite Hand-Held Gaming Console - Reset/Powers](https://shopgoodwill.com/item/273713551) | Nintendo Switch Lite | $37.00 | $40.67 | $23.67 | goodwill |  | 2026-08-17T18:15 |
-| 714 | [Sony Cyber-Shot DSC-W55 With Battery and Charger](https://shopgoodwill.com/item/273500910) | Sony Cyber-shot compact (non-RX) | $24.00 | $27.66 | $23.66 | goodwill |  | 2026-08-17T18:41 |
-| 715 | [Untested Black & White Texas Instruments TI-84 Plus CE Graph](https://shopgoodwill.com/item/273472666) | TI-84 Plus CE | $10.99 | $14.50 | $23.51 | goodwill |  | 2026-08-17T18:40 |
-| 716 | [Official Nintendo GBA Game Boy Advance SP BLACK Faux Leather](https://www.ebay.com/itm/377423855453?_skw=gameboy+advance+sp&hash=item57e036ff5d:g:5R0AAeSw8vxqghze) | Game Boy Advance SP (AGS-001/unspecified) | $25.00 | $28.50 | $23.50 | ebay |  | - |
-| 717 | [Nintendo Game Boy Advance SP W/ 9 Games & Accs; Super Mario,](https://shopgoodwill.com/item/273823418) | Game Boy Advance SP (AGS-001/unspecified) | $29.01 | $32.50 | $23.49 | goodwill |  | 2026-08-20T19:53 |
-| 718 | [Nintendo Wii U Console with Legend of Zelda...](https://hibid.com/lot/315871297) | Nintendo Wii U console | $13.00 | $16.46 | $23.46 | hibid | Gastonia, NC | - |
-| 719 | [Citizen 927690 Quartz Ladies Watch](https://shopgoodwill.com/item/273847365) | Citizen watch (Eco-Drive / quartz) | $34.93 | $38.34 | $23.41 | goodwill |  | 2026-08-20T19:08 |
-| 720 | [Vintage Citizen 5920-S49615 Ladies Gold Tone Quartz Watch Ja](https://www.ebay.com/itm/158195854328?_skw=citizen+watch&hash=item24d5352bf8:g:L3oAAeSwtGBqgjYA) | Citizen watch (Eco-Drive / quartz) | $34.99 | $38.34 | $23.35 | ebay |  | - |
-| 721 | [Texas Instruments TI-84 Plus CE Python Graphing Calculator -](https://shopgoodwill.com/item/274076861) | TI-84 Plus CE Python | $20.99 | $24.33 | $23.34 | goodwill |  | 2026-08-20T18:35 |
-| 722 | [Sony PlayStation 2 PS2 FAT Console Only Black SCPH-30001 TES](https://shopgoodwill.com/item/273508672) | Sony PlayStation 2 console | $15.99 | $19.33 | $23.34 | goodwill |  | 2026-08-17T19:44 |
-| 723 | [Sony Playstation 2 Slim Ps2 Black Console Only Gaming System](https://shopgoodwill.com/item/273625434) | Sony PlayStation 2 console | $15.99 | $19.33 | $23.34 | goodwill |  | 2026-08-18T18:40 |
-| 724 | [Citizen Eco-Drive Gold-Tone Wristwatch with Box](https://hibid.com/lot/316667827) | Citizen watch (Eco-Drive / quartz) | $35.00 | $38.34 | $23.34 | hibid | Auburn, IL | - |
-| 725 | [Men’s Jewelry & Watches: Citizen, Seiko Tank Watch](https://hibid.com/lot/317296025) | Citizen watch (Eco-Drive / quartz) | $35.00 | $38.34 | $23.34 | hibid | Fort Wayne, IN | - |
-| 726 | [Polaroid Pronto! RF rangefinder focus SX70 instant land Came](https://www.ebay.com/itm/366603820427?_skw=polaroid+sx-70&hash=item555b4a5d8b:g:fPgAAeSwbspqfhDH) | Polaroid SX-70 (folding) | $45.00 | $48.34 | $23.34 | ebay |  | - |
-| 727 | [XBOX One Model 1540 Console Only](https://shopgoodwill.com/item/273605032) | Xbox One / One S / One X console | $14.99 | $18.19 | $23.20 | goodwill |  | 2026-08-16T18:49 |
-| 728 | [Pokemon Ruby Version - GBA - ENGLISH USA VERSION .  FAST SHI](https://www.ebay.com/itm/206496397859?_skw=pokemon+gba&hash=item301424fa23:g:ZdIAAeSwQ0Fqgjnk) | Pokemon Ruby / Sapphire (GBA) | $24.99 | $28.05 | $23.06 | ebay |  | - |
-| 729 | [Evolution: The World of Sacred Device (Sega Dreamcast, 1999)](https://www.ebay.com/itm/188802687090?_skw=sega+dreamcast&hash=item2bf5846072:g:~VEAAeSwT4dqgf8B) | Sega Dreamcast console | $35.99 | $39.01 | $23.02 | ebay |  | - |
-| 730 | [Sony PSP Video Game System w/ 4 Game(s)](https://shopgoodwill.com/item/273623086) | Sony PSP handheld | $19.00 | $21.85 | $22.85 | goodwill |  | 2026-08-18T20:40 |
-| 731 | [Seiko 17 Jewels Hi-Beat Automatic Date/Day Function Stainles](https://shopgoodwill.com/item/273688453) | Seiko Automatic watch | $16.99 | $19.73 | $22.74 | goodwill |  | 2026-08-16T19:26 |
-| 732 | [Fujifilm finepix S4500](https://hibid.com/lot/317396828) | Fujifilm FinePix compact | $1.00 | $3.64 | $22.64 | hibid | Hillsboro, OR | - |
-| 733 | [Pokemon Sapphire Version - Nintendo Game Boy Advance GBA Pok](https://www.ebay.com/itm/206496384919?_skw=pokemon+gameboy&hash=item301424c797:g:V1EAAeSw~cFqgjlR) | Pokemon Ruby / Sapphire (GBA) | $19.99 | $22.56 | $22.57 | ebay |  | - |
-| 734 | [Citizen Eco-Drive 005193 Perpetual Calendar Silver Tone Blue](https://shopgoodwill.com/item/273876344) | Citizen watch (Eco-Drive / quartz) | $31.99 | $34.35 | $22.36 | goodwill |  | 2026-08-16T17:05 |
-| 735 | [Vintage Silver Nikon Coolpix E2200 Coolpix 2200 Compact Digi](https://shopgoodwill.com/item/273783542) | Nikon Coolpix compact | $9.99 | $12.31 | $22.32 | goodwill |  | 2026-08-17T18:18 |
-| 736 | [Men's Vintage Casio G-Shock 3406 MTG-M900DA Stainless Steel ](https://shopgoodwill.com/item/273466123) | Casio G-Shock | $7.99 | $10.31 | $22.32 | goodwill |  | 2026-08-17T18:16 |
-| 737 | [Nikon LC-CP20 Front Lens Cap for Coolpix L810](https://www.ebay.com/itm/820011176139?_skw=nikon+coolpix&hash=itembeec7990cb:g:8ncAAeSwvmNqgimM) | Nikon Coolpix compact | $9.99 | $12.31 | $22.32 | ebay |  | - |
-| 738 | [Nikon COOLPIX L30 Digital Camera](https://hibid.com/lot/316774280) | Nikon Coolpix compact | $10.00 | $12.31 | $22.31 | hibid | Niagara-On-The-Lake, ON | - |
-| 739 | [Nikon Coolpix S220 10-Megapixel Digital Camera](https://hibid.com/lot/317322062) | Nikon Coolpix compact | $10.00 | $12.31 | $22.31 | hibid | Clearfield, UT | - |
-| 740 | [Microsoft Xbox One Console Model](https://shopgoodwill.com/item/273237570) | Xbox One / One S / One X console | $15.95 | $18.19 | $22.24 | goodwill |  | 2026-08-16T16:47 |
-| 741 | [Microsoft Xbox One Console Model 1540 Black Game Console Onl](https://shopgoodwill.com/item/273962951) | Xbox One / One S / One X console | $15.99 | $18.19 | $22.20 | goodwill |  | 2026-08-16T18:36 |
-| 742 | [PenPen TriIcelon (Sega Dreamcast, 1999)](https://www.ebay.com/itm/188802683644?_skw=sega+dreamcast&hash=item2bf58452fc:g:Ga0AAeSwyShqgf3g) | Sega Dreamcast console | $36.99 | $39.01 | $22.02 | ebay |  | - |
-| 743 | [DEWALT DCF923 3/8" 20V IMPACT](https://hibid.com/lot/317782577) | DeWalt 20V MAX drill/driver | $11.00 | $12.65 | $21.65 | hibid | Kalispell, MT | - |
-| 744 | [DEWALT DC925 XRP 18V CORDLESS HAMMER DRILL](https://houston.craigslist.org/search/sss?query=DEWALT+DC925+XRP+18V+CORDLESS+HAMMER+DRILL) | DeWalt 20V MAX drill/driver | $20.00 | $21.65 | $21.65 | craigslist | houston | - |
-| 745 | [Fujifilm Finepix s4250](https://hibid.com/lot/317489821) | Fujifilm FinePix compact | $2.00 | $3.64 | $21.64 | hibid | Henderson, KY | - |
-| 746 | [Fujifilm FinePix 5700 with Case & Accessories](https://hibid.com/lot/316550247) | Fujifilm FinePix compact | $2.00 | $3.64 | $21.64 | hibid | Bridgewater, VA | - |
-| 747 | [Citizen Alarm Chronograph Watch](https://shopgoodwill.com/item/273970354) | Citizen watch (Eco-Drive / quartz) | $32.00 | $33.35 | $21.35 | goodwill |  | 2026-08-16T18:15 |
-| 748 | [Citizen and Invicta Watch Lot](https://shopgoodwill.com/item/273602885) | Citizen watch (Eco-Drive / quartz) | $37.00 | $38.34 | $21.34 | goodwill |  | 2026-08-16T20:05 |
-| 749 | [NIKON COOLPIX 990 DIGITAL CAMERA](https://hibid.com/lot/314205241) | Nikon Coolpix compact | $11.00 | $12.31 | $21.31 | hibid | Knoxville, TN | - |
-| 750 | [Sony PlayStation 4 PS4 CUH-1001A Black Video Game Console Or](https://shopgoodwill.com/item/273729212) | Sony PlayStation 4 console | $19.99 | $20.80 | $20.81 | goodwill |  | 2026-08-17T18:17 |
-| 751 | [Fluke Networks Pro 3000 Toner Tester 26200-900 Working](https://www.ebay.com/itm/178412765844?_skw=fluke&hash=item298a3ac294:g:Tj0AAeSwx7pqZNuo) | Fluke meter (unspecified model) | $29.95 | $30.72 | $20.77 | ebay |  | - |
-| 752 | [Dewalt 20V Drill](https://hibid.com/lot/316559256) | DeWalt 20V MAX drill/driver | $12.00 | $12.65 | $20.65 | hibid | Leland, NC | - |
-| 753 | [Fujifilm FinePix S4250WM Digital Camera](https://hibid.com/lot/317240444) | Fujifilm FinePix compact | $3.00 | $3.64 | $20.64 | hibid | Green Bay, WI | - |
-| 754 | [Fujifilm Finepix S Camera and Case- Untested](https://hibid.com/lot/317940941) | Fujifilm FinePix compact | $3.00 | $3.64 | $20.64 | hibid | Waverly, NY | - |
-| 755 | [FinePix S 3000 Digital Video camera with case and](https://hibid.com/lot/315151178) | Fujifilm FinePix compact | $12.00 | $12.64 | $20.64 | hibid 📍 | Seguin, TX | - |
-| 756 | [Nikon COOLPIX P100 Digital Camera 26x Optical Zoom NIKKOR Le](https://shopgoodwill.com/item/273429103) | Nikon Coolpix compact | $9.99 | $10.31 | $20.32 | goodwill |  | 2026-08-17T07:43 |
-| 757 | [Vintage Nikon Coolpix 990 Fujifilm FinePix S3000 Kodak V570 ](https://shopgoodwill.com/item/273487311) | Nikon Coolpix compact | $9.99 | $10.31 | $20.32 | goodwill |  | 2026-08-17T19:38 |
-| 758 | [Microsoft Xbox One 1540 Black Console Gears of War 4 Fallout](https://shopgoodwill.com/item/273591742) | Xbox One / One S / One X console | $18.00 | $18.19 | $20.19 | goodwill |  | 2026-08-16T18:06 |
-| 759 | [DeWalt 20V Max Drill](https://hibid.com/lot/315501905) | DeWalt 20V MAX drill/driver | $12.50 | $12.65 | $20.15 | hibid | Holstein, ON | - |
-| 760 | [Game boy advance SP, Nintendo 64, decorative](https://hibid.com/lot/317349939) | Game Boy Advance SP (AGS-001/unspecified) | $35.00 | $35.00 | $20.00 | hibid | Indianola, IA | - |
-| 761 | [Canon powerShot G7x mark ii](https://houston.craigslist.org/search/sss?query=Canon+powerShot+G7x+mark+ii) | Canon PowerShot G7X Mark II | $50.00 | $970.66 | $940.66 | craigslist 🚩 **SCAM-SHAPED** | houston | - |
+| 569 | [MILWAUKEE M18 FUEL BLOWER](https://hibid.com/lot/316074862) | Milwaukee M18 FUEL tool | $21.00 | $34.34 | $33.34 | hibid | Kresgeville, PA | - |
+| 570 | [Accutron Quartz & Citizen Eco-Drive Mens Wrist](https://hibid.com/lot/316904293) | Citizen watch (Eco-Drive / quartz) | $25.00 | $38.34 | $33.34 | hibid | Westminister, MD | - |
+| 571 | [Mitutoyo micrometer](https://hibid.com/lot/316692333) | Mitutoyo micrometer/caliper/indicator | $25.00 | $38.12 | $33.12 | hibid | Fallon, NV | - |
+| 572 | [Mitutoyo & Other Depth Gauges](https://hibid.com/lot/317095848) | Mitutoyo micrometer/caliper/indicator | $25.00 | $38.12 | $33.12 | hibid | Tullamarine Victoria, -- | - |
+| 573 | [Bratz Rock Angelz Sasha Red Nintendo Gameboy Advance SP Case](https://www.ebay.com/itm/267759190357?_skw=game+boy+advance+sp&hash=item3e57b10155:g:fDAAAeSwU21qge~5) | Game Boy Advance SP (AGS-001/unspecified) | $21.99 | $35.00 | $33.01 | ebay |  | - |
+| 574 | [Vintage Starrett 0-1 In Micrometer](https://www.ebay.com/itm/298593948056?_skw=starrett&hash=item4585961198:g:I5EAAeSwawdqgjQu) | Starrett precision tool | $20.99 | $33.69 | $32.70 | ebay |  | - |
+| 575 | [Micrometers, large (Starrett)s](https://houston.craigslist.org/search/sss?query=Micrometers%2C+large+%28Starrett%29s) | Starrett precision tool | $30.00 | $42.69 | $32.69 | craigslist | houston | - |
+| 576 | [Sony CyberShot DSC H300 20.1MP Digital Camera 35x Optical Zo](https://shopgoodwill.com/item/273905054) | Sony Cyber-shot compact (non-RX) | $14.99 | $27.66 | $32.67 | goodwill |  | 2026-08-19T03:42 |
+| 577 | [Sony Cyber-shot DSC-T5 5.1MP Digital Camera with Case and Ba](https://shopgoodwill.com/item/273706648) | Sony Cyber-shot compact (non-RX) | $14.99 | $27.66 | $32.67 | goodwill |  | 2026-08-17T18:25 |
+| 578 | [Fluke 17B+ Digital Multimeter](https://hibid.com/lot/316126353) | Fluke meter (unspecified model) | $27.00 | $39.67 | $32.67 | hibid | San Mateo, CA | - |
+| 579 | [PlayStation 3 Console](https://hibid.com/lot/317176244) | Sony PlayStation 3 console | $12.50 | $25.13 | $32.63 | hibid | New Haven, IN | - |
+| 580 | [Texas Instruments TI-84 plus CE Python Graphing calculator U](https://shopgoodwill.com/item/274086263) | TI-84 Plus CE Python | $10.99 | $23.33 | $32.34 | goodwill |  | 2026-08-22T19:51 |
+| 581 | [Citizen Eco-Drive Women's Gold Tone Stainless Steel Watch-Mo](https://shopgoodwill.com/item/273624965) | Citizen watch (Eco-Drive / quartz) | $26.00 | $38.34 | $32.34 | goodwill |  | 2026-08-16T17:48 |
+| 582 | [Nintendo Gamecube DOL-101(USA) & More See Info](https://hibid.com/lot/316265178) | Nintendo GameCube console | $22.00 | $34.34 | $32.34 | hibid | Albuquerque, NM | - |
+| 583 | [Casio G-shock Classic Ana-digi Men's Watch 45mm](https://hibid.com/lot/317709253) | Casio G-Shock | $10.00 | $22.31 | $32.31 | hibid 📍 | Houston, TX | - |
+| 584 | [CASIO GA-700UC-8ACR G-SHOCK WATCH, GREY](https://hibid.com/lot/317929669) | Casio G-Shock | $1.00 | $13.31 | $32.31 | hibid | London, ON | - |
+| 585 | [G-shock Mens Classic Flash Alert & World Time 50mm](https://hibid.com/lot/317710316) | Casio G-Shock | $10.00 | $22.31 | $32.31 | hibid 📍 | Houston, TX | - |
+| 586 | [Microsoft Xbox One Gaming Console](https://hibid.com/lot/317824688) | Xbox One / One S / One X console | $6.00 | $18.19 | $32.19 | hibid | Weatherford, TX | - |
+| 587 | [Pokemon Ruby Version - Game Boy Advance](https://shopgoodwill.com/item/273993196) | Pokemon Ruby / Sapphire (GBA) | $15.99 | $28.05 | $32.06 | goodwill |  | 2026-08-19T19:33 |
+| 588 | [Citizen Eco-Drive G820-T002922 Two Tone Men's Watch](https://shopgoodwill.com/item/273435995) | Citizen watch (Eco-Drive / quartz) | $23.00 | $34.84 | $31.84 | goodwill |  | 2026-08-16T18:23 |
+| 589 | [PlayStation 2 Console](https://hibid.com/lot/317176250) | Sony PlayStation 2 console | $7.50 | $19.33 | $31.83 | hibid | New Haven, IN | - |
+| 590 | [Starrett Machinist level in original dovetail](https://hibid.com/lot/317232272) | Starrett precision tool | $22.00 | $33.69 | $31.69 | hibid | Rising Sun, MD | - |
+| 591 | [$99 DEWALT 20V MAX Impact Driver DCF787D1](https://hibid.com/lot/317309468) | DeWalt 20V MAX drill/driver | $10.00 | $21.65 | $31.65 | hibid 📍 | New Braunfels, TX | - |
+| 592 | [Bulova Emporio Armani Citizen Skagen Dress Watch Lot](https://shopgoodwill.com/item/273446316) | Citizen watch (Eco-Drive / quartz) | $27.00 | $38.34 | $31.34 | goodwill |  | 2026-08-16T19:02 |
+| 593 | [MANS CITIZEN WATCH IN BOX](https://hibid.com/lot/315755532) | Citizen watch (Eco-Drive / quartz) | $27.00 | $38.34 | $31.34 | hibid | Knoxville, TN | - |
+| 594 | [PS2 Console](https://hibid.com/lot/317019410) | Sony PlayStation 2 console | $8.00 | $19.33 | $31.33 | hibid | Manheim, PA | - |
+| 595 | [Nikon CoolPix Powers on            (Dining Room)](https://hibid.com/lot/317564995) | Nikon Coolpix compact | $1.00 | $12.31 | $31.31 | hibid | Burlington, WA | - |
+| 596 | [Nikon Coolpix 775 Digital Camera with Case](https://hibid.com/lot/316949412) | Nikon Coolpix compact | $1.00 | $12.31 | $31.31 | hibid | Johnstown, PA | - |
+| 597 | [Vintage Casio G-Shock Thermometer Digital Watch](https://hibid.com/lot/316693882) | Casio G-Shock | $2.00 | $13.31 | $31.31 | hibid | Tulsa, OK | - |
+| 598 | [LAST WORD UNIVERSAL TEST INDICATOR #711-C  L S STARRET CO PA](https://www.ebay.com/itm/168570693132?_skw=starret&hash=item273f98a60c:g:rAUAAeSwPXZpUwPd) | Starrett precision tool | $22.39 | $33.69 | $31.30 | ebay |  | - |
+| 599 | [Apple iPhone 4 & iPod Nano Lot](https://hibid.com/lot/317460981) | iPod Nano | $6.00 | $17.11 | $31.11 | hibid 📍 | Bacliff, TX | - |
+| 600 | [Box of Mitutoyo gauges](https://hibid.com/lot/316128936) | Mitutoyo micrometer/caliper/indicator | $27.50 | $38.12 | $30.62 | hibid | Columbia City, IN | - |
+| 601 | [Box of Mitutoyo gauges](https://hibid.com/lot/316128934) | Mitutoyo micrometer/caliper/indicator | $27.50 | $38.12 | $30.62 | hibid | Columbia City, IN | - |
+| 602 | [Box of Mitutoyo gauges and misc](https://hibid.com/lot/316128935) | Mitutoyo micrometer/caliper/indicator | $27.50 | $38.12 | $30.62 | hibid | Columbia City, IN | - |
+| 603 | [Box of Mitutoyo gauges and misc](https://hibid.com/lot/316128937) | Mitutoyo micrometer/caliper/indicator | $27.50 | $38.12 | $30.62 | hibid | Columbia City, IN | - |
+| 604 | [Citizen - vintage quartz ladies watch RUNS, lot1508](https://www.ebay.com/itm/336746029371?_skw=wristwatch+lot&hash=item4e67a0a13b:g:1d8AAeSwxthqgjZP) | Citizen watch (Eco-Drive / quartz) | $19.99 | $30.34 | $30.35 | ebay |  | - |
+| 605 | [Five Citizen Ladies Analog Fashion Watches, Face Measurement](https://shopgoodwill.com/item/273425322) | Citizen watch (Eco-Drive / quartz) | $26.00 | $36.34 | $30.34 | goodwill |  | 2026-08-16T18:29 |
+| 606 | [MILWAUKEE M18 FUEL BLOWER](https://hibid.com/lot/316074859) | Milwaukee M18 FUEL tool | $24.00 | $34.34 | $30.34 | hibid | Kresgeville, PA | - |
+| 607 | [Nikon Coolpix 4300 digital camera](https://hibid.com/lot/317522347) | Nikon Coolpix compact | $2.00 | $12.31 | $30.31 | hibid | Anderson, IN | - |
+| 608 | [Polaroid Land Camera The 800, Nikon Coolpix and](https://hibid.com/lot/317173466) | Nikon Coolpix compact | $2.00 | $12.31 | $30.31 | hibid | Columbia, TN | - |
+| 609 | [Nikon Coolpix L20 Digital Camera Lot](https://hibid.com/lot/317944078) | Nikon Coolpix compact | $2.00 | $12.31 | $30.31 | hibid | Varies; See Auction, MO | - |
+| 610 | [Puma & Casio G-Shock Watches](https://hibid.com/lot/315682369) | Casio G-Shock | $3.00 | $13.31 | $30.31 | hibid | Fort Wayne, IN | - |
+| 611 | [Casio G Shock white band](https://hibid.com/lot/317520978) | Casio G-Shock | $3.00 | $13.31 | $30.31 | hibid | Washington Township, NJ | - |
+| 612 | [Casio G Shock Pink Band](https://hibid.com/lot/317520983) | Casio G-Shock | $3.00 | $13.31 | $30.31 | hibid | Washington Township, NJ | - |
+| 613 | [2-Sony Cybershot Digital Cameras](https://shopgoodwill.com/item/273685344) | Sony Cyber-shot compact (non-RX) | $15.99 | $26.16 | $30.17 | goodwill |  | 2026-08-18T19:03 |
+| 614 | [Dewalt 20V Drill & Impact * Bits](https://hibid.com/lot/315771037) | DeWalt 20V MAX drill/driver | $2.50 | $12.65 | $30.15 | hibid | Swift Current, SK | - |
+| 615 | [PlayStation 3 Console](https://hibid.com/lot/317176242) | Sony PlayStation 3 console | $15.00 | $25.13 | $30.13 | hibid | New Haven, IN | - |
+| 616 | [Canon PowerShot SD1100 IS 8MP Digital ELPH Camera Silver PC1](https://shopgoodwill.com/item/273604584) | Canon PowerShot ELPH / IXUS (digital) | $57.00 | $66.70 | $29.70 | goodwill |  | 2026-08-16T18:50 |
+| 617 | [Sony Cybershot DSC-H70 16.1 megapixel Camera](https://shopgoodwill.com/item/273586533) | Sony Cyber-shot compact (non-RX) | $15.99 | $25.67 | $29.68 | goodwill |  | 2026-08-18T19:12 |
+| 618 | [Sony Cyber-Shot DSC-H50 Black Compact Digital Camera In Case](https://shopgoodwill.com/item/273827701) | Sony Cyber-shot compact (non-RX) | $14.99 | $24.66 | $29.67 | goodwill |  | 2026-08-16T20:17 |
+| 619 | [GM Emblems & Fluke 77 Multimeter.](https://hibid.com/lot/315132311) | Fluke meter (unspecified model) | $30.00 | $39.67 | $29.67 | hibid | Fort Wayne, IN | - |
+| 620 | [Fluke Meter](https://hibid.com/lot/315876912) | Fluke meter (unspecified model) | $30.00 | $39.67 | $29.67 | hibid | Homedale, ID | - |
+| 621 | [Sony Cyber-shot DSC-S500 Compact Digital Camera 6.0MP 3x Zoo](https://www.ebay.com/itm/227478796089?_skw=sony+cybershot&hash=item34f6caf739:g:jxQAAeSwNSNqgjqp) | Sony Cyber-shot compact (non-RX) | $20.00 | $29.66 | $29.66 | ebay |  | - |
+| 622 | [PlayStation 2 Console](https://hibid.com/lot/317176246) | Sony PlayStation 2 console | $10.00 | $19.33 | $29.33 | hibid | New Haven, IN | - |
+| 623 | [PlayStation 2 Console](https://hibid.com/lot/317176248) | Sony PlayStation 2 console | $10.00 | $19.33 | $29.33 | hibid | New Haven, IN | - |
+| 624 | [PlayStation 2 Console](https://hibid.com/lot/317176256) | Sony PlayStation 2 console | $10.00 | $19.33 | $29.33 | hibid | New Haven, IN | - |
+| 625 | [PlayStation 2 Console](https://hibid.com/lot/317176254) | Sony PlayStation 2 console | $10.00 | $19.33 | $29.33 | hibid | New Haven, IN | - |
+| 626 | [Nikon Coolpix 5700 With Accessories Untested](https://hibid.com/lot/317053834) | Nikon Coolpix compact | $3.00 | $12.31 | $29.31 | hibid | Taylor, MI | - |
+| 627 | [Seiko Stainless Steel Seiko 5 Women's Automatic Watch 53.3g](https://shopgoodwill.com/item/273993153) | Seiko Automatic watch | $10.99 | $20.22 | $29.23 | goodwill |  | 2026-08-19T19:12 |
+| 628 | [Mitutoyo 2416 Dial Indicator 0-1" Range, .001" Graduation](https://www.ebay.com/itm/318740295819?_skw=dial+indicator&hash=item4a3666f08b:g:BXoAAeSwJ2dqgh2l) | Dial / test indicator (brand-name) | $59.89 | $68.87 | $28.98 | ebay |  | - |
+| 629 | [Sony Video Game Console Psp Black Portable Handheld Gaming S](https://shopgoodwill.com/item/273764756) | Sony PSP handheld | $13.00 | $21.85 | $28.85 | goodwill |  | 2026-08-17T20:46 |
+| 630 | [Seiko Women's Silver Tone Automatic Watch](https://shopgoodwill.com/item/273826328) | Seiko Automatic watch | $14.99 | $23.72 | $28.73 | goodwill |  | 2026-08-16T20:37 |
+| 631 | [Seiko Men's Automatic Wristwatch-Stainless Steel-Black Dial-](https://shopgoodwill.com/item/274133565) | Seiko Automatic watch | $14.99 | $23.72 | $28.73 | goodwill |  | 2026-08-21T17:01 |
+| 632 | [Seiko Automatic Wristwatch 5 7s26-02r0 Stainless Steel Day D](https://shopgoodwill.com/item/273839925) | Seiko Automatic watch | $15.00 | $23.72 | $28.72 | goodwill |  | 2026-08-18T19:50 |
+| 633 | [Seiko 6309-9009 Stainless Steel 17 Jewels Automatic Men's Wa](https://shopgoodwill.com/item/273882464) | Seiko Automatic watch | $15.00 | $23.72 | $28.72 | goodwill |  | 2026-08-18T20:35 |
+| 634 | [VTG. L.S. STARRETT MACHINIST PRECISION L](https://hibid.com/lot/316046288) | Starrett precision tool | $25.00 | $33.69 | $28.69 | hibid | Winston-Salem, NC | - |
+| 635 | [Starret 0”-1.0” Depth Gauge In Original Box With Pins](https://www.ebay.com/itm/128018033674?_skw=starret&hash=item1dce782c0a:g:JHoAAeSw8ChqeLrt) | Starrett precision tool | $25.00 | $33.69 | $28.69 | ebay |  | - |
+| 636 | [Starret No. 4 Thread Pitch Gage - Vintage](https://www.ebay.com/itm/127931433512?_skw=starret&hash=item1dc94ec228:g:JasAAeSwQMRqMYce) | Starrett precision tool | $25.00 | $33.69 | $28.69 | ebay |  | - |
+| 637 | [Citizen Eco-Drive Tank Watch, Elgin Quartz Watch](https://hibid.com/lot/317587664) | Citizen watch (Eco-Drive / quartz) | $30.00 | $38.34 | $28.34 | hibid | Leslie, MI | - |
+| 638 | [~Citizen Quartz 23K Gold Plated Watch](https://hibid.com/lot/316123832) | Citizen watch (Eco-Drive / quartz) | $30.00 | $38.34 | $28.34 | hibid | Mesa, AZ | - |
+| 639 | [CITIZEN WORLD PERPETUAL AT EVO-DRIVE MENS WATCH](https://hibid.com/lot/317365793) | Citizen watch (Eco-Drive / quartz) | $30.00 | $38.34 | $28.34 | hibid | Peoria, AZ | - |
+| 640 | [Nikon Coolpix S3500 Digital Camera w/ Charger -](https://hibid.com/lot/317538071) | Nikon Coolpix compact | $4.00 | $12.31 | $28.31 | hibid | Green Bay, WI | - |
+| 641 | [Casio G Shock Clear Band](https://hibid.com/lot/317520988) | Casio G-Shock | $5.00 | $13.31 | $28.31 | hibid | Washington Township, NJ | - |
+| 642 | [vintage 1990s Casio G-Shock watch](https://hibid.com/lot/317720246) | Casio G-Shock | $5.00 | $13.31 | $28.31 | hibid | Mississauga, ON | - |
+| 643 | [Casio G-Shock GD-110 Digital Sports Watch](https://hibid.com/lot/316822685) | Casio G-Shock | $5.00 | $13.31 | $28.31 | hibid | Sun Prairie, WI | - |
+| 644 | [(3) MITUTOYO MICROMETERS (*See Photo)](https://hibid.com/lot/313948709) | Mitutoyo micrometer/caliper/indicator | $30.00 | $38.12 | $28.12 | hibid | Agawam, MA | - |
+| 645 | [Sony Cyber-shot DSC-S75 3.3MP Digital Camera Lot with Box an](https://shopgoodwill.com/item/273796105) | Sony Cyber-shot compact (non-RX) | $17.99 | $25.91 | $27.92 | goodwill |  | 2026-08-22T19:34 |
+| 646 | [Vntg Seiko Automatic Hi-Beat Silver Tone Ladies Watch](https://shopgoodwill.com/item/273512892) | Seiko Automatic watch | $15.99 | $23.72 | $27.73 | goodwill |  | 2026-08-17T18:37 |
+| 647 | [Vntg Seiko 5 7009-403R Automatic Gold Tone Men's Watch](https://shopgoodwill.com/item/273909698) | Seiko Automatic watch | $15.99 | $23.72 | $27.73 | goodwill |  | 2026-08-20T19:23 |
+| 648 | [Vintage Sony Handycam Vision CCD-TRV65 Video Hi8 Camcorder -](https://shopgoodwill.com/item/273459932) | Sony Handycam camcorder | $54.00 | $61.71 | $27.71 | goodwill |  | 2026-08-17T17:20 |
+| 649 | [L.S. Starrett Co. Micrometer Set](https://hibid.com/lot/316546766) | Starrett precision tool | $26.00 | $33.69 | $27.69 | hibid | Clinton, TN | - |
+| 650 | [STARRETT SURFACE GAUGE - VINTAGE - NO. 257](https://houston.craigslist.org/search/sss?query=STARRETT+SURFACE+GAUGE+-+VINTAGE+-+NO.+257) | Starrett precision tool | $35.00 | $42.69 | $27.69 | craigslist | houston | - |
+| 651 | [DeWalt 20V MAX Cordless Drill](https://hibid.com/lot/317366646) | DeWalt 20V MAX drill/driver | $5.00 | $12.65 | $27.65 | hibid | Statesboro, GA | - |
+| 652 | [Sony PlayStation 2 PS2 Slim Console - Tested Working](https://shopgoodwill.com/item/273601346) | Sony PlayStation 2 console | $11.75 | $19.33 | $27.58 | goodwill |  | 2026-08-18T20:20 |
+| 653 | [Texas Instruments TI-84 Plus CE Slide Cover Case Replacement](https://www.ebay.com/itm/307130011625?_skw=ti-84+plus+ce&hash=item4782600fe9:g:vSQAAeSwMoRpvp3T) | TI-84 Plus CE | $6.99 | $14.50 | $27.51 | ebay |  | - |
+| 654 | [Vintage Citizen Ladies Quartz Gold Tone Wristwatch Lot of 3](https://shopgoodwill.com/item/273605736) | Citizen watch (Eco-Drive / quartz) | $25.99 | $33.34 | $27.35 | goodwill |  | 2026-08-16T18:32 |
+| 655 | [Sony Playstation 2 PS2 Video Game Console Bundle, Powers On!](https://shopgoodwill.com/item/273738611) | Sony PlayStation 2 console | $11.99 | $19.33 | $27.34 | goodwill |  | 2026-08-19T20:01 |
+| 656 | [Sony PlayStation 2 PS2 Video Game Console Bundle - Powers On](https://shopgoodwill.com/item/273867808) | Sony PlayStation 2 console | $8.99 | $16.33 | $27.34 | goodwill |  | 2026-08-20T18:32 |
+| 657 | [Sony PlayStation 2 PS2 Slim Console Only / Black](https://shopgoodwill.com/item/273635842) | Sony PlayStation 2 console | $12.00 | $19.33 | $27.33 | goodwill |  | 2026-08-18T20:34 |
+| 658 | [NIKON COOLPIX P100](https://hibid.com/lot/317908622) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Rochester, WA | - |
+| 659 | [Nikon Coolpix P90 Digital Camera Bundle](https://hibid.com/lot/316592940) | Nikon Coolpix compact | $5.00 | $12.31 | $27.31 | hibid | Bedminster, PA | - |
+| 660 | [Casio G-Shock DW-9052 Digital Watch](https://hibid.com/lot/317739185) | Casio G-Shock | $6.00 | $13.31 | $27.31 | hibid | Johnson City, TN | - |
+| 661 | [OPEN BOX - Casio Men's Watch XL Series G-Shock Qua](https://hibid.com/lot/317674617) | Casio G-Shock | $6.00 | $13.31 | $27.31 | hibid | London, ON | - |
+| 662 | [G-SHOCK WATCH as is](https://hibid.com/lot/316326209) | Casio G-Shock | $6.00 | $13.31 | $27.31 | hibid | Caledon, ON | - |
+| 663 | [Seiko 17 Jewels Hi-Beat Automatic Date/Day Function Stainles](https://shopgoodwill.com/item/273688453) | Seiko Automatic watch | $16.99 | $23.72 | $26.73 | goodwill |  | 2026-08-16T19:26 |
+| 664 | [Lot 3 Starrett Precision Tools Advertising Bullet Pencil Vin](https://www.ebay.com/itm/198520020243?_skw=precision+tools+lot&hash=item2e38b71d13:g:VWkAAeSwPGtqYtg2) | Starrett precision tool | $19.99 | $26.70 | $26.71 | ebay |  | - |
+| 665 | [Nintendo 64 Console NUS-001 USA with Controller and Power Su](https://shopgoodwill.com/item/273484388) | Nintendo 64 console | $34.00 | $40.51 | $26.51 | goodwill |  | 2026-08-17T18:25 |
+| 666 | [Citizen Eco-Drive 005193 Perpetual Calendar Silver Tone Blue](https://shopgoodwill.com/item/273876344) | Citizen watch (Eco-Drive / quartz) | $31.99 | $38.34 | $26.35 | goodwill |  | 2026-08-16T17:05 |
+| 667 | [Milwaukee M18 Fuel 18V Cordless Impact Driver Tool](https://shopgoodwill.com/item/273763238) | Milwaukee M18 FUEL tool | $26.00 | $32.34 | $26.34 | goodwill |  | 2026-08-19T14:43 |
+| 668 | [Citizen Alarm Chronograph Watch](https://shopgoodwill.com/item/273970354) | Citizen watch (Eco-Drive / quartz) | $32.00 | $38.34 | $26.34 | goodwill |  | 2026-08-16T18:15 |
+| 669 | [Sony PlayStation 2 PS2 Slim Game Console SCPH-70012 w/Medal ](https://shopgoodwill.com/item/273727393) | Sony PlayStation 2 console | $10.99 | $17.33 | $26.34 | goodwill |  | 2026-08-19T19:34 |
+| 670 | [2 Citizen Watches Lot](https://www.ebay.com/itm/147509423176?_skw=watch+lot&hash=item22583f2c48:g:gAsAAeSwEi9qgj9-) | Citizen watch (Eco-Drive / quartz) | $32.00 | $38.34 | $26.34 | ebay |  | - |
+| 671 | [Nikon Coolpix 900 Digital Camera in Box](https://hibid.com/lot/317365335) | Nikon Coolpix compact | $6.00 | $12.31 | $26.31 | hibid | Holly, MI | - |
+| 672 | [Vintage L. S. Starret Micrometer With Case And The Tools And](https://www.ebay.com/itm/407130527590?_skw=starret&hash=item5ecaded766:g:5ogAAeSwiX5qd-cQ) | Starrett precision tool | $27.49 | $33.69 | $26.20 | ebay |  | - |
+| 673 | [L.S. Starrett 6" No. 122  Inside / Outside Vernier Caliper](https://www.ebay.com/itm/287529135210?_skw=starrett&hash=item42f2126c6a:g:QGIAAeSw1~NqghRd) | Starrett precision tool | $22.00 | $27.70 | $25.70 | ebay |  | - |
+| 674 | [Vintage L. S. Starret No. 185 Drill & Wire Gage/Chart for Ma](https://www.ebay.com/itm/257631049752?_skw=starret&hash=item3bfc01d818:g:2E0AAeSwwzRqXVY~) | Starrett precision tool | $20.00 | $25.69 | $25.69 | ebay |  | - |
+| 675 | [Sony CyberShot DSC S600 6MP and Nikon Coolpix L100 10MP 15x ](https://shopgoodwill.com/item/273708645) | Sony Cyber-shot compact (non-RX) | $22.00 | $27.66 | $25.66 | goodwill |  | 2026-08-17T18:32 |
+| 676 | [Vintage Mitutoyo Digimatic Height Gauge](https://shopgoodwill.com/item/273596329) | Mitutoyo micrometer/caliper/indicator | $29.00 | $34.63 | $25.63 | goodwill |  | 2026-08-16T18:40 |
+| 677 | [Mitutoyo Absolute Digimatic Caliper Set](https://hibid.com/lot/317160186) | Mitutoyo micrometer/caliper/indicator | $32.50 | $38.12 | $25.62 | hibid | Mooresville, IN | - |
+| 678 | [PS2 game console & accessories.](https://hibid.com/lot/317272923) | Sony PlayStation 2 console | $14.00 | $19.33 | $25.33 | hibid | Belvidere, IL | - |
+| 679 | [Camera lot Nikon Coolpix S01 and Fuji A220 (as](https://hibid.com/lot/316574376) | Nikon Coolpix compact | $7.00 | $12.31 | $25.31 | hibid | Hollsoppple, PA | - |
+| 680 | [CASIO GA-700UC-8ACR G-SHOCK WATCH, GREY](https://hibid.com/lot/317797809) | Casio G-Shock | $8.00 | $13.31 | $25.31 | hibid | London, ON | - |
+| 681 | [CASIO G-SHOCK GA-110SL-8A SLASH SERIES WATCH](https://hibid.com/lot/317301340) | Casio G-Shock | $8.00 | $13.31 | $25.31 | hibid | Hubbard, TX | - |
+| 682 | [Super Mario World Advance 2 Game Boy Advance SP AUTHENTIC & ](https://www.ebay.com/itm/398293635660?_skw=gameboy+advance+sp&hash=item5cbc26924c:g:VsgAAeSwCQJqgjl~) | Game Boy Advance SP (AGS-001/unspecified) | $29.99 | $35.00 | $25.01 | ebay |  | - |
+| 683 | [Sony Cyber-shot DSC-W290 Digital Camera 12.1MP 5x Optical Zo](https://shopgoodwill.com/item/273771307) | Sony Cyber-shot compact (non-RX) | $20.99 | $25.91 | $24.92 | goodwill |  | 2026-08-17T19:59 |
+| 684 | [Nintendo GameCube console w/ accessories](https://shopgoodwill.com/item/274007650) | Nintendo GameCube console | $25.00 | $29.84 | $24.84 | goodwill |  | 2026-08-19T18:33 |
+| 685 | [Sony Cybershot DSC-W230 12.1MP 4X Zoom Digital Camera Powers](https://shopgoodwill.com/item/273495101) | Sony Cyber-shot compact (non-RX) | $21.99 | $26.66 | $24.67 | goodwill |  | 2026-08-17T19:32 |
+| 686 | [Fluke 17B+ Digital Multimeter](https://hibid.com/lot/316126524) | Fluke meter (unspecified model) | $35.00 | $39.67 | $24.67 | hibid | San Mateo, CA | - |
+| 687 | [Fluke 15B+ Digital Multimeter, Gardner Bender GDT-](https://hibid.com/lot/316126525) | Fluke meter (unspecified model) | $35.00 | $39.67 | $24.67 | hibid | San Mateo, CA | - |
+| 688 | [Fluke, Milliamp Process Clamp Meter](https://hibid.com/lot/316126447) | Fluke meter (unspecified model) | $35.00 | $39.67 | $24.67 | hibid | San Mateo, CA | - |
+| 689 | [Fluke, Electrical Tester, With Breaker Finder CS61](https://hibid.com/lot/316126446) | Fluke meter (unspecified model) | $35.00 | $39.67 | $24.67 | hibid | San Mateo, CA | - |
+| 690 | [NO RESERVE: Gameboy Advance SP Switch N Carry Case Black Red](https://www.ebay.com/itm/307130264929?_skw=gameboy+advance+sp&hash=item478263ed61:g:XJMAAeSw3C1qghqq) | Game Boy Advance SP (AGS-001/unspecified) | $24.99 | $29.42 | $24.43 | ebay |  | - |
+| 691 | [Polaroid Land Camera Sx-70](https://shopgoodwill.com/item/273903799) | Polaroid SX-70 (folding) | $42.00 | $46.34 | $24.34 | goodwill |  | 2026-08-20T18:28 |
+| 692 | [Sony PlayStation 2 PS2 Console Bundle SCPH-39001/N w/ Games](https://shopgoodwill.com/item/273967138) | Sony PlayStation 2 console | $14.99 | $19.33 | $24.34 | goodwill |  | 2026-08-21T16:00 |
+| 693 | [NIKON COOLPIX S6100 CAMERA](https://hibid.com/lot/316326270) | Nikon Coolpix compact | $8.00 | $12.31 | $24.31 | hibid | Caledon, ON | - |
+| 694 | [Nintendo Gameboy Advance SP Handheld Game Console Model: AGS](https://shopgoodwill.com/item/273956464) | Game Boy Advance SP (AGS-001/unspecified) | $28.00 | $32.01 | $24.01 | goodwill |  | 2026-08-21T20:22 |
+| 695 | [Nintendo N64 Console NUS-001 w/ Cables & Controllers - Power](https://shopgoodwill.com/item/273624274) | Nintendo 64 console | $39.00 | $43.01 | $24.01 | goodwill |  | 2026-08-18T18:48 |
+| 696 | [Starret Dial Indicator 25-144P](https://www.ebay.com/itm/168553416342?_skw=starret&hash=item273e910696:g:od4AAeSwfCxqX~lS) | Dial / test indicator (brand-name) | $49.99 | $53.88 | $23.89 | ebay |  | - |
+| 697 | [Vintage L.S. Starret Co. No. 185 Time Saver Drill and Wire G](https://www.ebay.com/itm/206383747351?_skw=starret&hash=item300d6e1117:g:GloAAeSwmo9qQ7z5) | Starrett precision tool | $23.99 | $27.69 | $23.70 | ebay |  | - |
+| 698 | [Vintage Starrett No. 436 Outside Micrometer 0-1” Machinest T](https://www.ebay.com/itm/820010528663?_skw=micrometer&hash=itembeec6faf97:g:YBAAAeSwEe9qgfLX) | Starrett precision tool | $30.00 | $33.69 | $23.69 | ebay |  | - |
+| 699 | [Nintendo Switch Lite Hand-Held Gaming Console - Reset/Powers](https://shopgoodwill.com/item/273713551) | Nintendo Switch Lite | $37.00 | $40.67 | $23.67 | goodwill |  | 2026-08-17T18:15 |
+| 700 | [Sony Cyber-Shot DSC-W55 With Battery and Charger](https://shopgoodwill.com/item/273500910) | Sony Cyber-shot compact (non-RX) | $24.00 | $27.66 | $23.66 | goodwill |  | 2026-08-17T18:41 |
+| 701 | [Untested Black & White Texas Instruments TI-84 Plus CE Graph](https://shopgoodwill.com/item/273472666) | TI-84 Plus CE | $10.99 | $14.50 | $23.51 | goodwill |  | 2026-08-17T18:40 |
+| 702 | [Official Nintendo GBA Game Boy Advance SP BLACK Faux Leather](https://www.ebay.com/itm/377423855453?_skw=gameboy+advance+sp&hash=item57e036ff5d:g:5R0AAeSw8vxqghze) | Game Boy Advance SP (AGS-001/unspecified) | $25.00 | $28.50 | $23.50 | ebay |  | - |
+| 703 | [Nintendo Game Boy Advance SP W/ 9 Games & Accs; Super Mario,](https://shopgoodwill.com/item/273823418) | Game Boy Advance SP (AGS-001/unspecified) | $29.01 | $32.50 | $23.49 | goodwill |  | 2026-08-20T19:53 |
+| 704 | [Nintendo Wii U Console with Legend of Zelda...](https://hibid.com/lot/315871297) | Nintendo Wii U console | $13.00 | $16.46 | $23.46 | hibid | Gastonia, NC | - |
+| 705 | [Citizen 927690 Quartz Ladies Watch](https://shopgoodwill.com/item/273847365) | Citizen watch (Eco-Drive / quartz) | $34.93 | $38.34 | $23.41 | goodwill |  | 2026-08-20T19:08 |
+| 706 | [Texas Instruments TI-84 Plus CE Python Graphing Calculator -](https://shopgoodwill.com/item/274076861) | TI-84 Plus CE Python | $20.99 | $24.33 | $23.34 | goodwill |  | 2026-08-20T18:35 |
+| 707 | [Sony PlayStation 2 PS2 FAT Console Only Black SCPH-30001 TES](https://shopgoodwill.com/item/273508672) | Sony PlayStation 2 console | $15.99 | $19.33 | $23.34 | goodwill |  | 2026-08-17T19:44 |
+| 708 | [Sony Playstation 2 Slim Ps2 Black Console Only Gaming System](https://shopgoodwill.com/item/273625434) | Sony PlayStation 2 console | $15.99 | $19.33 | $23.34 | goodwill |  | 2026-08-18T18:40 |
+| 709 | [Citizen Eco-Drive Gold-Tone Wristwatch with Box](https://hibid.com/lot/316667827) | Citizen watch (Eco-Drive / quartz) | $35.00 | $38.34 | $23.34 | hibid | Auburn, IL | - |
+| 710 | [Men’s Jewelry & Watches: Citizen, Seiko Tank Watch](https://hibid.com/lot/317296025) | Citizen watch (Eco-Drive / quartz) | $35.00 | $38.34 | $23.34 | hibid | Fort Wayne, IN | - |
+| 711 | [Polaroid Pronto! RF rangefinder focus SX70 instant land Came](https://www.ebay.com/itm/366603820427?_skw=polaroid+sx-70&hash=item555b4a5d8b:g:fPgAAeSwbspqfhDH) | Polaroid SX-70 (folding) | $45.00 | $48.34 | $23.34 | ebay |  | - |
+| 712 | [XBOX One Model 1540 Console Only](https://shopgoodwill.com/item/273605032) | Xbox One / One S / One X console | $14.99 | $18.19 | $23.20 | goodwill |  | 2026-08-16T18:49 |
+| 713 | [Mitutoyo No.103-135 Micrometer 0-1 Inch 0.0001 Inch Carbide ](https://www.ebay.com/itm/307130421427?_skw=mitutoyo&hash=item47826650b3:g:dagAAeSwmE9qgjwD) | Mitutoyo micrometer/caliper/indicator | $35.00 | $38.12 | $23.12 | ebay |  | - |
+| 714 | [Pokemon Ruby Version - GBA - ENGLISH USA VERSION .  FAST SHI](https://www.ebay.com/itm/206496397859?_skw=pokemon+gba&hash=item301424fa23:g:ZdIAAeSwQ0Fqgjnk) | Pokemon Ruby / Sapphire (GBA) | $24.99 | $28.05 | $23.06 | ebay |  | - |
+| 715 | [Evolution: The World of Sacred Device (Sega Dreamcast, 1999)](https://www.ebay.com/itm/188802687090?_skw=sega+dreamcast&hash=item2bf5846072:g:~VEAAeSwT4dqgf8B) | Sega Dreamcast console | $35.99 | $39.01 | $23.02 | ebay |  | - |
+| 716 | [Nintendo Game Boy Advance SP Blue with Case](https://hibid.com/lot/316834845) | Game Boy Advance SP (AGS-001/unspecified) | $32.00 | $35.00 | $23.00 | hibid | Plainfield, IN | - |
+| 717 | [Sony PSP Video Game System w/ 4 Game(s)](https://shopgoodwill.com/item/273623086) | Sony PSP handheld | $19.00 | $21.85 | $22.85 | goodwill |  | 2026-08-18T20:40 |
+| 718 | [Fujifilm finepix S4500](https://hibid.com/lot/317396828) | Fujifilm FinePix compact | $1.00 | $3.64 | $22.64 | hibid | Hillsboro, OR | - |
+| 719 | [Pokemon Sapphire Version - Nintendo Game Boy Advance GBA Pok](https://www.ebay.com/itm/206496384919?_skw=pokemon+game+boy+advance&hash=item301424c797:g:V1EAAeSw~cFqgjlR) | Pokemon Ruby / Sapphire (GBA) | $19.99 | $22.56 | $22.57 | ebay |  | - |
+| 720 | [Sony PlayStation 2 PS2 FAT Console Only Black SCPH-30001 TES](https://shopgoodwill.com/item/273508674) | Sony PlayStation 2 console | $14.99 | $17.33 | $22.34 | goodwill |  | 2026-08-17T19:52 |
+| 721 | [Vintage Silver Nikon Coolpix E2200 Coolpix 2200 Compact Digi](https://shopgoodwill.com/item/273783542) | Nikon Coolpix compact | $9.99 | $12.31 | $22.32 | goodwill |  | 2026-08-17T18:18 |
+| 722 | [Nikon COOLPIX L30 Digital Camera](https://hibid.com/lot/316774280) | Nikon Coolpix compact | $10.00 | $12.31 | $22.31 | hibid | Niagara-On-The-Lake, ON | - |
+| 723 | [Nikon Coolpix S220 10-Megapixel Digital Camera](https://hibid.com/lot/317322062) | Nikon Coolpix compact | $10.00 | $12.31 | $22.31 | hibid | Clearfield, UT | - |
+| 724 | [Microsoft Xbox One Console Model](https://shopgoodwill.com/item/273237570) | Xbox One / One S / One X console | $15.95 | $18.19 | $22.24 | goodwill |  | 2026-08-16T16:47 |
+| 725 | [Microsoft Xbox One Console Model 1540 Black Game Console Onl](https://shopgoodwill.com/item/273962951) | Xbox One / One S / One X console | $15.99 | $18.19 | $22.20 | goodwill |  | 2026-08-16T18:36 |
+| 726 | [PenPen TriIcelon (Sega Dreamcast, 1999)](https://www.ebay.com/itm/188802683644?_skw=sega+dreamcast&hash=item2bf58452fc:g:Ga0AAeSwyShqgf3g) | Sega Dreamcast console | $36.99 | $39.01 | $22.02 | ebay |  | - |
+| 727 | [DEWALT DCF923 3/8" 20V IMPACT](https://hibid.com/lot/317782577) | DeWalt 20V MAX drill/driver | $11.00 | $12.65 | $21.65 | hibid | Kalispell, MT | - |
+| 728 | [DEWALT DC925 XRP 18V CORDLESS HAMMER DRILL](https://houston.craigslist.org/search/sss?query=DEWALT+DC925+XRP+18V+CORDLESS+HAMMER+DRILL) | DeWalt 20V MAX drill/driver | $20.00 | $21.65 | $21.65 | craigslist | houston | - |
+| 729 | [Fujifilm Finepix s4250](https://hibid.com/lot/317489821) | Fujifilm FinePix compact | $2.00 | $3.64 | $21.64 | hibid | Henderson, KY | - |
+| 730 | [Fujifilm FinePix 5700 with Case & Accessories](https://hibid.com/lot/316550247) | Fujifilm FinePix compact | $2.00 | $3.64 | $21.64 | hibid | Bridgewater, VA | - |
+| 731 | [Citizen and Invicta Watch Lot](https://shopgoodwill.com/item/273602885) | Citizen watch (Eco-Drive / quartz) | $37.00 | $38.34 | $21.34 | goodwill |  | 2026-08-16T20:05 |
+| 732 | [Men's Vintage Casio G-Shock 3406 MTG-M900DA Stainless Steel ](https://shopgoodwill.com/item/273466123) | Casio G-Shock | $8.99 | $10.31 | $21.32 | goodwill |  | 2026-08-17T18:16 |
+| 733 | [NIKON COOLPIX 990 DIGITAL CAMERA](https://hibid.com/lot/314205241) | Nikon Coolpix compact | $11.00 | $12.31 | $21.31 | hibid | Knoxville, TN | - |
+| 734 | [Fluke Networks Pro 3000 Toner Tester 26200-900 Working](https://www.ebay.com/itm/178412765844?_skw=fluke&hash=item298a3ac294:g:Tj0AAeSwx7pqZNuo) | Fluke meter (unspecified model) | $29.95 | $30.72 | $20.77 | ebay |  | - |
+| 735 | [Dewalt 20V Drill](https://hibid.com/lot/316559256) | DeWalt 20V MAX drill/driver | $12.00 | $12.65 | $20.65 | hibid | Leland, NC | - |
+| 736 | [Fujifilm FinePix S4250WM Digital Camera](https://hibid.com/lot/317240444) | Fujifilm FinePix compact | $3.00 | $3.64 | $20.64 | hibid | Green Bay, WI | - |
+| 737 | [Fujifilm Finepix S Camera and Case- Untested](https://hibid.com/lot/317940941) | Fujifilm FinePix compact | $3.00 | $3.64 | $20.64 | hibid | Waverly, NY | - |
+| 738 | [FinePix S 3000 Digital Video camera with case and](https://hibid.com/lot/315151178) | Fujifilm FinePix compact | $12.00 | $12.64 | $20.64 | hibid 📍 | Seguin, TX | - |
+| 739 | [Nikon COOLPIX P100 Digital Camera 26x Optical Zoom NIKKOR Le](https://shopgoodwill.com/item/273429103) | Nikon Coolpix compact | $9.99 | $10.31 | $20.32 | goodwill |  | 2026-08-17T07:43 |
+| 740 | [Nikon Coolpix 5400 5.1MP Digital Camera](https://shopgoodwill.com/item/273786050) | Nikon Coolpix compact | $9.99 | $10.31 | $20.32 | goodwill |  | 2026-08-17T18:10 |
+| 741 | [Vintage Nikon Coolpix 990 Fujifilm FinePix S3000 Kodak V570 ](https://shopgoodwill.com/item/273487311) | Nikon Coolpix compact | $9.99 | $10.31 | $20.32 | goodwill |  | 2026-08-17T19:38 |
+| 742 | [Microsoft Xbox One 1540 Black Console Gears of War 4 Fallout](https://shopgoodwill.com/item/273591742) | Xbox One / One S / One X console | $18.00 | $18.19 | $20.19 | goodwill |  | 2026-08-16T18:06 |
+| 743 | [DeWalt 20V Max Drill](https://hibid.com/lot/315501905) | DeWalt 20V MAX drill/driver | $12.50 | $12.65 | $20.15 | hibid | Holstein, ON | - |
+| 744 | [Game boy advance SP, Nintendo 64, decorative](https://hibid.com/lot/317349939) | Game Boy Advance SP (AGS-001/unspecified) | $35.00 | $35.00 | $20.00 | hibid | Indianola, IA | - |
+| 745 | [Canon powerShot G7x mark ii](https://houston.craigslist.org/search/sss?query=Canon+powerShot+G7x+mark+ii) | Canon PowerShot G7X Mark II | $50.00 | $970.66 | $940.66 | craigslist 🚩 **SCAM-SHAPED** | houston | - |
 
 _Regenerated every run; sold/expired lots simply disappear._
