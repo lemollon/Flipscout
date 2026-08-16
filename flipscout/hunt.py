@@ -42,7 +42,19 @@ from .pricebook import comp_search, match, search_terms
 def load_config(env=None) -> dict:
     env = env if env is not None else os.environ
     return {
-        "sources": [s.strip() for s in env.get("FLIPSCOUT_SOURCES", "goodwill,hibid,craigslist,poshmark,propertyroom,nellis,outandback,geartrade").split(",") if s.strip()],
+        # Default kept IN SYNC with the live FLIPSCOUT_SOURCES repo variable.
+        # It had drifted: the default still listed poshmark, outandback and
+        # geartrade months after all three were dropped from production on
+        # 2026-08-15 (every term they carry is apparel, and apparel is benched
+        # in the price book, so they sweep listings that can never price).
+        # The drift was not harmless - a local run swept 3 dead sources that
+        # production does not, so local and prod disagreed about what the
+        # pipeline even does, which is exactly the kind of gap that makes a
+        # local reproduction lie to you.
+        "sources": [s.strip() for s in env.get(
+            "FLIPSCOUT_SOURCES",
+            "goodwill,hibid,craigslist,propertyroom,nellis,unclaimedbaggage,gsa,ebay"
+        ).split(",") if s.strip()],
         # Where you live. Drives HiBid's local pass and labels alerts as drivable.
         "zip": (env.get("FLIPSCOUT_ZIP") or "").strip(),
         "radius_miles": (env.get("FLIPSCOUT_RADIUS_MILES") or "").strip(),

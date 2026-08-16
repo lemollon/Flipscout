@@ -1154,6 +1154,29 @@ class EbayBrowse:
         # not-new grade: refurbs, Used, media grades, parts.
         # newlyListed sort: underpriced BINs die in minutes, so fresh listings
         # beat best-match popularity for deal-hunting.
+        #
+        # ⛔ DO NOT switch this to price-ascending. It is the obvious idea when
+        # someone asks for more Buy-It-Now, and it is wrong - MEASURED
+        # 2026-08-16 over three terms, share of results that are parts /
+        # accessories / empty boxes rather than the product:
+        #
+        #     term                      price+ship ASC    newlyListed
+        #     canon ae-1                        63%            18%
+        #     nintendo switch console           68%            28%
+        #     singer featherweight              56%            53%
+        #
+        # The cheapest listings are cheap BECAUSE they are parts. Sorting by
+        # price aims the feed straight at the cohort the accessory guard exists
+        # to reject, and the fixed-price feed is already the worst offender for
+        # it (22% of live BIN board items were components).
+        #
+        # ⛔ DO NOT add an offset page here either. limit is capped at 50/term
+        # and there is no paging on purpose: a second page doubles eBay Browse
+        # calls, and Browse is the ONE quota-metered source. We run ~9.6k
+        # calls/day against a granted ceiling nobody has measured. eBay is 52%
+        # of all swept volume, so trading a silent degradation of the largest
+        # source for some extra BIN is a bad bet. Goodwill BIN paging (free,
+        # unmetered) was the right place to buy that coverage instead.
         passes = [("FIXED_PRICE", "newlyListed")]
         # Ending-soon auctions with low bids - swept hourly (see __init__ quota
         # math), sorted by soonest close so the 50-row window holds the lots
