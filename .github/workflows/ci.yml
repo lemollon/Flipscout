@@ -4,6 +4,14 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Manual trigger. Added 2026-08-16 after GitHub silently did NOT fire the
+  # `synchronize` event for two consecutive pushes to an open PR: the PR head
+  # moved f8bda29 -> 54993f4 -> 9bdc9fc while its only CI run stayed pinned to
+  # f8bda29, so the PR showed a green check earned by code that was three
+  # commits stale. Closing and reopening the PR did not re-fire it either.
+  # 🚨 A green check on a PR proves the HEAD SHA was tested only if you compare
+  # them: `gh pr view N --json headRefOid` vs the run's headSha.
+  workflow_dispatch:
 
 jobs:
   test:
