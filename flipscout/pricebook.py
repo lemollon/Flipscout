@@ -45,6 +45,18 @@ _NOUN_GAP = r"(?:[^a-z0-9]+[a-z0-9]+){0,3}[^a-z0-9]+"
 _HW_NOUN = r"consoles?|systems?|handhelds?"
 
 
+# "w/ case", "and attachments", "includes pedal" describe a listing that is MORE
+# complete, not an accessory listing. Prefix an accessory noun with this and it
+# only fires when the noun stands alone as the product.
+#
+# Same idea ACCESSORY_EXCLUDE already uses for "w/ SD Card" on cameras, pulled
+# out as a constant because the Singer exclude needs it on five different nouns
+# and the inline version was becoming unreadable. The comma matters: "includes
+# case, pedal and manual" reaches `pedal` through ", ", not "and ".
+_BUNDLED = (r"(?<!with )(?<!w/ )(?<!w/)(?<!and )(?<!& )(?<!\+ )(?<!\+)"
+            r"(?<!includes )(?<!incl )(?<!plus )(?<!, )(?<!,)")
+
+
 def _console_include(platform: str, model_numbers: str = "") -> str:
     """Require POSITIVE HARDWARE EVIDENCE: a console noun near the platform
     name, or a hardware model number.
@@ -592,10 +604,18 @@ MODELS: list[Model] = [
         # "for switch"/"for nintendo" is the accessory tell, scoped to THIS
         # model - console names must never enter the universal camera-brand
         # guard (the Donkey Kong lesson).
-        exclude=r"\bfor\s+(the\s+)?(nintendo|switch)\b|joy.?cons?\s+only|dock only|"
-                r"\bcase\b|\bskin\b|screen protector|\bstand\b|\bgrip\b|charger only|"
-                r"tablet only|console only|\blite\b|game only|for parts|parts only|"
-                r"not working|broken",
+        # 🚨 `dock only` was too narrow. Four DOCKS were priced against this
+        # $175 console comp on the live production board 2026-08-16 - "Nintendo
+        # Switch OLED Dock Station Model HEG-007", "OEM Nintendo Switch OLED
+        # Dock No Cables ... X 2". HEG-007 is the DOCK's model number; the
+        # console is HEG-001, so the part number alone settles it.
+        # `dock` is bundle-aware because "Console w/ Dock" is a COMPLETE
+        # console and worth more - same treatment as the Singer case.
+        exclude=rf"\bfor\s+(the\s+)?(nintendo|switch)\b|joy.?cons?\s+only|"
+                rf"{_BUNDLED}\bdocks?\b|\bheg-?\s*007\b|{_BUNDLED}\baccessor\w*|"
+                rf"\bcase\b|\bskin\b|screen protector|\bstand\b|\bgrip\b|charger only|"
+                rf"tablet only|console only|\blite\b|game only|for parts|parts only|"
+                rf"not working|broken",
         outbound_shipping=10.00, category="videogames",
         comp_query="nintendo switch oled console", specificity=40,
         note="FLOOR below the $201.73 median (n=60): tablet-only units sell "
@@ -1689,9 +1709,36 @@ MODELS: list[Model] = [
                 r"singer\s*22[12]\b",
         # The $56 p25 tail is attachments, cases, manuals and parts machines
         # sold under the same name - the classic accessory trap.
-        exclude=r"\bmanual\b|attachments?\s+(only|lot)|bobbins?|\bcase only\b|"
-                r"foot only|pedal only|motor only|light only|"
-                r"for parts|parts only|not working|\bscroll\s*plate",
+        #
+        # 🚨 REWRITTEN 2026-08-16. The old version required the word "only"
+        # ("attachments only", "case only", "foot only") and real listings do
+        # not say it. Audited against all 36 Singer rows on the live production
+        # board: 23 were parts and 17 of them were being priced against the
+        # $200 whole-machine comp - "Singer Featherweight 221 Light Switch" at
+        # $18 was quoted $124 of profit, an "electric switch" at $17 got $133.
+        #
+        # Featherweight parts are a cottage industry: switches, terminals,
+        # hooks, faceplates, feed dogs, oil-can holders, buttonhole
+        # attachments, case trays. Chasing them one noun at a time lost - this
+        # is the whole component vocabulary plus the "fits / for Singer" tell.
+        # 🚨 `\bcase\b` is safe HERE (a bare Featherweight case is a $50 item
+        # people sell alone) but must never go in the universal guard, where
+        # "camera w/ case" is a legitimate bundle.
+        # Verified on those 36 titles: 11/11 real machines still price, 23/23
+        # parts rejected, and there is a test carrying the same corpus.
+        exclude=(
+            # bundle-aware: "Machine w/ Case" is a COMPLETE machine and worth
+            # more, so these five only fire when the accessory IS the product
+            rf"{_BUNDLED}\bmanual\b|{_BUNDLED}attachments?\b|"
+            rf"{_BUNDLED}\baccessor\w*|{_BUNDLED}\bcase\b|{_BUNDLED}\bpedal\b|"
+            # unambiguous components - never sold as the machine
+            r"bobbins?|foot control|motor only|light only|\bswitch\b|"
+            r"\bterminal\b|\bhook\b|\bscrews?\b|\bknob\b|\bcover\b|"
+            r"feed\s*dogs?|balance\s*wheel|face\s*plate|\bplate\b|oil can|"
+            r"\btray\b|buttonhole|zig.?zag|blind stitch|stitch length|"
+            r"\bhull\b|\bfits\b|\bwill fit\b|\bfor\s+(class|singer)\b|"
+            r"\bparts?\b|\bwire\b|\biron\b|\bquilting\b|\b925\b|sampson|"
+            r"scroll\s*plate|for parts|parts only|not working"),
         outbound_shipping=14.00, category="sewing",
         comp_query="singer featherweight 221", specificity=60,
         note="THE estate-sale machine: floor below the $238.71 median (n=60, "

@@ -484,3 +484,79 @@ def test_search_terms_have_no_duplicates():
     terms = [t.lower() for t in search_terms()]
     dupes = {t for t in terms if terms.count(t) > 1}
     assert not dupes, f"duplicate search terms burn quota: {sorted(dupes)}"
+
+
+# --- Singer Featherweight: the parts cottage industry -------------------------
+# Audited 2026-08-16 against all 36 Singer rows on the LIVE production board.
+# 23 were parts and 17 of those were priced against the $200 whole-machine
+# comp: "Singer Featherweight 221 Light Switch" at $18 was quoted $124 profit.
+# The old exclude required the word "only" ("case only", "foot only") and real
+# listings do not say it.
+
+SINGER_MACHINES = [   # must still price
+    "Singer 221 Featherweight Sewing Machine",
+    'Singer "Featherweight" Sewing Machine',
+    "Singer Featherweight Portable Sewing Machine 221-1",
+    "Vtg Singer Featherweight 221-1 sewing machine",
+    "Singer featherweight machine, not tested, no cord",
+    # 🚨 a machine sold WITH its case/attachments is MORE complete, not an
+    # accessory listing - these five nouns are bundle-aware for that reason
+    "Antique 1939 Singer 221 Featherweight Sewing Machine w/ Case",
+    "Singer 221 Featherweight Sewing Machine with case and attachments",
+    "Singer Featherweight 221 Sewing Machine includes case, pedal and manual",
+]
+
+SINGER_PARTS = [      # must not price
+    "LNKA Foot Control Pedal for Singer 221",
+    "Singer  221 featherweight sewing Machine bottom cover",
+    "Singer  222k 221 featherweight sewing Machine balance wheel",
+    "Singer 222 221 featherweight sewing Machine electric switch",
+    "Singer Featherweight 221 Light Switch",
+    "Genuine Singer 221 Featherweight Sewing Machine Case Bottom-Mount Oil Can Holder",
+    "Vintage Original Singer Featherweight 221 & Others 3 Prong Electrical Terminal",
+    "Singer Featherweight Blind Stitch & Automatic Zig-Zag Attachments",
+    "Vintage Singer Attachments 121897 FOR CLASS 99 AND WILL FIT FEATHERWEIGHT 221",
+    "1939 Singer FEATHERWEIGHT 221 PARTS rotating HOOK with SET SCREWS",
+    "Singer 221 Featherweight Sewing Machine Accessory Accessories Case Tray Only",
+    "VINTAGE SINGER BUTTONHOLE ATTACHMENT ~ Fits Featherweight 221 & 222k Machines",
+    "1939 SINGER vtg FEATHERWEIGHT 221 sew machine CHROME STITCH LENGTH PLATE + scr",
+    "SAMPSON-MORDAN / W.S. HICKS..1897...925 / SINGER FEATHERWEIGHT...100TH",
+]
+
+
+@pytest.mark.parametrize("title", SINGER_MACHINES)
+def test_a_whole_featherweight_still_prices(title):
+    m = match(title)
+    assert m is not None, f"{title!r} is a real machine"
+    assert m.model.key == "singer_featherweight"
+
+
+@pytest.mark.parametrize("title", SINGER_PARTS)
+def test_featherweight_parts_never_price_as_the_machine(title):
+    assert match(title) is None
+
+
+@pytest.mark.parametrize("title", [
+    # Four DOCKS were priced against the $175 switch_oled comp on the live
+    # production board 2026-08-16. `dock only` was too narrow; real listings
+    # say "Dock Station" or "OEM ... Dock No Cables". HEG-007 is the DOCK's
+    # model number - the console is HEG-001 - so the part number settles it.
+    "Nintendo Switch OLED Dock Station Model HEG-007",
+    "OEM Nintendo Switch OLED Dock No Cables Model HEG-007 White X 2",
+    "Nintendo Switch OLED Model Dock HEG-007 White Official Charging HDMI Dock",
+    "Benazcap Kit Nintendo Switch OLED Accessories Box - Open Box",
+])
+def test_a_switch_dock_never_prices_as_the_console(title):
+    assert match(title) is None
+
+
+@pytest.mark.parametrize("title", [
+    # 🚨 The other direction: a console sold WITH its dock is COMPLETE and
+    # worth more, so `dock` is bundle-aware exactly like the Singer case.
+    "Nintendo Switch OLED Console w/ Dock Tested",
+    "Nintendo Switch OLED Console with dock and joy-cons",
+    "Nintendo Switch OLED 64GB White Console HEG-001",
+])
+def test_a_console_bundled_with_its_dock_still_prices(title):
+    m = match(title)
+    assert m is not None and m.model.key == "switch_oled"
