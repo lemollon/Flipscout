@@ -191,6 +191,37 @@ def test_untested_and_as_is_still_price(title):
     assert match(title) is not None
 
 
+def test_standalone_matches_agrees_with_match_after_the_guard_hoist():
+    """`match()` skips `Model.matches` and calls `_body_matches`, having run the
+    universal guards once itself. That split is a speed fix (3.32 -> 0.33
+    ms/listing) and it introduces exactly one way to be wrong: the two paths
+    disagreeing. This pins them together.
+    """
+    from flipscout.pricebook import MODELS, normalize, universally_excluded
+
+    corpus = [
+        # ordinary hardware
+        "Sony PlayStation 4 PS4 500GB Black Console CUH-1215A",
+        "Nintendo Switch Lite Turquoise 32GB Handheld",
+        "Microsoft Xbox Series X 1TB Video Game Console",
+        # trips ACCESSORY_EXCLUDE
+        "Pokemon Emerald Version Official Game Guide - Prima Games GBA",
+        "Hard Case Compatible with Texas Instruments TI-84 Plus CE",
+        # trips DEAD_HARDWARE
+        "PS3 Console CECH-3001A Parts or Repair",
+        "Nintendo Switch Console does not power on",
+        # matches nothing at all
+        "Nintendo Gameboy Games 5pc",
+        "",
+    ]
+    for title in corpus:
+        t = normalize(title)
+        for m in MODELS:
+            standalone = m.matches(title)
+            via_match = bool(t) and not universally_excluded(t) and m._body_matches(t)
+            assert standalone == via_match, f"{m.key} disagrees on {title!r}"
+
+
 def test_a_model_number_stands_in_for_the_noun():
     """The escape hatch for terse titles: a hardware model number is evidence
     on its own, because no game carries one."""

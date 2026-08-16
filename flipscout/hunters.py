@@ -971,6 +971,23 @@ class EbayBrowse:
         #     :47 runs, a 1.83x split. That is THIS GATE working as intended
         #     (two passes vs one), not lost coverage. Do not "fix" it.
         # Re-check with the same method before adding another 40 terms.
+        #
+        # RE-CHECKED 2026-08-16, after the platform pack took search_terms()
+        # from 113 to 133 (+17.7%):
+        #   * projected ~9.6k calls/day (24 x 133 x 2 + 24 x 133 x 1), up from
+        #     ~8.1k. Still no cliff found.
+        #   * MEASURED over 8 consecutive runs: zero counted search errors.
+        #     🚨 Check for the string `ebay: N search error(s)` that
+        #     error_summary() emits - NOT for "429" in the raw log. Grepping
+        #     the log for 429 matches TIMESTAMPS ("17:00:31.8429335Z") and
+        #     reports phantom rate limiting. That false positive cost a
+        #     re-check on 2026-08-16 before the right signal was used.
+        #   * The bimodal split still holds: 7,905 listings on the :17-window
+        #     run vs ~4,300 on the :47 runs.
+        # The 5k "default" is clearly not what we are on - 8.1k/day ran clean
+        # for a day - but the granted ceiling is still UNKNOWN, so this is
+        # headroom by observation, not by contract. The error counter is the
+        # tripwire; if it starts printing, cut terms before anything else.
         #   FLIPSCOUT_EBAY_AUCTIONS: "always" | "off" | unset (= hourly gate)
         mode = (os.environ.get("FLIPSCOUT_EBAY_AUCTIONS") or "").strip().lower()
         if mode == "always":

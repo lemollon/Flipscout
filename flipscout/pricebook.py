@@ -243,6 +243,16 @@ LOOKALIKE_PHRASING = r"\bstyle\b|\bstyled\b|\binspired\b|\bhomage\b|\btype\b|loo
 # 🚨 "as is" is deliberately NOT here either. Goodwill staples "sold as is"
 # onto working and broken lots alike, so banning it would blind the book to a
 # large share of its own best source.
+def universally_excluded(t: str) -> bool:
+    """The two guards that are not overridable per model, on a normalized title.
+
+    A guide/box/poster is never the product, and a known-dead unit is never the
+    product - in any category. Kept in one function so `match()` can evaluate
+    them once per listing instead of once per model.
+    """
+    return bool(re.search(ACCESSORY_EXCLUDE, t) or re.search(DEAD_HARDWARE, t))
+
+
 DEAD_HARDWARE = (
     # separator is OPTIONAL: "Console Used Parts Repair" leaked past a version
     # that required or/and/&//, caught on the live board 2026-08-16
@@ -294,18 +304,28 @@ class Model:
     active: bool = True
 
     def matches(self, title: str) -> bool:
+        """Does this ONE model describe `title`? Safe to call standalone."""
         if not self.active:
             return False
         t = normalize(title)
-        if not t:
+        if not t or universally_excluded(t):
             return False
-        # The universal accessory guard runs first and is not overridable per
-        # model: a guide/box/poster is never the thing, in any category.
-        if re.search(ACCESSORY_EXCLUDE, t):
-            return False
-        # Same reasoning, different failure: a KNOWN-DEAD unit is not the
-        # product either, in any category.
-        if re.search(DEAD_HARDWARE, t):
+        return self._body_matches(t)
+
+    def _body_matches(self, t: str) -> bool:
+        """`matches` minus the universal guards, on an ALREADY-NORMALIZED title.
+
+        Split out for speed, not taste. The guards are the same two regexes for
+        every model, and `match()` loops all 93 - so evaluating them inside the
+        loop ran ACCESSORY_EXCLUDE ninety-three times per listing. Measured
+        2026-08-16: that alone was 3.59 ms of a 3.32 ms match() (the rest of the
+        book is noise next to it), and it got worse every time a model was
+        added. Hoisted into `match()`, which checks them once.
+
+        🚨 Callers must apply `universally_excluded()` themselves first. Only
+        `match()` is allowed to skip it, because it already did it.
+        """
+        if not self.active:
             return False
         if self.exclude and re.search(self.exclude, t):
             return False
@@ -2004,7 +2024,10 @@ def match(title: str) -> Optional[Match]:
     t = normalize(title)
     if not t:
         return None
-    hits = [m for m in MODELS if m.matches(t)]
+    # Universal guards ONCE, not once per model - see Model._body_matches.
+    if universally_excluded(t):
+        return None
+    hits = [m for m in MODELS if m._body_matches(t)]
     if not hits:
         return None
     # most specific wins, by declared specificity (see Model.specificity)
