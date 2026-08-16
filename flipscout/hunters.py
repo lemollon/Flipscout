@@ -91,21 +91,77 @@ class ShopGoodwill:
     def __init__(self, session: Optional[requests.Session] = None):
         self.session = session or requests.Session()
 
-    def _query(self, query: str, limit: int, buy_now_only: bool) -> list[dict]:
-        body = _gw_body(query, size=limit)
+    # Buy-It-Now pages we are willing to pull per term. 5 x 40 = 200, which is
+    # far above any BIN count measured (the largest was 97, for "ti-84").
+    # It exists so one pathological term cannot walk the whole catalogue.
+    _BIN_MAX_PAGES = 5
+
+    def _one_page(self, query: str, page: int, size: int,
+                  buy_now_only: bool) -> tuple:
+        """One page. Returns (items, itemCount) - itemCount is the server's own
+        total for the query, which is what makes paging exact rather than a
+        guess about whether another page exists."""
+        body = _gw_body(query, page=page, size=size)
         if buy_now_only:
             # The form field was sitting there empty the whole time. Set to
             # "true" it returns Goodwill's Buy-It-Now inventory: FIXED prices,
             # no bidding war, buy outright. Measured 2026-07-28: 40 items per
             # broad term, including a $12.99 Gunne Sax against a $122 comp.
             body["searchBuyNowOnly"] = "true"
+        r = self.session.post(_GW_SEARCH, json=body,
+                              headers=_GW_HEADERS, timeout=_TIMEOUT)
+        r.raise_for_status()
+        sr = ((r.json() or {}).get("searchResults") or {})
+        return (sr.get("items") or []), (sr.get("itemCount") or 0)
+
+    def _query(self, query: str, limit: int, buy_now_only: bool) -> list[dict]:
+        """All BIN results for the query; first page only for auctions.
+
+        🚨 The page size is capped SERVER-SIDE at 40 no matter what pageSize
+        says - asking for 200 returns 40. So a term with more than 40 hits was
+        silently truncated. Measured 2026-08-16 over 18 terms:
+
+            BIN      296 exist, 177 fetched -> 119 MISSING (40%)
+            AUCTION 1887 exist, 512 fetched -> 1375 MISSING (73%)
+
+        Buy-It-Now is paged to completion because that is the half you can act
+        on without winning a bidding war, and because it is SMALL - the largest
+        BIN count measured on any term was 97, so this costs a handful of extra
+        calls against a source with no quota.
+
+        Auctions are deliberately NOT paged. 1,375 missing over 18 terms
+        extrapolates to ~10k over the full 133-term book, which is a different
+        decision about runtime and volume, not a bug fix. Auctions already
+        supply ~96% of the board.
+        """
         try:
-            r = self.session.post(_GW_SEARCH, json=body,
-                                  headers=_GW_HEADERS, timeout=_TIMEOUT)
-            r.raise_for_status()
-            return ((r.json() or {}).get("searchResults") or {}).get("items") or []
+            items, total = self._one_page(query, 1, limit, buy_now_only)
         except Exception:
             return []                      # fail-soft: one dead source never kills a run
+        if not buy_now_only or not items:
+            return items
+
+        seen = {str(i.get("itemId")) for i in items}
+        page = 2
+        while len(items) < total and page <= self._BIN_MAX_PAGES:
+            time.sleep(0.2)                # polite: this is a charity's server
+            try:
+                more, _ = self._one_page(query, page, limit, True)
+            except Exception:
+                # 🚨 Fail-soft PER PAGE, not per query. Wrapping the whole loop
+                # in one try meant a 500 on page 2 discarded the 40 good rows
+                # from page 1 - strictly worse than not paging at all, and a
+                # partial outage would have read as "this term has nothing".
+                break
+            if not more:
+                break
+            fresh = [i for i in more if str(i.get("itemId")) not in seen]
+            if not fresh:                  # server repeated a page - stop
+                break
+            seen.update(str(i.get("itemId")) for i in fresh)
+            items.extend(fresh)
+            page += 1
+        return items
 
     def search(self, query: str, limit: int = 40) -> list[dict]:
         # TWO passes, merged: the auction inventory this hunter always had,

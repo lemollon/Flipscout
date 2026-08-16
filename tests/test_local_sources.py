@@ -557,3 +557,82 @@ def test_ebay_hunter_sleeps_without_keys(monkeypatch):
 def test_ebay_hunter_is_registered():
     from flipscout.hunters import HUNTERS
     assert "ebay" in HUNTERS
+
+
+# --- ShopGoodwill Buy-It-Now PAGING (2026-08-16) -----------------------------
+# Leron: "are we also finding deals where i dont have to bid and do buy it now?"
+# We were - but only the first 40 per term. Goodwill caps pageSize at 40
+# server-side regardless of what you ask for, so any term with more than 40
+# Buy-It-Now hits was silently truncated. Measured over 18 terms that day:
+# 296 BIN listings existed, 177 were fetched, 119 (40%) were never seen.
+
+def _gw_page(n_total, page_size=40):
+    """Fake Goodwill paging: n_total items served page_size at a time."""
+    def fake(query, page, size, buy_now_only):
+        start = (page - 1) * page_size
+        items = [{"itemId": i, "title": f"item {i}", "buyNowPrice": 10.0,
+                  "currentPrice": 10.0, "imageURL": "", "endTime": "",
+                  "startTime": ""}
+                 for i in range(start, min(start + page_size, n_total))]
+        return items, n_total
+    return fake
+
+
+def test_buynow_pass_pages_until_the_server_count_is_reached(monkeypatch):
+    from flipscout.hunters import ShopGoodwill
+    g = ShopGoodwill()
+    monkeypatch.setattr(g, "_one_page", _gw_page(75))
+    assert len(g._query("nintendo switch", 40, True)) == 75
+
+
+def test_auction_pass_is_deliberately_not_paged(monkeypatch):
+    """1,375 auction listings were missing over the same 18 terms, which
+    extrapolates to ~10k over the full book. That is a runtime/volume decision,
+    not a bug fix, and auctions already supply ~96% of the board."""
+    from flipscout.hunters import ShopGoodwill
+    g = ShopGoodwill()
+    monkeypatch.setattr(g, "_one_page", _gw_page(500))
+    assert len(g._query("ti-84", 40, False)) == 40
+
+
+def test_buynow_paging_is_capped(monkeypatch):
+    """One pathological term must not walk the whole catalogue."""
+    from flipscout.hunters import ShopGoodwill
+    g = ShopGoodwill()
+    monkeypatch.setattr(g, "_one_page", _gw_page(10_000))
+    got = g._query("everything", 40, True)
+    assert len(got) == 40 * ShopGoodwill._BIN_MAX_PAGES
+
+
+def test_buynow_paging_stops_if_the_server_repeats_a_page(monkeypatch):
+    """Defends against an itemCount that never gets satisfied - otherwise the
+    loop spins to the page cap collecting duplicates."""
+    from flipscout.hunters import ShopGoodwill
+    g = ShopGoodwill()
+
+    def stuck(query, page, size, buy_now_only):
+        return ([{"itemId": 1, "title": "same", "buyNowPrice": 10.0,
+                  "currentPrice": 10.0, "imageURL": "", "endTime": "",
+                  "startTime": ""}], 999)
+
+    monkeypatch.setattr(g, "_one_page", stuck)
+    assert len(g._query("x", 40, True)) == 1
+
+
+def test_a_dead_page_two_keeps_page_one(monkeypatch):
+    """Fail-soft has to survive PARTWAY through paging, not just at the start."""
+    from flipscout.hunters import ShopGoodwill
+    g = ShopGoodwill()
+
+    def flaky(query, page, size, buy_now_only):
+        if page == 1:
+            return ([{"itemId": i, "title": f"i{i}", "buyNowPrice": 10.0,
+                      "currentPrice": 10.0, "imageURL": "", "endTime": "",
+                      "startTime": ""} for i in range(40)], 200)
+        raise RuntimeError("goodwill 500")
+
+    monkeypatch.setattr(g, "_one_page", flaky)
+    # 40, not 0: a 500 on page 2 must not discard page 1. Wrapping the whole
+    # paging loop in one try did exactly that - strictly worse than not
+    # paging, since a partial outage would read as "this term has nothing".
+    assert len(g._query("x", 40, True)) == 40
