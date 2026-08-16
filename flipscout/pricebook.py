@@ -221,6 +221,40 @@ ACCESSORY_EXCLUDE = (
 LOOKALIKE_PHRASING = r"\bstyle\b|\bstyled\b|\binspired\b|\bhomage\b|\btype\b|look\s*alike|\breplica\b"
 
 
+# KNOWN-DEAD HARDWARE. Universal, like ACCESSORY_EXCLUDE and for the same
+# reason: per-model excludes DO NOT COMPOSE, so a phrase that every model needs
+# to reject has to live in exactly one place.
+#
+# 🚨 Found 2026-08-16 by running a real sweep instead of trusting the unit
+# tests. Every model in the book carried its own `for parts|parts only`, and
+# NOT ONE of them caught the phrasings sellers actually use. Nine parts units
+# were sitting on the live board priced against WORKING comps:
+#     "PS3 Console CECH-3001A Parts or Repair"          max bid $25.13
+#     "Nintendo Switch Video Game Console Used Parts/repair"   max bid $61.71
+#     "Nintendo DSi XL Midnight Blue UTL-001-Untested P/R"     max bid $38.81
+# The comps are measured with parts listings EXCLUDED, so quoting one against
+# a working comp is wrong by the full working-vs-dead spread - the expensive
+# direction. This was a pre-existing book-wide gap; the console pack only made
+# it visible, because consoles are listed parts/repair far more than cameras.
+#
+# 🚨 "untested" is deliberately NOT here. An untested unit is the DISCOUNT WE
+# BUY - it is the entire Seiko-automatic and DSi thesis. Only assert-dead
+# language belongs in this list.
+# 🚨 "as is" is deliberately NOT here either. Goodwill staples "sold as is"
+# onto working and broken lots alike, so banning it would blind the book to a
+# large share of its own best source.
+DEAD_HARDWARE = (
+    # separator is OPTIONAL: "Console Used Parts Repair" leaked past a version
+    # that required or/and/&//, caught on the live board 2026-08-16
+    r"for\s*parts|parts\s*only|parts\s*(?:(?:or|and|/|&)\s*)?repair|"
+    r"repair\s*(?:(?:or|and|/|&)\s*)?parts|\bp\s*/\s*r\b|"
+    r"not\s*working|non[-\s]*working|doesn'?t\s*work|does\s*not\s*work|"
+    r"needs?\s*(repair|work|fixing)|for\s*repair|\bsalvage\b|"
+    r"won'?t\s*(turn\s*on|power|boot)|does\s*not\s*power|no\s*power\b|"
+    r"\bdefective\b|\bdefcetive\b"   # the typo is real, seen on a live listing
+)
+
+
 @dataclass(frozen=True)
 class Model:
     """One priceable thing, with the evidence behind its number."""
@@ -268,6 +302,10 @@ class Model:
         # The universal accessory guard runs first and is not overridable per
         # model: a guide/box/poster is never the thing, in any category.
         if re.search(ACCESSORY_EXCLUDE, t):
+            return False
+        # Same reasoning, different failure: a KNOWN-DEAD unit is not the
+        # product either, in any category.
+        if re.search(DEAD_HARDWARE, t):
             return False
         if self.exclude and re.search(self.exclude, t):
             return False

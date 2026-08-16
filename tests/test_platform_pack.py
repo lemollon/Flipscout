@@ -151,6 +151,46 @@ def test_bare_platform_names_are_deliberately_not_enough(title):
     assert match(title) is None
 
 
+@pytest.mark.parametrize("title", [
+    # All real, all were sitting on the live board on 2026-08-16 priced against
+    # a WORKING comp, because every model carried its own `for parts|parts only`
+    # and not one of them matched the phrasing sellers actually use.
+    "PS3 Console CECH-3001A Parts or Repair",
+    "Nintendo Switch Video Game Console Used Parts/repair",
+    "Nintendo DSi XL Midnight Blue UTL-001-Untested P/R",
+    "Nintendo Switch Lite Video Game Console Parts and Repair",
+    "Sony PlayStation 2 PS2 Console SCPH-30001 Parts or Repair",
+    "Sony Playstation 4 Ps4 Video Game Console Used Parts Repair",
+    "Microsoft Xbox Series X 1TB Black - DEFCETIVE UNIT ONLY",
+    "Nintendo Switch Console does not power on",
+    "Nintendo DSi XL / 3DS XL / Game Boy Advance SP Console Farop Parts Or Repair",
+])
+def test_known_dead_hardware_never_prices(title):
+    """🚨 DEAD_HARDWARE is universal because per-model excludes DO NOT COMPOSE.
+
+    The comps are all measured with parts listings excluded, so quoting a dead
+    unit against one is wrong by the entire working-vs-dead spread.
+    """
+    assert match(title) is None
+
+
+@pytest.mark.parametrize("title", [
+    "Sony PlayStation 4 PS4 500GB Black Console CUH-1215A Untested",
+    "Nintendo Switch Lite Turquoise Handheld Console sold as is",
+    "Sony PSP 2000 Ice Silver Handheld System - untested, sold as-is",
+    "Nintendo DSi XL Metallic Rose Console Bundle w Charger",
+])
+def test_untested_and_as_is_still_price(title):
+    """The other half of the guard, and the one that costs money if it slips.
+
+    "Untested" is the DISCOUNT WE BUY - it is the whole Seiko-automatic and DSi
+    thesis. And Goodwill staples "sold as is" onto working and broken lots
+    alike, so banning it would blind the book to a large share of its best
+    source. Neither belongs in DEAD_HARDWARE, only assert-dead language does.
+    """
+    assert match(title) is not None
+
+
 def test_a_model_number_stands_in_for_the_noun():
     """The escape hatch for terse titles: a hardware model number is evidence
     on its own, because no game carries one."""
