@@ -222,6 +222,57 @@ def test_standalone_matches_agrees_with_match_after_the_guard_hoist():
             assert standalone == via_match, f"{m.key} disagrees on {title!r}"
 
 
+@pytest.mark.parametrize("title", [
+    # "eXtremeRate Switch OLED Shell Clear Purple" earned a [buy] alert against
+    # the $175 switch_oled comp on the live board 2026-08-16. `shell only` was
+    # in the guard; a bag of plastic that doesn't say "only" was not.
+    "eXtremeRate Switch OLED Shell   Clear Purple",
+    "Game Boy Advance SP Replacement Buttons",
+    "Nintendo Switch OLED Replacement Housing Kit",
+    "GBA SP Shell Kit Clear Blue",
+    "Nintendo Switch Lite Button Set",
+])
+def test_replacement_shells_and_parts_never_price_as_hardware(title):
+    assert match(title) is None
+
+
+@pytest.mark.parametrize("title,key", [
+    # 🚨 The guard is anchored to aftermarket/part words, NOT a bare `\bshell\b`.
+    # A console described as having a damaged shell is still a console.
+    ("Nintendo Switch OLED Console w/ Dock, cracked shell", "switch_oled"),
+    ("Nintendo Game Boy Advance SP AGS-101 Backlit Silver", "gba_sp_101"),
+    ("New Nintendo 3DS XL Galaxy Style", "n3ds_xl"),
+    ("Gameboy Advance SP with charger tested", "gba_sp"),
+    # PCH-1101 / PCH-1104 are real Vita hardware that the old
+    # `pch-?\s*[12]0\d\d` missed. Game SKUs are PCSE-/PCSB-.
+    ("untested as-is ps vita MODEL.PCH-1101", "ps_vita"),
+])
+def test_the_part_guard_does_not_eat_real_hardware(title, key):
+    m = match(title)
+    assert m is not None, f"{title!r} is real hardware and must still price"
+    assert m.model.key == key
+
+
+def test_variant_models_deliberately_keep_bare_name_matching():
+    """🚨 The noun rule is for BASE platform names, not variant names, and the
+    distinction is measured - do not "finish the job" by applying it to these.
+
+    Games are labelled with the base platform ("Nintendo 3DS", "Nintendo
+    Switch"), never the variant ("3DS XL", "Switch OLED"), so a variant name
+    does not attract the 218-listing game problem that motivated the rule. What
+    it DOES attract is accessories, which is the accessory guard's job.
+
+    Applying the noun rule to these six on 2026-08-16 was tried and REVERTED:
+    measured against 315 live listings it cost n3ds_xl two real listings while
+    killing zero junk, and cost gba_sp one. The shell that prompted it is now
+    caught by the part guard instead, where it belongs.
+    """
+    for key in ("switch_oled", "gba_sp", "gba_sp_101", "n3ds_xl",
+                "ps_vita", "dreamcast"):
+        assert not BY_KEY[key].include.startswith("^(?="), (
+            f"{key} was given the noun rule; see this test's docstring")
+
+
 def test_a_model_number_stands_in_for_the_noun():
     """The escape hatch for terse titles: a hardware model number is evidence
     on its own, because no game carries one."""

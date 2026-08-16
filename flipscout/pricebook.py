@@ -89,6 +89,18 @@ ACCESSORY_EXCLUDE = (
     r"\bguide\b|\bbook\b|paperback|magazine|poster|\bposter\b|sticker|decal|"
     r"\bempty\b|box only|case only|cover only|manual only|insert only|label only|"
     r"shell only|display only|\breplica\b|\bpromo\b|advertisement|\bad\b|"
+    # REPLACEMENT PARTS AND SHELLS. "shell only" above was too narrow: caught on
+    # the live board 2026-08-16, "eXtremeRate Switch OLED Shell   Clear Purple"
+    # - a bag of plastic - earned a [buy] alert against the $175 switch_oled
+    # comp. `replacement` was already guarded for cables/chargers/batteries but
+    # not for the housing itself, and "Game Boy Advance SP Replacement Buttons"
+    # leaked the same way against an $80 comp.
+    # 🚨 Anchored to aftermarket/part words, NOT a bare `\bshell\b` - a console
+    # legitimately described as having "a cracked shell" is still a console.
+    r"\bshells?\s*(only|kit|set|replacement)|replacement\s*shell|"
+    r"\bhousing\s*(only|kit|set)|replacement\s*(housing|buttons?|parts?|screen)|"
+    r"\bbuttons?\s*(only|set|kit)\b|shell\s*(?:case|cover)\b|"
+    r"extremerate|\bmod\s*kit\b|repair\s*kit|"
     # `card` is bundle-aware: camera listings legitimately read "w/ SD Card" /
     # "64GB Memory Card", and the cameras added 2026-07-28 were being silently
     # rejected over their own bundled storage. A trading/promo card still trips.
@@ -1793,7 +1805,10 @@ MODELS: list[Model] = [
         key="ps_vita",
         label="PlayStation Vita console",
         comp=150.00, measured="2026-08-15", sample=28, comp_used_only=False,
-        include=r"ps\s*vita|playstation\s*vita|\bpch-?\s*[12]0\d\d\b",
+        # [12]\d{3}, not [12]0\d\d: PCH-1101 and PCH-1104 are real Vita
+        # hardware and the old pattern missed both (caught on a live listing
+        # 2026-08-16). Game SKUs are PCSE-/PCSB-, so this cannot swallow one.
+        include=r"ps\s*vita|playstation\s*vita|\bpch-?\s*[12]\d{3}\b",
         exclude=r"\bgames?\b|\bcard\b|memory card|charger|\bcase\b|\bcover\b|"
                 r"screen protector|for parts|parts only|broken|not working|"
                 r"japan|japanese|\bjap\b|ntsc-j",
