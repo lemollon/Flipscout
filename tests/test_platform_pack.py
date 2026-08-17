@@ -242,7 +242,7 @@ def test_replacement_shells_and_parts_never_price_as_hardware(title):
     ("Nintendo Switch OLED Console w/ Dock, cracked shell", "switch_oled"),
     ("Nintendo Game Boy Advance SP AGS-101 Backlit Silver", "gba_sp_101"),
     ("New Nintendo 3DS XL Galaxy Style", "n3ds_xl"),
-    ("Gameboy Advance SP with charger tested", "gba_sp"),
+    ("Gameboy Advance SP AGS-001 with charger tested", "gba_sp"),
     # PCH-1101 / PCH-1104 are real Vita hardware that the old
     # `pch-?\s*[12]0\d\d` missed. Game SKUs are PCSE-/PCSB-.
     ("untested as-is ps vita MODEL.PCH-1101", "ps_vita"),
@@ -267,7 +267,9 @@ def test_variant_models_deliberately_keep_bare_name_matching():
     killing zero junk, and cost gba_sp one. The shell that prompted it is now
     caught by the part guard instead, where it belongs.
     """
-    for key in ("switch_oled", "gba_sp", "gba_sp_101", "n3ds_xl",
+    # 🚨 gba_sp was REMOVED from this list on 2026-08-17 - it now carries the
+    # noun rule. See test_gba_sp_noun_rule_is_net_positive_on_ebay.
+    for key in ("switch_oled", "gba_sp_101", "n3ds_xl",
                 "ps_vita", "dreamcast"):
         assert not BY_KEY[key].include.startswith("^(?="), (
             f"{key} was given the noun rule; see this test's docstring")
@@ -373,7 +375,7 @@ def test_gba_sp_still_beats_the_original_gba():
     """gba_original's include must not steal SP listings - the SP comps higher
     ($80/$130 vs $60) so mispricing here loses money in the wrong direction."""
     assert BY_KEY["gba_original"].specificity < BY_KEY["gba_sp"].specificity
-    assert match("Gameboy Advance SP with charger tested").model.key == "gba_sp"
+    assert match("Gameboy Advance SP AGS-001 with charger tested").model.key == "gba_sp"
     assert match("Nintendo Game Boy Advance SP AGS-101 backlit").model.key == "gba_sp_101"
 
 
@@ -586,10 +588,24 @@ def test_marketplace_junk_shapes_never_price(title, price):
     assert evaluate(title, price, "Houston, TX") is None
 
 
+def test_an_untiered_citizen_no_longer_prices():
+    """🚨 This USED to be a "find": the FB sweep alerted on "Vintage Citizen
+    Gold-Tone Watch" at $20 claiming $47 of profit, off the old brand-level
+    $85 comp. Measured 2026-08-17, ladies gold-tone Citizen quartz is p25
+    $19.79 / median $28 (n=215) - so $20 was roughly FAIR VALUE, not a find,
+    and after fees it LOSES money.
+
+    A Citizen with no tier evidence in the title now prices at nothing, which
+    is the correct conservative answer: the brand spans $19 to $2,520 and the
+    title has to say which one it is.
+    """
+    from flipscout.fbsweep import evaluate
+    assert evaluate("Vintage Citizen Gold-Tone Watch", 20.0, "Houston, TX") is None
+
+
 @pytest.mark.parametrize("title,price", [
     ("Xbox Series X Halo Infinite Limited Edition Console", 123.0),
     ("Starrett Surface Gage", 25.0),
-    ("Vintage Citizen Gold-Tone Watch", 20.0),
     ("FujiFilm Finepix 1300", 10.0),
 ])
 def test_the_real_finds_from_that_run_still_price(title, price):
@@ -605,3 +621,41 @@ def test_travel_and_carry_cases_are_bundle_aware():
     assert re.search(ACCESSORY_EXCLUDE, normalize("PS5 Console Travel Bag"))
     assert not re.search(ACCESSORY_EXCLUDE,
                          normalize("Nintendo Switch OLED Console with travel case"))
+
+
+def test_gba_sp_noun_rule_is_net_positive_on_ebay():
+    """gba_sp requires a console noun or AGS-001; n3ds_xl still does not.
+
+    🚨 THIS IS A CLOSE CALL AND THE NUMBERS SHOULD BE HONEST ABOUT IT.
+
+    On 2026-08-16 I measured the noun rule on GOODWILL data and got gba_sp at
+    6 bare titles / 5 junk killed / 1 real lost, then reverted it anyway along
+    with five other models because n3ds_xl was net negative. That was an
+    over-correction, and the cost showed up immediately: a live eBay listing,
+    "Super Mario Advance 4 ... Game Boy Advance SP Gameboy", priced a $19
+    CARTRIDGE against this $80 CONSOLE comp, because sellers keyword-stuff
+    platform names into game titles.
+
+    Re-measured on EBAY, where that problem actually lives - 393 sold "Game Boy
+    Advance SP" titles:
+
+        338 (86%) still price - they carry a console noun or AGS-001
+         55      rejected by the rule, of which
+                 18 are GAMES
+                 15 are ACCESSORIES
+                 22 are REAL CONSOLES        <- the genuine cost
+
+    Net +11, not the 5:1 the Goodwill sample implied. It is kept because the
+    error is asymmetric in frequency, not size (~$16 overpay vs ~$20 forgone),
+    and because AGS-001 gives most real consoles an escape hatch. If a future
+    measurement flips it, flip it back - do not treat this as settled.
+    """
+    from flipscout.pricebook import BY_KEY
+    assert BY_KEY["gba_sp"].include.startswith("^(?="), "gba_sp lost the noun rule"
+    assert not BY_KEY["n3ds_xl"].include.startswith("^(?="), \
+        "n3ds_xl must stay bare - it lost 2 real listings and killed 0 junk"
+    # the model number is standalone evidence, which is what keeps the cost low
+    assert match("Nintendo Gameboy Advance SP AGS-001") is not None
+    # ...and a cartridge with the platform stuffed in the title is refused
+    assert match("Super Mario Advance 4 Super Mario Bros 3 Nintendo Game Boy "
+                 "Advance SP Gameboy") is None

@@ -57,6 +57,52 @@ _BUNDLED = (r"(?<!with )(?<!w/ )(?<!w/)(?<!and )(?<!& )(?<!\+ )(?<!\+)"
             r"(?<!includes )(?<!incl )(?<!plus )(?<!, )(?<!,)")
 
 
+# --- watch tiering, 2026-08-17 ----------------------------------------------
+# 🚨 THE MOST EXPENSIVE LESSON IN THIS FILE, RE-LEARNED THE HARD WAY.
+#
+# `citizen_watch` was a SINGLE $85 comp on `\bcitizen\b`, for a brand whose
+# solds run $19 to $2,520. Over nine listings Leron sent on 2026-08-16/17 it
+# was wrong FIVE TIMES, and in both directions:
+#
+#   plain quartz, worn strap      quoted $42   worth  $40-55
+#   Elegance Signature            quoted $39   worth     $37   (no room at all)
+#   ladies gold-tone "Seven"      quoted $41   worth     $28   (would have LOST)
+#   broken two-tone chrono        quoted $47   worth     $20   (would have LOST)
+#   Eco-Drive Perpetual Calendar  quoted $47   worth    $150   (would have SKIPPED a real one)
+#
+# That last row is the one that matters most: a brand comp is not merely
+# over-generous, it also makes you WALK PAST the good stuff. This is the same
+# rule the top of this file already states with TI-84 vs TI-83 - the model is
+# the trade - and the watches simply never got it applied.
+#
+# Every tier below is measured (eBay solds, filtered per tier, floored at p25)
+# and gated on the book's real bar: $20 target profit over $9 inbound. Five
+# measured tiers FAILED that gate and are in DEAD_MODELS, not here.
+def _citizen(tier: str) -> str:
+    """Brand AND tier must both appear, anywhere in the title.
+
+    🚨 Must be ANCHORED. The first cut was a bare lookahead prefix,
+    `(?=.*\\bcitizen\\b)(campanola|...)`, which fails on every real title:
+    re.search scans, and at the position of "campanola" the lookahead is
+    searching FORWARD for "citizen", which already appeared BEHIND it. Every
+    one of the eight tiers matched nothing. Same anchored shape as
+    `_console_include`, and with the same consequence - `count_units` sees one
+    match, so every listing prices as one unit, which is the safe direction.
+    """
+    return rf"^(?=.*\bcitizen\b)(?=.*(?:{tier})).*$"
+
+# Ladies' pieces run roughly HALF their men's equivalents across every tier
+# measured, and every ladies tier failed the profit gate. Gender in the title
+# is not decoration - it is the single biggest price variable in this category.
+_LADIES = (r"\bladies\b|\blady'?s?\b|\bwomen'?s?\b|\bwomens\b|\bgirls?\b|"
+           r"\bfemale\b")
+
+_WATCH_JUNK = (r"\bfor citizen\b|\bfor seiko\b|compatible\s+with|"
+               rf"{_BUNDLED}\bband\b|{_BUNDLED}\bstrap\b|bracelet only|"
+               r"\bbezel\b|crystal only|movement only|dial only|"
+               r"for parts|parts only|\bbroken\b|not working")
+
+
 def _console_include(platform: str, model_numbers: str = "") -> str:
     """Require POSITIVE HARDWARE EVIDENCE: a console noun near the platform
     name, or a hardware model number.
@@ -668,7 +714,19 @@ MODELS: list[Model] = [
         key="gba_sp",
         label="Game Boy Advance SP (AGS-001/unspecified)",
         comp=80.00, measured="2026-07-30", sample=51,
-        include=r"game\s*boy\s*advance\s*sp|gameboy\s*advance\s*sp|\bags\s*-?\s*001\b",
+        # 🚨 NOUN RULE RESTORED 2026-08-17. This was bare, and on a live eBay
+        # listing it priced "Super Mario Advance 4 ... Game Boy Advance SP
+        # Gameboy" - a $19 CARTRIDGE - against this $80 CONSOLE comp, because
+        # sellers keyword-stuff platform names into game titles.
+        #
+        # It had the rule on 2026-08-16 and I reverted it, which was an
+        # over-correction: the per-model measurement said gba_sp was NET
+        # POSITIVE (6 bare titles, 5 junk killed, 1 real listing lost) and
+        # only n3ds_xl was net negative (2 real lost, 0 junk killed). I
+        # reverted all six instead of the one. n3ds_xl stays bare; this does
+        # not.
+        include=_console_include(
+            r"(?:game\s*boy|gameboy)\s*advance\s*sp", r"\bags\s*-?\s*001\b"),
         exclude=r"ags\s*-?\s*101|backlit|\bips\b|modded|custom|shell|housing|repro|"
                 r"for parts|parts only|not working|broken|box only|charger only",
         outbound_shipping=5.00, category="videogames",
@@ -1491,7 +1549,22 @@ MODELS: list[Model] = [
         include=r"handycam|\bdcr\s*-|\bccd\s*-\s*tr|\bhdr\s*-\s*(cx|xr|pj|sr)",
         # Tape lots borrow the name ("Hi8 tapes for Sony Handycam"), and the
         # DVD-era models are the measured-cheap end ($15-71) - excluded.
-        exclude=r"\btapes?\b|cassette|\bdvd\b|for parts|parts only|not working|broken",
+        # 🚨 `\bdvd\b` COULD NOT MATCH "DCR-DVD92" - the trailing \b needs a
+        # non-word character and "92" is a word character. So every DVD
+        # Handycam sailed through and got priced against the TAPE comp.
+        # Caught on a live eBay listing 2026-08-17; it had already put a
+        # DCR-DVD92 on the board claiming $73.72 of profit when the real
+        # number was about $8.
+        #
+        # THE FORMAT IS THE VALUE. Tape-era units sell because buyers want to
+        # DIGITISE old Video8/Hi8/MiniDV cassettes; a DVD camcorder has no
+        # such job - the disc already plays in any computer:
+        #     tape-era Hi8/MiniDV/Digital8   n=41    p25 $95.99  med $134.99
+        #     DVD camcorders                 n=204   p25 $30     med $49.99
+        #     DCR-DVD92 exactly              n=99    p25 $34.40  med $41.16
+        # DVD models are DEAD - see DEAD_MODELS.
+        exclude=r"\btapes?\b|cassette|dcr\s*-?\s*dvd|\bdvd\s*\d|\bdvd\b|"
+                r"for parts|parts only|not working|broken",
         outbound_shipping=10.00, category="cameras",
         comp_query="sony handycam camcorder", specificity=50,
         note="CONSERVATIVE FLOOR below the $163.18 median (n=53). Tape-era "
@@ -1810,6 +1883,11 @@ MODELS: list[Model] = [
              "caseback photo",
     ),
     Model(
+        # 🚨 LADIES EXCLUDED below. Measured 2026-08-17: women's Seiko
+        # automatic is p25 $40 / median $88 (n=223) against men's p25 $75 /
+        # median $150 (n=218) - roughly HALF - and the ladies tier fails the
+        # profit gate outright. A 25mm ladies Seiko 5 was quoted a $30 max bid
+        # off this comp on a real listing. See DEAD_MODELS.
         key="seiko_automatic",
         label="Seiko Automatic watch",
         comp=67.00, measured="2026-08-13", sample=123,
@@ -1820,7 +1898,7 @@ MODELS: list[Model] = [
                 r"(automatic|divers?|presage|skx).{0,40}seiko",
         # Same lookalike trap as G-Shock: "Seiko style automatic skeleton
         # watch" reads as a Seiko-inspired no-name, not the brand.
-        exclude=r"\bband\s+only\b|\bbracelet\s+only\b|\bstrap\s+only\b|"
+        exclude=_LADIES + r"|\bband\s+only\b|\bbracelet\s+only\b|\bstrap\s+only\b|"
                 r"\bdial\s+only\b|\bmovement\s+only\b|\bcase\s+only\b|"
                 r"\bcrown\s+only\b|for parts|parts only|not working|broken|"
                 r"seiko.{0,20}(" + LOOKALIKE_PHRASING + r")|"
@@ -1936,25 +2014,107 @@ MODELS: list[Model] = [
              "product. Check the disc drive spins - it is the common failure.",
     ),
     Model(
-        key="citizen_watch",
-        label="Citizen watch (Eco-Drive / quartz)",
-        comp=85.00, measured="2026-08-15", sample=56,
-        include=r"\bcitizen\b",
-        exclude=r"\bfor citizen\b|compatible\s+with|\bband\b|\bstrap\b|"
-                r"bracelet only|\bbezel\b|crystal only|movement only|dial only|"
-                r"for parts|parts only|broken|not working",
-        outbound_shipping=6.00, category="watches", comp_query="citizen eco-drive watch",
-        specificity=10,
-        # A BRAND IS NOT A MODEL - the same rule that put Fluke on a conservative
-        # $90 floor instead of its $194.99 median. Citizen solds run $70 to $501
-        # (n=56, median $124.31, p25 $77.99, p75 $230), so the median would
-        # routinely overbid a plain quartz. Carried near p25.
-        note="BRAND-LEVEL match, deliberately floored at $85 against a $124.31 "
-             "median (n=56) because the range is $70-$501 - Navihawk/Promaster/"
-             "titanium sell 2-4x a plain quartz and nothing in the title reliably "
-             "says which. Eco-Drive needs no battery; a dead one usually just needs "
-             "light, which is exactly the 'untested' discount we buy. Re-measure "
-             "per-model before paying over ~$120.",
+        key="citizen_campanola",
+        label="Citizen Campanola / Satellite Wave / Attesa / The Citizen",
+        comp=200.00, measured="2026-08-17", sample=14,
+        include=_citizen(r"campanola|satellite\s*wave|\battesa\b|the\s+citizen|series\s*8"),
+        exclude=_WATCH_JUNK,
+        outbound_shipping=8.00, category="watches", specificity=64,
+        comp_query="citizen campanola satellite wave watch",
+        note="FLOOR far below a $549 median (n=14 THIN, $78-$2,520). The halo "
+             "tier - if a title says Campanola it is worth checking by hand.",
+    ),
+    Model(
+        key="citizen_promaster",
+        label="Citizen Promaster / Aqualand diver",
+        comp=200.00, measured="2026-08-17", sample=31,
+        include=_citizen(r"promaster|aqualand"),
+        exclude=_WATCH_JUNK,
+        outbound_shipping=8.00, category="watches", specificity=62,
+        comp_query="citizen promaster diver watch",
+        note="FLOOR at ~p25 of a $280 median (n=31). Dive models hold value far "
+             "better than any dress Citizen.",
+    ),
+    Model(
+        key="citizen_nighthawk",
+        label="Citizen Nighthawk / Skyhawk / Blue Angels / Navihawk",
+        comp=145.00, measured="2026-08-17", sample=12,
+        include=_citizen(r"nighthawk|skyhawk|blue\s*angels|navihawk|red\s*arrows"),
+        exclude=_WATCH_JUNK,
+        outbound_shipping=8.00, category="watches", specificity=60,
+        comp_query="citizen nighthawk skyhawk watch",
+        note="FLOOR at p25 of a $300 median (n=12 THIN). The pilot line.",
+    ),
+    Model(
+        key="citizen_ecodrive_chrono",
+        label="Citizen Eco-Drive chronograph",
+        comp=145.00, measured="2026-08-17", sample=201,
+        # 🚨 the extra condition goes INSIDE the anchored group. Appending
+        # `(?=.*chrono)` after `_citizen(...)` put it after the closing `.*$`,
+        # i.e. at end-of-string, where it can never match.
+        include=_citizen(r"eco.?drive") .replace(").*$", r")(?=.*chrono).*$"),
+        exclude=_WATCH_JUNK + r"|" + _LADIES,
+        outbound_shipping=8.00, category="watches", specificity=58,
+        comp_query="citizen eco drive chronograph mens watch",
+        note="FLOOR at p25 of a $199.95 median (n=201) - the best-sampled tier "
+             "in the whole Citizen book.",
+    ),
+    Model(
+        key="citizen_perpetual",
+        label="Citizen Eco-Drive Perpetual Calendar",
+        comp=85.00, measured="2026-08-17", sample=38,
+        include=_citizen(r"perpetual\s*calendar"),
+        exclude=_WATCH_JUNK,
+        outbound_shipping=8.00, category="watches", specificity=56,
+        comp_query="citizen eco drive perpetual calendar",
+        note="FLOOR at $85 - BETWEEN two samples that disagree, and below both "
+             "medians. Split of the broad Eco-Drive population: n=21, p25 $66, "
+             "median $150. Targeted perpetual+bracelet query: n=38, p25 $99, "
+             "median $139. Taking the thinner sample's p25 alone would floor "
+             "this at $66 and quote a $29 max bid on a watch that clears $139. "
+             "🚨 Eco-Drive has a "
+             "CAPACITOR, not a battery - a dead one is a $40-70 watchmaker job, "
+             "not a $5 swap, and sellers routinely write 'needs a battery'. "
+             "Charge it in sunlight for 3-5 DAYS before calling it dead.",
+    ),
+    Model(
+        key="citizen_ecodrive_mens",
+        label="Citizen Eco-Drive (men's, no complication)",
+        comp=95.00, measured="2026-08-17", sample=111,
+        include=_citizen(r"eco.?drive"),
+        exclude=_WATCH_JUNK + r"|" + _LADIES + r"|chrono|perpetual|promaster|"
+                r"nighthawk|skyhawk|blue\s*angels|navihawk|campanola|satellite\s*wave",
+        outbound_shipping=8.00, category="watches", specificity=44,
+        comp_query="citizen eco drive mens watch",
+        note="FLOOR at p25 of a $150 median (n=111). 🚨 LADIES Eco-Drive is a "
+             "different product at $40 p25 and is DEAD - see DEAD_MODELS. The "
+             "gender word in the title is the whole difference.",
+    ),
+    Model(
+        key="citizen_quartz_chrono",
+        label="Citizen quartz chronograph (not Eco-Drive)",
+        comp=62.00, measured="2026-08-17", sample=59,
+        include=_citizen(r"chrono"),
+        exclude=_WATCH_JUNK + r"|" + _LADIES + r"|eco.?drive|promaster|nighthawk|"
+                r"skyhawk|blue\s*angels|navihawk|campanola",
+        outbound_shipping=8.00, category="watches", specificity=42,
+        comp_query="citizen chronograph two tone mens watch",
+        note="FLOOR at p25 of a $99 median (n=59). An Eco-Drive chrono is worth "
+             "TWICE this ($199.95 median) - check the dial for 'Eco-Drive', and "
+             "note that 'needs a battery' PROVES it is NOT Eco-Drive.",
+    ),
+    Model(
+        key="citizen_quartz_mens",
+        label="Citizen quartz, men's (plain 3-hand)",
+        comp=48.00, measured="2026-08-17", sample=49,
+        include=_citizen(r"men'?s\b|mens\b"),
+        exclude=_WATCH_JUNK + r"|" + _LADIES + r"|eco.?drive|chrono|perpetual|"
+                r"promaster|nighthawk|skyhawk|navihawk|campanola|elegance",
+        outbound_shipping=8.00, category="watches", specificity=30,
+        comp_query="citizen mens quartz black dial watch",
+        note="FLOOR at ~p25 of a $95 median (n=49) and the THINNEST margin in "
+             "the Citizen book - max bid is about $4 before inbound shipping, so "
+             "this only ever pays on a local pickup.",
     ),
 ]
 
@@ -2015,6 +2175,31 @@ DEAD_MODELS = {
     r"((game\s*boy|gameboy)\s*pocket|\bmgb\s*-?\s*001\b)":
         "Game Boy Pocket sells $49.90 (n=154, measured 2026-08-16) -> max pay "
         "$6.29 against a $21 Goodwill median. Cheapest handheld measured",
+    # --- WATCH AND CAMCORDER TIERS, measured 2026-08-17 and REFUSED -------
+    # Each failed the book's bar ($20 target profit over $9 inbound). They
+    # are recorded rather than dropped because every one of them was a real
+    # listing Leron asked about, and the old brand-level comps said BUY.
+    r"(?=.*\bcitizen\b)(?=.*eco.?drive)(?=.*(\bladies\b|\bwomen'?s?\b|\bwomens\b))":
+        "LADIES Citizen Eco-Drive sells p25 $40 / median $85 (n=143, measured "
+        "2026-08-17) -> $0.00 max bid. The men's equivalent is p25 $101. "
+        "Gender is the biggest price variable in this category",
+    r"(?=.*\bcitizen\b)(?=.*\belegance\b)":
+        "Citizen Elegance / Elegance Signature sells p25 $23.95 / median $37 "
+        "(n=223, measured 2026-08-17) -> $0.00 max bid. Caliber 1112 is a "
+        "basic Miyota quartz; the name sounds premium and is not",
+    r"(?=.*\bcitizen\b)(?=.*(\bladies\b|\bwomen'?s?\b|\bwomens\b))"
+    r"(?!.*(eco.?drive|promaster|campanola|perpetual))":
+        "LADIES Citizen quartz sells p25 $19.79 / median $28 (n=215, measured "
+        "2026-08-17) -> $0.00 max bid. Gold-TONE is plating and it wears "
+        "through; this is the cheapest tier the brand makes",
+    r"dcr\s*-?\s*dvd|(?=.*handycam)(?=.*\bdvd\b)":
+        "DVD Handycams sell p25 $30 / median $49.99 (n=204; DCR-DVD92 exactly "
+        "$41.16, n=99, measured 2026-08-17) -> $0.00 max bid. THE FORMAT IS "
+        "THE VALUE: tape-era units fetch $135 because buyers digitise "
+        "cassettes, and a DVD already plays in any computer",
+    r"(?=.*\bseiko\b)(?=.*(automatic|\b5\b))(?=.*(\bladies\b|\bwomen'?s?\b|\bwomens\b))":
+        "LADIES Seiko automatic sells p25 $40 / median $88 (n=223, measured "
+        "2026-08-17) vs men's p25 $75 / median $150 -> $0.00 max bid",
     r"(\bdmg\s*-?\s*01\b|(game\s*boy|gameboy)\s*(original|classic|brick))":
         "original DMG-01 Game Boy sells $68 (n=82, measured 2026-08-16) -> max pay "
         "$21.92 against a $25 Goodwill median. Negative headroom",

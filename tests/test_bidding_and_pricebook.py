@@ -1377,7 +1377,9 @@ def test_a_bundled_battery_is_still_a_real_listing():
     assert m is not None and m.model.key == "powershot_elph"
     assert match("Sony Alpha a6000 Mirrorless Camera with battery and charger") is not None
     assert match("Sony a6000 24.3MP w/ 2 batteries") is not None
-    assert match("Nintendo Game Boy Advance SP with battery") is not None
+    # gba_sp requires a console noun or AGS-001 as of 2026-08-17 - see
+    # test_gba_sp_noun_rule_is_net_positive_on_ebay for the measurement.
+    assert match("Nintendo Game Boy Advance SP AGS-001 with battery") is not None
     assert match("Canon EOS 5D Mark III Body w/ Battery Grip") is not None
     assert match("Fujifilm X100V + NP-W126S battery") is not None
 

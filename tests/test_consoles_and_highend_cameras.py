@@ -18,7 +18,7 @@ def test_backlit_sp_prices_above_the_plain_sp():
 
 
 def test_plain_sp_title_never_prices_as_the_101():
-    assert match("Gameboy Advance SP with charger tested").model.key == "gba_sp"
+    assert match("Gameboy Advance SP AGS-001 with charger tested").model.key == "gba_sp"
 
 
 def test_switch_oled_needs_the_console_not_an_accessory():
