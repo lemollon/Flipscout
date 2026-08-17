@@ -659,3 +659,31 @@ def test_gba_sp_noun_rule_is_net_positive_on_ebay():
     # ...and a cartridge with the platform stuffed in the title is refused
     assert match("Super Mario Advance 4 Super Mario Bros 3 Nintendo Game Boy "
                  "Advance SP Gameboy") is None
+
+
+@pytest.mark.parametrize("title", [
+    # Both reached DISCORD as "finds" on the 2026-08-17 15:17 FB sweep.
+    "Just listed Scratch Tempered Glass For Gameboy Advance SP Console",
+    "Bussdown AP or G shock *** moving sale",
+    "Tempered Glass Screen Protector for Nintendo Switch OLED Console",
+    "Case for Game Boy Advance SP console",
+])
+def test_screen_protectors_and_bling_never_price(title):
+    """🚨 The tempered-glass one SATISFIED THE HARDWARE-NOUN RULE, because the
+    accessory listing itself says "Console". The noun rule cannot save you when
+    an accessory is described by the device it fits - only the accessory
+    vocabulary can. The pre-existing "for <platform>" tell also listed
+    ps/xbox/nintendo/wii/switch but NOT game boy, which is how it slipped.
+    """
+    assert match(title) is None
+
+
+def test_the_garage_sale_digest_is_not_collateral_damage():
+    """🚨 I first guarded the bling listing with `moving|garage|estate sale`
+    and it BROKE the garage-sale digest, which deliberately parses listings
+    titled "Estate sale" to pull book models out of the description. Sale-type
+    words are load-bearing elsewhere; only the bling slang is guarded now.
+    """
+    from flipscout.garagesales import hot
+    got = hot({"title": "Estate sale", "desc": "Fluke 87 multimeter, cameras, tools"})
+    assert "Fluke 87" in got

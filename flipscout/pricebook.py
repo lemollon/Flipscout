@@ -180,6 +180,26 @@ ACCESSORY_EXCLUDE = (
     # 🚨 Note the first two are not objects at all - somebody selling a REPAIR
     # SERVICE. No amount of product vocabulary catches that; it needs its own
     # rule.
+    # SCREEN PROTECTORS AND "FOR <handheld>" ACCESSORIES. Two more that the
+    # 2026-08-17 15:17 FB sweep posted to Discord as real finds:
+    #   "Scratch Tempered Glass For Gameboy Advance SP Console"  $5 -> $59
+    # 🚨 That one satisfied the hardware-NOUN rule, because the accessory
+    # listing itself says "Console" - the noun rule cannot save you when the
+    # accessory is described by the device it fits. "tempered glass" and the
+    # "for <handheld>" tell are what actually catch it.
+    # 🚨 The existing "for <platform>" guard listed ps/xbox/nintendo/wii/switch
+    # but NOT game boy or gba, which is how this slipped through.
+    r"tempered\s*glass|screen\s*protector|\bglass\s*(screen|protector)\b|"
+    r"\bfor\s+(the\s+)?(game\s*boy|gameboy|gba|game\s*cube|gamecube|nintendo\s*64|n64|psp|ps\s*vita|steam\s*deck)\b|"
+    # BLING / replica jewellery slang. "Bussdown AP or G shock *** moving
+    # sale" was priced $5 as a real G-Shock on the 2026-08-17 FB sweep.
+    # 🚨 I first guarded this with `moving sale|garage sale|estate sale` and
+    # it BROKE THE GARAGE-SALE DIGEST, which deliberately parses listings
+    # titled "Estate sale" to pull book models out of the description (see
+    # test_hot_prefers_book_model_over_category_word). Those sale-type words
+    # are load-bearing elsewhere in the product; the bling slang is what
+    # actually identifies this listing, so only that is guarded.
+    r"\bbussdown\b|\bbust\s*down\b|\biced\s*out\b|\bblinged\b|"
     r"\b(repair|modding|modded|unlock(ing)?|cleaning|installation)\s+"
     r"(service|services)\b|\bservices\b|\bwe\s+(fix|repair|buy)\b|"
     r"\brepairs?\b\s*$|\bfix\s+your\b|"
