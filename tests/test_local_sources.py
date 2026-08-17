@@ -6,6 +6,8 @@ every source bug this project has hit was invisible to invented fixtures.
 
 import json
 
+import pytest
+
 from flipscout import estates, hunt
 from flipscout.hunters import HiBid, NellisAuction, build_hunters
 
@@ -694,3 +696,91 @@ def test_propertyroom_covers_the_categories_it_actually_carries():
                    "nikon coolpix", "nintendo switch"):
         assert needed in live, f"propertyroom no longer sweeps {needed!r}"
     assert len(live) >= 15, f"allowlist shrank back to {len(live)} terms"
+
+
+# --- FB Marketplace sweep (2026-08-17) ---------------------------------------
+# FB is login-walled, so it is the one source that cannot run in the hourly
+# GitHub Action. It used to run as a Claude-driven CronCreate, which is
+# session-only: it died when the session exited and nobody noticed for TWO
+# DAYS, because a dead sweep and a quiet sweep both post nothing to Discord.
+# flipscout/fbsweep.py replaces it with a Windows scheduled task driving a
+# headless Playwright profile. These tests pin the money logic and, more
+# importantly, the loud-failure contract.
+
+def test_fb_local_pickup_means_zero_inbound_shipping():
+    """The whole reason FB beats the shipped sources on thin margins."""
+    from flipscout import fbsweep
+    assert fbsweep.INBOUND == 0.0
+    hit = fbsweep.evaluate("Singer Featherweight 221 Sewing Machine", 120.0)
+    assert hit and hit["max_bid"] > 120.0
+
+
+@pytest.mark.parametrize("title,price,why", [
+    ("Canon G7X Mark II - Ships to you", 300.0, "not local, so inbound is not 0"),
+    ("Canon AE-1 Program", 1.0, "$1 asks are message-me placeholder bait"),
+    ("Arc'teryx Beta AR Jacket", 70.0, "local search is flooded with UA fakes"),
+    ("Nintendo Switch OLED Dock Station HEG-007", 40.0, "dock, not console"),
+    ("Singer Featherweight 221 Light Switch", 18.0, "component part"),
+    ("PS3 Console CECH-3001A Parts or Repair", 20.0, "seller-declared dead"),
+    ("Random bicycle", 50.0, "not in the book at all"),
+])
+def test_fb_sweep_skips(title, price, why):
+    from flipscout import fbsweep
+    assert fbsweep.evaluate(title, price) is None, why
+
+
+def test_fb_sweep_inherits_every_price_book_guard():
+    """fbsweep calls match(), so the dock / component / dead-hardware guards
+    added on 2026-08-16 apply here for free - it must never grow its own copy
+    of them, which would drift."""
+    import inspect
+    from flipscout import fbsweep
+    src = inspect.getsource(fbsweep.evaluate)
+    assert "match(" in src
+
+
+def test_a_logged_out_sweep_is_loud_not_silent(monkeypatch):
+    """🚨 THE BUG THIS FILE EXISTS FOR. A broken sweep and a quiet sweep must
+    not look the same - that ambiguity hid a two-day outage."""
+    from flipscout import fbsweep
+    monkeypatch.setattr(fbsweep, "sweep",
+                        lambda **kw: {"finds": [], "logged_out": True,
+                                      "scanned": 0, "terms": 0})
+    sent = []
+    monkeypatch.setattr("flipscout.notify.notify",
+                        lambda msg, **kw: sent.append(msg))
+    rc = fbsweep.run(dry_run=False)
+    assert rc == 2, "logged out must be a non-zero exit, not a clean run"
+    assert sent and "LOGGED OUT" in sent[0]
+
+
+def test_a_genuinely_quiet_sweep_posts_nothing(monkeypatch):
+    from flipscout import fbsweep
+    monkeypatch.setattr(fbsweep, "sweep",
+                        lambda **kw: {"finds": [], "logged_out": False,
+                                      "scanned": 120, "terms": 30})
+    posted = []
+    monkeypatch.setattr("flipscout.notify.notify_rich",
+                        lambda c, **kw: posted.append(c))
+    assert fbsweep.run(dry_run=False) == 0
+    assert not posted
+
+
+def test_already_seen_finds_are_not_reposted(monkeypatch, tmp_path):
+    from flipscout import fbsweep
+    seen_file = tmp_path / "seen.json"
+    seen_file.write_text('{"seen": ["111"]}', encoding="utf-8")
+    monkeypatch.setattr(fbsweep, "SEEN_PATH", seen_file)
+    hit = dict(id="111", price=10.0, profit_at_open=50.0, title="x",
+               model_key="ipod_nano")
+    fresh = dict(id="222", price=10.0, profit_at_open=40.0, title="y",
+                 model_key="ipod_nano")
+    monkeypatch.setattr(fbsweep, "sweep",
+                        lambda **kw: {"finds": [hit, fresh], "logged_out": False,
+                                      "scanned": 2, "terms": 1})
+    posted = []
+    monkeypatch.setattr("flipscout.notify.notify_rich",
+                        lambda c, **kw: posted.append(c))
+    fbsweep.run(dry_run=False)
+    assert [f["id"] for f in posted[0]] == ["222"]
+    assert "111" in fbsweep.load_seen() and "222" in fbsweep.load_seen()
