@@ -320,18 +320,38 @@ GSA_PAYLOAD = {"Results": [
 ]}
 
 
-def test_gsa_rows_carry_pickup_risk_and_filter_locally(monkeypatch):
+def test_gsa_rows_carry_pickup_risk(monkeypatch):
     from flipscout.hunters import GSAAuctions
     g = GSAAuctions()
     monkeypatch.setattr(g, "_fetch", lambda: GSAAuctions.parse(GSA_PAYLOAD))
     rows = g.search("nikon")
-    assert len(rows) == 1
-    r = rows[0]
+    r = next(x for x in rows if "Nikon" in x["title"])
     assert r["source"] == "gsa" and r["price"] == 120.0 and r["bids"] == 2
     # GSA never ships anything itself - every row must say so
     assert r["pickup_risk"] is True
     assert r["url"].startswith("https://gsaauctions.gov")
-    assert g.search("zamboni") == []
+    # the closed Forklift row must still be dropped by parse()
+    assert not any("Forklift" in x["title"] for x in rows)
+
+
+def test_gsa_returns_the_whole_catalogue_and_ignores_the_query(monkeypatch):
+    """🚨 This ASSERTED THE BUG until 2026-08-16.
+
+    It used to require `search("nikon") == 1 row` and `search("zamboni") == []`
+    - i.e. it enshrined a substring match of OUR consumer search terms against
+    GOVERNMENT surplus titles. Terms like "canon powershot" never appear in
+    "Excess Medical Supplies", which is why production reported `gsa=6` every
+    run against ~665 active lots. One free request returns everything, so the
+    price book should be the filter, not the keyword.
+    """
+    from flipscout.hunters import GSAAuctions
+    from flipscout.pricebook import search_terms
+    g = GSAAuctions()
+    monkeypatch.setattr(g, "_fetch", lambda: GSAAuctions.parse(GSA_PAYLOAD))
+    everything = g.search("nikon")
+    assert g.search("zamboni") == everything, "the query must not filter anything"
+    # and it must be asked for ONCE, not once per book term
+    assert g.relevant_terms(search_terms()) == [GSAAuctions._ALL]
 
 
 def test_gsa_one_fetch_serves_every_search_term():
@@ -636,3 +656,41 @@ def test_a_dead_page_two_keeps_page_one(monkeypatch):
     # paging loop in one try did exactly that - strictly worse than not
     # paging, since a partial outage would read as "this term has nothing".
     assert len(g._query("x", 40, True)) == 40
+
+
+# --- allowlisted hunters must not silently drift from the book ---------------
+# 2026-08-16: production reported EXACTLY `propertyroom=10` on every run for
+# weeks. PropertyRoom's allowlist was ("ipod", "ipod classic", "ipod video"),
+# so only two book terms ever matched it - the source stayed pinned to iPods
+# while the book grew watches, cameras and the whole console pack around it.
+# Its own docstring says it carries "jewellery, watches, coins, electronics".
+# Measured after widening: 130 unique listings and 37 priced, vs 10 and 0.
+
+def _allowlisted_hunters():
+    from flipscout.hunters import PropertyRoom, _unclaimedbaggage
+    return [("propertyroom", PropertyRoom()), ("unclaimedbaggage", _unclaimedbaggage())]
+
+
+def test_allowlist_terms_all_exist_in_the_price_book():
+    """A term in a hunter's TERMS that is not in search_terms() can NEVER fire.
+
+    That is the silent-death shape: the hunter looks configured, the sweep
+    looks healthy, and the source quietly contributes nothing.
+    """
+    from flipscout.pricebook import search_terms
+    book = {t.lower() for t in search_terms()}
+    for name, h in _allowlisted_hunters():
+        dead = [t for t in h.TERMS if t.lower() not in book]
+        assert not dead, f"{name}: allowlist terms missing from search_terms(): {dead}"
+
+
+def test_propertyroom_covers_the_categories_it_actually_carries():
+    """Watches especially - "citizen watch" alone returned 16 listings, all 16
+    priceable, while the allowlist was blocking it."""
+    from flipscout.hunters import PropertyRoom
+    from flipscout.pricebook import search_terms
+    live = {t.lower() for t in PropertyRoom().relevant_terms(search_terms())}
+    for needed in ("citizen watch", "casio g-shock", "xbox one", "ipod classic",
+                   "nikon coolpix", "nintendo switch"):
+        assert needed in live, f"propertyroom no longer sweeps {needed!r}"
+    assert len(live) >= 15, f"allowlist shrank back to {len(live)} terms"

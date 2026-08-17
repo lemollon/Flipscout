@@ -676,7 +676,40 @@ class PropertyRoom:
 
     name = "propertyroom"
 
-    TERMS = ("ipod", "ipod classic", "ipod video")
+    # 🚨 WIDENED 2026-08-16. This was ("ipod", "ipod classic", "ipod video"),
+    # which is why production reported EXACTLY `propertyroom=10` on every run
+    # for weeks - only two book terms ever matched the allowlist, so the source
+    # was pinned to iPods regardless of how the book grew around it.
+    #
+    # The allowlist was right when the book was calculators, iPods and test
+    # gear. Since then it gained watches (2026-08-13), cameras, and the console
+    # pack (2026-08-16) - and this hunter's own docstring says it carries
+    # "jewellery, watches, coins, electronics". It was blocking its own best
+    # categories.
+    #
+    # Measured 2026-08-16 across the terms below: 130 unique listings, 37 of
+    # them priced by the book - against 10 rows and 0 priced in production.
+    # Best yields were "citizen watch" (16/16 priced), "ipod classic" (10/10),
+    # "casio g-shock" (7/4), "xbox one" (15/2).
+    #
+    # Cost is one request per term on a source with no quota, so the ~20 extra
+    # calls are cheap. Every term here must also exist in pricebook
+    # search_terms(); a term that does not appear there is silently dead.
+    TERMS = (
+        # watches + jewellery - the category it is genuinely best at
+        "citizen watch", "citizen eco-drive", "casio g-shock", "g shock watch",
+        "seiko automatic", "seiko watch lot", "watch lot", "wristwatch lot",
+        # ipods - the original entries, minus a bare "ipod" that is not in
+        # search_terms() and so could never fire
+        "ipod classic", "ipod video", "apple ipod", "ipod nano", "ipod touch",
+        # cameras
+        "nikon coolpix", "canon powershot", "sony cybershot", "digital camera",
+        # consoles - seized electronics is full of them
+        "nintendo switch", "xbox one", "playstation 4", "playstation 5",
+        "xbox series x",
+        # test gear, which it carries occasionally
+        "fluke multimeter",
+    )
 
     def relevant_terms(self, terms: list) -> list:
         want = {t.lower() for t in self.TERMS}
@@ -1278,10 +1311,35 @@ class GSAAuctions:
             self._cache = []
         return self._cache
 
+    # One call returns the WHOLE catalogue, so there is nothing to search for -
+    # ask for it once and let the price book decide, which is what the class
+    # docstring always claimed happened.
+    _ALL = "__gsa_catalogue__"
+
+    def relevant_terms(self, terms: list) -> list:
+        return [self._ALL]
+
     def search(self, query: str, limit: int = 40) -> list[dict]:
-        q = (query or "").lower()
-        rows = [r for r in self._fetch() if q in r["title"].lower()]
-        return rows[:limit]
+        """Every open lot. The `query` and `limit` are deliberately ignored.
+
+        🚨 This used to be `[r for r in self._fetch() if q in r["title"].lower()]`
+        - a substring match of OUR consumer search terms against GOVERNMENT
+        surplus titles. Terms like "canon powershot" and "nintendo switch oled"
+        essentially never appear in "Excess Medical Supplies" or "Lot of 4 Dell
+        CPUs", which is why production reported `gsa=6` every run against a
+        catalogue of ~665 active lots. Diagnosed 2026-08-16.
+
+        ⛔ Fixing it does NOT make money today, and that is worth knowing before
+        anyone celebrates: feeding all 665 lots through match() prices ZERO of
+        them. GSA sells fleet vehicles (median bid $3,025), aircraft, hospital
+        beds and generators - a different business from this book. It is also
+        pickup-only, and the entire current catalogue sits in four cities
+        (Springfield IL, Montgomery AL, Phoenix AZ, Boston MA) with nothing in
+        Texas. Kept because it is one free request per run and inventory
+        rotates; if a drivable lot ever appears, the book will now actually see
+        it instead of filtering it out on a keyword.
+        """
+        return self._fetch()
 
 
 # --- registry ---------------------------------------------------------------
