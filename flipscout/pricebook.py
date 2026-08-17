@@ -122,6 +122,36 @@ ACCESSORY_EXCLUDE = (
     # product, which is why they are safe universally; generic words like
     # "cover" and "plate" are deliberately NOT here (a camera "body cover" is a
     # part, but "Pentax K1000 w/ body cap" is a camera).
+    # SERVICES AND CARRY GEAR. These are the shapes that dominate a
+    # PEER-TO-PEER marketplace and barely exist on Goodwill or eBay, so the
+    # guard never met them until the first live Facebook sweep on 2026-08-17.
+    # Ten of twenty-six Discord alerts that run were junk of this kind:
+    #   "PSP & PSVita Modding services"        $60  -> $61 "profit"
+    #   "Ps5-ps4-ps vita repair"               $30  -> $91
+    #   "PS5/CONSOLE TRAVEL BAG"               $20  -> $250
+    #   "Cannon G7X III Silicon Case"          $10  -> $597
+    #   "game boy advance sp car charger"      $25  -> $39
+    # 🚨 Note the first two are not objects at all - somebody selling a REPAIR
+    # SERVICE. No amount of product vocabulary catches that; it needs its own
+    # rule.
+    r"\b(repair|modding|modded|unlock(ing)?|cleaning|installation)\s+"
+    r"(service|services)\b|\bservices\b|\bwe\s+(fix|repair|buy)\b|"
+    r"\brepairs?\b\s*$|\bfix\s+your\b|"
+    # 🚨 Bundle-aware, for the third time in this file: "Switch OLED Console
+    # WITH carrying case" is a COMPLETE console and worth more. Only reject
+    # when the bag/case IS the product. (Silicone skins have no bundle form -
+    # nobody sells a camera "with silicone case" as an upsell - so that one
+    # stays unconditional.)
+    r"silicone?\s*(case|cover|skin|sleeve)|"
+    rf"{_BUNDLED}travel\s*(bag|case)|{_BUNDLED}carry(ing)?\s*(bag|case)|"
+    r"\bcar\s*charger\b|wall\s*charger|charging\s*(brick|block|pad)|"
+    # 🚨 "no console" and "console not included" CONTAIN the word console, so
+    # the hardware-noun rule reads them as evidence OF a console. This is the
+    # noun rule's blind spot and it must be closed here, not per model:
+    # "Nintendo switch controller no console with RGB light" priced as a
+    # $120 console.
+    r"\bno\s+(console|system|handheld)\b|"
+    r"(console|system)\s+not\s+included|without\s+(the\s+)?(console|system)|"
     r"\bsimanco\b|feed\s*dogs?\b|balance\s*wheel|stop\s*motion\s*knob|"
     r"\bface\s*plate\b|\bbase\s*plate\b|throat\s*plate|needle\s*plate|"
     r"\bbobbins?\b|presser\s*foot|\bbottom\s*cover\b|wire\s*holder|"

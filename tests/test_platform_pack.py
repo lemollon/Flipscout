@@ -560,3 +560,48 @@ def test_a_switch_dock_never_prices_as_the_console(title):
 def test_a_console_bundled_with_its_dock_still_prices(title):
     m = match(title)
     assert m is not None and m.model.key == "switch_oled"
+
+
+# --- peer-to-peer marketplace shapes (first live FB sweep, 2026-08-17) -------
+# Goodwill and eBay barely produce these, so the guard had never met them. Ten
+# of the twenty-six alerts on the first real Facebook run were junk of this
+# kind - a 38% false-positive rate straight into Discord.
+
+@pytest.mark.parametrize("title,price", [
+    # 🚨 not objects at all - somebody selling a SERVICE
+    ("PSP & PSVita Modding services", 60.0),
+    ("PSP & PSVita MODDING SERVICE ( good price )", 60.0),
+    ("Ps5-ps4-ps vita repair", 30.0),
+    # carry gear and chargers
+    ("Just listed Cannon G7X III Silicon Case", 10.0),
+    ("PS5/CONSOLE TRAVEL BAG", 20.0),
+    ("Original game boy advance sp car charger not aftermarket", 25.0),
+    # 🚨 the noun rule's blind spot: "no console" CONTAINS "console", so the
+    # hardware-noun requirement read it as evidence OF a console
+    ("Nintendo switch controller no console with RGB light", 40.0),
+    ("Nintendo Switch OLED console not included, controller only", 40.0),
+])
+def test_marketplace_junk_shapes_never_price(title, price):
+    from flipscout.fbsweep import evaluate
+    assert evaluate(title, price, "Houston, TX") is None
+
+
+@pytest.mark.parametrize("title,price", [
+    ("Xbox Series X Halo Infinite Limited Edition Console", 123.0),
+    ("Starrett Surface Gage", 25.0),
+    ("Vintage Citizen Gold-Tone Watch", 20.0),
+    ("FujiFilm Finepix 1300", 10.0),
+])
+def test_the_real_finds_from_that_run_still_price(title, price):
+    from flipscout.fbsweep import evaluate
+    assert evaluate(title, price, "Houston, TX") is not None
+
+
+def test_travel_and_carry_cases_are_bundle_aware():
+    """A console sold WITH a case is complete and worth more; a case sold on
+    its own is not the product. Third time this distinction has mattered."""
+    from flipscout.pricebook import ACCESSORY_EXCLUDE, normalize
+    import re
+    assert re.search(ACCESSORY_EXCLUDE, normalize("PS5 Console Travel Bag"))
+    assert not re.search(ACCESSORY_EXCLUDE,
+                         normalize("Nintendo Switch OLED Console with travel case"))
