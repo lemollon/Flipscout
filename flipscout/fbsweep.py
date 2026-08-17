@@ -100,6 +100,11 @@ _SKIP = re.compile(
 # neighbour selling a thing - it is priced at retail and generally shipped, so
 # the local-pickup maths does not apply.
 _NOT_LOCAL = re.compile(r"ships? to you|partner listing", re.I)
+# How many times to scroll each search. 8 x ~20 cards is ~160/term, well past
+# what Houston carries for these niches; the loop exits early the moment a
+# scroll adds nothing, so a thin term costs one extra second, not eight.
+SCROLL_PASSES = int(os.environ.get("FLIPSCOUT_FB_SCROLLS", "8"))
+
 # $1 asks are "message me" placeholder bait, not prices.
 _MIN_REAL_PRICE = 5.0
 # Arc'teryx local search is flooded with "UA Factory Direct" fakes at ~$70.
@@ -253,15 +258,55 @@ def sweep(headless: bool = True, limit_terms: Optional[int] = None,
                     logged_out = True
                     break
 
-                # Each result is an anchor to /marketplace/item/<id>/ whose text
-                # carries the price and title on separate lines.
-                cards = page.eval_on_selector_all(
-                    'a[href*="/marketplace/item/"]',
-                    """els => els.map(e => ({
-                        href: e.getAttribute('href') || '',
-                        text: (e.innerText || '').trim()
-                    }))""")
-                for c in cards:
+                # 🚨 COLLECT ON EVERY SCROLL PASS, never once at the end.
+                #
+                # Two things are going on and only the first is obvious:
+                #   1. The page is infinite-scroll, so without scrolling you get
+                #      one screen - a suspiciously uniform ~18 cards for EVERY
+                #      term (min 8, max 24 over 30 terms). That is the viewport,
+                #      not Houston's inventory.
+                #   2. Worse, the list is VIRTUALISED: FB recycles DOM nodes as
+                #      you scroll, so cards you have passed are REMOVED.
+                #      Measured 2026-08-17 on "nintendo switch", counting after
+                #      each scroll: 39, 42, 21, 42, 21, 42 - it oscillates.
+                #      Reading once at the end therefore caps you at whatever
+                #      happens to be rendered, and can catch a trough where half
+                #      the results are gone.
+                # So union the ids across passes and keep the best text seen for
+                # each. Stop when a full pass adds nothing new.
+                seen_cards: dict = {}
+                stale = 0
+                for _ in range(SCROLL_PASSES):
+                    try:
+                        cards = page.eval_on_selector_all(
+                            'a[href*="/marketplace/item/"]',
+                            """els => els.map(e => ({
+                                href: e.getAttribute('href') || '',
+                                text: (e.innerText || '').trim()
+                            }))""")
+                    except Exception:
+                        break
+                    added = 0
+                    for c in cards:
+                        mid = re.search(r"/marketplace/item/(\d+)", c["href"] or "")
+                        if not mid:
+                            continue
+                        key = mid.group(1)
+                        # keep the richest render of a card we have seen
+                        if key not in seen_cards or len(c["text"] or "") > len(seen_cards[key]["text"] or ""):
+                            if key not in seen_cards:
+                                added += 1
+                            seen_cards[key] = c
+                    stale = stale + 1 if added == 0 else 0
+                    if stale >= 2:
+                        break              # two dry passes = end of results
+                    try:
+                        page.mouse.wheel(0, 6000)
+                        page.wait_for_timeout(1200 + random.randint(0, 600))
+                    except Exception:
+                        break
+
+                for c in seen_cards.values():
                     mid = re.search(r"/marketplace/item/(\d+)", c["href"] or "")
                     if not mid:
                         continue
