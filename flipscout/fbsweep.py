@@ -60,13 +60,28 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 PROFILE_DIR = REPO / ".fbprofile"
 SEEN_PATH = REPO / "fb_sweep_seen.json"
 
-CITY = os.environ.get("FLIPSCOUT_FB_CITY", "houston")
 SEARCH = "https://www.facebook.com/marketplace/{city}/search?query={q}"
 
 # Local pickup, so inbound shipping is ZERO - that is the whole reason FB
 # beats the shipped sources on thin margins.
 INBOUND = 0.0
-TARGET_PROFIT = float(os.environ.get("FLIPSCOUT_TARGET_PROFIT", "20"))
+
+
+# 🚨 READ THESE LAZILY, NEVER AT IMPORT TIME. A Scheduled Task gets no shell
+# profile, so the config lives in .env and is not present until
+# `load_env_file()` runs inside main(). Module-level `os.environ.get(...)`
+# constants are evaluated at import - i.e. BEFORE that - so they would freeze
+# the defaults and silently ignore .env. Caught 2026-08-17 on the first real
+# task run.
+def _city() -> str:
+    return os.environ.get("FLIPSCOUT_FB_CITY", "houston")
+
+
+def _target_profit() -> float:
+    try:
+        return float(os.environ.get("FLIPSCOUT_TARGET_PROFIT", "20"))
+    except ValueError:
+        return 20.0
 
 # Skip rules learned on the 7/30-7/31 sweeps.
 _SKIP = re.compile(
@@ -145,7 +160,7 @@ def evaluate(title: str, price: float) -> Optional[dict]:
         return None
     model = m.model
     a = advise(model.comp, outbound_shipping=model.outbound_shipping,
-               target_profit=TARGET_PROFIT, inbound_shipping=INBOUND,
+               target_profit=_target_profit(), inbound_shipping=INBOUND,
                current_price=price, units=m.units)
     if a.max_bid <= 0 or price > a.max_bid:
         return None
@@ -178,7 +193,7 @@ def sweep(headless: bool = True, limit_terms: Optional[int] = None,
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         try:
             for i, term in enumerate(terms):
-                url = SEARCH.format(city=CITY, q=term.replace(" ", "%20"))
+                url = SEARCH.format(city=_city(), q=term.replace(" ", "%20"))
                 try:
                     page.goto(url, timeout=45000, wait_until="domcontentloaded")
                     page.wait_for_timeout(2500 + random.randint(0, 1500))
@@ -264,7 +279,7 @@ def run(headless: bool = True, dry_run: bool = False) -> int:
     if dry_run:
         return 0
     if fresh:
-        notify_rich(fresh, content=f"**Flipscout - Facebook Marketplace ({CITY})** "
+        notify_rich(fresh, content=f"**Flipscout - Facebook Marketplace ({_city()})** "
                                    f"- {len(fresh)} new local find(s)")
         seen.update(f["id"] for f in fresh)
         save_seen(seen)
@@ -297,6 +312,12 @@ def login() -> int:
 
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    # 🚨 FIRST, always. A Scheduled Task gets no shell profile, so without
+    # this the webhook is unset and every alert "delivers" to stdout - which
+    # is exactly how a LOGGED OUT warning ended up in a log file nobody
+    # reads instead of Discord, on the first real task run.
+    from .mybids import load_env_file
+    load_env_file()
     cmd = argv[0] if argv else "sweep"
     if cmd == "login":
         return login()

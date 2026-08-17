@@ -784,3 +784,34 @@ def test_already_seen_finds_are_not_reposted(monkeypatch, tmp_path):
     fbsweep.run(dry_run=False)
     assert [f["id"] for f in posted[0]] == ["222"]
     assert "111" in fbsweep.load_seen() and "222" in fbsweep.load_seen()
+
+
+def test_fbsweep_loads_dotenv_before_doing_anything(monkeypatch):
+    """🚨 A Scheduled Task gets NO shell profile, so FLIPSCOUT_ALERT_WEBHOOK
+    only exists in .env. Without load_env_file() the webhook is unset and
+    notify() falls back to `print(text)` - so the LOGGED OUT warning lands in a
+    log file nobody reads instead of Discord.
+
+    That is exactly what happened on the first real task run 2026-08-17: the
+    log had the warning twice (once from run(), once from notify()'s fallback),
+    which is the tell that nothing was delivered. mybids.py already documented
+    this trap; fbsweep had to learn it too.
+    """
+    from flipscout import fbsweep
+    called = []
+    monkeypatch.setattr("flipscout.mybids.load_env_file",
+                        lambda *a, **k: called.append(True))
+    monkeypatch.setattr(fbsweep, "run", lambda **kw: 0)
+    fbsweep.main(["sweep"])
+    assert called, "main() must load .env before running"
+
+
+def test_fbsweep_config_is_read_lazily_not_at_import(monkeypatch):
+    """Module-level os.environ.get() constants evaluate at IMPORT, which is
+    before load_env_file() runs - they would freeze the defaults and silently
+    ignore .env."""
+    from flipscout import fbsweep
+    monkeypatch.setenv("FLIPSCOUT_FB_CITY", "austin")
+    monkeypatch.setenv("FLIPSCOUT_TARGET_PROFIT", "35")
+    assert fbsweep._city() == "austin"
+    assert fbsweep._target_profit() == 35.0
