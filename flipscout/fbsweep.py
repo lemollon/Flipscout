@@ -286,28 +286,68 @@ def run(headless: bool = True, dry_run: bool = False) -> int:
     return 0
 
 
-def login() -> int:
+def _looks_logged_in(page) -> bool:
+    try:
+        body = (page.inner_text("body") or "")[:4000]
+    except Exception:
+        return False
+    if re.search(r"log in to facebook|create new account|you must log in", body, re.I):
+        return False
+    # Marketplace only renders these once authenticated.
+    return bool(re.search(r"marketplace|today'?s picks|sell", body, re.I))
+
+
+def login(timeout_s: int = 300) -> int:
     """Open the dedicated profile VISIBLY so Leron can sign in once.
 
-    Claude must never type these credentials; this only opens the window.
+    🚨 Claude must NEVER type these credentials. This only opens the window;
+    the human signs in.
+
+    It POLLS for the logged-in state and closes itself rather than waiting on
+    the window-close event. The first version blocked forever on
+    `page.wait_for_event("close", timeout=0)`, which hangs any wrapper with a
+    timeout (including running this via `!` inside Claude Code) and leaves you
+    unsure whether the profile was saved.
     """
     from playwright.sync_api import sync_playwright
-    print("Opening the Flipscout Facebook profile.")
-    print("Sign in, then CLOSE the window. The session is saved to")
-    print(f"  {PROFILE_DIR}")
+    print("Opening a Chrome window on the Flipscout FB profile.")
+    print("Sign in to Facebook there. This window is SEPARATE from your normal")
+    print("browser and nothing else uses it.")
+    print(f"Profile: {PROFILE_DIR}")
+    print(f"Waiting up to {timeout_s//60} minutes; it closes itself once you are in.\n")
     with sync_playwright() as p:
         ctx = p.chromium.launch_persistent_context(
             str(PROFILE_DIR), headless=False,
-            viewport={"width": 1280, "height": 900})
+            viewport={"width": 1280, "height": 900},
+            args=["--disable-blink-features=AutomationControlled"])
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
-        page.goto("https://www.facebook.com/marketplace/", timeout=60000)
         try:
-            page.wait_for_event("close", timeout=0)
+            page.goto("https://www.facebook.com/marketplace/", timeout=60000)
+        except Exception as e:
+            print(f"could not open Facebook: {type(e).__name__}")
+            ctx.close()
+            return 1
+        ok, waited = False, 0
+        while waited < timeout_s:
+            if page.is_closed():
+                break                      # signed in and closed it manually
+            if _looks_logged_in(page):
+                ok = True
+                break
+            time.sleep(3)
+            waited += 3
+        # let cookies flush to the profile before tearing the context down
+        try:
+            page.wait_for_timeout(1500)
         except Exception:
             pass
         ctx.close()
-    print("Saved. Now test with:  python -m flipscout.fbsweep sweep --dry-run")
-    return 0
+    if ok:
+        print("\nSigned in - session saved.")
+    else:
+        print("\nDid not detect a signed-in session (timed out or closed early).")
+    print("Verify with:  python -m flipscout.fbsweep sweep --dry-run")
+    return 0 if ok else 1
 
 
 def main(argv=None) -> int:
