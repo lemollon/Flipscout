@@ -52,8 +52,8 @@ import sys
 import time
 from typing import Optional
 
-from .analyzer import Thresholds
 from .bidding import advise
+from .hunt import scam_shaped as _scam_shaped
 from .pricebook import BY_KEY, match
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
@@ -83,12 +83,23 @@ def _target_profit() -> float:
     except ValueError:
         return 20.0
 
-# Skip rules learned on the 7/30-7/31 sweeps.
+# Skip rules learned on the 7/30-7/31 sweeps, corrected against real cards
+# 2026-08-17.
+# 🚨 `\brent\b`, not `\brental\b`. Houston's G7X market is mostly RENTALS -
+# of the first 8 results for "canon g7x", FOUR were rental listings phrased
+# "FOR RENT", "(Rental)" and "Rent Only". The last one slipped a $80 rental
+# through as a $910 "profit" on the first live run.
 _SKIP = re.compile(
-    r"ships? to you|"          # not local, so inbound is no longer 0
-    r"\brental\b|\bfor rent\b|"
-    r"\bwanted\b|\bisO\b|\bin search of\b",
+    r"\brent(al|als|ing)?\b|"
+    r"\bwanted\b|\bin search of\b|\biso\b",
     re.I)
+# 🚨 "Ships to you" is NOT in the title - it appears where the LOCATION goes.
+# Checking only the title missed it entirely, and a shipped item breaks the
+# inbound=0 assumption that the whole FB edge rests on.
+# "Partner listing" is FB's label for dealer/retail inventory rather than a
+# neighbour selling a thing - it is priced at retail and generally shipped, so
+# the local-pickup maths does not apply.
+_NOT_LOCAL = re.compile(r"ships? to you|partner listing", re.I)
 # $1 asks are "message me" placeholder bait, not prices.
 _MIN_REAL_PRICE = 5.0
 # Arc'teryx local search is flooded with "UA Factory Direct" fakes at ~$70.
@@ -143,13 +154,41 @@ def _price_of(text: str) -> Optional[float]:
     return v if v > 0 else None
 
 
-def evaluate(title: str, price: float) -> Optional[dict]:
+def parse_card(lines: list) -> tuple:
+    """(price, title, location) from one marketplace card's text lines.
+
+    Real shapes, captured 2026-08-17:
+        ["$350",         "Canon EOS M50 Great condition", "Houston, TX"]
+        ["$140", "$220", "Nintendo switch",               "Channelview, TX"]
+        ["$150", "$175", "Nintendo Switch OLED",          "Ships to you"]
+
+    🚨 LOCATION IS THE LAST LINE, not part of the title. The first version did
+    `" ".join(lines[1:3])` and produced titles like "Rent Only Canon G7X Mark II
+    Houston, TX".
+    🚨 A DISCOUNTED card carries TWO prices - current first, original
+    (strikethrough) second. Take the first and drop the rest, or the "$220"
+    ends up in the title and the original price gets treated as the ask.
+    """
+    lines = [x.strip() for x in (lines or []) if x and x.strip()]
+    if not lines:
+        return None, "", ""
+    location = lines[-1] if len(lines) > 1 else ""
+    body = lines[:-1] if len(lines) > 1 else lines
+    price_lines = [x for x in body if x.lstrip().startswith("$")]
+    title_lines = [x for x in body if not x.lstrip().startswith("$")]
+    price = _price_of(price_lines[0]) if price_lines else None
+    return price, " ".join(title_lines).strip(), location
+
+
+def evaluate(title: str, price: float, location: str = "") -> Optional[dict]:
     """Price one listing against the book. None = not a deal (or not in book).
 
     Local pickup means inbound=0, which is worth more than it sounds: a flat $9
     to ship something to you was quietly killing every thin margin in the book.
     """
     if not title or price is None:
+        return None
+    if _NOT_LOCAL.search(location) or _NOT_LOCAL.search(title):
         return None
     if _SKIP.search(title) or _FAKE_MAGNET.search(title):
         return None
@@ -173,6 +212,12 @@ def evaluate(title: str, price: float) -> Optional[dict]:
         "units": m.units, "source": "facebook", "listing_type": "fixed",
         "local": True, "nearby": True, "bids": None,
         "warnings": [w for w in (m.dead_also_present or [])],
+        # Reuse hunt's shared bait check rather than inventing a second
+        # threshold here - board.py and the Discord copy both read this key,
+        # and the whole point of it living in one place is that the flag can
+        # never diverge between the board's ranking and the alert text.
+        "scam_shaped": _scam_shaped(
+            {"listing_type": "fixed", "local": True}, a),
     }
 
 
@@ -220,16 +265,10 @@ def sweep(headless: bool = True, limit_terms: Optional[int] = None,
                     mid = re.search(r"/marketplace/item/(\d+)", c["href"] or "")
                     if not mid:
                         continue
-                    lines = [x.strip() for x in (c["text"] or "").split("\n") if x.strip()]
-                    if not lines:
-                        continue
-                    price = _price_of(lines[0])
-                    title = " ".join(lines[1:3]) if len(lines) > 1 else ""
-                    if price is None:
-                        for ln in lines:
-                            price = price or _price_of(ln)
+                    price, title, location = parse_card(
+                        (c["text"] or "").split("\n"))
                     scanned += 1
-                    hit = evaluate(title, price)
+                    hit = evaluate(title, price, location)
                     if hit:
                         hit["id"] = mid.group(1)
                         hit["url"] = f"https://www.facebook.com/marketplace/item/{mid.group(1)}/"

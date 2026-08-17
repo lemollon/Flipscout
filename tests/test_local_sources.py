@@ -815,3 +815,77 @@ def test_fbsweep_config_is_read_lazily_not_at_import(monkeypatch):
     monkeypatch.setenv("FLIPSCOUT_TARGET_PROFIT", "35")
     assert fbsweep._city() == "austin"
     assert fbsweep._target_profit() == 35.0
+
+
+# --- FB card parsing, from REAL cards captured 2026-08-17 --------------------
+# The first live run leaked a $80 RENTAL as a "$910 profit" find and would have
+# taken a "Ships to you" listing as local. Both came from parsing the card
+# wrong, and neither was visible until the profile was actually logged in.
+
+FB_CARDS = [
+    (["$350", "Canon EOS M50 Great condition", "Houston, TX"],
+     350.0, "Canon EOS M50 Great condition", "Houston, TX"),
+    # a DISCOUNTED card carries two prices: current first, strikethrough second
+    (["$140", "$220", "Nintendo switch", "Channelview, TX"],
+     140.0, "Nintendo switch", "Channelview, TX"),
+    (["$150", "$175", "Nintendo Switch OLED", "Ships to you"],
+     150.0, "Nintendo Switch OLED", "Ships to you"),
+    (["$80", "Rent Only Canon G7X Mark II", "Houston, TX"],
+     80.0, "Rent Only Canon G7X Mark II", "Houston, TX"),
+]
+
+
+@pytest.mark.parametrize("lines,price,title,loc", FB_CARDS)
+def test_fb_card_parsing(lines, price, title, loc):
+    """🚨 LOCATION IS THE LAST LINE. The first version did lines[1:3] and
+    produced titles like "Rent Only Canon G7X Mark II Houston, TX"."""
+    from flipscout.fbsweep import parse_card
+    assert parse_card(lines) == (price, title, loc)
+
+
+def test_discounted_card_takes_the_current_price_not_the_original():
+    from flipscout.fbsweep import parse_card
+    price, title, _ = parse_card(["$140", "$220", "Nintendo switch", "Katy, TX"])
+    assert price == 140.0, "must take the ask, not the strikethrough original"
+    assert "$220" not in title
+
+
+@pytest.mark.parametrize("title,loc", [
+    ("Canon G7X mark II FOR RENT", "Sugar Land, TX"),
+    ("Canon G7x Mark III (Rental)", "Houston, TX"),
+    ("Rent Only Canon G7X Mark II", "Houston, TX"),
+])
+def test_rentals_are_rejected(title, loc):
+    """Houston's G7X market is mostly RENTALS - 4 of the first 8 results. The
+    original `\brental\b` missed "Rent Only" and let an $80 rental through as a
+    $910 profit."""
+    from flipscout.fbsweep import evaluate
+    assert evaluate(title, 80.0, loc) is None
+
+
+def test_ships_to_you_is_caught_in_the_LOCATION_field():
+    """🚨 It is not in the title. Checking only the title missed it, and a
+    shipped item breaks the inbound=0 assumption the FB edge rests on."""
+    from flipscout.fbsweep import evaluate
+    # $100 is UNDER the switch_oled ceiling ($121.41), so location is the only
+    # thing that can reject it - which is what makes this test meaningful.
+    assert evaluate("Nintendo Switch OLED Console", 100.0, "Ships to you") is None
+    assert evaluate("Nintendo Switch OLED Console", 100.0, "Houston, TX") is not None
+
+
+def test_fb_partner_listings_are_not_local():
+    """"Partner listing" is FB's label for dealer/retail inventory, not a
+    neighbour selling a thing - retail priced and generally shipped, so the
+    inbound=0 maths does not apply. Seen live 2026-08-17 on an Olympus Stylus."""
+    from flipscout.fbsweep import evaluate
+    assert evaluate("Partner listing Olympus Stylus Epic Zoom 80", 69.0,
+                    "Houston, TX") is None
+
+
+def test_fb_finds_carry_the_shared_scam_flag():
+    """fbsweep reuses hunt.scam_shaped rather than inventing a second
+    threshold, so the flag cannot diverge from the board's ranking or the
+    Discord copy - the exact divergence hunt.py's docstring warns about."""
+    from flipscout.fbsweep import evaluate
+    hit = evaluate("Nintendo Switch OLED Console", 100.0, "Houston, TX")
+    assert hit is not None and "scam_shaped" in hit
