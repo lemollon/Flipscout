@@ -23,7 +23,8 @@ SETUP (once, by Leron - Claude must not create or paste the token)
 
 HOW ARMING WORKS
 ----------------
-React to any Flipscout alert carrying a shopgoodwill item link:
+React to any Flipscout alert carrying a shopgoodwill item or hibid lot
+link - the card's own link decides which sniper arms it:
 
     🎯  arm at the "Don't pay over" ceiling printed on that card
     ❌  disarm
@@ -59,7 +60,10 @@ DISARM_EMOJI = "\N{CROSS MARK}"     # ❌
 ACK_EMOJI = "\N{WHITE HEAVY CHECK MARK}"        # ✅ armed, poller saw it
 NOPE_EMOJI = "\N{WARNING SIGN}"                 # ⚠ could not arm - no ceiling on the card
 
-_ITEM = re.compile(r"shopgoodwill\.com/item/(\d{6,})", re.I)
+# Both sniper-capable sites. The site decides which module arms it, so a
+# card must never be matched by id alone - ids are not unique across them.
+_ITEM = re.compile(
+    r"(?:(shopgoodwill)\.com/item/|(hibid)\.com/lot/)(\d{6,})", re.I)
 # "Don't pay over" is the field notify.build_embed prints on every card.
 _CEILING = re.compile(r"(?:don'?t pay over|max bid|ceiling)\D{0,12}\$\s*([\d,]+\.?\d*)", re.I)
 _REPLY = re.compile(r"\bsnipe\s+\$?\s*([\d,]+\.?\d*)", re.I)
@@ -134,12 +138,27 @@ def card_text(msg: dict) -> str:
 
 
 def parse_card(msg: dict) -> tuple:
-    """(item_id, ceiling) from one alert message. Either may be None."""
+    """(site, item_id, ceiling) from one alert message. Any may be None.
+
+    `site` is "goodwill" or "hibid" and selects the sniper - they keep separate
+    armed files, separate browser profiles and separate rules (HiBid will not
+    bid until you are registered for the auction).
+    """
     txt = card_text(msg)
     m = _ITEM.search(txt)
     c = _CEILING.search(txt)
-    return (m.group(1) if m else None,
+    site = None
+    if m:
+        site = "goodwill" if m.group(1) else "hibid"
+    return (site,
+            m.group(3) if m else None,
             _money(c.group(1)) if c else None)
+
+
+def sniper_for(site: str):
+    """The module that arms this site. Both expose arm/disarm/load_armed."""
+    from . import hibidsnipe
+    return hibidsnipe if site == "hibid" else snipe
 
 
 def scan(limit: int = 50, dry_run: bool = False) -> int:
@@ -165,30 +184,32 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
         amt = _REPLY.search(m.get("content") or "")
         if not (rep and amt):
             continue
-        iid, _ = parse_card(by_id.get(rep.get("id"), rep))
+        site, iid, _ = parse_card(by_id.get(rep.get("id"), rep))
         if not iid:
             continue
         val = _money(amt.group(1))
-        if val is None or iid in armed:
+        mod = sniper_for(site)
+        if val is None or iid in mod.load_armed():
             continue
-        print(f"reply-arm {iid} at ${val:.2f}")
+        print(f"reply-arm {site} {iid} at ${val:.2f}")
         if not dry_run:
-            snipe.arm(iid, val, override=True)   # he named the number himself
+            mod.arm(iid, val, override=True)     # he named the number himself
             _react(channel, rep.get("id") or m["id"], ACK_EMOJI, token)
         acted += 1
 
-    armed = snipe.load_armed()
     for m in msgs:
         emojis = {(r.get("emoji") or {}).get("name") for r in (m.get("reactions") or [])}
         if not emojis & {ARM_EMOJI, DISARM_EMOJI}:
             continue
-        iid, ceiling = parse_card(m)
+        site, iid, ceiling = parse_card(m)
         if not iid:
             continue
+        mod = sniper_for(site)
+        armed = mod.load_armed()
         if DISARM_EMOJI in emojis and iid in armed:
-            print(f"disarm {iid}")
+            print(f"disarm {site} {iid}")
             if not dry_run:
-                snipe.disarm(iid)
+                mod.disarm(iid)
             acted += 1
             continue
         if ARM_EMOJI in emojis and iid not in armed:
@@ -213,9 +234,17 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             # there he named the number himself and may well be overriding on
             # purpose.
             try:
-                d = snipe.detail(iid)
-                fresh = snipe.book_ceiling(d.get("title") or "",
-                                           inbound=float(d.get("handlingPrice") or 0))
+                d = mod.detail(iid)
+                if site == "hibid":
+                    # The HiBid ceiling is a HAMMER number, so it has to be
+                    # re-derived against THIS auction's buyer's premium - the
+                    # same lot under a 20% house is worth less to bid on.
+                    fresh = mod.book_ceiling(d.get("title") or "",
+                                             premium=float(d.get("premium") or 0))
+                else:
+                    fresh = mod.book_ceiling(
+                        d.get("title") or "",
+                        inbound=float(d.get("handlingPrice") or 0))
             except Exception:
                 fresh = ceiling          # cannot check -> trust the card
             if fresh is None:
@@ -228,9 +257,9 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             if use < ceiling:
                 print(f"{iid}: card said ${ceiling:.2f}, book now says "
                       f"${fresh:.2f} - arming at the LOWER figure")
-            print(f"react-arm {iid} at ${use:.2f}")
+            print(f"react-arm {site} {iid} at ${use:.2f}")
             if not dry_run:
-                snipe.arm(iid, use)
+                mod.arm(iid, use)
                 _react(channel, m["id"], ACK_EMOJI, token)
             acted += 1
     if not acted:
