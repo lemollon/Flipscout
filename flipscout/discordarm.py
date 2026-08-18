@@ -27,6 +27,7 @@ React to any Flipscout alert carrying a shopgoodwill item or hibid lot
 link - the card's own link decides which sniper arms it:
 
     🎯  arm at the ceiling printed on that card
+    🔥  arm, and go over that ceiling to win it - see below
     ❌  disarm
 
 Both are already sitting under every card - the bot puts them there when it
@@ -47,6 +48,17 @@ ceiling, it refuses and says so rather than guessing.
 
 To use a different number, reply to the alert with `snipe 45`. An explicit
 figure always beats the card's ceiling.
+
+THE THREE LEVELS, IN ORDER OF HOW MUCH THEY COST YOU
+----------------------------------------------------
+  🎯  the disciplined ceiling - clears the full target profit
+  🔥  that ceiling plus FLIPSCOUT_SNIPE_STRETCH (default $10), CLAMPED at
+      break-even, so it can spend margin but never buy at a loss
+  reply `snipe 60`  - your number, no clamp at all, because you named it
+
+🚨 The stretch is profit you are spending, not headroom you found. And on a
+proxy system it only ever activates when a rival is sitting between the two
+numbers - which is precisely the narrow loss you wished you had won.
 """
 
 from __future__ import annotations
@@ -65,6 +77,16 @@ ARM_EMOJI = "\N{DIRECT HIT}"        # 🎯
 DISARM_EMOJI = "\N{CROSS MARK}"     # ❌
 ACK_EMOJI = "\N{WHITE HEAVY CHECK MARK}"        # ✅ armed, poller saw it
 NOPE_EMOJI = "\N{WARNING SIGN}"                 # ⚠ could not arm - no ceiling on the card
+STRETCH_EMOJI = "\N{FIRE}"                     # 🔥 arm, and go over the book to win
+
+# How far 🔥 reaches past the card's ceiling. It is a DOLLAR amount rather than
+# a percentage on purpose: the thing being spent is profit, and profit is
+# measured in dollars, not in a share of the hammer.
+#
+# 🚨 It is clamped at BREAK-EVEN by snipe.stretch_to, so however large this is
+# set, 🔥 can never arm a bid that loses money. Going past break-even needs an
+# explicit `snipe <amount>` reply, where Leron names the figure himself.
+STRETCH_DEFAULT = float(os.environ.get("FLIPSCOUT_SNIPE_STRETCH", "10"))
 
 # Both sniper-capable sites. The site decides which module arms it, so a
 # card must never be matched by id alone - ids are not unique across them.
@@ -231,7 +253,7 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             human = int(r.get("count") or 0) - (1 if r.get("me") else 0)
             if human > 0:
                 emojis.add(name)
-        if not emojis & {ARM_EMOJI, DISARM_EMOJI}:
+        if not emojis & {ARM_EMOJI, DISARM_EMOJI, STRETCH_EMOJI}:
             continue
         site, iid, ceiling = parse_card(m)
         if not iid:
@@ -244,7 +266,7 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
                 mod.disarm(iid)
             acted += 1
             continue
-        if ARM_EMOJI in emojis and iid not in armed:
+        if (emojis & {ARM_EMOJI, STRETCH_EMOJI}) and iid not in armed:
             if ceiling is None:
                 # 🚨 Never invent the number. If the card did not print a
                 # ceiling, Leron never saw one, so reacting authorised nothing.
@@ -289,9 +311,34 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             if use < ceiling:
                 print(f"{iid}: card said ${ceiling:.2f}, book now says "
                       f"${fresh:.2f} - arming at the LOWER figure")
-            print(f"react-arm {site} {iid} at ${use:.2f}")
+
+            # 🔥 says "I would rather win this than keep the full margin".
+            # The disciplined ceiling clears TARGET_PROFIT; each dollar past it
+            # clears a dollar less, and stretch_to refuses to go beyond
+            # break-even no matter how far STRETCH_DEFAULT reaches.
+            stretch = STRETCH_DEFAULT if STRETCH_EMOJI in emojis else 0.0
+            note = ""
+            if stretch:
+                try:
+                    title = (d.get("title") or "") if isinstance(d, dict) else ""
+                    if site == "hibid":
+                        use, clears, be, clamped = mod.stretch_to(
+                            title, use, stretch,
+                            premium=float(d.get("premium") or 0))
+                    else:
+                        use, clears, be, clamped = mod.stretch_to(
+                            title, use, stretch,
+                            inbound=float(d.get("handlingPrice") or 0))
+                    note = (f" (stretched; clears ${clears:.2f}, "
+                            f"break-even ${be:.2f}"
+                            + (", CLAMPED" if clamped else "") + ")")
+                except Exception:
+                    use = round(use + stretch, 2)
+                    note = " (stretched; could not price break-even)"
+
+            print(f"react-arm {site} {iid} at ${use:.2f}{note}")
             if not dry_run:
-                mod.arm(iid, use)
+                mod.arm(iid, use, override=bool(stretch))
                 _react(channel, m["id"], ACK_EMOJI, token)
             acted += 1
     if not acted:

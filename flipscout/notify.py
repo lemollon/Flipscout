@@ -229,7 +229,9 @@ def seed_arm_reactions(message_id, env=None, session=None) -> bool:
     from urllib.parse import quote
     session = session or requests
     ok = True
-    for emoji in ("\N{DIRECT HIT}", "\N{CROSS MARK}"):
+    # 🎯 disciplined max, 🔥 stretch over it to win, ❌ disarm. Seeded in that
+    # order so the cheapest option sits leftmost under the card.
+    for emoji in ("\N{DIRECT HIT}", "\N{FIRE}", "\N{CROSS MARK}"):
         try:
             r = session.put(
                 f"https://discord.com/api/v10/channels/{channel}/messages/"

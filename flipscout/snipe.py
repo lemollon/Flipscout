@@ -117,14 +117,41 @@ def seconds_left(d: dict) -> Optional[float]:
     return (end - srv).total_seconds()
 
 
-def book_ceiling(title: str, inbound: float = 0.0) -> Optional[float]:
-    """What the price book would pay. Advisory - Leron's max still governs."""
+def book_ceiling(title: str, inbound: float = 0.0,
+                 target_profit: float = 20.0) -> Optional[float]:
+    """What the price book would pay. Advisory - Leron's max still governs.
+
+    Pass target_profit=0 for the BREAK-EVEN price, which is where winning stops
+    being worth anything - the clamp a stretch is measured against.
+    """
     m = match(title or "")
     if not m:
         return None
     a = advise(m.model.comp, outbound_shipping=m.model.outbound_shipping,
-               target_profit=20.0, inbound_shipping=inbound, current_price=1)
+               target_profit=target_profit, inbound_shipping=inbound,
+               current_price=1)
     return a.max_bid
+
+
+def stretch_to(title: str, base: float, extra: float,
+               inbound: float = 0.0) -> tuple:
+    """Raise a ceiling by `extra`, but never past break-even.
+
+    🚨 THE STRETCH IS PROFIT YOU ARE SPENDING, not headroom you found. The base
+    is priced to clear TARGET_PROFIT; each dollar over clears a dollar less.
+
+    On a proxy system it costs nothing unless a rival sits between the old
+    ceiling and the new one - exactly the narrow loss you wanted to win.
+
+    Returns (ceiling, clears, breakeven, clamped).
+    """
+    want = round(base + max(0.0, float(extra)), 2)
+    be = book_ceiling(title, inbound=inbound, target_profit=0.0)
+    clamped = False
+    if be is not None and want > be:
+        want, clamped = round(be, 2), True
+    clears = round(be - want, 2) if be is not None else None
+    return want, clears, (round(be, 2) if be is not None else None), clamped
 
 
 # ----------------------------------------------------------------- commands --

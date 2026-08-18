@@ -85,8 +85,8 @@ def test_every_deal_gets_its_own_message():
 
 
 def test_the_tap_targets_are_seeded_on_each_card():
-    """The bot puts 🎯 and ❌ under every card so arming is ONE TAP - that is
-    as close to a button as a webhook can get."""
+    """The bot puts 🎯, 🔥 and ❌ under every card so arming is ONE TAP - that
+    is as close to a button as a webhook can get."""
     seen = []
 
     class S(FakeSession):
@@ -97,7 +97,7 @@ def test_the_tap_targets_are_seeded_on_each_card():
     notify_rich([CAND, CAND], env={"FLIPSCOUT_ALERT_WEBHOOK": "http://x",
                                    "FLIPSCOUT_DISCORD_BOT_TOKEN": "t",
                                    "FLIPSCOUT_DISCORD_CHANNEL_ID": "9"}, session=S())
-    assert len(seen) == 4                       # two emoji on each of two cards
+    assert len(seen) == 6                       # three chips on each of two cards
     assert all(u.endswith("/@me") for u in seen)
 
 

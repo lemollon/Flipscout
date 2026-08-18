@@ -541,3 +541,64 @@ def test_a_failed_bid_is_never_reported_as_winning(monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "winning" not in out
     assert "did NOT go through" in out
+
+
+# --- the stretch -------------------------------------------------------------
+
+def test_stretch_raises_the_ceiling_and_costs_profit(monkeypatch):
+    """🚨 A stretch is profit you are SPENDING, not headroom you found."""
+    monkeypatch.setattr(H, "book_ceiling",
+                        lambda t, **k: 0.0 if k.get("target_profit") == 0.0 else 50.0)
+    monkeypatch.setattr(H, "book_ceiling",
+                        lambda t, premium=0.0, inbound=9.0, target_profit=20.0:
+                        70.0 if target_profit == 0.0 else 50.0)
+    cap, clears, be, clamped = H.stretch_to("x", 50.0, 10.0)
+    assert cap == 60.0 and be == 70.0 and clamped is False
+    assert clears == 10.0
+
+
+def test_stretch_is_clamped_at_breakeven(monkeypatch):
+    """🚨 However far the stretch reaches, it can never arm a losing bid.
+    Going past break-even needs an explicit `snipe <amount>`, where Leron names
+    the number himself."""
+    monkeypatch.setattr(H, "book_ceiling",
+                        lambda t, premium=0.0, inbound=9.0, target_profit=20.0:
+                        70.0 if target_profit == 0.0 else 50.0)
+    cap, clears, be, clamped = H.stretch_to("x", 50.0, 500.0)
+    assert cap == 70.0 and clamped is True
+    assert clears == 0.0, "at break-even you clear nothing - and never less"
+
+
+def test_a_stretch_dollar_costs_more_than_a_dollar_under_a_premium(monkeypatch):
+    """The premium rides on the stretch too, so $5 more of hammer is $5.75 of
+    margin at 15%."""
+    monkeypatch.setattr(H, "book_ceiling",
+                        lambda t, premium=0.0, inbound=9.0, target_profit=20.0:
+                        70.0 if target_profit == 0.0 else 50.0)
+    _, clears, _, _ = H.stretch_to("x", 50.0, 5.0, premium=0.15)
+    assert clears == pytest.approx((70.0 - 55.0) * 1.15)
+
+
+def test_zero_stretch_changes_nothing(monkeypatch):
+    monkeypatch.setattr(H, "book_ceiling",
+                        lambda t, premium=0.0, inbound=9.0, target_profit=20.0:
+                        70.0 if target_profit == 0.0 else 50.0)
+    cap, _, _, clamped = H.stretch_to("x", 50.0, 0.0)
+    assert cap == 50.0 and clamped is False
+
+
+def test_a_negative_stretch_cannot_lower_the_ceiling(monkeypatch):
+    """--stretch -20 must not quietly become a discount."""
+    monkeypatch.setattr(H, "book_ceiling",
+                        lambda t, premium=0.0, inbound=9.0, target_profit=20.0:
+                        70.0 if target_profit == 0.0 else 50.0)
+    cap, _, _, _ = H.stretch_to("x", 50.0, -20.0)
+    assert cap == 50.0
+
+
+def test_breakeven_is_the_zero_profit_price():
+    """book_ceiling(target_profit=0) IS break-even - the clamp depends on it."""
+    t = "Nintendo Switch 32GB Console"
+    disciplined = H.book_ceiling(t, premium=0.15)
+    breakeven = H.book_ceiling(t, premium=0.15, target_profit=0.0)
+    assert breakeven > disciplined

@@ -254,19 +254,52 @@ def seconds_left(d: dict) -> Optional[float]:
         return None
 
 
-def book_ceiling(title: str, premium: float = 0.0,
-                 inbound: float = 9.0) -> Optional[float]:
-    """What the price book says this lot is worth as a HAMMER bid."""
+def book_ceiling(title: str, premium: float = 0.0, inbound: float = 9.0,
+                 target_profit: float = 20.0) -> Optional[float]:
+    """What the price book says this lot is worth as a HAMMER bid.
+
+    `target_profit` is what you insist on clearing. The default 20 is the
+    disciplined number; pass 0 to get the BREAK-EVEN hammer, which is the point
+    where winning stops being worth anything.
+    """
     m = match(title)
     if not m:
         return None
     a = advise(m.model.comp, units=m.units, inbound_shipping=inbound,
                outbound_shipping=m.model.outbound_shipping,
-               target_profit=20.0, current_price=1, buyer_premium_rate=premium)
+               target_profit=target_profit, current_price=1,
+               buyer_premium_rate=premium)
     return a.max_bid if a.max_bid > 0 else None
 
 
-def arm(url_or_id: str, max_bid: float, override: bool = False) -> int:
+def stretch_to(title: str, base: float, extra: float, premium: float = 0.0,
+               inbound: float = 9.0) -> tuple:
+    """Raise a ceiling by `extra`, but never past break-even.
+
+    🚨 THE STRETCH IS NOT FREE MONEY - IT IS PROFIT YOU ARE SPENDING. The base
+    ceiling is priced to clear TARGET_PROFIT; every dollar above it clears a
+    dollar less, and past break-even you are paying to own the thing.
+
+    On a proxy system a stretch costs nothing unless a rival is sitting between
+    the old ceiling and the new one - which is exactly the case where you lost
+    narrowly and wished you had gone higher. That is the whole point of it.
+
+    Returns (ceiling, clears, breakeven, clamped).
+    """
+    want = round(base + max(0.0, float(extra)), 2)
+    be = book_ceiling(title, premium=premium, inbound=inbound, target_profit=0.0)
+    clamped = False
+    if be is not None and want > be:
+        want, clamped = round(be, 2), True
+    clears = None
+    if be is not None:
+        # Every dollar of hammer above break-even costs (1 + premium) all-in.
+        clears = round((be - want) * (1.0 + float(premium)), 2)
+    return want, clears, (round(be, 2) if be is not None else None), clamped
+
+
+def arm(url_or_id: str, max_bid: float, override: bool = False,
+        stretch: float = 0.0) -> int:
     lid = lot_id(url_or_id)
     d = detail(lid)
     if d.get("gone"):
@@ -276,6 +309,16 @@ def arm(url_or_id: str, max_bid: float, override: bool = False) -> int:
     prem = float(d.get("premium") or 0)
 
     book = book_ceiling(d["title"], premium=prem)
+
+    # A stretch is an explicit "I will give up profit to win this one".
+    stretch = max(0.0, float(stretch or 0.0))
+    clears = breakeven = None
+    clamped = False
+    if stretch:
+        cap, clears, breakeven, clamped = stretch_to(
+            d["title"], cap, stretch, premium=prem)
+        override = True                    # he asked for it, by name and amount
+
     if book is not None and cap > book and not override:
         print(f"{lid}: ${cap:.2f} is above the book's ${book:.2f} hammer ceiling.\n"
               f"       Re-run with --override if you mean it.")
@@ -288,6 +331,14 @@ def arm(url_or_id: str, max_bid: float, override: bool = False) -> int:
     print(f"ARMED {lid} - {d['title'][:60]}")
     print(f"  max hammer bid   ${cap:,.2f}")
     print(f"  buyer's premium  {prem * 100:.4g}%  -> you pay ${landed:,.2f} all-in")
+    if stretch:
+        if clamped:
+            print(f"  :warning: STRETCH CLAMPED at break-even ${breakeven:,.2f} - "
+                  f"anything above that is buying at a loss")
+        elif clears is not None:
+            print(f"  stretched ${stretch:,.2f} over the book - you clear "
+                  f"${clears:,.2f} instead of ${20.0:,.2f} "
+                  f"(break-even ${breakeven:,.2f})")
     print(f"  current bid      ${d['high_bid']:,.2f} ({d['bids']} bids)")
     if d["registered"] is None:
         print(f"  note: registration not checked here (the quick lookup is "
@@ -299,7 +350,9 @@ def arm(url_or_id: str, max_bid: float, override: bool = False) -> int:
     armed = load_armed()
     armed[lid] = {"lot_id": lid, "title": d["title"], "url": _LOT_URL.format(lid),
                   "max_bid": round(cap, 2), "premium": prem,
-                  "landed_at_max": round(landed, 2), "status": "ARMED"}
+                  "landed_at_max": round(landed, 2), "status": "ARMED",
+                  "stretch": round(stretch, 2) or None,
+                  "breakeven": breakeven}
     save_armed(armed)
     return 0
 
@@ -836,9 +889,17 @@ def main(argv=None) -> int:
         return verify(argv[1])
     if cmd == "arm":
         if len(argv) < 3:
-            print("usage: hibidsnipe arm <lot-url-or-id> <max-hammer-bid> [--override]")
+            print("usage: hibidsnipe arm <lot-url-or-id> <max-hammer-bid> "
+                  "[--stretch N] [--override]")
             return 2
-        return arm(argv[1], float(argv[2]), override="--override" in argv)
+        stretch = 0.0
+        for i, a in enumerate(argv):
+            if a == "--stretch" and i + 1 < len(argv):
+                stretch = float(argv[i + 1])
+            elif a.startswith("--stretch="):
+                stretch = float(a.split("=", 1)[1])
+        return arm(argv[1], float(argv[2]), override="--override" in argv,
+                   stretch=stretch)
     if cmd == "disarm":
         return disarm(argv[1]) if len(argv) > 1 else 2
     if cmd == "run":
