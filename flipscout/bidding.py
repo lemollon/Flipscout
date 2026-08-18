@@ -39,13 +39,18 @@ class BidAdvice:
     units: int = 1
     has_room: bool = True
     note: str = ""
+    buyer_premium_rate: float = 0.0   # fraction of the hammer, 0 outside auctions
+    buyer_premium_at_max: float = 0.0  # dollars that rate costs at max_bid
 
     def summary(self) -> str:
         if not self.has_room:
             return f"NO ROOM - minimum bid already exceeds the ${self.max_bid:.2f} ceiling"
         o = f"${self.open_bid:.2f}" if self.open_bid is not None else "-"
+        bp = (f", inc. ${self.buyer_premium_at_max:.2f} premium"
+              if self.buyer_premium_rate else "")
         return (f"open {o} -> max ${self.max_bid:.2f} "
-                f"(lands ${self.landed_at_max:.2f}, clears ${self.profit_at_max:.2f})")
+                f"(lands ${self.landed_at_max:.2f}{bp}, "
+                f"clears ${self.profit_at_max:.2f})")
 
 
 def next_valid_bid(current_price: Optional[float], min_bid: Optional[float],
@@ -80,6 +85,7 @@ def advise(
     handling: float = 0.0,
     inbound_shipping: float = 0.0,
     outbound_shipping: float = 0.0,
+    buyer_premium_rate: float = 0.0,
     fees: Optional[FeeModel] = None,
     target_profit: float = DEFAULT_TARGET_PROFIT,
     current_price: Optional[float] = None,
@@ -93,6 +99,19 @@ def advise(
     the buyer pays). `units` > 1 for a lot containing several sellable items -
     each unit costs you its own outbound shipping and its own eBay fees, which is
     why the lot math is not simply comp x units.
+
+    `buyer_premium_rate` is the auction house's cut as a FRACTION of the hammer
+    (0.15 for a 15% premium). It is 0 for fixed-price listings and for
+    ShopGoodwill, which has no premium.
+
+    🚨 THE PREMIUM SCALES WITH THE BID, so it is not a fixed cost you can
+    subtract alongside handling. Solve for the hammer instead:
+
+        clear = net_resale - bid*(1+rate) - fixed_buy  >=  target
+        =>  bid <= (net_resale - target - fixed_buy) / (1 + rate)
+
+    Subtracting a premium computed on the ASKING price would understate the
+    ceiling on a lot that gets bid up, and overstate it on one that does not.
     """
     fees = fees or FeeModel()
     units = max(1, int(units))
@@ -105,14 +124,16 @@ def advise(
 
     # Buy side: handling + inbound shipping are paid once for the whole lot.
     fixed_buy = float(handling) + float(inbound_shipping)
-    max_bid = round(net_resale - target_profit - fixed_buy, 2)
+    # ...but the buyer's premium is charged ON the hammer, so it divides.
+    bp = max(0.0, float(buyer_premium_rate))
+    max_bid = round((net_resale - target_profit - fixed_buy) / (1.0 + bp), 2)
 
     open_bid = next_valid_bid(current_price, min_bid, increment, bid_count)
     has_room = max_bid > 0 and (open_bid is None or open_bid <= max_bid)
 
     profit_at_open = None
     if open_bid is not None:
-        profit_at_open = round(net_resale - (open_bid + fixed_buy), 2)
+        profit_at_open = round(net_resale - (open_bid * (1.0 + bp) + fixed_buy), 2)
 
     note = ""
     if not has_room:
@@ -124,7 +145,9 @@ def advise(
     return BidAdvice(
         open_bid=open_bid,
         max_bid=max(max_bid, 0.0),
-        landed_at_max=round(max(max_bid, 0.0) + fixed_buy, 2),
+        landed_at_max=round(max(max_bid, 0.0) * (1.0 + bp) + fixed_buy, 2),
+        buyer_premium_rate=bp,
+        buyer_premium_at_max=round(max(max_bid, 0.0) * bp, 2),
         net_resale=round(net_resale, 2),
         profit_at_open=profit_at_open,
         profit_at_max=float(target_profit),

@@ -306,6 +306,10 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
             min_bid=row.get("min_bid"),
             increment=float(row.get("increment") or 1.0),
             bid_count=int(row.get("bids") or 0),
+            # Auction houses charge a premium ON TOP of the hammer. Sources
+            # that have none (ShopGoodwill, fixed-price listings) leave this
+            # absent and it stays 0.
+            buyer_premium_rate=float(row.get("buyer_premium_rate") or 0.0),
         )
         if not adv.has_room:
             continue
@@ -409,6 +413,18 @@ def to_alert(c: dict) -> dict:
             bits.append(f"Win at the opening bid -> **${adv.profit_at_open:,.2f}** profit.")
         bits.append(f"At your max (${adv.max_bid:,.2f}) it lands at "
                     f"${adv.landed_at_max:,.2f} and still clears ${adv.profit_at_max:,.0f}.")
+        # Say the premium out loud. It is charged at checkout, not in the bid,
+        # so a bidder who only ever sees the hammer discovers it after winning -
+        # and on these houses it is 10-20%, bigger than the target profit.
+        if adv.buyer_premium_rate:
+            guessed = row.get("buyer_premium_guessed")
+            bits.append(
+                f":receipt: Includes a **{adv.buyer_premium_rate * 100:.4g}% "
+                f"buyer's premium** (${adv.buyer_premium_at_max:,.2f} at your max)"
+                + (" - the house didn't state one, so this is the typical rate "
+                   "for the site. Check its terms before bidding big."
+                   if guessed else ".")
+            )
     age = age_hours(row.get("listed"))
     if age is not None:
         bits.append(f"_Listed {age:.0f}h ago._" if age >= 1 else "_Just listed._")
@@ -464,6 +480,7 @@ def to_alert(c: dict) -> dict:
         "all_in": None,
         "comp": model.comp,
         "max_bid": adv.max_bid,
+        "buyer_premium_rate": adv.buyer_premium_rate,
         "bids": row.get("bids"),
         "ends": row.get("ends") or None,
         "open_bid": adv.open_bid,
