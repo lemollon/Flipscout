@@ -233,6 +233,8 @@ class ShopGoodwill:
         return row
 
 
+from .auctionfees import parse_premium, premium_is_stated, min_increment
+
 # --- HiBid ------------------------------------------------------------------
 
 _HIBID_GQL = "https://hibid.com/graphql"
@@ -265,7 +267,11 @@ query LotSearch($searchText: String, $pageNumber: Int!, $pageLength: Int!,
         shippingOffered
         featuredPicture { thumbnailLocation fullSizeLocation }
         lotState { bidCount highBid minBid isClosed buyNow }
-        auction { id eventName auctioneer { name city state } }
+        auction {
+          id eventName buyerPremium biddingNotice bidType
+          bidIncrements { minBidIncrement upToAmount }
+          auctioneer { name city state }
+        }
       }
     }
   }
@@ -339,13 +345,29 @@ class HiBid:
         house = auc.get("auctioneer") or {}
         lot_id = L.get("id")
         ships = L.get("shippingOffered")
+        # 🚨 The hammer is NOT the price. Every house adds a buyer's premium of
+        # 10-20% at checkout, and until 2026-08-18 none of it reached the
+        # ceiling, so all 330 HiBid cards on the board overstated profit by
+        # about a fifth. There is no structured field for it - see auctionfees.
+        premium = parse_premium(auc.get("buyerPremium"))
+        stated = premium_is_stated(auc.get("buyerPremium"))
+        price = float(st.get("highBid") or 0)
+        # ...and the step is NOT $1. Houses in the sample stepped by up to $550,
+        # so a hardcoded 1.0 quoted opening bids that the site would reject.
+        step = min_increment(price, auc.get("bidIncrements"))
         return {
             "source": "hibid", "id": str(lot_id),
             "title": (L.get("lead") or "").strip(),
             "url": f"https://hibid.com/lot/{lot_id}",
-            "price": float(st.get("highBid") or 0),
+            "price": price,
             "min_bid": float(st.get("minBid") or 0) or None,
-            "increment": 1.0,
+            "increment": step,
+            "buyer_premium_rate": premium,
+            "buyer_premium_guessed": not stated,
+            # Free text, and the ONLY place a house states its soft close
+            # ("bids in the last minute extend the close by 2 minutes").
+            "bidding_notice": (auc.get("biddingNotice") or "").strip()[:400],
+            "bid_type": auc.get("bidType") or "",
             "bids": st.get("bidCount"),
             "handling": None,          # auctioneer-set; unknown from search
             "image": pic.get("fullSizeLocation") or pic.get("thumbnailLocation") or "",
