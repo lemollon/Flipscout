@@ -41,6 +41,10 @@ DEFAULT_PREMIUM = 0.15
 # in the sample was 25%). Falls back to DEFAULT_PREMIUM rather than trusting it.
 _SANE_MAX = 0.30
 
+# Below this a nonzero parse is a misread rather than a real premium - see
+# parse_premium. An explicit zero is handled separately and is still believed.
+_SANE_MIN = 0.01
+
 # Clauses that REDUCE the price if you pay cash. Leron pays by card, so these
 # never apply - and they must be cut out before any percentage is read, or
 # "15% (3% DISCOUNT FOR CASH)" parses as 3%.
@@ -105,18 +109,29 @@ def parse_premium(text: Optional[str]) -> float:
     if not s:
         return DEFAULT_PREMIUM
 
-    if _NO_PREMIUM.search(s):
-        return 0.0
-
     body = _DISCOUNT.sub(" ", s)          # cash discounts never apply to us
     found = _pcts(body)
+
+    # 🚨 "NO BUYERS PREMIUM" ONLY COUNTS IF NOTHING ELSE IS STATED.
+    #
+    # "no buyers premium for cash, 18% for cards" used to return 0% - the
+    # zero-check ran first and short-circuited the whole parser. That is the
+    # cash-versus-card split this module exists to resolve, and getting it
+    # backwards sets the ceiling 18% too high on a real auction.
+    #
+    # A free waiver plus a card rate means the card rate, because that is what
+    # Leron pays.
+    if _NO_PREMIUM.search(s) and not [v for v, _ in found if v > 0]:
+        return 0.0
 
     if not found:
         # "18 percent bp" is caught above; this is for "15", "Buyers premium-16"
         bare = re.search(r"(?<![\d.$])(\d{1,2}(?:\.\d+)?)(?![\d.%])", body)
         if bare and _NAMED.search(body):
             v = float(bare.group(1)) / 100.0
-            return v if 0 < v <= _SANE_MAX else DEFAULT_PREMIUM
+            # Same floor as the percent path: "Buyer's Premium: 0.15" is a
+            # FRACTION typed as a decimal, and 0.15% is functionally free.
+            return v if _SANE_MIN <= v <= _SANE_MAX else DEFAULT_PREMIUM
         # 🚨 A bare "0.00" or "0" is NOT a promise of no premium - it is an
         # empty box with a default in it. A real HiBid auction on 2026-08-18
         # ("Playstation 5 + 2 Controllers") carried buyerPremium='0.00' while
@@ -130,6 +145,12 @@ def parse_premium(text: Optional[str]) -> float:
         v = rates[0]
         if v == 0.0:
             return 0.0                     # "0% Buyer's Premium"
+        # 🚨 A nonzero rate under 1% is a misread, not a bargain. "Buyer's
+        # Premium: 0.15" is a FRACTION written as a decimal, and taking it at
+        # face value gives 0.15% - functionally free, and a ceiling far too
+        # high. No auction house charges half a percent.
+        if v < _SANE_MIN:
+            return DEFAULT_PREMIUM
         return v if v <= _SANE_MAX else DEFAULT_PREMIUM
 
     # Two or more figures. Either they are ALTERNATIVES (cash rate vs card rate)
@@ -149,7 +170,9 @@ def parse_premium(text: Optional[str]) -> float:
         if _CARD.search(near) and _ADDITIVE.search(near):
             surcharge = max(surcharge, v / 100.0)
     total = base + surcharge
-    return total if 0 < total <= _SANE_MAX else min(base, DEFAULT_PREMIUM)
+    if total < _SANE_MIN or total > _SANE_MAX:
+        return DEFAULT_PREMIUM
+    return total
 
 
 def min_increment(amount: float, table: Optional[list]) -> float:

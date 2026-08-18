@@ -75,7 +75,17 @@ def next_valid_bid(current_price: Optional[float], min_bid: Optional[float],
     if current_price is None:
         return None
     cur = float(current_price)
-    return round(cur if not bid_count else cur + increment, 2)
+    if not bid_count:
+        return round(cur, 2)               # the start price IS the minimum
+    # 🚨 A bid must actually EXCEED the standing one. A zero increment returns
+    # the current price and a negative one returns less than it - neither is a
+    # bid any site will accept, and both quietly advertise a profit on an entry
+    # that cannot happen. Sources have handed us both: a bidIncrement of 0, and
+    # a truncated increment table falling through to a default.
+    step = float(increment)
+    if step <= 0:
+        step = 1.0
+    return round(cur + step, 2)
 
 
 def advise(

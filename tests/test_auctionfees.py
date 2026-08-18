@@ -201,3 +201,43 @@ def test_summary_mentions_the_premium_only_when_there_is_one():
     kw = dict(target_profit=20.0, current_price=50.0)
     assert "premium" not in advise(200.0, **kw).summary()
     assert "premium" in advise(200.0, buyer_premium_rate=0.15, **kw).summary()
+
+
+# --- the waiver trap ---------------------------------------------------------
+
+def test_a_waiver_never_beats_a_stated_card_rate():
+    """🚨 "no buyers premium for cash, 18% for cards" returned 0%.
+
+    The zero-check ran before anything else and short-circuited the parser -
+    on exactly the cash-versus-card split this module exists to resolve. The
+    result was a ceiling 18% too high on a real auction.
+    """
+    assert parse_premium("no buyers premium for cash, 18% for cards") == 0.18
+    assert parse_premium("No Buyer's Premium with cash / 13% credit") == 0.13
+
+
+@pytest.mark.parametrize("text", [
+    "NO BUYERS PREMIUM", "No Buyer's Premium Sale", "No Buyers Premium",
+])
+def test_a_bare_waiver_is_still_zero(text):
+    """A waiver with no competing figure means what it says."""
+    assert parse_premium(text) == 0.0
+
+
+def test_an_explicit_zero_percent_is_still_zero():
+    assert parse_premium("0% Buyer's Premium") == 0.0
+
+
+# --- a fraction typed as a decimal -------------------------------------------
+
+@pytest.mark.parametrize("text", ["Buyer's Premium: 0.15", "0.5%", "0.15", "0.9%"])
+def test_a_sub_one_percent_rate_is_a_misread_not_a_bargain(text):
+    """🚨 "Buyer's Premium: 0.15" is a FRACTION written as a decimal. Read
+    literally it is 0.15% - functionally free, and a ceiling far too high. No
+    auction house charges half a percent."""
+    assert parse_premium(text) == DEFAULT_PREMIUM
+
+
+def test_the_floor_does_not_swallow_a_real_low_rate():
+    assert parse_premium("3% buyers premium") == 0.03
+    assert parse_premium("1% BP") == 0.01
