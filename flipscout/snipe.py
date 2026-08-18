@@ -277,16 +277,55 @@ def run(dry_run: bool = False) -> int:
                 notify(msg, subject="Flipscout snipe passed")
             continue
 
-        # 🚨 Bid the MAX, not the minimum: ShopGoodwill proxies up to it, so
-        # this wins at the lowest price that beats the field rather than
-        # handing the lead back on the next increment.
+        # 🚨 BID THE MAX. This looks like "paying the max" and it is not.
+        #
+        # ShopGoodwill runs PROXY bidding: you submit a ceiling and the site
+        # bids the $1 increment on your behalf, so you pay ONE INCREMENT OVER
+        # THE RUNNER-UP, not your number. Submitting max $50 against a rival
+        # whose hidden max is $30 wins the item at $31.
+        #
+        # Bidding "just over the current price" instead is strictly worse, and
+        # it is how auctions are actually lost here. The displayed price is not
+        # the rival's limit - it is the second-highest max plus an increment,
+        # with any standing proxy hidden behind it. Bid current+$1 and a rival
+        # proxy answers instantly, in the last seconds, with no time to react.
+        # mybids.py records the receipts: "You lost the Featherweight by $1 and
+        # the SX-70 by 12 cents this way."
+        #
+        # Same price when you would have won either way; you win the cases the
+        # low bid loses. The only thing the max costs you is the scenario where
+        # a rival sits just under it - which is the price you already said yes
+        # to when you armed it.
+        before = float(d.get("currentPrice") or 0)
         ok, detail_msg = place_bid(iid, cap, dry_run=dry_run)
         a["status"] = ("DRY_RUN" if dry_run else ("BID" if ok else "FAILED"))
         a["result"] = detail_msg
+        a["price_before"] = before
         changed = True
+
+        # Re-read so the alert reports what it actually COST, not what was
+        # authorised - the whole point of proxy bidding is that those differ.
+        after = None
+        if ok and not dry_run:
+            try:
+                time.sleep(2)
+                after = float(detail(iid).get("currentPrice") or 0)
+                a["price_after"] = after
+            except Exception:
+                pass
+
         icon = ":dart:" if ok else ":x:"
-        msg = (f"{icon} **Snipe {'(dry run) ' if dry_run else ''}{a['status']}** "
-               f"${cap:.2f} on {a['title'][:60]}\n{detail_msg}\n{a['url']}")
+        lines = [f"{icon} **Snipe {'(dry run) ' if dry_run else ''}{a['status']}** "
+                 f"on {a['title'][:60]}",
+                 f"current bid when it fired: **${before:.2f}**  (needed ${need:.2f})",
+                 f"your armed max: **${cap:.2f}**"]
+        if after is not None:
+            lines.append(f"price now: **${after:.2f}**"
+                         + (f"  - you are winning at ${after:.2f}, "
+                            f"${cap - after:.2f} under your max"
+                            if after <= cap else "  - ABOVE your max, you were outbid"))
+        lines += [detail_msg, a["url"]]
+        msg = "\n".join(lines)
         print(msg)
         if not dry_run:
             notify(msg, subject="Flipscout snipe")
