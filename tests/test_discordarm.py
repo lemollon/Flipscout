@@ -120,7 +120,7 @@ def test_ceiling_parsing(value, want):
     depending on the network and on today's comps, which is not what a
     PARSING test should be measuring.
     """
-    iid, ceiling = discordarm.parse_card(_card(ceiling=value))
+    _site, iid, ceiling = discordarm.parse_card(_card(ceiling=value))
     assert iid == "273876344"
     assert ceiling == want
 
@@ -275,3 +275,43 @@ def test_an_unreachable_item_falls_back_to_the_card(monkeypatch):
     monkeypatch.setattr(snipe, "detail", boom)
     discordarm.scan()
     assert calls == [("273876344", 30.00, False)]
+
+
+# --- two sites, two snipers ---------------------------------------------------
+
+def _hibid_card(ceiling="$41.34", react=None):
+    m = {"id": "m-hb", "content": "", "embeds": [{
+        "title": "Fluke 87V True RMS Multimeter",
+        "url": "https://hibid.com/lot/317852714",
+        "fields": [{"name": "Max bid", "value": f"Don't pay over {ceiling}"}]}]}
+    if react:
+        m["reactions"] = [{"emoji": {"name": react}}]
+    return m
+
+
+def test_a_hibid_card_is_recognised_as_hibid():
+    site, iid, ceiling = discordarm.parse_card(_hibid_card())
+    assert (site, iid, ceiling) == ("hibid", "317852714", 41.34)
+
+
+def test_a_goodwill_card_is_still_recognised_as_goodwill():
+    site, iid, _ = discordarm.parse_card(_card())
+    assert site == "goodwill"
+    assert iid == "273876344"
+
+
+def test_each_site_routes_to_its_own_sniper():
+    """🚨 Ids are not unique across the two sites, so routing must come from
+    the LINK. Arming a HiBid lot into the ShopGoodwill sniper would point a
+    bidder at a completely unrelated item."""
+    from flipscout import hibidsnipe, snipe as sgw
+    assert discordarm.sniper_for("hibid") is hibidsnipe
+    assert discordarm.sniper_for("goodwill") is sgw
+    assert discordarm.sniper_for(None) is sgw
+
+
+def test_a_card_with_no_known_link_is_ignored():
+    m = {"id": "x", "content": "https://ebay.com/itm/12345678 nice thing",
+         "reactions": [{"emoji": {"name": discordarm.ARM_EMOJI}}]}
+    site, iid, _ = discordarm.parse_card(m)
+    assert site is None and iid is None

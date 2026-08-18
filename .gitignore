@@ -27,6 +27,8 @@ flipscout_seen.json
 .fbprofile/
 fb_sweep_run.log
 .sgwprofile/
+.hibidprofile/
 snipe_armed.json
+hibid_armed.json
 SNIPE_DISABLED
 snipe_run.log
