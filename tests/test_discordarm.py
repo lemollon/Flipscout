@@ -29,8 +29,12 @@ def _card(mid="1", ceiling="$41.34", react=None, content=None):
                         {"name": "Don't pay over", "value": ceiling},
                         {"name": "Link",
                          "value": "https://shopgoodwill.com/item/273876344"}]}],
-        "reactions": ([{"emoji": {"name": react}, "count": 2, "me": True}]
-                      if react else []),
+        # The steady state on a real card: the poller has already seeded all
+        # three chips (count 1, me=True). A human tap shows up as count 2.
+        "reactions": [{"emoji": {"name": e}, "count": 2 if e == react else 1,
+                       "me": True}
+                      for e in (discordarm.ARM_EMOJI, discordarm.STRETCH_EMOJI,
+                                discordarm.DISARM_EMOJI)],
     }
 
 
@@ -406,3 +410,94 @@ def test_disarm_wins_any_conflict(monkeypatch):
         # _feed records arms AND disarms, so check which one happened.
         assert calls == [("disarm", "273876344")], (
             f"{other} alongside the cross must disarm, never arm - got {calls}")
+
+
+# --- seeding from the poller -------------------------------------------------
+
+def test_a_card_naming_its_lot_twice_is_still_one_deal():
+    """🚨 Every card references its own lot twice - the embed url, and again in
+    the "Buy it here" link. Counting raw matches made all 37 live cards look
+    like two-deal digests and refused to arm ANY of them."""
+    m = {"id": "x", "content": "", "embeds": [{
+        "title": "Sony Handycam",
+        "url": "https://shopgoodwill.com/item/273508745",
+        "fields": [
+            {"name": "MAX bid (never exceed)", "value": "$91.90"},
+            {"name": "Links",
+             "value": "[Buy it here](https://shopgoodwill.com/item/273508745)"},
+        ]}]}
+    assert discordarm.parse_card(m) == ("goodwill", "273508745", 91.90)
+
+
+def test_two_different_lots_is_still_a_digest_and_refuses():
+    m = {"id": "y", "content": "", "embeds": [
+        {"title": "A", "url": "https://shopgoodwill.com/item/111111"},
+        {"title": "B", "url": "https://shopgoodwill.com/item/222222"}]}
+    assert discordarm.parse_card(m) == (None, None, None)
+
+
+def test_the_poller_seeds_a_bare_card(monkeypatch):
+    """🚨 The alerts Leron actually receives are posted by the GitHub Action,
+    whose env has the webhook and NO bot token - so post-time seeding silently
+    no-opped and every CI card arrived with no chips to tap."""
+    bare = _card()
+    bare["reactions"] = []
+    put = []
+    monkeypatch.setattr(discordarm, "_react",
+                        lambda ch, mid, emoji, tok: put.append(emoji) or True)
+    assert discordarm.seed_missing([bare], "chan", "tok") == 1
+    assert put == [discordarm.ARM_EMOJI, discordarm.STRETCH_EMOJI,
+                   discordarm.DISARM_EMOJI]
+
+
+def test_an_already_seeded_card_is_not_re_seeded(monkeypatch):
+    """Otherwise every poll spends its whole reaction budget re-doing work."""
+    put = []
+    monkeypatch.setattr(discordarm, "_react",
+                        lambda *a, **k: put.append(a[2]) or True)
+    assert discordarm.seed_missing([_card()], "chan", "tok") == 0
+    assert put == []
+
+
+def test_a_partly_seeded_card_gets_only_what_is_missing(monkeypatch):
+    half = _card()
+    half["reactions"] = [{"emoji": {"name": discordarm.ARM_EMOJI},
+                          "count": 1, "me": True}]
+    put = []
+    monkeypatch.setattr(discordarm, "_react",
+                        lambda *a, **k: put.append(a[2]) or True)
+    discordarm.seed_missing([half], "chan", "tok")
+    assert put == [discordarm.STRETCH_EMOJI, discordarm.DISARM_EMOJI]
+
+
+def test_a_multi_deal_digest_is_left_bare(monkeypatch):
+    """A chip on a message that cannot say which lot you meant is a lie."""
+    m = {"id": "d", "content": "", "reactions": [], "embeds": [
+        {"title": "A", "url": "https://shopgoodwill.com/item/111111"},
+        {"title": "B", "url": "https://shopgoodwill.com/item/222222"}]}
+    put = []
+    monkeypatch.setattr(discordarm, "_react", lambda *a, **k: put.append(a) or True)
+    assert discordarm.seed_missing([m], "chan", "tok") == 0
+    assert put == []
+
+
+def test_seeding_is_budgeted(monkeypatch):
+    """Discord rate-limits reactions hard, and the poller has a bidding job to
+    get to. Anything skipped is picked up next minute."""
+    bare = []
+    for i in range(40):
+        c = _card()
+        c["id"] = f"m{i}"
+        c["reactions"] = []
+        bare.append(c)
+    monkeypatch.setattr(discordarm, "_react", lambda *a, **k: True)
+    assert discordarm.seed_missing(bare, "chan", "tok") == discordarm.SEED_BUDGET
+
+
+def test_a_dry_run_seeds_nothing(monkeypatch):
+    bare = _card()
+    bare["reactions"] = []
+    put = []
+    monkeypatch.setattr(discordarm, "_react", lambda *a, **k: put.append(a) or True)
+    discordarm.seed_missing([bare], "chan", "tok", dry_run=True)
+    assert put == []

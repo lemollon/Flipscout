@@ -30,8 +30,14 @@ link - the card's own link decides which sniper arms it:
     🔥  arm, and go over that ceiling to win it - see below
     ❌  disarm
 
-Both are already sitting under every card - the bot puts them there when it
-posts - so arming is a single tap rather than a long-press and an emoji hunt.
+All three are already sitting under every card - this poller puts them there
+within a minute of the card appearing - so arming is a single tap rather than a
+long-press and an emoji hunt.
+
+🚨 SEEDING HAPPENS HERE, NOT IN THE SENDER. notify.py also seeds at post time,
+but that only works where the bot token exists, and the alerts Leron actually
+receives are posted by the GitHub Action, which only has the webhook. Every
+CI-posted card therefore arrived bare and could not be armed.
 Discord will not give a webhook real buttons: interactive components need an
 app listening for a pushed interaction, which means a daemon or a public
 endpoint, and this design deliberately has neither.
@@ -180,7 +186,11 @@ def parse_card(msg: dict) -> tuple:
     bid until you are registered for the auction).
     """
     txt = card_text(msg)
-    hits = _ITEM.findall(txt)
+    # 🚨 DEDUPE. A single card names its own lot more than once - the embed
+    # url, and again in the "Buy it here" link - so counting raw matches made
+    # every card look like a two-deal digest and refused to arm ANY of them.
+    # Two references to one lot is one deal; two different lots is a digest.
+    hits = list(dict.fromkeys(_ITEM.findall(txt)))
     # 🚨 REFUSE AN AMBIGUOUS MESSAGE. Alerts used to pack up to ten deals into
     # one post, and a reaction belongs to the MESSAGE, not to an embed inside
     # it - so a tap could not say which deal was meant. This used to silently
@@ -203,6 +213,48 @@ def sniper_for(site: str):
     return hibidsnipe if site == "hibid" else snipe
 
 
+# Never spend more than this many reaction writes on seeding in one poll.
+# Discord rate-limits reactions hard, and the poller has a bidding job to get
+# to; anything missed is picked up on the next minute.
+SEED_BUDGET = 12
+
+
+def seed_missing(msgs: list, channel: str, token: str, dry_run: bool = False) -> int:
+    """Put 🎯 🔥 ❌ under any Flipscout card that has none.
+
+    🚨 THIS IS WHY IT LIVES IN THE POLLER AND NOT IN THE SENDER. notify.py
+    seeds at post time, but that only works where the BOT TOKEN is present -
+    and the alerts Leron actually gets are posted by the GitHub Action, whose
+    env has the webhook and nothing else. So every CI-posted card arrived with
+    no chips on it (seen 2026-08-18: the "ENDING SOON" digest had none, while a
+    locally-posted card had all three) and could not be armed at all.
+
+    Seeding here fixes every sender at once - hunt, ending-soon, the Facebook
+    sweep, mybids, the heartbeat - including any added later, and it repairs
+    cards that were posted before this existed. The cost is that chips can take
+    up to a minute to appear.
+    """
+    done = 0
+    for m in msgs:
+        if done >= SEED_BUDGET:
+            break
+        # Only cards we could actually arm. A multi-deal digest returns None
+        # and is deliberately left bare - a chip on it would be a lie.
+        site, iid, _ = parse_card(m)
+        if not iid:
+            continue
+        have = {(r.get("emoji") or {}).get("name") for r in (m.get("reactions") or [])
+                if r.get("me")}
+        want = {ARM_EMOJI, STRETCH_EMOJI, DISARM_EMOJI} - have
+        if not want:
+            continue
+        for emoji in (ARM_EMOJI, STRETCH_EMOJI, DISARM_EMOJI):
+            if emoji in want and not dry_run:
+                _react(channel, m["id"], emoji, token)
+        done += 1
+    return done
+
+
 def scan(limit: int = 50, dry_run: bool = False) -> int:
     """Poll the channel and act on 🎯 / ❌ / `snipe <n>` replies."""
     token, channel = _cfg()
@@ -215,6 +267,12 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
     except Exception as e:
         print(f"discord read failed: {type(e).__name__}: {e}")
         return 1
+
+    # Do this first: a card with no chips cannot be tapped, so seeding is the
+    # prerequisite for everything below.
+    seeded = seed_missing(msgs, channel, token, dry_run=dry_run)
+    if seeded:
+        print(f"seeded arm chips on {seeded} card(s)")
 
     by_id = {m["id"]: m for m in msgs}
     armed = snipe.load_armed()
