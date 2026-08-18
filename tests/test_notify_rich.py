@@ -4,16 +4,25 @@ from flipscout.notify import VERDICT_COLORS, build_embed, notify_rich
 
 
 class FakeResp:
+    def __init__(self, mid="1"):
+        self._mid = mid
+
     def raise_for_status(self):
         pass
+
+    def json(self):
+        return {"id": self._mid}
 
 
 class FakeSession:
     def __init__(self):
         self.calls = []
 
-    def post(self, url, json=None, timeout=None):
+    def post(self, url, json=None, timeout=None, params=None):
         self.calls.append(json)
+        return FakeResp()
+
+    def put(self, url, headers=None, timeout=None):
         return FakeResp()
 
 
@@ -57,15 +66,46 @@ def test_missing_fields_are_omitted_not_crashed():
 def test_notify_rich_posts_embeds():
     s = FakeSession()
     sent = notify_rich([CAND], content="hi", env={"FLIPSCOUT_ALERT_WEBHOOK": "http://x"}, session=s)
-    assert sent == ["webhook"]
+    assert sent == ["webhook", "webhook"]      # header, then the card
     assert s.calls[0]["content"] == "hi"
-    assert len(s.calls[0]["embeds"]) == 1
+    assert len(s.calls[1]["embeds"]) == 1
 
 
-def test_discord_ten_embed_cap_is_chunked():
+def test_every_deal_gets_its_own_message():
+    """🚨 A reaction belongs to a MESSAGE, so a digest carrying ten embeds
+    cannot say which deal you meant - arming just took the first link it found.
+
+    Measured against the live channel on 2026-08-18: all 25 recent alerts were
+    multi-deal, which means arming had never once worked.
+    """
     s = FakeSession()
     notify_rich([CAND] * 23, env={"FLIPSCOUT_ALERT_WEBHOOK": "http://x"}, session=s)
-    assert [len(c["embeds"]) for c in s.calls] == [10, 10, 3]
+    assert len(s.calls) == 23
+    assert all(len(c["embeds"]) == 1 for c in s.calls)
+
+
+def test_the_tap_targets_are_seeded_on_each_card():
+    """The bot puts 🎯 and ❌ under every card so arming is ONE TAP - that is
+    as close to a button as a webhook can get."""
+    seen = []
+
+    class S(FakeSession):
+        def put(self, url, headers=None, timeout=None):
+            seen.append(url)
+            return FakeResp()
+
+    notify_rich([CAND, CAND], env={"FLIPSCOUT_ALERT_WEBHOOK": "http://x",
+                                   "FLIPSCOUT_DISCORD_BOT_TOKEN": "t",
+                                   "FLIPSCOUT_DISCORD_CHANNEL_ID": "9"}, session=S())
+    assert len(seen) == 4                       # two emoji on each of two cards
+    assert all(u.endswith("/@me") for u in seen)
+
+
+def test_a_missing_bot_token_never_blocks_the_alert():
+    """Seeding is a convenience; the card itself is the product."""
+    s = FakeSession()
+    sent = notify_rich([CAND], env={"FLIPSCOUT_ALERT_WEBHOOK": "http://x"}, session=s)
+    assert sent == ["webhook"]
 
 
 def test_no_webhook_falls_back_to_printing(capsys):

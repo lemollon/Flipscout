@@ -29,7 +29,8 @@ def _card(mid="1", ceiling="$41.34", react=None, content=None):
                         {"name": "Don't pay over", "value": ceiling},
                         {"name": "Link",
                          "value": "https://shopgoodwill.com/item/273876344"}]}],
-        "reactions": ([{"emoji": {"name": react}}] if react else []),
+        "reactions": ([{"emoji": {"name": react}, "count": 2, "me": True}]
+                      if react else []),
     }
 
 
@@ -285,7 +286,7 @@ def _hibid_card(ceiling="$41.34", react=None):
         "url": "https://hibid.com/lot/317852714",
         "fields": [{"name": "Max bid", "value": f"Don't pay over {ceiling}"}]}]}
     if react:
-        m["reactions"] = [{"emoji": {"name": react}}]
+        m["reactions"] = [{"emoji": {"name": react}, "count": 2, "me": True}]
     return m
 
 
@@ -315,3 +316,60 @@ def test_a_card_with_no_known_link_is_ignored():
          "reactions": [{"emoji": {"name": discordarm.ARM_EMOJI}}]}
     site, iid, _ = discordarm.parse_card(m)
     assert site is None and iid is None
+
+
+# --- the bot's own seed must not arm anything --------------------------------
+
+def test_the_seeded_emoji_alone_never_arms(monkeypatch):
+    """🚨 The bot puts 🎯 under every card so arming is one tap. That means the
+    emoji being PRESENT proves nothing - if a seeded chip counted as intent,
+    every card would arm itself the instant it was posted."""
+    seeded = _card()
+    seeded["reactions"] = [{"emoji": {"name": discordarm.ARM_EMOJI},
+                            "count": 1, "me": True}]      # only the bot
+    calls = _feed(monkeypatch, [seeded])
+    discordarm.scan()
+    assert not calls
+
+
+def test_a_human_tap_on_the_seeded_emoji_does_arm(monkeypatch):
+    tapped = _card()
+    tapped["reactions"] = [{"emoji": {"name": discordarm.ARM_EMOJI},
+                            "count": 2, "me": True}]      # bot + Leron
+    calls = _feed(monkeypatch, [tapped])
+    discordarm.scan()
+    assert calls
+
+
+def test_an_unseeded_human_reaction_still_works(monkeypatch):
+    """If seeding failed, reacting by hand must still arm."""
+    manual = _card()
+    manual["reactions"] = [{"emoji": {"name": discordarm.ARM_EMOJI},
+                            "count": 1, "me": False}]
+    calls = _feed(monkeypatch, [manual])
+    discordarm.scan()
+    assert calls
+
+
+def test_a_multi_deal_card_refuses_to_arm():
+    """🚨 A reaction belongs to the MESSAGE. On a digest carrying several deals
+    it cannot say which one, and the old parser silently took the first."""
+    m = {"id": "multi", "content": "", "embeds": [
+        {"title": "A", "url": "https://shopgoodwill.com/item/111111"},
+        {"title": "B", "url": "https://hibid.com/lot/222222"},
+    ], "reactions": [{"emoji": {"name": discordarm.ARM_EMOJI},
+                      "count": 2, "me": True}]}
+    assert discordarm.parse_card(m) == (None, None, None)
+
+
+def test_the_ceiling_is_read_off_a_real_card_layout():
+    """🚨 The amount sits on the LINE AFTER its label, because it is an embed
+    FIELD. The old pattern allowed 12 characters between them and " (never
+    exceed)
+" is 16, so it matched NOTHING on any real card - 0 of 25 live
+    alerts parsed a ceiling on 2026-08-18."""
+    m = {"id": "r", "content": "", "embeds": [{
+        "title": "3 Sega Dreamcast jump Packs",
+        "url": "https://hibid.com/lot/317377910",
+        "fields": [{"name": "MAX bid (never exceed)", "value": "$33.92"}]}]}
+    assert discordarm.parse_card(m) == ("hibid", "317377910", 33.92)

@@ -26,8 +26,14 @@ HOW ARMING WORKS
 React to any Flipscout alert carrying a shopgoodwill item or hibid lot
 link - the card's own link decides which sniper arms it:
 
-    🎯  arm at the "Don't pay over" ceiling printed on that card
+    🎯  arm at the ceiling printed on that card
     ❌  disarm
+
+Both are already sitting under every card - the bot puts them there when it
+posts - so arming is a single tap rather than a long-press and an emoji hunt.
+Discord will not give a webhook real buttons: interactive components need an
+app listening for a pushed interaction, which means a daemon or a public
+endpoint, and this design deliberately has neither.
 
 The bot answers with ✅ once the item is armed, or ⚠ if the card carried no
 ceiling to arm at. That tick is the ONLY thing this bot ever writes, and it is
@@ -65,7 +71,14 @@ NOPE_EMOJI = "\N{WARNING SIGN}"                 # ⚠ could not arm - no ceiling
 _ITEM = re.compile(
     r"(?:(shopgoodwill)\.com/item/|(hibid)\.com/lot/)(\d{6,})", re.I)
 # "Don't pay over" is the field notify.build_embed prints on every card.
-_CEILING = re.compile(r"(?:don'?t pay over|max bid|ceiling)\D{0,12}\$\s*([\d,]+\.?\d*)", re.I)
+# 🚨 The amount sits on the LINE AFTER the label, because it is an embed FIELD:
+#     MAX bid (never exceed)
+#     $33.92
+# The old \D{0,12} could not span " (never exceed)\n" (16 chars), so this
+# matched nothing on any real card and 🎯 refused every one of them. Measured
+# against the live channel on 2026-08-18: 0 of 25 cards parsed a ceiling.
+_CEILING = re.compile(
+    r"(?:don'?t pay over|max bid|ceiling)[^$\d]{0,40}\$\s*([\d,]+\.?\d*)", re.I)
 _REPLY = re.compile(r"\bsnipe\s+\$?\s*([\d,]+\.?\d*)", re.I)
 
 
@@ -145,13 +158,20 @@ def parse_card(msg: dict) -> tuple:
     bid until you are registered for the auction).
     """
     txt = card_text(msg)
-    m = _ITEM.search(txt)
+    hits = _ITEM.findall(txt)
+    # 🚨 REFUSE AN AMBIGUOUS MESSAGE. Alerts used to pack up to ten deals into
+    # one post, and a reaction belongs to the MESSAGE, not to an embed inside
+    # it - so a tap could not say which deal was meant. This used to silently
+    # take the FIRST link and the FIRST ceiling, which on a five-deal digest
+    # meant arming one item and ignoring four.
+    #
+    # notify_rich now posts one card per message, but older multi-deal cards
+    # are still sitting in the channel and must stay unarmable.
+    if len(hits) != 1:
+        return (None, None, None)
+    gw, hb, iid = hits[0]
     c = _CEILING.search(txt)
-    site = None
-    if m:
-        site = "goodwill" if m.group(1) else "hibid"
-    return (site,
-            m.group(3) if m else None,
+    return ("goodwill" if gw else "hibid", iid,
             _money(c.group(1)) if c else None)
 
 
@@ -198,7 +218,19 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
         acted += 1
 
     for m in msgs:
-        emojis = {(r.get("emoji") or {}).get("name") for r in (m.get("reactions") or [])}
+        # 🚨 The bot SEEDS 🎯 and ❌ on every card so arming is one tap. That
+        # means the emoji being present proves nothing - what counts is whether
+        # a HUMAN also tapped it. Discord reports `me` (did this bot react) and
+        # `count`, so a seeded chip needs count > 1 before it means anything.
+        # Without this every card would arm itself the moment it was posted.
+        emojis = set()
+        for r in (m.get("reactions") or []):
+            name = (r.get("emoji") or {}).get("name")
+            if not name:
+                continue
+            human = int(r.get("count") or 0) - (1 if r.get("me") else 0)
+            if human > 0:
+                emojis.add(name)
         if not emojis & {ARM_EMOJI, DISARM_EMOJI}:
             continue
         site, iid, ceiling = parse_card(m)

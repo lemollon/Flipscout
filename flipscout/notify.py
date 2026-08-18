@@ -166,22 +166,79 @@ def notify_rich(candidates: list, content: str = "", env=None, session=None) -> 
 
     session = session or requests
     sent: list[str] = []
-    for i in range(0, max(len(embeds), 1), 10):
-        chunk = embeds[i:i + 10]
-        payload = {"content": content if i == 0 else "", "embeds": chunk}
+
+    # 🚨 ONE CARD PER MESSAGE. This used to pack ten embeds into a single post,
+    # which quietly made arming impossible: a reaction belongs to a MESSAGE, so
+    # on a ten-deal digest it cannot say which deal you meant, and the parser
+    # just took the first link it found. Leron hit this directly - "the arming
+    # should be in the card".
+    #
+    # The cost is ten notifications instead of one. That is the price of every
+    # card being individually actionable, and it is worth it.
+    if content:
         try:
-            r = session.post(url, json=payload, timeout=15)
+            r = session.post(url, json={"content": content}, timeout=15)
             r.raise_for_status()
             sent.append("webhook")
         except Exception as e:
-            # Include the response body: Discord explains itself (unknown webhook,
-            # rate limit, bad embed) and that text is the whole diagnosis.
+            print(f"[notify] header failed: {e}")
+
+    for emb in embeds:
+        try:
+            # ?wait=true makes Discord return the created message, which is the
+            # only way to learn its id - and the id is what lets the bot seed
+            # the tap-target reactions below.
+            r = session.post(url, params={"wait": "true"},
+                             json={"embeds": [emb]}, timeout=15)
+            r.raise_for_status()
+            sent.append("webhook")
+            try:
+                seed_arm_reactions((r.json() or {}).get("id"), env=env,
+                                   session=session)
+            except Exception:
+                pass                       # a missing tap-target never blocks the alert
+        except Exception as e:
             body = ""
             resp = getattr(e, "response", None)
             if resp is not None:
                 body = f" | HTTP {resp.status_code}: {str(resp.text)[:200]}"
             print(f"[notify] rich webhook failed: {e}{body}")
     return sent
+
+
+def seed_arm_reactions(message_id, env=None, session=None) -> bool:
+    """Put 🎯 and ❌ on a card so arming is ONE TAP.
+
+    🚨 THIS IS THE "BUTTON". Discord will not give a webhook real buttons -
+    interactive components need an app listening on a pushed interaction, which
+    would mean a daemon or a public endpoint, and this whole design runs off a
+    one-minute scheduled task instead.
+
+    A reaction the bot has already placed renders as a chip under the message
+    that you tap once - on mobile that is the same gesture as a button, versus
+    long-press-then-hunt-the-emoji-picker for an unseeded one.
+
+    Needs the bot token; without it, cards still post and you can react
+    manually.
+    """
+    env = env if env is not None else os.environ
+    token = (env.get("FLIPSCOUT_DISCORD_BOT_TOKEN") or "").strip()
+    channel = (env.get("FLIPSCOUT_DISCORD_CHANNEL_ID") or "").strip()
+    if not (token and channel and message_id):
+        return False
+    from urllib.parse import quote
+    session = session or requests
+    ok = True
+    for emoji in ("\N{DIRECT HIT}", "\N{CROSS MARK}"):
+        try:
+            r = session.put(
+                f"https://discord.com/api/v10/channels/{channel}/messages/"
+                f"{message_id}/reactions/{quote(emoji)}/@me",
+                headers={"Authorization": f"Bot {token}"}, timeout=15)
+            ok = ok and r.status_code in (200, 204)
+        except Exception:
+            ok = False
+    return ok
 
 
 def _send_email(text: str, subject: str, env) -> None:
