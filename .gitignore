@@ -30,5 +30,6 @@ fb_sweep_run.log
 .hibidprofile/
 snipe_armed.json
 hibid_armed.json
+hibid_bidform.json
 SNIPE_DISABLED
 snipe_run.log

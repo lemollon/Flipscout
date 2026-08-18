@@ -21,6 +21,12 @@ def isolate(tmp_path, monkeypatch):
     monkeypatch.setattr(H, "ARMED_PATH", tmp_path / "armed.json")
     monkeypatch.setattr(H, "KILL_SWITCH", tmp_path / "SNIPE_DISABLED")
     monkeypatch.setattr(H, "PROFILE_DIR", tmp_path / "profile")
+    # Most tests exercise what happens AFTER the bid form is proven, so give
+    # them a verified record. The gate itself is tested separately below.
+    bf = tmp_path / "bidform.json"
+    bf.write_text('{"confirm_dialog": true, "max_input": "#bidAmount",'
+                  ' "confirm_button": "button.confirm"}', encoding="utf-8")
+    monkeypatch.setattr(H, "BIDFORM_PATH", bf)
     # 🚨 run() does `from .notify import notify` at CALL time, so the name that
     # matters lives on the notify module - patching H.notify silently does
     # nothing and lets these tests post to the real Discord webhook.
@@ -316,3 +322,59 @@ def test_signed_in_survives_a_broken_context():
         def cookies(self):
             raise RuntimeError("browser gone")
     assert H.signed_in(Boom()) is False
+
+
+# --- the bid-form gate -------------------------------------------------------
+
+def test_refuses_to_bid_until_the_form_is_verified(monkeypatch, tmp_path):
+    """🚨 A HiBid lot page has no bid input - only a "Bid 5.00 USD" button, and
+    whether it confirms first is a PER-ACCOUNT preference invisible in the DOM.
+
+    On the auction inspected 2026-08-18 the terms read "BIDS CANNOT BE
+    CANCELED - ALL BIDS ARE FINAL!". A blind click is therefore a coin flip on
+    an irreversible contract, so an unproven button is never clicked.
+    """
+    _armed()
+    calls = _patch(monkeypatch, _detail(left=100.0))
+    monkeypatch.setattr(H, "BIDFORM_PATH", tmp_path / "absent.json")
+    H.run()
+    assert not calls
+    assert H.load_armed()["317852714"]["status"] == "ARMED", "stays armed, just unbid"
+
+
+def test_a_dry_run_is_allowed_without_verification(monkeypatch, tmp_path):
+    """That is how you rehearse before verifying - it spends nothing."""
+    _armed()
+    calls = _patch(monkeypatch, _detail(left=100.0))
+    monkeypatch.setattr(H, "BIDFORM_PATH", tmp_path / "absent.json")
+    H.run(dry_run=True)
+    assert calls and calls[0][2] is True
+
+
+def test_a_form_recorded_as_instant_commit_never_unlocks_bidding(monkeypatch, tmp_path):
+    """If verify saw NO dialog the button commits instantly, which can only ever
+    bid the site's increment - never Leron's max. That is not a snipe."""
+    bf = tmp_path / "bf.json"
+    bf.write_text('{"confirm_dialog": false}', encoding="utf-8")
+    monkeypatch.setattr(H, "BIDFORM_PATH", bf)
+    assert H.bidform_ok() is False
+    _armed()
+    calls = _patch(monkeypatch, _detail(left=100.0))
+    H.run()
+    assert not calls
+
+
+def test_a_dialog_without_an_input_does_not_count(monkeypatch, tmp_path):
+    """A confirm-only dialog still cannot carry our max."""
+    bf = tmp_path / "bf.json"
+    bf.write_text('{"confirm_dialog": true}', encoding="utf-8")
+    monkeypatch.setattr(H, "BIDFORM_PATH", bf)
+    assert H.bidform_ok() is False
+
+
+def test_bidform_survives_a_corrupt_file(monkeypatch, tmp_path):
+    bf = tmp_path / "bf.json"
+    bf.write_text("{not json", encoding="utf-8")
+    monkeypatch.setattr(H, "BIDFORM_PATH", bf)
+    assert H.bidform() == {}
+    assert H.bidform_ok() is False

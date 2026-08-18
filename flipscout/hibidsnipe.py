@@ -48,29 +48,27 @@ lot's, it carries no timezone, and with a staggered close the lot you care
 about may close hours after it. The three lots above all reported the same
 `bidCloseDateTime` while sitting 20 seconds apart.
 
-🚨 THE FINAL CLICK IS UNVERIFIED - THIS CANNOT BID YET
-------------------------------------------------------
-Inspected a live lot page on 2026-08-18 with a real signed-in session and
-there is NO bid input on it. The only control is a single button reading
-"Bid 30.00 USD" - the next increment, not a max. So the form-filling path
-below has never run against a real HiBid bid form, and `place_bid` currently
-fails loudly with "bid box not found" rather than bidding.
+🚨 THE BID FORM MUST BE PROVEN BEFORE THIS CAN BID
+--------------------------------------------------
+A HiBid lot page has NO bid input. The only control is one button reading
+"Bid 5.00 USD" - the next increment, not a max. Whether clicking it opens a
+confirmation dialog or places the bid instantly is a PER-ACCOUNT PREFERENCE,
+and nothing in the DOM reveals which. On the auction inspected 2026-08-18 the
+auctioneer's terms read "BIDS CANNOT BE CANCELED - ALL BIDS ARE FINAL!".
 
-The auction genuinely is `bidAmountType: MAX_BIDDING`, so a max-bid entry
-exists somewhere; the most likely shape is a dialog behind that button. It
-could not be confirmed because:
+So a blind click is a coin flip on an irreversible contract, and this module
+refuses to make it. `run()` will not place a real bid until `hibidsnipe verify`
+has recorded what that button actually does, in BIDFORM_PATH.
 
-  * the lot inspected showed `isRegistered: false`, and
-  * clicking to find out risks placing a real bid, or worse, auto-registering -
-    which accepts the house's terms and puts a card on file.
+    hibidsnipe verify https://hibid.com/lot/<id>
 
-TO FINISH THIS: register for ONE auction you actually want, then run
-`hibidsnipe arm <lot> <max>` and `hibidsnipe run --dry-run`. The dry run stops
-one click short of committing money, so it can prove the selectors against a
-real registered lot without spending anything.
+That opens the lot in the sniper's OWN visible window, asks Leron to click Bid
+once and stop, watches the DOM for the dialog, writes down the max-bid input
+and confirm button it finds, and never confirms anything itself. One time, for
+the account - not per lot.
 
-Until then the guardrails all hold and the module is safe - it simply reports
-a failure instead of bidding. Do NOT "fix" this by guessing more selectors.
+🚨 Claude must never click the bid button to "find out". The verify step
+exists precisely so that guessing is unnecessary.
 
 WHAT THE MAX MEANS
 ------------------
@@ -100,6 +98,9 @@ from .pricebook import match
 REPO = pathlib.Path(__file__).resolve().parent.parent
 PROFILE_DIR = REPO / ".hibidprofile"
 ARMED_PATH = REPO / "hibid_armed.json"
+# What `verify` learned about this account's bid button. Absent = never proven,
+# and an unproven button is never clicked with real money behind it.
+BIDFORM_PATH = REPO / "hibid_bidform.json"
 # Shared with the ShopGoodwill sniper on purpose: one file stops every bot.
 KILL_SWITCH = REPO / "SNIPE_DISABLED"
 
@@ -131,6 +132,28 @@ def load_armed() -> dict:
 
 def save_armed(d: dict) -> None:
     ARMED_PATH.write_text(json.dumps(d, indent=2), encoding="utf-8")
+
+
+def bidform() -> dict:
+    """What `verify` recorded, or {} if it was never run."""
+    if not BIDFORM_PATH.exists():
+        return {}
+    try:
+        return json.loads(BIDFORM_PATH.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+
+
+def bidform_ok() -> bool:
+    """True only when the bid button is known to be confirm-gated.
+
+    🚨 This is the gate that stops a coin-flip click on an irreversible
+    bid. If verify found NO dialog, the button commits instantly - which means
+    it would bid the site's increment, never Leron's max, and could not be
+    stopped. That is not a snipe, so it stays refused.
+    """
+    f = bidform()
+    return bool(f.get("confirm_dialog")) and bool(f.get("max_input"))
 
 
 def _blob(text: str, key: str):
@@ -306,45 +329,34 @@ def place_bid(lid: str, amount: float, dry_run: bool) -> tuple:
             if re.search(r"register to bid|you must register|not registered", body, re.I):
                 return False, "NOT REGISTERED for this auction - register first"
 
-            # 🚨 See the header: no bid input has ever been observed on a
-            # HiBid lot page. Report what IS there rather than a bare
-            # "not found", so the next person can see the real shape instead
-            # of guessing at more selectors.
-            box = None
-            for sel in ("input[name='bidAmount']", "input#bidAmount",
-                        "input[formcontrolname='bidAmount']",
-                        "input[placeholder*='bid' i]", "input[type='number']"):
-                box = pg.query_selector(sel)
-                if box:
-                    break
+            form = bidform()
+            if not (dry_run or bidform_ok()):
+                return False, "bid form not verified - run `hibidsnipe verify`"
+
+            # Open the dialog. 🚨 This click is only safe because verify
+            # proved it opens a dialog rather than committing - see the header.
+            opener = pg.query_selector(form.get("open_button")
+                                       or "button.lot-bid-button-bid-amount")
+            if not opener:
+                return False, "the 'Bid <amount>' button is not on the page"
+            opener.click()
+            pg.wait_for_timeout(2000)
+
+            box = pg.query_selector(form.get("max_input") or "")
             if not box:
-                seen = [(b.inner_text() or "").strip()[:40]
-                        for b in pg.query_selector_all("button")
-                        if re.search(r"\bbid\b", (b.inner_text() or ""), re.I)]
-                return False, ("no max-bid input on the page - the bid controls "
-                               f"present were {seen or 'none'}. The final click "
-                               "is UNVERIFIED; see this module's header.")
+                return False, ("the bid dialog did not appear as recorded - "
+                               "re-run `hibidsnipe verify`. NOT bidding.")
             box.fill(f"{amount:.2f}")
 
-            btn = None
-            for b in pg.query_selector_all("button, input[type='submit']"):
-                label = (b.inner_text() or b.get_attribute("value") or "")
-                if re.search(r"place bid|submit bid|bid now|place my bid", label, re.I):
-                    btn = b
-                    break
+            confirm_sel = form.get("confirm_button")
+            btn = pg.query_selector(confirm_sel) if confirm_sel else None
             if not btn:
-                return False, "'Place Bid' button not found"
+                return False, "the confirm button moved - re-run `hibidsnipe verify`"
             if dry_run:
-                return True, f"DRY RUN - form filled with ${amount:.2f}, NOT clicked"
+                return True, (f"DRY RUN - dialog open, max ${amount:.2f} entered, "
+                              f"confirm NOT clicked")
 
             btn.click()
-            pg.wait_for_timeout(2500)
-            # HiBid usually raises a confirm dialog on top of the form.
-            for b in pg.query_selector_all("button"):
-                if re.search(r"^\s*(confirm|yes|ok|place bid)\s*$",
-                             (b.inner_text() or ""), re.I):
-                    b.click()
-                    break
             pg.wait_for_timeout(3000)
             after = (pg.inner_text("body") or "")[:5000]
             if re.search(r"you are the high bidder|winning|bid accepted|"
@@ -366,6 +378,13 @@ def run(dry_run: bool = False) -> int:
         return 0
     armed = load_armed()
     if not armed:
+        return 0
+    # 🚨 Never click an unproven bid button with real money behind it.
+    # A dry run is still allowed - that is how you rehearse before verifying.
+    if not dry_run and not bidform_ok():
+        print("bid form not verified - run `hibidsnipe verify <lot-url>` once.\n"
+              "Refusing to bid: on this site a bid cannot be cancelled, and it "
+              "is an account preference whether that button confirms first.")
         return 0
     changed = False
     for lid, a in list(armed.items()):
@@ -477,6 +496,123 @@ def run(dry_run: bool = False) -> int:
     return 0
 
 
+def verify(url_or_id: str, timeout_s: int = 240) -> int:
+    """Learn what this account's bid button actually does. ONE TIME.
+
+    Opens the lot in the sniper's OWN visible window - which removes the "which
+    tab am I looking at" problem entirely - and waits for Leron to click the
+    Bid button once. It watches the DOM, and:
+
+      * if a dialog appears, records the max-bid input and the confirm button,
+        so place_bid can drive the real thing instead of guessed selectors;
+      * if the page commits instead, records that and the sniper stays refused,
+        because a button that bids instantly can only ever bid the site's
+        increment - never Leron's max.
+
+    🚨 This function never clicks the bid button and never confirms
+    anything. Leron clicks; it only reads.
+    """
+    from playwright.sync_api import sync_playwright
+    lid = lot_id(url_or_id)
+    with sync_playwright() as p:
+        ctx = p.chromium.launch_persistent_context(
+            str(PROFILE_DIR), headless=False,
+            viewport={"width": 1400, "height": 950},
+            args=["--disable-blink-features=AutomationControlled"])
+        pg = ctx.pages[0] if ctx.pages else ctx.new_page()
+        pg.goto(_LOT_URL.format(lid), timeout=60000, wait_until="domcontentloaded")
+        pg.wait_for_timeout(4000)
+        if not signed_in(ctx):
+            print("not signed in - run `hibidsnipe login` first")
+            ctx.close()
+            return 1
+
+        pg.evaluate("""() => {
+            const d = document.createElement('div');
+            d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;'
+              + 'background:#c2410c;color:#fff;font:700 15px system-ui;padding:10px;'
+              + 'text-align:center';
+            d.textContent = 'Click the blue Bid button ONCE, then STOP. '
+              + 'Do not confirm. Flipscout is reading the dialog.';
+            document.body.appendChild(d);
+        }""")
+        print("A window just opened on the lot.")
+        print("  1. Click the blue 'Bid <amount>' button ONCE.")
+        print("  2. STOP. Do not confirm, do not press anything else.")
+        print(f"Watching for up to {timeout_s}s...")
+
+        deadline = time.time() + timeout_s
+        found = None
+        while time.time() < deadline:
+            try:
+                found = pg.evaluate(r"""() => {
+                    const q = s => [...document.querySelectorAll(s)];
+                    const m = q('ngb-modal-window,.modal,[role=dialog],.modal-content')[0];
+                    if (!m) return null;
+                    const inp = [...m.querySelectorAll('input')]
+                        .filter(i => i.type !== 'hidden')
+                        .map(i => ({type: i.type, name: i.name, id: i.id,
+                                    fc: i.getAttribute('formcontrolname'),
+                                    ph: i.placeholder, cls: i.className}));
+                    const btn = [...m.querySelectorAll('button')]
+                        .map(b => ({t: (b.innerText||'').trim(), cls: b.className}))
+                        .filter(b => b.t);
+                    return {text: (m.innerText||'').replace(/\s+/g,' ').slice(0,400),
+                            inputs: inp, buttons: btn};
+                }""")
+            except Exception:
+                found = None
+            if found:
+                break
+            time.sleep(2)
+
+        if not found:
+            print("\nNo dialog appeared.")
+            print("If you clicked and the bid went straight through, this account "
+                  "has bid confirmation OFF - the sniper stays disabled, because "
+                  "that button can only bid the site's increment, never your max.")
+            BIDFORM_PATH.write_text(json.dumps(
+                {"confirm_dialog": False, "note": "no dialog observed"},
+                indent=2), encoding="utf-8")
+            ctx.close()
+            return 1
+
+        def _sel(d):
+            if d.get("id"):
+                return f"#{d['id']}"
+            if d.get("fc"):
+                return f"[formcontrolname='{d['fc']}']"
+            if d.get("name"):
+                return f"input[name='{d['name']}']"
+            cls = (d.get("cls") or "").split()
+            return "." + ".".join(cls[:2]) if cls else "input"
+
+        amount_like = [i for i in found["inputs"]
+                       if re.search(r"bid|amount|max", str(i), re.I)]
+        chosen = (amount_like or found["inputs"] or [None])[0]
+        confirm = next((b for b in found["buttons"]
+                        if re.search(r"place|confirm|submit|bid|yes|ok", b["t"], re.I)),
+                       None)
+        rec = {
+            "confirm_dialog": True,
+            "max_input": _sel(chosen) if chosen else None,
+            "confirm_button": (f"button.{confirm['cls'].split()[0]}"
+                               if confirm and confirm.get("cls") else None),
+            "confirm_text": confirm["t"] if confirm else None,
+            "open_button": "button.lot-bid-button-bid-amount",
+            "dialog_text": found["text"][:200],
+            "verified_on_lot": lid,
+        }
+        BIDFORM_PATH.write_text(json.dumps(rec, indent=2), encoding="utf-8")
+        print("\nDialog found and recorded:")
+        for k, v in rec.items():
+            print(f"  {k:16s} {v}")
+        print("\nClose the dialog WITHOUT confirming. Nothing was bid.")
+        print("The sniper is now allowed to bid on armed lots.")
+        ctx.close()
+        return 0
+
+
 def login(timeout_s: int = 300) -> int:
     """Open the dedicated profile VISIBLY so Leron signs in himself.
 
@@ -513,6 +649,11 @@ def main(argv=None) -> int:
     dry = "--dry-run" in argv
     if cmd == "login":
         return login()
+    if cmd == "verify":
+        if len(argv) < 2:
+            print("usage: hibidsnipe verify <lot-url-or-id>")
+            return 2
+        return verify(argv[1])
     if cmd == "arm":
         if len(argv) < 3:
             print("usage: hibidsnipe arm <lot-url-or-id> <max-hammer-bid> [--override]")
