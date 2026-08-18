@@ -48,6 +48,30 @@ lot's, it carries no timezone, and with a staggered close the lot you care
 about may close hours after it. The three lots above all reported the same
 `bidCloseDateTime` while sitting 20 seconds apart.
 
+🚨 THE FINAL CLICK IS UNVERIFIED - THIS CANNOT BID YET
+------------------------------------------------------
+Inspected a live lot page on 2026-08-18 with a real signed-in session and
+there is NO bid input on it. The only control is a single button reading
+"Bid 30.00 USD" - the next increment, not a max. So the form-filling path
+below has never run against a real HiBid bid form, and `place_bid` currently
+fails loudly with "bid box not found" rather than bidding.
+
+The auction genuinely is `bidAmountType: MAX_BIDDING`, so a max-bid entry
+exists somewhere; the most likely shape is a dialog behind that button. It
+could not be confirmed because:
+
+  * the lot inspected showed `isRegistered: false`, and
+  * clicking to find out risks placing a real bid, or worse, auto-registering -
+    which accepts the house's terms and puts a card on file.
+
+TO FINISH THIS: register for ONE auction you actually want, then run
+`hibidsnipe arm <lot> <max>` and `hibidsnipe run --dry-run`. The dry run stops
+one click short of committing money, so it can prove the selectors against a
+real registered lot without spending anything.
+
+Until then the guardrails all hold and the module is safe - it simply reports
+a failure instead of bidding. Do NOT "fix" this by guessing more selectors.
+
 WHAT THE MAX MEANS
 ------------------
 🚨 The armed number is a HAMMER bid, because that is what the bid box takes.
@@ -282,6 +306,10 @@ def place_bid(lid: str, amount: float, dry_run: bool) -> tuple:
             if re.search(r"register to bid|you must register|not registered", body, re.I):
                 return False, "NOT REGISTERED for this auction - register first"
 
+            # 🚨 See the header: no bid input has ever been observed on a
+            # HiBid lot page. Report what IS there rather than a bare
+            # "not found", so the next person can see the real shape instead
+            # of guessing at more selectors.
             box = None
             for sel in ("input[name='bidAmount']", "input#bidAmount",
                         "input[formcontrolname='bidAmount']",
@@ -290,7 +318,12 @@ def place_bid(lid: str, amount: float, dry_run: bool) -> tuple:
                 if box:
                     break
             if not box:
-                return False, "bid box not found (page changed?)"
+                seen = [(b.inner_text() or "").strip()[:40]
+                        for b in pg.query_selector_all("button")
+                        if re.search(r"\bbid\b", (b.inner_text() or ""), re.I)]
+                return False, ("no max-bid input on the page - the bid controls "
+                               f"present were {seen or 'none'}. The final click "
+                               "is UNVERIFIED; see this module's header.")
             box.fill(f"{amount:.2f}")
 
             btn = None
