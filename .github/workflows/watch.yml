@@ -122,4 +122,18 @@ jobs:
           git config user.email "flipscout-bot@users.noreply.github.com"
           git add docs/deals.json docs/BOARD.md
           git diff --cached --quiet || git commit -m "board: refresh deals [skip ci]"
-          git push
+          # Rebase before pushing. The runner checked main out ~6 minutes ago,
+          # so ANY merge during the hunt makes this push a non-fast-forward and
+          # the whole run fails with a fresh board it never published. Observed
+          # 2026-08-18: run 32167190745 died exactly this way.
+          #
+          # Rebase is safe here because the only thing this job commits is the
+          # board, and the board is regenerated from scratch every run - there
+          # is no history to preserve and nothing to conflict over.
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main && git push && exit 0
+            echo "push race on attempt $attempt - retrying"
+            sleep 5
+          done
+          echo "::error::could not publish the board after 3 attempts"
+          exit 1
