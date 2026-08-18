@@ -193,12 +193,50 @@ def detail(lid: str) -> dict:
         "closed": bool(st.get("isClosed")),
         "left": st.get("timeLeftSeconds"),
         "extended": bool(st.get("biddingExtended")),
-        # 🚨 The gate. False means we cannot bid at all, however well armed.
-        "registered": bool(st.get("isRegistered")),
+        # 🚨 UNKNOWN, NOT FALSE. This request carries no cookies, so HiBid
+        # answers as an anonymous visitor and `isRegistered` is ALWAYS false -
+        # it describes nobody. Reading it as "Leron is not registered" made the
+        # registration gate reject every lot forever, which would have looked
+        # exactly like a sniper that quietly never fires.
+        #
+        # Only an authenticated read can answer this; see registered_authed().
+        "registered": True if st.get("isRegistered") else None,
         "increments": _blob(t, "bidIncrements"),
         "premium": parse_premium(_blob(t, "buyerPremium")),
         "notice": (_blob(t, "biddingNotice") or "")[:400],
     }
+
+
+def registered_authed(lid: str) -> Optional[bool]:
+    """Whether LERON is registered for this lot's auction. Authenticated.
+
+    Costs a browser launch, so `run()` only asks once a lot is close enough to
+    matter - never on every poll of every armed lot.
+    """
+    from playwright.sync_api import sync_playwright
+    try:
+        with sync_playwright() as p:
+            ctx = p.chromium.launch_persistent_context(
+                str(PROFILE_DIR), headless=True,
+                args=["--disable-blink-features=AutomationControlled"])
+            try:
+                pg = ctx.pages[0] if ctx.pages else ctx.new_page()
+                pg.goto(_LOT_URL.format(lid), timeout=40000,
+                        wait_until="domcontentloaded")
+                pg.wait_for_timeout(3500)
+                if not signed_in(ctx):
+                    return None
+                body = (pg.inner_text("body") or "")
+                if re.search(r"register to bid|you must register|not registered",
+                             body, re.I):
+                    return False
+                # A live "Bid <amount>" control only renders for a bidder who
+                # may actually use it.
+                return bool(pg.query_selector("button.lot-bid-button-bid-amount"))
+            finally:
+                ctx.close()
+    except Exception:
+        return None
 
 
 def seconds_left(d: dict) -> Optional[float]:
@@ -244,7 +282,10 @@ def arm(url_or_id: str, max_bid: float, override: bool = False) -> int:
     print(f"  max hammer bid   ${cap:,.2f}")
     print(f"  buyer's premium  {prem * 100:.4g}%  -> you pay ${landed:,.2f} all-in")
     print(f"  current bid      ${d['high_bid']:,.2f} ({d['bids']} bids)")
-    if not d["registered"]:
+    if d["registered"] is None:
+        print(f"  note: registration not checked here (the quick lookup is "
+              f"anonymous). The sniper resolves it before it bids.")
+    elif not d["registered"]:
         print(f"  :warning: NOT REGISTERED for this auction - this will NOT bid "
               f"until you register at {_LOT_URL.format(lid)}")
 
@@ -410,7 +451,15 @@ def run(dry_run: bool = False) -> int:
 
         # 🚨 THE REGISTRATION GATE. Check it before the clock so the warning
         # arrives while there is still time to act on it, not at T-180s.
-        if not d["registered"]:
+        #
+        # `d["registered"]` is None from the cheap anonymous poll, which means
+        # UNKNOWN. Resolve it for real only once the lot is within a few hours
+        # of closing - an authenticated check costs a browser launch, and there
+        # is no point paying that on a lot nine days out.
+        reg = d["registered"]
+        if reg is None and left <= 4 * 3600:
+            reg = registered_authed(lid)
+        if reg is False:
             if a.get("warned_unregistered"):
                 continue
             a["warned_unregistered"] = True
@@ -536,6 +585,16 @@ def verify(url_or_id: str, timeout_s: int = 240) -> int:
               + 'Do not confirm. Flipscout is reading the dialog.';
             document.body.appendChild(d);
         }""")
+        # 🚨 Snapshot the bid state. Without this, "no dialog appeared" is
+        # ambiguous between "he never clicked" and "it bid instantly" - and on
+        # 2026-08-18 the first run recorded the second when the truth was the
+        # first, which would have disabled the sniper on a false premise.
+        try:
+            before = detail(lid)
+            b_bids, b_high = before.get("bids"), before.get("high_bid")
+        except Exception:
+            b_bids = b_high = None
+
         print("A window just opened on the lot.")
         print("  1. Click the blue 'Bid <amount>' button ONCE.")
         print("  2. STOP. Do not confirm, do not press anything else.")
@@ -567,15 +626,34 @@ def verify(url_or_id: str, timeout_s: int = 240) -> int:
             time.sleep(2)
 
         if not found:
-            print("\nNo dialog appeared.")
-            print("If you clicked and the bid went straight through, this account "
-                  "has bid confirmation OFF - the sniper stays disabled, because "
-                  "that button can only bid the site's increment, never your max.")
-            BIDFORM_PATH.write_text(json.dumps(
-                {"confirm_dialog": False, "note": "no dialog observed"},
-                indent=2), encoding="utf-8")
+            # Did the bid state move? That distinguishes the two cases.
+            committed = False
+            try:
+                after = detail(lid)
+                committed = (b_bids is not None
+                             and (after.get("bids") or 0) > b_bids)
+            except Exception:
+                pass
             ctx.close()
-            return 1
+            if committed:
+                print("\n:warning: THE BID WENT STRAIGHT THROUGH - no dialog.")
+                print("This account has bid confirmation OFF. The sniper stays "
+                      "DISABLED: that button can only bid the site's increment, "
+                      "never your max, and it cannot be stopped once clicked.")
+                print("Turn bid confirmation ON in your HiBid account, then "
+                      "re-run verify.")
+                BIDFORM_PATH.write_text(json.dumps(
+                    {"confirm_dialog": False,
+                     "note": "bid committed instantly - confirmation is OFF"},
+                    indent=2), encoding="utf-8")
+                return 1
+            print("\nNo dialog, and no bid was placed either - so the click "
+                  "never landed.")
+            print(f"  bids still {b_bids}, high bid still ${b_high or 0:.2f}")
+            print("The window may have opened behind your other windows. Nothing "
+                  "was recorded and nothing was spent - just run verify again and "
+                  "look for the window with the ORANGE BAR across the top.")
+            return 2                       # inconclusive, NOT a finding
 
         def _sel(d):
             if d.get("id"):

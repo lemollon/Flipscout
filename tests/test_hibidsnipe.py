@@ -378,3 +378,46 @@ def test_bidform_survives_a_corrupt_file(monkeypatch, tmp_path):
     monkeypatch.setattr(H, "BIDFORM_PATH", bf)
     assert H.bidform() == {}
     assert H.bidform_ok() is False
+
+
+# --- registration is unknown until checked -----------------------------------
+
+def test_anonymous_poll_reports_registration_as_unknown_not_false():
+    """🚨 detail() sends no cookies, so HiBid answers as an anonymous visitor
+    and isRegistered is ALWAYS false - it describes nobody.
+
+    Reading that as "Leron is not registered" made the gate reject every lot
+    forever, which looks exactly like a sniper that quietly never fires.
+    Verified live 2026-08-18: the anonymous poll said false on an auction he
+    was in fact registered for.
+    """
+    d = _detail(registered=None)
+    assert d["registered"] is None
+
+
+def test_unknown_registration_does_not_block_a_bid(monkeypatch):
+    """Unknown must not behave like False, or nothing ever fires."""
+    _armed()
+    calls = _patch(monkeypatch, _detail(left=100.0, registered=None))
+    monkeypatch.setattr(H, "registered_authed", lambda lid: True)
+    H.run()
+    assert calls, "an unknown that resolves True must still bid"
+
+
+def test_a_known_false_still_blocks(monkeypatch):
+    _armed()
+    calls = _patch(monkeypatch, _detail(left=100.0, registered=None))
+    monkeypatch.setattr(H, "registered_authed", lambda lid: False)
+    H.run()
+    assert not calls
+
+
+def test_the_authenticated_check_is_not_paid_for_on_distant_lots(monkeypatch):
+    """It costs a browser launch. A lot nine days out does not need one."""
+    _armed()
+    asked = []
+    _patch(monkeypatch, _detail(left=9 * 24 * 3600, registered=None))
+    monkeypatch.setattr(H, "registered_authed",
+                        lambda lid: asked.append(lid) or True)
+    H.run()
+    assert not asked, "must not launch a browser for a lot days away"
