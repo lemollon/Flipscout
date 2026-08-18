@@ -63,6 +63,11 @@ def item(c: dict) -> dict:
         "profit_at_open": (round(adv.profit_at_open, 2)
                            if adv.profit_at_open is not None else None),
         "profit_at_max": round(adv.profit_at_max, 2),
+        # Auction-house cut, already priced into max_bid above. Carried so the
+        # board can SHOW it - a bidder who only sees the hammer discovers a
+        # 10-20% premium on the invoice.
+        "buyer_premium_rate": round(adv.buyer_premium_rate, 4),
+        "landed_at_max": round(adv.landed_at_max, 2),
         # Where it is and what could bite.
         "house": row.get("house") or "",
         "where": where,
