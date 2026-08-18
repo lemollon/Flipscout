@@ -479,3 +479,65 @@ def test_the_confirm_button_is_matched_by_text_not_class():
     H.BIDFORM_PATH.write_text(json.dumps(
         {"confirm_dialog": True, "max_input": ".text-lg"}), encoding="utf-8")
     assert H.bidform_ok() is False, "a form with no confirm TEXT is not usable"
+
+
+# --- being outbid is a result, not a fault -----------------------------------
+
+def _outbid_bid(lid, amount, dry_run):
+    return False, f"{H.OUTBID} - a standing bid is above your ${amount:,.2f} max"
+
+
+def test_being_outbid_gets_its_own_status(monkeypatch):
+    """🚨 "Somebody valued it more" and "the bot is broken" both used to land in
+    FAILED. One needs no action; the other needs fixing. Burying them together
+    hides the broken one."""
+    _armed(max_bid=50.0)
+    _patch(monkeypatch, _detail(left=100.0), spy=_outbid_bid)
+    H.run()
+    assert H.load_armed()["317852714"]["status"] == "OUTBID"
+
+
+def test_a_real_failure_is_still_FAILED(monkeypatch):
+    _armed()
+    _patch(monkeypatch, _detail(left=100.0),
+           spy=lambda lid, amount, dry_run: (False, "the confirm button moved"))
+    H.run()
+    assert H.load_armed()["317852714"]["status"] == "FAILED"
+
+
+def test_the_price_is_recorded_even_when_the_bid_loses(monkeypatch):
+    """🚨 "You lost" and "you lost by $1" call for completely different
+    responses, and the gap is the only evidence the book's ceiling is too low.
+    The price used to be re-read ONLY on a win."""
+    _armed(max_bid=50.0)
+    _patch(monkeypatch, _detail(left=100.0, high=95.0), spy=_outbid_bid)
+    monkeypatch.setattr(H.time, "sleep", lambda *a: None)
+    H.run()
+    assert H.load_armed()["317852714"]["price_after"] == 95.0
+
+
+def test_an_outbid_message_never_claims_money_was_spent(monkeypatch, capsys):
+    _armed(max_bid=50.0)
+    _patch(monkeypatch, _detail(left=100.0, high=95.0), spy=_outbid_bid)
+    monkeypatch.setattr(H.time, "sleep", lambda *a: None)
+    H.run()
+    out = capsys.readouterr().out
+    assert "Nothing was spent" in out
+    assert "beaten by $45.00" in out
+
+
+def test_a_failed_bid_is_never_reported_as_winning(monkeypatch, capsys):
+    """🚨 It used to say "you are winning, $21.92 under your max" after a bid
+    that never landed - purely because the price happened to sit below the max.
+
+    That is the worst kind of wrong: it reads as a success on a lot nobody is
+    defending, so you stop watching it.
+    """
+    _armed(max_bid=50.0)
+    _patch(monkeypatch, _detail(left=100.0, high=12.0),
+           spy=lambda lid, amount, dry_run: (False, "the confirm button moved"))
+    monkeypatch.setattr(H.time, "sleep", lambda *a: None)
+    H.run()
+    out = capsys.readouterr().out
+    assert "winning" not in out
+    assert "did NOT go through" in out

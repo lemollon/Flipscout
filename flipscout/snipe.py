@@ -64,6 +64,13 @@ PROFILE_DIR = REPO / ".sgwprofile"
 ARMED_PATH = REPO / "snipe_armed.json"
 KILL_SWITCH = REPO / "SNIPE_DISABLED"
 
+# Prefix on the place_bid message when a rival proxy outbid us on the spot.
+# 🚨 This is a NORMAL outcome, not a fault - somebody simply valued the thing
+# more than we did. It has to be distinguishable from a real failure (a moved
+# selector, a dead session), because one needs no action and the other needs
+# fixing, and burying both under "FAILED" hides the broken one.
+OUTBID = "OUTBID"
+
 _DETAIL = "https://buyerapi.shopgoodwill.com/api/ItemDetail/GetItemDetailModelByItemId/{}"
 _H = {"Content-Type": "application/json", "Origin": "https://shopgoodwill.com",
       "Referer": "https://shopgoodwill.com/", "User-Agent": "Mozilla/5.0"}
@@ -220,7 +227,13 @@ def place_bid(iid: str, amount: float, dry_run: bool) -> tuple:
                          r"bid confirmation", after, re.I):
                 return True, f"BID PLACED at ${amount:.2f}"
             if re.search(r"outbid|higher bid|increase your bid", after, re.I):
-                return False, "bid rejected - already above your max"
+                # 🚨 Say WHOSE max. "already above your max" reads as
+                # though our own bid was the problem; what actually
+                # happened is a rival proxy is standing higher than
+                # our ceiling, so this lot cannot be won at our price.
+                return False, (f"{OUTBID} - a standing bid is above your "
+                               f"${amount:,.2f} max, so this cannot be won "
+                               f"at your number")
             return True, f"bid submitted at ${amount:.2f} (no confirmation text seen)"
         except Exception as e:
             return False, f"{type(e).__name__}: {e}"
@@ -298,15 +311,21 @@ def run(dry_run: bool = False) -> int:
         # to when you armed it.
         before = float(d.get("currentPrice") or 0)
         ok, detail_msg = place_bid(iid, cap, dry_run=dry_run)
-        a["status"] = ("DRY_RUN" if dry_run else ("BID" if ok else "FAILED"))
+        outbid = (not ok) and str(detail_msg).startswith(OUTBID)
+        a["status"] = ("DRY_RUN" if dry_run else
+                       "BID" if ok else "OUTBID" if outbid else "FAILED")
         a["result"] = detail_msg
         a["price_before"] = before
         changed = True
 
         # Re-read so the alert reports what it actually COST, not what was
         # authorised - the whole point of proxy bidding is that those differ.
+        # 🚨 Re-read the price on a LOSS too, not just a win. Being outbid
+        # without a number is useless: "you lost" and "you lost by $1" call for
+        # completely different responses, and the gap is the only evidence that
+        # the book's ceiling is set too low.
         after = None
-        if ok and not dry_run:
+        if not dry_run:
             try:
                 time.sleep(2)
                 after = float(detail(iid).get("currentPrice") or 0)
@@ -314,16 +333,26 @@ def run(dry_run: bool = False) -> int:
             except Exception:
                 pass
 
-        icon = ":dart:" if ok else ":x:"
+        icon = ":dart:" if ok else (":raised_hand:" if outbid else ":x:")
         lines = [f"{icon} **Snipe {'(dry run) ' if dry_run else ''}{a['status']}** "
                  f"on {a['title'][:60]}",
                  f"current bid when it fired: **${before:.2f}**  (needed ${need:.2f})",
                  f"your armed max: **${cap:.2f}**"]
         if after is not None:
-            lines.append(f"price now: **${after:.2f}**"
-                         + (f"  - you are winning at ${after:.2f}, "
-                            f"${cap - after:.2f} under your max"
-                            if after <= cap else "  - ABOVE your max, you were outbid"))
+            if outbid:
+                lines.append(f"it is at **${after:.2f}** now, against your "
+                             f"${cap:.2f} max - beaten by ${max(0, after - cap):.2f}. "
+                             f"Nothing was spent.")
+            elif not ok:
+                # 🚨 See hibidsnipe: a bid that did not land is not a win.
+                lines.append(f"price now: **${after:.2f}**. Your bid did NOT go "
+                             f"through, so you are not in this one.")
+            elif after <= cap:
+                lines.append(f"price now: **${after:.2f}** - you are winning, "
+                             f"${cap - after:.2f} under your max")
+            else:
+                lines.append(f"price now: **${after:.2f}** - ABOVE your max, "
+                             f"you were outbid")
         lines += [detail_msg, a["url"]]
         msg = "\n".join(lines)
         print(msg)
