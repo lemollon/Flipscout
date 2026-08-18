@@ -153,7 +153,7 @@ def bidform_ok() -> bool:
     stopped. That is not a snipe, so it stays refused.
     """
     f = bidform()
-    return bool(f.get("confirm_dialog")) and bool(f.get("max_input"))
+    return bool(f.get("confirm_dialog")) and bool(f.get("confirm_text"))
 
 
 def _blob(text: str, key: str):
@@ -383,19 +383,58 @@ def place_bid(lid: str, amount: float, dry_run: bool) -> tuple:
             opener.click()
             pg.wait_for_timeout(2000)
 
-            box = pg.query_selector(form.get("max_input") or "")
+            # Everything from here on is scoped INSIDE the dialog, so a stray
+            # match on the page behind it is impossible.
+            modal = None
+            for sel in ("ngb-modal-window", ".modal-content", "[role=dialog]",
+                        ".modal"):
+                modal = pg.query_selector(sel)
+                if modal:
+                    break
+            if not modal:
+                return False, ("the bid dialog did not appear - NOT bidding. "
+                               "Re-run `hibidsnipe verify`.")
+
+            # 🚨 Search AMONG THE INPUTS, never by a bare class. ".text-lg" was
+            # recorded from the real dialog and matches a label there, not the
+            # field - fill() then failed with "Element is not an <input>".
+            fields = [i for i in modal.query_selector_all("input")
+                      if (i.get_attribute("type") or "text")
+                      not in ("hidden", "checkbox", "radio", "submit", "button")]
+            box = None
+            want = form.get("max_input")
+            if want:
+                for i in fields:
+                    try:
+                        if i.evaluate("(e,s) => e.matches(s)", want):
+                            box = i
+                            break
+                    except Exception:
+                        pass
+            if not box and len(fields) == 1:
+                box = fields[0]             # a one-field dialog is unambiguous
             if not box:
-                return False, ("the bid dialog did not appear as recorded - "
-                               "re-run `hibidsnipe verify`. NOT bidding.")
+                return False, (f"could not identify the max-bid field among "
+                               f"{len(fields)} inputs - NOT bidding. "
+                               f"Re-run `hibidsnipe verify`.")
             box.fill(f"{amount:.2f}")
 
-            confirm_sel = form.get("confirm_button")
-            btn = pg.query_selector(confirm_sel) if confirm_sel else None
+            # 🚨 Match the confirm button by its EXACT recorded text. Its class
+            # is "btn", which is every button on the page.
+            want = (form.get("confirm_text") or "").strip().lower()
+            btn = None
+            for b in modal.query_selector_all("button"):
+                if (b.inner_text() or "").strip().lower() == want:
+                    btn = b
+                    break
             if not btn:
-                return False, "the confirm button moved - re-run `hibidsnipe verify`"
+                return False, (f"the '{form.get('confirm_text')}' button is not "
+                               f"in the dialog - NOT bidding.")
             if dry_run:
-                return True, (f"DRY RUN - dialog open, max ${amount:.2f} entered, "
-                              f"confirm NOT clicked")
+                shown = box.input_value() if hasattr(box, "input_value") else ""
+                return True, (f"DRY RUN - dialog open, max bid field set to "
+                              f"'{shown or amount}', '{form.get('confirm_text')}' "
+                              f"located but NOT clicked")
 
             btn.click()
             pg.wait_for_timeout(3000)
@@ -436,10 +475,31 @@ def run(dry_run: bool = False) -> int:
         except Exception as e:
             print(f"{lid}: detail failed {type(e).__name__}")
             continue
-        if d.get("gone") or d.get("closed"):
+        # 🚨 A MISSING PAGE IS NOT A CLOSED AUCTION. `gone` just means this
+        # response carried no lotState, which HiBid also does on a transient
+        # bad fetch. Retiring on the first one permanently killed a live lot
+        # with 218 hours left on it (observed 2026-08-18) - the snipe was gone
+        # and nothing said why.
+        #
+        # `closed` is different: that is the site stating the lot is finished,
+        # so it is believed immediately.
+        if d.get("closed"):
             a["status"] = "ENDED_UNBID"
             changed = True
             continue
+        if d.get("gone"):
+            a["gone_strikes"] = int(a.get("gone_strikes") or 0) + 1
+            changed = True
+            if a["gone_strikes"] >= 3:
+                a["status"] = "ENDED_UNBID"
+                print(f"{lid}: no lot data three polls running - retiring")
+            else:
+                print(f"{lid}: no lot data (strike {a['gone_strikes']}/3) - "
+                      f"probably a bad response, keeping it armed")
+            continue
+        if a.get("gone_strikes"):
+            a["gone_strikes"] = 0          # it came back
+            changed = True
         left = seconds_left(d)
         if left is None:
             print(f"{lid}: no countdown in the response - skipping")
@@ -655,6 +715,13 @@ def verify(url_or_id: str, timeout_s: int = 240) -> int:
                   "look for the window with the ORANGE BAR across the top.")
             return 2                       # inconclusive, NOT a finding
 
+        # 🚨 Angular stamps STATE onto className - ng-untouched becomes
+        # ng-touched the moment anything types into the field, ng-pristine
+        # becomes ng-dirty, ng-valid flips to ng-invalid. A selector built from
+        # those matches on a fresh dialog and misses on a used one. The first
+        # verify run produced exactly that: ".text-lg.ng-untouched".
+        _NG = re.compile(r"^ng-")
+
         def _sel(d):
             if d.get("id"):
                 return f"#{d['id']}"
@@ -662,20 +729,24 @@ def verify(url_or_id: str, timeout_s: int = 240) -> int:
                 return f"[formcontrolname='{d['fc']}']"
             if d.get("name"):
                 return f"input[name='{d['name']}']"
-            cls = (d.get("cls") or "").split()
-            return "." + ".".join(cls[:2]) if cls else "input"
+            cls = [c for c in (d.get("cls") or "").split() if not _NG.match(c)]
+            return "." + ".".join(cls[:2]) if cls else None
 
-        amount_like = [i for i in found["inputs"]
+        # Only real, editable inputs are candidates - a label is not a field.
+        editable = [i for i in found["inputs"]
+                    if (i.get("type") or "text")
+                    not in ("hidden", "checkbox", "radio", "submit", "button")]
+        amount_like = [i for i in editable
                        if re.search(r"bid|amount|max", str(i), re.I)]
-        chosen = (amount_like or found["inputs"] or [None])[0]
+        chosen = (amount_like or editable or [None])[0]
         confirm = next((b for b in found["buttons"]
                         if re.search(r"place|confirm|submit|bid|yes|ok", b["t"], re.I)),
                        None)
         rec = {
             "confirm_dialog": True,
             "max_input": _sel(chosen) if chosen else None,
-            "confirm_button": (f"button.{confirm['cls'].split()[0]}"
-                               if confirm and confirm.get("cls") else None),
+            # Matched by TEXT, not class: "button.btn" is every button on the
+            # page, and clicking the wrong one in a bid dialog is unforgivable.
             "confirm_text": confirm["t"] if confirm else None,
             "open_button": "button.lot-bid-button-bid-amount",
             "dialog_text": found["text"][:200],

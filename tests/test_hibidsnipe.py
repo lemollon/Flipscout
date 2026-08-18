@@ -25,7 +25,7 @@ def isolate(tmp_path, monkeypatch):
     # them a verified record. The gate itself is tested separately below.
     bf = tmp_path / "bidform.json"
     bf.write_text('{"confirm_dialog": true, "max_input": "#bidAmount",'
-                  ' "confirm_button": "button.confirm"}', encoding="utf-8")
+                  ' "confirm_text": "Confirm Bid"}', encoding="utf-8")
     monkeypatch.setattr(H, "BIDFORM_PATH", bf)
     # 🚨 run() does `from .notify import notify` at CALL time, so the name that
     # matters lives on the notify module - patching H.notify silently does
@@ -171,12 +171,13 @@ def test_countdown_comes_from_the_response_not_a_local_clock(monkeypatch):
     assert H.seconds_left({"left": "nonsense"}) is None
 
 
-def test_closed_or_archived_lot_is_retired_not_bid(monkeypatch):
+def test_a_lot_with_no_data_is_never_bid(monkeypatch):
+    """It is not retired on the first miss - see the strike tests below - but
+    it is certainly not bid on either."""
     _armed()
     calls = _patch(monkeypatch, _detail(gone=True))
     H.run()
     assert not calls
-    assert H.load_armed()["317852714"]["status"] == "ENDED_UNBID"
 
 
 def test_a_missing_countdown_never_triggers_a_bid(monkeypatch):
@@ -421,3 +422,60 @@ def test_the_authenticated_check_is_not_paid_for_on_distant_lots(monkeypatch):
                         lambda lid: asked.append(lid) or True)
     H.run()
     assert not asked, "must not launch a browser for a lot days away"
+
+
+# --- a missing page is not a closed auction ----------------------------------
+
+def test_one_stripped_response_does_not_retire_a_live_lot(monkeypatch):
+    """🚨 `gone` only means this response carried no lotState, and HiBid serves
+    that on transient bad fetches - seen repeatedly on 2026-08-18.
+
+    Retiring on the first one permanently killed an armed lot that had 218
+    hours left, with nothing to say why.
+    """
+    _armed()
+    calls = _patch(monkeypatch, _detail(gone=True))
+    H.run()
+    a = H.load_armed()["317852714"]
+    assert a["status"] == "ARMED"
+    assert a["gone_strikes"] == 1
+    assert not calls
+
+
+def test_three_stripped_responses_do_retire_it(monkeypatch):
+    _armed()
+    _patch(monkeypatch, _detail(gone=True))
+    H.run(); H.run(); H.run()
+    assert H.load_armed()["317852714"]["status"] == "ENDED_UNBID"
+
+
+def test_strikes_reset_when_the_lot_comes_back(monkeypatch):
+    _armed()
+    _patch(monkeypatch, _detail(gone=True))
+    H.run(); H.run()
+    assert H.load_armed()["317852714"]["gone_strikes"] == 2
+    _patch(monkeypatch, _detail(left=H.SNIPE_AT_S + 600))
+    H.run()
+    assert H.load_armed()["317852714"]["gone_strikes"] == 0
+    assert H.load_armed()["317852714"]["status"] == "ARMED"
+
+
+def test_an_explicitly_closed_lot_is_retired_at_once(monkeypatch):
+    """`closed` is the site STATING the lot is finished - believe that."""
+    _armed()
+    _patch(monkeypatch, _detail(closed=True))
+    H.run()
+    assert H.load_armed()["317852714"]["status"] == "ENDED_UNBID"
+
+
+def test_the_confirm_button_is_matched_by_text_not_class():
+    """🚨 The real dialog's confirm button is class "btn" - which is every
+    button on the page. Clicking the wrong one in a bid dialog is unforgivable,
+    so the recorded text ("Confirm Bid") is what identifies it."""
+    import json
+    H.BIDFORM_PATH.write_text(json.dumps(
+        {"confirm_dialog": True, "confirm_text": "Confirm Bid"}), encoding="utf-8")
+    assert H.bidform_ok() is True
+    H.BIDFORM_PATH.write_text(json.dumps(
+        {"confirm_dialog": True, "max_input": ".text-lg"}), encoding="utf-8")
+    assert H.bidform_ok() is False, "a form with no confirm TEXT is not usable"
