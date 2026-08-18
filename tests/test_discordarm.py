@@ -112,10 +112,17 @@ def test_dry_run_reads_but_never_arms(monkeypatch):
 @pytest.mark.parametrize("value,want", [
     ("$41.34", 41.34), ("$1,234.50", 1234.50), ("$8", 8.0),
 ])
-def test_ceiling_parsing(monkeypatch, value, want):
-    calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI, ceiling=value)])
-    discordarm.scan()
-    assert calls[0][1] == want
+def test_ceiling_parsing(value, want):
+    """Parse the card directly rather than through scan().
+
+    Going through scan() used to work, but react-arming now
+    re-validates against the LIVE book - so this assertion started
+    depending on the network and on today's comps, which is not what a
+    PARSING test should be measuring.
+    """
+    iid, ceiling = discordarm.parse_card(_card(ceiling=value))
+    assert iid == "273876344"
+    assert ceiling == want
 
 
 # --- the acknowledgement tick -----------------------------------------------
@@ -195,3 +202,76 @@ def test_dry_run_does_not_react_either(monkeypatch):
     seen = _spy_react(monkeypatch)
     discordarm.scan(dry_run=True)
     assert seen == []
+
+
+def test_both_message_content_flags_count(monkeypatch):
+    """🚨 There are TWO flags meaning 'can read message content'. Apps in under
+    100 servers get the LIMITED one (1<<19); the full flag (1<<18) is for
+    reviewed apps. They behave identically.
+
+    Checking only bit 18 made me report "Message Content Intent is OFF" while
+    the bot was reading all 50 messages fine, and send Leron to re-toggle a
+    switch that was already correct.
+    """
+    for flags, want in [(1 << 18, True), (1 << 19, True),
+                        ((1 << 18) | (1 << 19), True), (0, False), (1 << 12, False)]:
+        monkeypatch.setattr(discordarm, "_get", lambda *a, **k: {"flags": flags})
+        assert discordarm.can_read_content("tok") is want, f"flags={flags}"
+
+
+# --- stale cards --------------------------------------------------------
+# A reaction takes its number FROM THE CARD, so an old alert carries an old
+# opinion. Live on 2026-08-18: a "Sony Handycam DCR-DVD610" card still showed a
+# $89.90 ceiling printed before the tape-vs-DVD split; the book now refuses DVD
+# camcorders outright. 🎯 on it would have armed $89.90 with nothing behind it.
+
+def _book(monkeypatch, ceiling, title="Sony Handycam DCR-DVD610"):
+    monkeypatch.setattr(snipe, "detail",
+                        lambda iid: {"title": title, "handlingPrice": 0})
+    monkeypatch.setattr(snipe, "book_ceiling", lambda t, inbound=0.0: ceiling)
+
+
+def test_a_card_the_book_no_longer_prices_is_refused(monkeypatch):
+    calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI, ceiling="$89.90")])
+    seen = _spy_react(monkeypatch)
+    _book(monkeypatch, None)                     # book now declines it
+    discordarm.scan()
+    assert calls == [], "must not arm on a ceiling the book has withdrawn"
+    assert seen == [("1", discordarm.NOPE_EMOJI)]
+
+
+def test_it_arms_at_the_lower_of_card_and_current_book(monkeypatch):
+    calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI, ceiling="$89.90")])
+    _spy_react(monkeypatch)
+    _book(monkeypatch, 40.00)                    # book has come down since
+    discordarm.scan()
+    assert calls == [("273876344", 40.00, False)]
+
+
+def test_the_card_still_wins_when_it_is_the_lower_number(monkeypatch):
+    calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI, ceiling="$20.00")])
+    _spy_react(monkeypatch)
+    _book(monkeypatch, 95.00)                    # book is now higher
+    discordarm.scan()
+    assert calls == [("273876344", 20.00, False)], "never arm above what he saw"
+
+
+def test_an_explicit_reply_is_not_re_validated(monkeypatch):
+    """He named the number himself and may be overriding on purpose."""
+    card = _card()
+    reply = {"id": "2", "content": "snipe 75", "embeds": [],
+             "referenced_message": card, "reactions": []}
+    calls = _feed(monkeypatch, [reply, card])
+    _spy_react(monkeypatch)
+    _book(monkeypatch, None)                     # book declines - irrelevant here
+    discordarm.scan()
+    assert calls == [("273876344", 75.0, True)]
+
+
+def test_an_unreachable_item_falls_back_to_the_card(monkeypatch):
+    calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI, ceiling="$30.00")])
+    _spy_react(monkeypatch)
+    def boom(iid): raise RuntimeError("network")
+    monkeypatch.setattr(snipe, "detail", boom)
+    discordarm.scan()
+    assert calls == [("273876344", 30.00, False)]

@@ -97,6 +97,25 @@ def _react(channel: str, message_id: str, emoji: str, token: str) -> bool:
         return False
 
 
+# Discord application flags that mean "this bot can read message content".
+# 🚨 THERE ARE TWO, and checking only the first is wrong. Apps in fewer than
+# 100 servers are granted the LIMITED flag (1<<19); the full flag (1<<18) is
+# for apps that have been through Discord's review. They behave identically.
+# Diagnosed 2026-08-18: I checked only bit 18, reported "Message Content Intent
+# is OFF" while the bot was in fact reading all 50 messages perfectly, and sent
+# Leron off to re-toggle a switch that was already correct.
+MSG_CONTENT_FLAGS = (1 << 18) | (1 << 19)
+
+
+def can_read_content(token: str) -> bool:
+    """True when this bot may see message content and embeds."""
+    try:
+        return bool(int(_get("/applications/@me", token).get("flags") or 0)
+                    & MSG_CONTENT_FLAGS)
+    except Exception:
+        return False
+
+
 def _money(s: str) -> Optional[float]:
     try:
         return float(str(s).replace(",", ""))
@@ -181,9 +200,37 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
                 if not dry_run:
                     _react(channel, m["id"], NOPE_EMOJI, token)
                 continue
-            print(f"react-arm {iid} at the card's ${ceiling:.2f} ceiling")
+            # 🚨 RE-VALIDATE THE CARD AGAINST TODAY'S BOOK.
+            #
+            # A reaction takes its number FROM THE CARD, not from Leron's head,
+            # so an old alert carries an old opinion. Live example on
+            # 2026-08-18: a card for "Sony Handycam DCR-DVD610" still showed a
+            # $89.90 ceiling, printed before the tape-vs-DVD split. The book
+            # now refuses DVD camcorders outright ($41 median, not $135), so
+            # 🎯 on that card would have armed $89.90 with nothing behind it.
+            #
+            # An explicit `snipe 45` reply is different and is NOT re-checked -
+            # there he named the number himself and may well be overriding on
+            # purpose.
+            try:
+                d = snipe.detail(iid)
+                fresh = snipe.book_ceiling(d.get("title") or "",
+                                           inbound=float(d.get("handlingPrice") or 0))
+            except Exception:
+                fresh = ceiling          # cannot check -> trust the card
+            if fresh is None:
+                print(f"{iid}: the book no longer prices this - card ceiling "
+                      f"${ceiling:.2f} is stale. Reply `snipe <amount>` to override.")
+                if not dry_run:
+                    _react(channel, m["id"], NOPE_EMOJI, token)
+                continue
+            use = min(ceiling, fresh)
+            if use < ceiling:
+                print(f"{iid}: card said ${ceiling:.2f}, book now says "
+                      f"${fresh:.2f} - arming at the LOWER figure")
+            print(f"react-arm {iid} at ${use:.2f}")
             if not dry_run:
-                snipe.arm(iid, ceiling)
+                snipe.arm(iid, use)
                 _react(channel, m["id"], ACK_EMOJI, token)
             acted += 1
     if not acted:
