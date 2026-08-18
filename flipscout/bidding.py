@@ -41,13 +41,19 @@ class BidAdvice:
     note: str = ""
     buyer_premium_rate: float = 0.0   # fraction of the hammer, 0 outside auctions
     buyer_premium_at_max: float = 0.0  # dollars that rate costs at max_bid
+    sales_tax_rate: float = 0.0       # fraction, charged on hammer + premium
+    sales_tax_at_max: float = 0.0
 
     def summary(self) -> str:
         if not self.has_room:
             return f"NO ROOM - minimum bid already exceeds the ${self.max_bid:.2f} ceiling"
         o = f"${self.open_bid:.2f}" if self.open_bid is not None else "-"
-        bp = (f", inc. ${self.buyer_premium_at_max:.2f} premium"
-              if self.buyer_premium_rate else "")
+        extra = []
+        if self.buyer_premium_rate:
+            extra.append(f"${self.buyer_premium_at_max:.2f} premium")
+        if self.sales_tax_rate:
+            extra.append(f"${self.sales_tax_at_max:.2f} tax")
+        bp = (", inc. " + " + ".join(extra)) if extra else ""
         return (f"open {o} -> max ${self.max_bid:.2f} "
                 f"(lands ${self.landed_at_max:.2f}{bp}, "
                 f"clears ${self.profit_at_max:.2f})")
@@ -96,6 +102,7 @@ def advise(
     inbound_shipping: float = 0.0,
     outbound_shipping: float = 0.0,
     buyer_premium_rate: float = 0.0,
+    sales_tax_rate: float = 0.0,
     fees: Optional[FeeModel] = None,
     target_profit: float = DEFAULT_TARGET_PROFIT,
     current_price: Optional[float] = None,
@@ -136,14 +143,19 @@ def advise(
     fixed_buy = float(handling) + float(inbound_shipping)
     # ...but the buyer's premium is charged ON the hammer, so it divides.
     bp = max(0.0, float(buyer_premium_rate))
-    max_bid = round((net_resale - target_profit - fixed_buy) / (1.0 + bp), 2)
+    # 🚨 Sales tax is charged on the hammer PLUS the premium, so the two
+    # multiply rather than add: a $200 hammer at 20% + 8.25% lands at $259.80,
+    # not $248. Both scale with the bid, so both divide out of the ceiling.
+    tx = max(0.0, float(sales_tax_rate))
+    mult = (1.0 + bp) * (1.0 + tx)
+    max_bid = round((net_resale - target_profit - fixed_buy) / mult, 2)
 
     open_bid = next_valid_bid(current_price, min_bid, increment, bid_count)
     has_room = max_bid > 0 and (open_bid is None or open_bid <= max_bid)
 
     profit_at_open = None
     if open_bid is not None:
-        profit_at_open = round(net_resale - (open_bid * (1.0 + bp) + fixed_buy), 2)
+        profit_at_open = round(net_resale - (open_bid * mult + fixed_buy), 2)
 
     note = ""
     if not has_room:
@@ -155,9 +167,11 @@ def advise(
     return BidAdvice(
         open_bid=open_bid,
         max_bid=max(max_bid, 0.0),
-        landed_at_max=round(max(max_bid, 0.0) * (1.0 + bp) + fixed_buy, 2),
+        landed_at_max=round(max(max_bid, 0.0) * mult + fixed_buy, 2),
         buyer_premium_rate=bp,
         buyer_premium_at_max=round(max(max_bid, 0.0) * bp, 2),
+        sales_tax_rate=tx,
+        sales_tax_at_max=round(max(max_bid, 0.0) * (1.0 + bp) * tx, 2),
         net_resale=round(net_resale, 2),
         profit_at_open=profit_at_open,
         profit_at_max=float(target_profit),

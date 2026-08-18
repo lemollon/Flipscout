@@ -91,7 +91,7 @@ from typing import Optional
 
 import requests
 
-from .auctionfees import min_increment, parse_premium
+from .auctionfees import min_increment, parse_premium, parse_tax
 from .bidding import advise
 from .pricebook import match
 
@@ -240,6 +240,7 @@ def detail(lid: str) -> dict:
         "registered": True if st.get("isRegistered") else None,
         "increments": _blob(t, "bidIncrements"),
         "premium": parse_premium(_blob(t, "buyerPremium")),
+        "tax": parse_tax(_blob(t, "paymentInfo"), _blob(t, "state")),
         "notice": (_blob(t, "biddingNotice") or "")[:400],
     }
 
@@ -285,7 +286,7 @@ def seconds_left(d: dict) -> Optional[float]:
 
 
 def book_ceiling(title: str, premium: float = 0.0, inbound: float = 9.0,
-                 target_profit: float = 20.0) -> Optional[float]:
+                 target_profit: float = 20.0, tax: float = 0.0) -> Optional[float]:
     """What the price book says this lot is worth as a HAMMER bid.
 
     `target_profit` is what you insist on clearing. The default 20 is the
@@ -298,7 +299,7 @@ def book_ceiling(title: str, premium: float = 0.0, inbound: float = 9.0,
     a = advise(m.model.comp, units=m.units, inbound_shipping=inbound,
                outbound_shipping=m.model.outbound_shipping,
                target_profit=target_profit, current_price=1,
-               buyer_premium_rate=premium)
+               buyer_premium_rate=premium, sales_tax_rate=tax)
     return a.max_bid if a.max_bid > 0 else None
 
 

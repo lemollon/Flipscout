@@ -241,3 +241,110 @@ def test_a_sub_one_percent_rate_is_a_misread_not_a_bargain(text):
 def test_the_floor_does_not_swallow_a_real_low_rate():
     assert parse_premium("3% buyers premium") == 0.03
     assert parse_premium("1% BP") == 0.01
+
+
+# --- sales tax ---------------------------------------------------------------
+
+from flipscout.auctionfees import DEFAULT_TAX, STATE_TAX, parse_tax, tax_is_stated
+
+
+REAL_TAX = [
+    # 🚨 The figure sits on EITHER side of the word, and both shapes are real.
+    ("A 15% buyer's premium and 8.25% Texas sales tax apply.", "TX", 0.0825),
+    ("A 15% Buyer's Premium and 7% Indiana Sales Tax will be added", "IN", 0.07),
+    ("All lots are subject to 6% sales tax.", "ID", 0.06),
+    (".5% surcharge for Credit/Debit card payment, 6% Idaho sales tax.", "ID", 0.06),
+    # 🚨 Both shapes in ONE string - the leading figure is the PREMIUM.
+    ("Internet Premium: 15% Sales Tax : 6.75% - Sales tax appl", "NC", 0.0675),
+]
+
+
+@pytest.mark.parametrize("info,state,want", REAL_TAX)
+def test_a_stated_tax_rate_beats_the_table(info, state, want):
+    assert parse_tax(info, state) == pytest.approx(want)
+    assert tax_is_stated(info) is True
+
+
+def test_the_premium_is_never_mistaken_for_the_tax():
+    """🚨 "Internet Premium: 15% Sales Tax : 6.75%" returned 15% - it grabbed
+    the premium sitting next to the word. A figure that FOLLOWS the word wins,
+    because that is the only shape where both appear."""
+    assert parse_tax("Internet Premium: 15% Sales Tax : 6.75%", "NC") == 0.0675
+
+
+def test_a_premium_only_blurb_falls_through_to_the_state():
+    assert parse_tax("20% buyers premium", "TX") == STATE_TAX["TX"]
+
+
+def test_an_explicit_no_tax_is_believed():
+    assert parse_tax("No sales tax on this auction.", "NJ") == 0.0
+    assert tax_is_stated("No sales tax on this auction.") is True
+
+
+def test_the_state_is_the_fallback_not_a_guess():
+    """Only 18 of 217 sampled auctions state a rate, so the table carries the
+    other 199."""
+    assert parse_tax("", "NJ") == STATE_TAX["NJ"]
+    assert parse_tax("", "OR") == 0.0          # genuinely no sales tax
+    assert parse_tax("", "") == DEFAULT_TAX
+    assert parse_tax(None, None) == DEFAULT_TAX
+
+
+@pytest.mark.parametrize("prov,want", [("ON", .13), ("PE", .15), ("AB", .05)])
+def test_canadian_provinces_are_priced(prov, want):
+    """🚨 HiBid carries Canadian houses. Without these they fell through to the
+    US 7% default while really charging 13-15% HST - the single largest
+    mispricing in the table."""
+    assert parse_tax("", prov) == pytest.approx(want)
+
+
+def test_the_table_uses_combined_rates_not_base_rates():
+    """Houses charge what they owe. The sampled Texas auctions say 8.25% where
+    the state BASE is 6.25%; using base rates understates every ceiling."""
+    assert STATE_TAX["TX"] > 0.075
+    assert STATE_TAX["NC"] > 0.055
+
+
+def test_a_resale_certificate_zeroes_everything(monkeypatch):
+    """He is buying to resell, which is what the exemption is for. OFF by
+    default - assuming an exemption he has not filed understates every cost."""
+    import flipscout.auctionfees as af
+    monkeypatch.setattr(af, "RESALE_EXEMPT", True)
+    assert af.parse_tax("8.25% Texas sales tax", "TX") == 0.0
+    assert af.parse_tax("", "ON") == 0.0
+
+
+# --- tax in the ceiling ------------------------------------------------------
+
+def test_tax_compounds_with_the_premium_not_adds():
+    """🚨 Tax is charged on hammer PLUS premium, so they multiply. A $200
+    hammer at 20% + 8.25% lands at $259.80, not $248."""
+    a = advise(1000.0, target_profit=0.0, current_price=1,
+               buyer_premium_rate=0.20, sales_tax_rate=0.0825)
+    landed = a.max_bid * 1.20 * 1.0825
+    assert a.landed_at_max == pytest.approx(landed, abs=0.02)
+
+
+def test_tax_lowers_the_ceiling_but_not_the_landed_cost():
+    kw = dict(inbound_shipping=9.0, outbound_shipping=15.0, target_profit=20.0,
+              current_price=50.0, buyer_premium_rate=0.15)
+    plain = advise(330.0, **kw)
+    taxed = advise(330.0, sales_tax_rate=0.0825, **kw)
+    assert taxed.max_bid < plain.max_bid
+    assert taxed.landed_at_max == pytest.approx(plain.landed_at_max, abs=0.02)
+
+
+@pytest.mark.parametrize("bp,tx", [(0.0, 0.0), (0.15, 0.0), (0.0, 0.0825),
+                                   (0.20, 0.0938)])
+def test_target_profit_is_exact_with_both_costs(bp, tx):
+    a = advise(330.0, inbound_shipping=9.0, outbound_shipping=15.0,
+               target_profit=20.0, current_price=50.0,
+               buyer_premium_rate=bp, sales_tax_rate=tx)
+    assert a.net_resale - a.landed_at_max == pytest.approx(20.0, abs=0.02)
+
+
+def test_sources_without_tax_are_untouched():
+    kw = dict(inbound_shipping=9.0, target_profit=20.0, current_price=50.0)
+    assert advise(200.0, **kw).sales_tax_rate == 0.0
+    assert advise(200.0, **kw).max_bid == advise(200.0, sales_tax_rate=0.0,
+                                                 **kw).max_bid

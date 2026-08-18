@@ -233,7 +233,8 @@ class ShopGoodwill:
         return row
 
 
-from .auctionfees import parse_premium, premium_is_stated, min_increment
+from .auctionfees import (parse_premium, premium_is_stated, parse_tax,
+                          tax_is_stated, min_increment)
 
 # --- HiBid ------------------------------------------------------------------
 
@@ -268,7 +269,7 @@ query LotSearch($searchText: String, $pageNumber: Int!, $pageLength: Int!,
         featuredPicture { thumbnailLocation fullSizeLocation }
         lotState { bidCount highBid minBid isClosed buyNow }
         auction {
-          id eventName buyerPremium biddingNotice bidType
+          id eventName buyerPremium biddingNotice bidType paymentInfo
           bidIncrements { minBidIncrement upToAmount }
           auctioneer { name city state }
         }
@@ -351,6 +352,12 @@ class HiBid:
         # about a fifth. There is no structured field for it - see auctionfees.
         premium = parse_premium(auc.get("buyerPremium"))
         stated = premium_is_stated(auc.get("buyerPremium"))
+        # 🚨 Sales tax rides on hammer + premium and is charged at checkout too.
+        # Only 18 of 217 sampled auctions state a rate, so the auctioneer's
+        # STATE is the fallback - see auctionfees.
+        pay = auc.get("paymentInfo")
+        st_code = (house.get("state") or "").strip().upper()
+        tax = parse_tax(pay, st_code)
         price = float(st.get("highBid") or 0)
         # ...and the step is NOT $1. Houses in the sample stepped by up to $550,
         # so a hardcoded 1.0 quoted opening bids that the site would reject.
@@ -364,6 +371,8 @@ class HiBid:
             "increment": step,
             "buyer_premium_rate": premium,
             "buyer_premium_guessed": not stated,
+            "sales_tax_rate": tax,
+            "sales_tax_guessed": not tax_is_stated(pay),
             # Free text, and the ONLY place a house states its soft close
             # ("bids in the last minute extend the close by 2 minutes").
             "bidding_notice": (auc.get("biddingNotice") or "").strip()[:400],

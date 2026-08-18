@@ -310,6 +310,9 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
             # that have none (ShopGoodwill, fixed-price listings) leave this
             # absent and it stays 0.
             buyer_premium_rate=float(row.get("buyer_premium_rate") or 0.0),
+            # Charged on hammer + premium at checkout. Zero where a source has
+            # none, and zero throughout if FLIPSCOUT_RESALE_EXEMPT is set.
+            sales_tax_rate=float(row.get("sales_tax_rate") or 0.0),
         )
         if not adv.has_room:
             continue
@@ -416,15 +419,26 @@ def to_alert(c: dict) -> dict:
         # Say the premium out loud. It is charged at checkout, not in the bid,
         # so a bidder who only ever sees the hammer discovers it after winning -
         # and on these houses it is 10-20%, bigger than the target profit.
-        if adv.buyer_premium_rate:
-            guessed = row.get("buyer_premium_guessed")
-            bits.append(
-                f":receipt: Includes a **{adv.buyer_premium_rate * 100:.4g}% "
-                f"buyer's premium** (${adv.buyer_premium_at_max:,.2f} at your max)"
-                + (" - the house didn't state one, so this is the typical rate "
-                   "for the site. Check its terms before bidding big."
-                   if guessed else ".")
-            )
+        if adv.buyer_premium_rate or adv.sales_tax_rate:
+            parts = []
+            if adv.buyer_premium_rate:
+                parts.append(f"a **{adv.buyer_premium_rate * 100:.4g}% buyer's "
+                             f"premium** (${adv.buyer_premium_at_max:,.2f})")
+            if adv.sales_tax_rate:
+                parts.append(f"**{adv.sales_tax_rate * 100:.4g}% sales tax** "
+                             f"(${adv.sales_tax_at_max:,.2f})")
+            guessed = [w for w, g in
+                       (("premium", row.get("buyer_premium_guessed")),
+                        ("tax", row.get("sales_tax_guessed")))
+                       if g and getattr(adv, f"{'buyer_premium' if w == 'premium' else 'sales_tax'}_rate")]
+            tail = ""
+            if guessed:
+                tail = (f" The {' and '.join(guessed)} rate"
+                        f"{'s were' if len(guessed) > 1 else ' was'} not stated by "
+                        f"the house - these are the going rates. Check its terms "
+                        f"before bidding big.")
+            bits.append(":receipt: At your max it also costs " +
+                        " and ".join(parts) + "." + tail)
     age = age_hours(row.get("listed"))
     if age is not None:
         bits.append(f"_Listed {age:.0f}h ago._" if age >= 1 else "_Just listed._")
@@ -481,6 +495,7 @@ def to_alert(c: dict) -> dict:
         "comp": model.comp,
         "max_bid": adv.max_bid,
         "buyer_premium_rate": adv.buyer_premium_rate,
+        "sales_tax_rate": adv.sales_tax_rate,
         "bids": row.get("bids"),
         "ends": row.get("ends") or None,
         "open_bid": adv.open_bid,
