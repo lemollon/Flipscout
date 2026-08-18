@@ -128,17 +128,42 @@ def lot_id(s: str) -> str:
     return m.group(1)
 
 
+class ArmedFileCorrupt(Exception):
+    """The armed-lots file could not be read.
+
+    🚨 THIS MUST NEVER BE SWALLOWED. load_armed() used to answer an unreadable
+    file with {} - so a half-written file made every armed lot vanish, `show`
+    printed "nothing armed", and the sniper sat silent through the close. That
+    is indistinguishable from a quiet day, which is the worst possible failure
+    for something whose whole job is to act at a deadline.
+    """
+
+
 def load_armed() -> dict:
     if not ARMED_PATH.exists():
         return {}
     try:
         return json.loads(ARMED_PATH.read_text(encoding="utf-8")) or {}
-    except Exception:
-        return {}
+    except Exception as e:
+        # Keep the evidence - the armed maxes may be recoverable by hand.
+        kept = ARMED_PATH.with_suffix(".corrupt")
+        try:
+            kept.write_bytes(ARMED_PATH.read_bytes())
+        except Exception:
+            kept = None
+        raise ArmedFileCorrupt(
+            f"{ARMED_PATH.name} is unreadable ({type(e).__name__})"
+            + (f"; a copy is at {kept.name}" if kept else "")) from e
 
 
 def save_armed(d: dict) -> None:
-    ARMED_PATH.write_text(json.dumps(d, indent=2), encoding="utf-8")
+    # 🚨 ATOMIC. A plain write_text leaves a truncated file if the process dies
+    # mid-write, and the scheduled task is killed at a four-minute limit. Write
+    # beside it and rename: os.replace is atomic within a volume, so a reader
+    # sees either the whole old file or the whole new one, never a half.
+    tmp = ARMED_PATH.with_suffix(".tmp")
+    tmp.write_text(json.dumps(d, indent=2), encoding="utf-8")
+    os.replace(tmp, ARMED_PATH)
 
 
 def bidform() -> dict:
@@ -194,7 +219,12 @@ def detail(lid: str) -> dict:
         "lot_id": lid,
         "gone": False,
         "title": (_blob(t, "lead") or "").strip(),
-        "high_bid": float(st.get("highBid") or 0),
+        # 🚨 UNKNOWN, NOT ZERO. `or 0` collapsed "the page did not say" into
+        # "the lot is at $0.00", and run() then priced the next bid off that
+        # phantom and reported "$0.00 when it fired" - a number that was never
+        # true. A genuine no-bids lot really is 0, so the two must stay apart.
+        "high_bid": (float(st["highBid"])
+                     if st.get("highBid") is not None else None),
         "min_bid": float(st.get("minBid") or 0) or None,
         "bids": int(st.get("bidCount") or 0),
         "closed": bool(st.get("isClosed")),
@@ -370,7 +400,11 @@ def disarm(url_or_id: str) -> int:
 
 
 def show() -> int:
-    armed = load_armed()
+    try:
+        armed = load_armed()
+    except ArmedFileCorrupt as e:
+        print(f"CANNOT READ THE ARMED LIST: {e}")
+        return 1
     if not armed:
         print("nothing armed")
         return 0
@@ -522,7 +556,22 @@ def run(dry_run: bool = False) -> int:
     if KILL_SWITCH.exists():
         print(f"kill switch present ({KILL_SWITCH.name}) - not bidding")
         return 0
-    armed = load_armed()
+    try:
+        armed = load_armed()
+    except ArmedFileCorrupt as e:
+        # 🚨 Loud on purpose. An empty armed list and an unreadable one look
+        # identical from the outside - silence - and only one of them means
+        # snipes are being missed right now.
+        msg = (f":rotating_light: **HiBid snipe list is UNREADABLE** - {e}\n"
+               f"Nothing can be sniped until it is fixed. Re-arm the lots you "
+               f"still want.")
+        print(msg)
+        if not dry_run:
+            try:
+                notify(msg, subject="Flipscout snipe list corrupt")
+            except Exception:
+                pass
+        return 1
     if not armed:
         return 0
     # 🚨 Never click an unproven bid button with real money behind it.
@@ -570,7 +619,15 @@ def run(dry_run: bool = False) -> int:
         if left is None:
             print(f"{lid}: no countdown in the response - skipping")
             continue
-        if left <= 0:
+        if left < 0:
+            # 🚨 Not "it ended" - HiBid's own search endpoint has been seen
+            # returning a negative countdown for lots with days left on them
+            # (sign-flipped, magnitude correct). Retiring on that would kill a
+            # live snipe. A real ending arrives as `closed`, handled above.
+            print(f"{lid}: countdown came back negative ({left:.0f}s) - "
+                  f"ignoring this poll")
+            continue
+        if left == 0:
             a["status"] = "ENDED_UNBID"
             changed = True
             continue
@@ -612,8 +669,17 @@ def run(dry_run: bool = False) -> int:
             continue
 
         cap = float(a["max_bid"])
-        need = d.get("min_bid") or (d["high_bid"] +
-                                    min_increment(d["high_bid"], d.get("increments")))
+        # 🚨 If neither the current price nor the minimum came through, we have
+        # no idea what this lot stands at. Bidding anyway is bounded by the max
+        # so it cannot overpay, but it burns the ONE bid this lot ever gets on
+        # a guess, and reports a price that was never real. Wait for a good
+        # read instead - the poller comes back in a minute.
+        if d.get("min_bid") is None and d.get("high_bid") is None:
+            print(f"{lid}: the page gave no price - skipping this poll")
+            continue
+        base = d["high_bid"] if d.get("high_bid") is not None else 0.0
+        need = d.get("min_bid") or (base +
+                                    min_increment(base, d.get("increments")))
         if need > cap:
             a["status"] = "PASSED_TOO_HIGH"
             changed = True
@@ -628,7 +694,7 @@ def run(dry_run: bool = False) -> int:
         # proxy system, so the max is a ceiling and you pay one step over the
         # runner-up - see the long note in snipe.py, which cost real losses to
         # learn ("lost the Featherweight by $1").
-        before = d["high_bid"]
+        before = d["high_bid"] if d.get("high_bid") is not None else base
         ok, detail_msg = place_bid(lid, cap, dry_run=dry_run)
         outbid = (not ok) and str(detail_msg).startswith(OUTBID)
         a["status"] = ("DRY_RUN" if dry_run else

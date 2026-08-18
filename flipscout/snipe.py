@@ -90,11 +90,34 @@ def item_id(s: str) -> str:
     return m.group(1)
 
 
+class ArmedFileCorrupt(Exception):
+    """The armed-items file could not be read.
+
+    🚨 THIS MUST NEVER BE SWALLOWED. load_armed() used to answer an unreadable
+    file with {} - so a half-written file made every armed item vanish, `show`
+    printed "nothing armed", and the sniper sat silent through the close. That
+    is indistinguishable from a quiet day, which is the worst possible failure
+    for something whose whole job is to act at a deadline.
+
+    🚨 A MISSING file is NOT corrupt - that is just the normal empty state, and
+    conflating the two would cry wolf on every fresh install.
+    """
+
+
 def load_armed() -> dict:
-    try:
-        return json.loads(ARMED_PATH.read_text(encoding="utf-8"))
-    except Exception:
+    if not ARMED_PATH.exists():
         return {}
+    try:
+        return json.loads(ARMED_PATH.read_text(encoding="utf-8")) or {}
+    except Exception as e:
+        kept = ARMED_PATH.with_suffix(".corrupt")
+        try:
+            kept.write_bytes(ARMED_PATH.read_bytes())
+        except Exception:
+            kept = None
+        raise ArmedFileCorrupt(
+            f"{ARMED_PATH.name} is unreadable ({type(e).__name__})"
+            + (f"; a copy is at {kept.name}" if kept else "")) from e
 
 
 def save_armed(d: dict) -> None:
@@ -200,7 +223,11 @@ def disarm(url_or_id: str) -> int:
 
 
 def show() -> int:
-    armed = load_armed()
+    try:
+        armed = load_armed()
+    except ArmedFileCorrupt as e:
+        print(f"CANNOT READ THE ARMED LIST: {e}")
+        return 1
     if not armed:
         print("nothing armed")
         return 0
@@ -273,7 +300,22 @@ def run(dry_run: bool = False) -> int:
     if KILL_SWITCH.exists():
         print(f"kill switch present ({KILL_SWITCH.name}) - not bidding")
         return 0
-    armed = load_armed()
+    try:
+        armed = load_armed()
+    except ArmedFileCorrupt as e:
+        # 🚨 Loud on purpose. An empty armed list and an unreadable one look
+        # identical from the outside - silence - and only one of them means
+        # snipes are being missed right now.
+        msg = (f":rotating_light: **ShopGoodwill snipe list is UNREADABLE** - {e}\n"
+               f"Nothing can be sniped until it is fixed. Re-arm the items you "
+               f"still want.")
+        print(msg)
+        if not dry_run:
+            try:
+                notify(msg, subject="Flipscout snipe list corrupt")
+            except Exception:
+                pass
+        return 1
     if not armed:
         return 0
     changed = False

@@ -11,6 +11,8 @@ happy path - plus the three rules that only exist on HiBid:
 Nothing here touches the network or the bid form.
 """
 
+import pathlib
+
 import pytest
 
 from flipscout import hibidsnipe as H
@@ -602,3 +604,84 @@ def test_breakeven_is_the_zero_profit_price():
     disciplined = H.book_ceiling(t, premium=0.15)
     breakeven = H.book_ceiling(t, premium=0.15, target_profit=0.0)
     assert breakeven > disciplined
+
+
+# --- the armed file itself ---------------------------------------------------
+
+def test_a_corrupt_armed_file_is_loud_not_silent(monkeypatch, tmp_path, capsys):
+    """🚨 An unreadable list used to return {} - so every armed lot vanished,
+    `show` said "nothing armed", and the sniper sat quiet through the close.
+
+    Silence is exactly what a normal quiet day looks like, so the one failure
+    that must never be silent is this one.
+    """
+    p = tmp_path / "armed.json"
+    monkeypatch.setattr(H, "ARMED_PATH", p)
+    H.save_armed({"317852714": {"lot_id": "317852714", "title": "x",
+                                "max_bid": 50.0, "status": "ARMED", "url": "u"}})
+    whole = p.read_text(encoding="utf-8")
+    p.write_text(whole[: len(whole) // 2], encoding="utf-8")
+
+    with pytest.raises(H.ArmedFileCorrupt):
+        H.load_armed()
+    assert H.show() == 1
+    assert "CANNOT READ" in capsys.readouterr().out
+
+
+def test_run_reports_a_corrupt_list_instead_of_crashing(monkeypatch, tmp_path, capsys):
+    """The alert path itself must work - it shipped once with an unsubstituted
+    variable, so the branch meant to shout raised NameError instead."""
+    p = tmp_path / "armed.json"
+    monkeypatch.setattr(H, "ARMED_PATH", p)
+    p.write_text("{not json", encoding="utf-8")
+    assert H.run(dry_run=True) == 1
+    out = capsys.readouterr().out
+    assert "UNREADABLE" in out
+    assert "{label}" not in out and "NameError" not in out
+
+
+def test_a_missing_armed_file_is_normal_not_corrupt(monkeypatch, tmp_path):
+    """Crying wolf on a fresh install would teach him to ignore the alarm."""
+    monkeypatch.setattr(H, "ARMED_PATH", tmp_path / "never-written.json")
+    assert H.load_armed() == {}
+    assert H.run(dry_run=True) == 0
+
+
+def test_the_damaged_file_is_preserved_for_recovery(monkeypatch, tmp_path):
+    p = tmp_path / "armed.json"
+    monkeypatch.setattr(H, "ARMED_PATH", p)
+    p.write_text('{"317852714": {"max_bid": 50.0', encoding="utf-8")
+    with pytest.raises(H.ArmedFileCorrupt):
+        H.load_armed()
+    kept = p.with_suffix(".corrupt")
+    assert kept.exists() and "50.0" in kept.read_text(encoding="utf-8")
+
+
+def test_the_save_is_atomic(monkeypatch, tmp_path):
+    """🚨 A plain write leaves a truncated file if the process dies mid-write,
+    and the scheduled task is killed at a four-minute limit. os.replace means a
+    reader sees the whole old file or the whole new one, never a half."""
+    p = tmp_path / "armed.json"
+    monkeypatch.setattr(H, "ARMED_PATH", p)
+    H.save_armed({"a": {"max_bid": 1.0}})
+    seen = {}
+    real = H.os.replace
+
+    def spy(src, dst):
+        # before the rename the destination must still hold the OLD content
+        seen["dst_before"] = pathlib.Path(dst).read_text(encoding="utf-8")
+        seen["src_has_new"] = "2.0" in pathlib.Path(src).read_text(encoding="utf-8")
+        return real(src, dst)
+
+    monkeypatch.setattr(H.os, "replace", spy)
+    H.save_armed({"a": {"max_bid": 2.0}})
+    assert seen["src_has_new"] is True
+    assert "1.0" in seen["dst_before"], "the live file must be untouched until the rename"
+    assert not p.with_suffix(".tmp").exists(), "the temp file must not linger"
+
+
+def test_no_temp_file_is_left_behind(monkeypatch, tmp_path):
+    p = tmp_path / "armed.json"
+    monkeypatch.setattr(H, "ARMED_PATH", p)
+    H.save_armed({"a": {"max_bid": 1.0}})
+    assert not list(tmp_path.glob("*.tmp")), "the temp file must not linger"
