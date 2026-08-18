@@ -369,7 +369,10 @@ def arm(url_or_id: str, max_bid: float, override: bool = False,
             print(f"  stretched ${stretch:,.2f} over the book - you clear "
                   f"${clears:,.2f} instead of ${20.0:,.2f} "
                   f"(break-even ${breakeven:,.2f})")
-    print(f"  current bid      ${d['high_bid']:,.2f} ({d['bids']} bids)")
+    hb = d.get("high_bid")
+    print(f"  current bid      "
+          + (f"${hb:,.2f} ({d.get('bids', 0)} bids)" if hb is not None
+             else "not stated on the page"))
     if d["registered"] is None:
         print(f"  note: registration not checked here (the quick lookup is "
               f"anonymous). The sniper resolves it before it bids.")
@@ -711,7 +714,7 @@ def run(dry_run: bool = False) -> int:
         if not dry_run:
             try:
                 time.sleep(2)
-                after = detail(lid).get("high_bid")
+                after = detail(lid).get("high_bid")   # may be None - guarded below
             except Exception:
                 pass
             if after is not None:
@@ -842,6 +845,8 @@ def verify(url_or_id: str, timeout_s: int = 240) -> int:
                 after = detail(lid)
                 committed = (b_bids is not None
                              and (after.get("bids") or 0) > b_bids)
+                # b_high may be None if the page did not state a price; the
+                # bid COUNT is the reliable signal either way.
             except Exception:
                 pass
             ctx.close()
@@ -859,7 +864,8 @@ def verify(url_or_id: str, timeout_s: int = 240) -> int:
                 return 1
             print("\nNo dialog, and no bid was placed either - so the click "
                   "never landed.")
-            print(f"  bids still {b_bids}, high bid still ${b_high or 0:.2f}")
+            print(f"  bids still {b_bids}, high bid still "
+                  + (f"${b_high:.2f}" if b_high is not None else "unstated"))
             print("The window may have opened behind your other windows. Nothing "
                   "was recorded and nothing was spent - just run verify again and "
                   "look for the window with the ORANGE BAR across the top.")

@@ -373,3 +373,36 @@ def test_the_ceiling_is_read_off_a_real_card_layout():
         "url": "https://hibid.com/lot/317377910",
         "fields": [{"name": "MAX bid (never exceed)", "value": "$33.92"}]}]}
     assert discordarm.parse_card(m) == ("hibid", "317377910", 33.92)
+
+
+# --- conflicting taps --------------------------------------------------------
+
+def _reacted(*emoji):
+    m = _card()
+    m["reactions"] = [{"emoji": {"name": e}, "count": 2, "me": True} for e in emoji]
+    return m
+
+
+def test_fire_beats_target_when_both_are_tapped(monkeypatch):
+    """Tapping both is a real thing on a phone. 🔥 is the more specific
+    intent, so it wins - and it is the SAFER reading to resolve toward,
+    because it is the one he had to reach past the default to press."""
+    calls = _feed(monkeypatch, [_reacted(discordarm.ARM_EMOJI,
+                                         discordarm.STRETCH_EMOJI)])
+    discordarm.scan()
+    assert calls, "must arm"
+
+
+def test_disarm_wins_any_conflict(monkeypatch):
+    """🚨 ❌ alongside an arm emoji must NOT bid. A conflicting instruction is
+    the one case where doing nothing is unambiguously right - the lot can
+    always be re-armed, but a bid cannot be recalled."""
+    for other in (discordarm.ARM_EMOJI, discordarm.STRETCH_EMOJI):
+        snipe.save_armed({"273876344": {"id": "273876344", "title": "x",
+                                        "max_bid": 41.34, "status": "ARMED",
+                                        "url": "u"}})
+        calls = _feed(monkeypatch, [_reacted(other, discordarm.DISARM_EMOJI)])
+        discordarm.scan()
+        # _feed records arms AND disarms, so check which one happened.
+        assert calls == [("disarm", "273876344")], (
+            f"{other} alongside the cross must disarm, never arm - got {calls}")
