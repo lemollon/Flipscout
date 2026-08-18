@@ -235,6 +235,30 @@ def show() -> int:
     return 0
 
 
+def signed_in(ctx) -> bool:
+    """True when this browser context holds a live HiBid session.
+
+    🚨 READ THE COOKIE, NOT THE PAGE. HiBid renders its header through
+    JavaScript, so "My HiBid" / "Sign Out" never appear in `inner_text` on a
+    freshly loaded page even when you ARE signed in - measured 2026-08-18,
+    where a working session showed none of those markers and `login` reported
+    a timeout on an account that had signed in fine.
+
+    That mattered for more than the login message: place_bid used the same
+    text test and would have aborted every real bid with "LOGGED OUT",
+    silently, at T-180s, with no way to tell it from a genuine expiry.
+
+    `HBIsLoggedIn` is HiBid's own flag and it sits alongside a JWT `sessionId`
+    and a `hibid-refresh-token`; require the JWT too, so a stale flag left
+    behind by a logout cannot read as a session.
+    """
+    try:
+        ck = {c["name"]: (c.get("value") or "") for c in ctx.cookies()}
+    except Exception:
+        return False
+    return ck.get("HBIsLoggedIn") == "1" and len(ck.get("sessionId") or "") > 40
+
+
 def place_bid(lid: str, amount: float, dry_run: bool) -> tuple:
     """Drive the real bid form. Returns (ok, message).
 
@@ -252,10 +276,9 @@ def place_bid(lid: str, amount: float, dry_run: bool) -> tuple:
         try:
             pg.goto(_LOT_URL.format(lid), timeout=40000, wait_until="domcontentloaded")
             pg.wait_for_timeout(2500)
-            body = (pg.inner_text("body") or "")[:5000]
-            if re.search(r"\bsign in\b|\blog in\b", body, re.I) and \
-               not re.search(r"my hibid|sign out|log out", body, re.I):
+            if not signed_in(ctx):
                 return False, "LOGGED OUT - run `hibidsnipe login`"
+            body = (pg.inner_text("body") or "")[:5000]
             if re.search(r"register to bid|you must register|not registered", body, re.I):
                 return False, "NOT REGISTERED for this auction - register first"
 
@@ -439,14 +462,10 @@ def login(timeout_s: int = 300) -> int:
         print(f"Waiting up to {timeout_s}s, then saving the session...")
         deadline = time.time() + timeout_s
         while time.time() < deadline:
-            try:
-                body = (pg.inner_text("body") or "")[:4000]
-                if re.search(r"my hibid|sign out|log out", body, re.I):
-                    print("Signed in - session saved.")
-                    ctx.close()
-                    return 0
-            except Exception:
-                pass
+            if signed_in(ctx):
+                print("Signed in - session saved.")
+                ctx.close()
+                return 0
             time.sleep(3)
         print("Timed out. Session may still be saved; re-run to check.")
         ctx.close()

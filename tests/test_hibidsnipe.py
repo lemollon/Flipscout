@@ -271,3 +271,48 @@ def test_kill_switch_is_shared_with_the_shopgoodwill_sniper():
     """One file must stop every bidder, or the switch is a false comfort."""
     from flipscout import snipe
     assert H.KILL_SWITCH.name == snipe.KILL_SWITCH.name
+
+
+# --- the signed-in test ------------------------------------------------------
+
+class _Ctx:
+    def __init__(self, cookies):
+        self._c = cookies
+
+    def cookies(self):
+        return self._c
+
+
+_JWT = "e" * 60
+
+
+def test_signed_in_reads_the_cookie_not_the_page():
+    """🚨 HiBid renders its header in JavaScript, so "My HiBid" / "Sign Out"
+    never appear in inner_text on a fresh load even when signed in.
+
+    Measured 2026-08-18: a working session showed none of those markers, so
+    `login` reported a timeout on an account that had signed in fine - and,
+    far worse, place_bid used the same text test and would have aborted every
+    real bid as "LOGGED OUT" at T-180s.
+    """
+    assert H.signed_in(_Ctx([{"name": "HBIsLoggedIn", "value": "1"},
+                             {"name": "sessionId", "value": _JWT}])) is True
+
+
+def test_signed_out_when_the_flag_is_absent():
+    assert H.signed_in(_Ctx([{"name": "sessionId", "value": _JWT}])) is False
+    assert H.signed_in(_Ctx([])) is False
+
+
+def test_a_stale_flag_without_a_session_is_not_signed_in():
+    """A logout can leave the flag behind; the JWT is the real evidence."""
+    assert H.signed_in(_Ctx([{"name": "HBIsLoggedIn", "value": "1"}])) is False
+    assert H.signed_in(_Ctx([{"name": "HBIsLoggedIn", "value": "1"},
+                             {"name": "sessionId", "value": "short"}])) is False
+
+
+def test_signed_in_survives_a_broken_context():
+    class Boom:
+        def cookies(self):
+            raise RuntimeError("browser gone")
+    assert H.signed_in(Boom()) is False
