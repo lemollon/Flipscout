@@ -28,6 +28,11 @@ React to any Flipscout alert carrying a shopgoodwill item link:
     🎯  arm at the "Don't pay over" ceiling printed on that card
     ❌  disarm
 
+The bot answers with ✅ once the item is armed, or ⚠ if the card carried no
+ceiling to arm at. That tick is the ONLY thing this bot ever writes, and it is
+why the invite needs "Add Reactions": without it you tap the target and see
+nothing until the snipe fires, with no way to tell the poller noticed.
+
 🚨 THE REACTION IS THE AUTHORISATION, so the amount must be one Leron already
 SAW. 🎯 arms at the ceiling shown on the card - a number the alert printed
 before he reacted - never at a figure this module invents. If the card has no
@@ -51,6 +56,8 @@ from . import snipe
 API = "https://discord.com/api/v10"
 ARM_EMOJI = "\N{DIRECT HIT}"        # 🎯
 DISARM_EMOJI = "\N{CROSS MARK}"     # ❌
+ACK_EMOJI = "\N{WHITE HEAVY CHECK MARK}"        # ✅ armed, poller saw it
+NOPE_EMOJI = "\N{WARNING SIGN}"                 # ⚠ could not arm - no ceiling on the card
 
 _ITEM = re.compile(r"shopgoodwill\.com/item/(\d{6,})", re.I)
 # "Don't pay over" is the field notify.build_embed prints on every card.
@@ -68,6 +75,26 @@ def _get(path: str, token: str, **params):
                      headers={"Authorization": f"Bot {token}"}, params=params)
     r.raise_for_status()
     return r.json()
+
+
+def _react(channel: str, message_id: str, emoji: str, token: str) -> bool:
+    """Put an acknowledgement reaction on a card. Fail-soft.
+
+    🚨 This is the ONLY write this bot performs, and it is why the invite asks
+    for "Add Reactions". Without it the loop is silent: you tap the target and
+    nothing visible happens until the snipe fires minutes later, so you cannot
+    tell the poller ever saw it. A tick appearing within the minute is the
+    receipt. Never let this failing block an arm - the arm is the real work.
+    """
+    from urllib.parse import quote
+    try:
+        r = requests.put(
+            f"{API}/channels/{channel}/messages/{message_id}/reactions/"
+            f"{quote(emoji)}/@me",
+            headers={"Authorization": f"Bot {token}"}, timeout=20)
+        return r.status_code in (200, 204)
+    except Exception:
+        return False
 
 
 def _money(s: str) -> Optional[float]:
@@ -128,6 +155,7 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
         print(f"reply-arm {iid} at ${val:.2f}")
         if not dry_run:
             snipe.arm(iid, val, override=True)   # he named the number himself
+            _react(channel, rep.get("id") or m["id"], ACK_EMOJI, token)
         acted += 1
 
     armed = snipe.load_armed()
@@ -150,10 +178,13 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
                 # ceiling, Leron never saw one, so reacting authorised nothing.
                 print(f"{iid}: 🎯 but the card shows no ceiling - "
                       f"reply `snipe <amount>` instead")
+                if not dry_run:
+                    _react(channel, m["id"], NOPE_EMOJI, token)
                 continue
             print(f"react-arm {iid} at the card's ${ceiling:.2f} ceiling")
             if not dry_run:
                 snipe.arm(iid, ceiling)
+                _react(channel, m["id"], ACK_EMOJI, token)
             acted += 1
     if not acted:
         print("nothing to arm or disarm")

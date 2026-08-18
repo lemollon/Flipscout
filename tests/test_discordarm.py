@@ -116,3 +116,82 @@ def test_ceiling_parsing(monkeypatch, value, want):
     calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI, ceiling=value)])
     discordarm.scan()
     assert calls[0][1] == want
+
+
+# --- the acknowledgement tick -----------------------------------------------
+# Flagged by the Chrome agent during setup: the invite asked for "Add
+# Reactions" and the code never used it, so 🎯 produced NO visible feedback
+# until the snipe fired minutes later. Either drop the permission or make it
+# earn its place - this makes it earn it.
+
+def _spy_react(monkeypatch):
+    seen = []
+    monkeypatch.setattr(discordarm, "_react",
+                        lambda ch, mid, emoji, tok: seen.append((mid, emoji)) or True)
+    return seen
+
+
+def test_arming_acknowledges_with_a_tick(monkeypatch):
+    calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI)])
+    seen = _spy_react(monkeypatch)
+    discordarm.scan()
+    assert calls, "should have armed"
+    assert seen == [("1", discordarm.ACK_EMOJI)]
+
+
+def test_a_card_with_no_ceiling_gets_a_warning_tick_not_silence(monkeypatch):
+    """Silence is indistinguishable from 'the poller is dead'."""
+    card = _card(react=discordarm.ARM_EMOJI)
+    card["embeds"][0]["fields"] = [f for f in card["embeds"][0]["fields"]
+                                   if f["name"] != "Don't pay over"]
+    _feed(monkeypatch, [card])
+    seen = _spy_react(monkeypatch)
+    discordarm.scan()
+    assert seen == [("1", discordarm.NOPE_EMOJI)]
+
+
+def test_a_failing_reaction_never_blocks_the_arm(monkeypatch):
+    """🚨 The arm is the real work; the tick is only a receipt. A missing "Add
+    Reactions" permission, or any Discord blip, must not cost Leron the snipe.
+
+    Exercises the REAL _react - patching the spy to raise would only prove the
+    spy raises.
+    """
+    calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI)])
+
+    def boom(*a, **k):
+        raise RuntimeError("403 Missing Permissions")
+
+    monkeypatch.setattr(discordarm.requests, "put", boom)
+    discordarm.scan()
+    assert calls == [("273876344", 41.34, False)], \
+        "the arm must still happen when the acknowledgement fails"
+
+
+def test_react_swallows_errors_and_reports_false(monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("network down")
+    monkeypatch.setattr(discordarm.requests, "put", boom)
+    assert discordarm._react("1", "2", discordarm.ACK_EMOJI, "tok") is False
+
+
+def test_react_url_encodes_the_emoji(monkeypatch):
+    """A raw ✅ in a URL path is not valid - it must be percent-encoded."""
+    seen = {}
+    class R:
+        status_code = 204
+    def cap(url, **k):
+        seen["url"] = url
+        return R()
+    monkeypatch.setattr(discordarm.requests, "put", cap)
+    assert discordarm._react("99", "77", discordarm.ACK_EMOJI, "tok") is True
+    assert "/channels/99/messages/77/reactions/" in seen["url"]
+    assert "%E2%9C%85" in seen["url"], "emoji must be percent-encoded"
+    assert seen["url"].endswith("/@me")
+
+
+def test_dry_run_does_not_react_either(monkeypatch):
+    _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI)])
+    seen = _spy_react(monkeypatch)
+    discordarm.scan(dry_run=True)
+    assert seen == []
