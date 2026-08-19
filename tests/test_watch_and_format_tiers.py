@@ -24,7 +24,7 @@ so a future change has to answer to the actual market rather than to intuition.
 import pytest
 
 from flipscout.bidding import advise
-from flipscout.pricebook import BY_KEY, DEAD_MODELS, match
+from flipscout.pricebook import BY_KEY, DEAD_MODELS, MODELS, match
 
 # ---------------------------------------------------------------- Citizen ---
 # Measured 2026-08-17, eBay solds, each tier filtered then floored at p25.
@@ -250,3 +250,106 @@ def test_every_new_tier_can_actually_clear_the_bar():
         a = advise(m.comp, outbound_shipping=m.outbound_shipping,
                    target_profit=20.0, inbound_shipping=9.0, current_price=1)
         assert a.max_bid > 0, f"{key} can never profit"
+
+
+# --- the 2026-08-19 camera + console routed re-measure -----------------------
+# Leron: "now do cameras and consoles the same way". Same method as the Citizen
+# pass: measure each tier on the population it RECEIVES after routing, not on
+# what its comp_query returns. Cameras had never had an accessory guard at all.
+
+@pytest.mark.parametrize("title", [
+    # 🚨 EVERY ONE OF THESE MATCHED A CAMERA TIER before 2026-08-19, and every
+    # one is real - pulled from 4,292 routed sold listings. A $2.61 strap was
+    # being priced against a $150 camera comp, which on a live sweep is a BUY
+    # card with a ~$92 max bid on a piece of nylon.
+    "[Excelle++++] Canon Genuine Neck/Shoulder Strap For AE-1 A-1 From Japan",
+    "CANON FD Body CAMERA CAP for AE-1 A-1 AT-1 AV-1 TLb T50 T70 F-1 SLIP ON",
+    "Canon AE-1, AE-1Program, & AT-1 Screws",
+    "Canon AE-1, AE-1 Program AT-1 AV-1 Viewfinder Eyepiece Lens Clean Parts",
+    "Polaroid SX-70 Land Camera Alpha SE Original Manual In English",
+    "Vintage Polaroid SX-70 Tripod Mount #111 (AM08)",
+    "Beautiful Pentax K-1000 Camera Manual, EX++- Condition",
+    "Polaroid Instant SX-70 Land Camera #112 Remote Shutter Button In Box",
+])
+def test_camera_accessories_never_price_as_the_camera(title):
+    assert match(title) is None
+
+
+@pytest.mark.parametrize("title,key", [
+    # 🚨 THE OTHER HALF, AND THE HARDER ONE. A first cut listed `cap` and
+    # `strap` as junk outright and REJECTED THESE REAL CAMERAS. The word is
+    # shared; what separates an accessory is that it says "for <model>".
+    ("Canon AE-1 35mm SLR Film Camera W/ 50mm FD Works Great!", "canon_ae1"),
+    ("Canon AE-1 Program 35mm SLR Film Camera w/ Cap and Strap", "canon_ae1"),
+    ("Vintage Pentax K1000 SLR Film Camera Working w/ 50mm F/2 Lens w/ Lens Cap",
+     "pentax_k1000"),
+    ("Pentax K1000 35mm SLR camera with body cap", "pentax_k1000"),
+    # "manual focus" describes half the film cameras ever made.
+    ("Pentax K1000 35mm Manual Focus SLR Camera w/ 50mm Lens", "pentax_k1000"),
+    ("Working Polaroid SX-70 Sonar Land Camera tested w/ film", "polaroid_sx70"),
+])
+def test_a_camera_that_merely_includes_an_accessory_still_prices(title, key):
+    m = match(title)
+    assert m is not None, f"{title!r} was rejected as an accessory"
+    assert m.model.key == key
+
+
+@pytest.mark.parametrize("title", [
+    # The console equivalent: `_console_include` accepts a hardware MODEL
+    # NUMBER as evidence, and accessories carry SCPH numbers too.
+    "Sony PlayStation 2 PS2 RFU Adapter SCPH-10071 Official OEM",
+    "OEM Sony PlayStation 2 PS2 SLIM AC Adapter Power Supply & AV Cable SCPH-7010",
+    "Sony PlayStation 2 PS2 Multitap Black SCPH-10090",
+    "OEM Replacement Sega Dreamcast Authentic Exterior Screws (4Pcs.)",
+    "Performance Sega Dreamcast Tremor Pak Model P-20-313",
+    "VGA box for Sega Dreamcast consoles - Grey (made in USA)",
+])
+def test_console_accessories_never_price_as_the_console(title):
+    assert match(title) is None
+
+
+@pytest.mark.parametrize("title,key", [
+    ("Sony PlayStation 2 Slim PS2 Black Console Gaming System SCPH-70001 With Box",
+     "ps2_console"),
+    ("Sega Dreamcast White Console Power/Eject/Tested Great Condition", "dreamcast"),
+    ("Nintendo Switch OLED Console White Joy-Con", "switch_oled"),
+])
+def test_real_consoles_survive_the_accessory_guard(title, key):
+    m = match(title)
+    assert m is not None and m.model.key == key
+
+
+def test_link_awakening_tier_requires_the_dx_it_is_named_for():
+    """🚨 A 985% GAP THAT WAS A ROUTING BUG, NOT A PRICE MOVE.
+
+    The tier is the DX cart on Game Boy Color and its include was a bare
+    `link's awakening`, which also caught the 1993 monochrome release - a
+    different product at a tenth the price. Routed p25 was $4.61 against a $50
+    comp, and the cheap end was wall-to-wall "Zelda Link's Awakening Nintendo
+    GameBoy Japan" at $2-4.
+    """
+    assert match("The Legend of Zelda Link's Awakening Nintendo GameBoy Japan") is None
+    for ok in ["The Legend of Zelda Link's Awakening DX Game Boy Color Cartridge",
+               "Zelda Links Awakening DX Nintendo Game Boy Color Authentic Tested"]:
+        assert match(ok).model.key == "zelda_link_awakening_dx", ok
+
+
+def test_the_accessory_guards_are_applied_by_category_not_pasted_per_tier():
+    """🚨 A guard pasted into 20 excludes is a guard the 21st tier ships
+    without. Both are applied in one pass over MODELS, so this holds for any
+    tier added later - including one added without reading this file."""
+    from flipscout.pricebook import _CAMERA_JUNK, _CONSOLE_JUNK
+    for m in MODELS:
+        if m.category == "cameras":
+            assert _CAMERA_JUNK in m.exclude, f"{m.key} has no camera accessory guard"
+        if m.category == "videogames":
+            assert _CONSOLE_JUNK in m.exclude, f"{m.key} has no console accessory guard"
+
+
+def test_no_camera_or_console_comp_outlives_its_measurement():
+    """Every re-measured tier carries the date and the sample that produced it."""
+    for m in MODELS:
+        if m.category not in ("cameras", "videogames"):
+            continue
+        assert m.measured >= "2026-07-28", f"{m.key} has no measurement date"
+        assert m.sample > 0, f"{m.key} shipped on sample=0"
