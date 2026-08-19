@@ -63,6 +63,8 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 PROFILE_DIR = REPO / ".sgwprofile"
 ARMED_PATH = REPO / "snipe_armed.json"
 KILL_SWITCH = REPO / "SNIPE_DISABLED"
+# What `snipe verify` learned about what happens after "Place My Bid".
+BIDFORM_PATH = REPO / "sgw_bidform.json"
 
 # Prefix on the place_bid message when a rival proxy outbid us on the spot.
 # 🚨 This is a NORMAL outcome, not a fault - somebody simply valued the thing
@@ -264,6 +266,11 @@ def place_bid(iid: str, amount: float, dry_run: bool) -> tuple:
             if not box:
                 return False, "bid box #currentBid not found (page changed?)"
             box.fill(f"{amount:.2f}")
+            # Ground truth for "did it land", read BEFORE we touch anything.
+            try:
+                bids_before = detail(iid).get("numBids")
+            except Exception:
+                bids_before = None
             btn = None
             for b in pg.query_selector_all("button"):
                 if re.search(r"place my bid", (b.inner_text() or ""), re.I):
@@ -275,20 +282,64 @@ def place_bid(iid: str, amount: float, dry_run: bool) -> tuple:
                 return True, (f"DRY RUN - form filled with ${amount:.2f}, "
                               f"button found, NOT clicked")
             btn.click()
-            pg.wait_for_timeout(3500)
+            pg.wait_for_timeout(2500)
+
+            # ShopGoodwill puts a CONFIRMATION step behind "Place My Bid".
+            # Clicking once only opens it; the bid is not placed until the
+            # second control is pressed. Missing this is why a snipe reported
+            # success on 2026-08-18 while the lot still read "Number of
+            # Bids: 0".
+            for b in pg.query_selector_all("button, input[type='submit']"):
+                label = (b.inner_text() or b.get_attribute("value") or "").strip()
+                if re.fullmatch(r"(confirm|confirm bid|yes|ok|place bid|"
+                                r"place my bid|submit)", label, re.I):
+                    try:
+                        b.click()
+                    except Exception:
+                        pass
+                    break
+            pg.wait_for_timeout(3000)
+
             after = (pg.inner_text("body") or "")[:4000]
-            if re.search(r"you are the high bidder|your bid has been placed|"
-                         r"bid confirmation", after, re.I):
-                return True, f"BID PLACED at ${amount:.2f}"
             if re.search(r"outbid|higher bid|increase your bid", after, re.I):
-                # 🚨 Say WHOSE max. "already above your max" reads as
-                # though our own bid was the problem; what actually
-                # happened is a rival proxy is standing higher than
-                # our ceiling, so this lot cannot be won at our price.
+                # 🚨 Say WHOSE max. "already above your max" reads as though
+                # our own bid was the problem; what actually happened is a
+                # rival proxy is standing higher than our ceiling.
                 return False, (f"{OUTBID} - a standing bid is above your "
                                f"${amount:,.2f} max, so this cannot be won "
                                f"at your number")
-            return True, f"bid submitted at ${amount:.2f} (no confirmation text seen)"
+
+            # 🚨 PROVE IT AGAINST THE SITE, NOT THE PAGE TEXT.
+            #
+            # This used to end with `return True, "(no confirmation text
+            # seen)"` - claiming success with no evidence whatsoever. On
+            # 2026-08-18 that reported "you are winning" on a lot that read
+            # "Number of Bids: 0", and Leron only found out because he asked.
+            #
+            # A money action must FAIL CLOSED: unknown is a failure, because a
+            # false win is worse than a missed lot. You can re-bid a lot you
+            # know you lost; you cannot re-bid one you were told you had won.
+            landed = None
+            try:
+                fresh = detail(iid)
+                after_bids = fresh.get("numBids")
+                if after_bids is not None and bids_before is not None:
+                    landed = int(after_bids) > int(bids_before)
+                elif after_bids is not None:
+                    landed = int(after_bids) > 0
+            except Exception:
+                landed = None
+
+            if landed:
+                return True, f"BID PLACED at ${amount:.2f}"
+            if re.search(r"you are the high bidder|your bid has been placed|"
+                         r"bid confirmation", after, re.I):
+                return True, f"BID PLACED at ${amount:.2f} (confirmed on the page)"
+            if landed is False:
+                return False, (f"NOT PLACED - the bid count did not move after "
+                               f"submitting ${amount:.2f}. The lot is untouched.")
+            return False, (f"UNVERIFIED - submitted ${amount:.2f} but could not "
+                           f"confirm it landed. Check the lot yourself.")
         except Exception as e:
             return False, f"{type(e).__name__}: {e}"
         finally:
@@ -432,6 +483,118 @@ def run(dry_run: bool = False) -> int:
     return 0
 
 
+def bidform() -> dict:
+    if not BIDFORM_PATH.exists():
+        return {}
+    try:
+        return json.loads(BIDFORM_PATH.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+
+
+def verify(url_or_id: str, timeout_s: int = 240) -> int:
+    """Learn what "Place My Bid" actually does. ONE TIME.
+
+    🚨 WHY THIS EXISTS. On 2026-08-18 a snipe filled the box, clicked "Place My
+    Bid", found no error text, and reported "you are winning" - while the lot
+    read "Number of Bids: 0" and then closed unsold. The selectors were right;
+    something AFTER the click swallowed the bid, and the code had no way to
+    tell because it treated "no error" as success.
+
+    Rather than guess at a confirmation step, this watches Leron do it once and
+    writes down what appears. Same approach that settled HiBid, for the same
+    reason: a money path must be observed, not assumed.
+
+    It opens the lot in the sniper's OWN visible window, waits for him to fill
+    a bid and press the button, and records every dialog, button and message
+    that follows. It never types an amount and never presses anything.
+    """
+    from playwright.sync_api import sync_playwright
+    iid = item_id(url_or_id)
+    with sync_playwright() as p:
+        ctx = p.chromium.launch_persistent_context(
+            str(PROFILE_DIR), headless=False,
+            viewport={"width": 1400, "height": 950},
+            args=["--disable-blink-features=AutomationControlled"])
+        pg = ctx.pages[0] if ctx.pages else ctx.new_page()
+        pg.goto(f"https://shopgoodwill.com/item/{iid}", timeout=60000,
+                wait_until="domcontentloaded")
+        pg.wait_for_timeout(5000)
+        pg.evaluate("""() => {
+            const d = document.createElement('div');
+            d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;'
+              + 'background:#c2410c;color:#fff;font:700 15px system-ui;padding:10px;'
+              + 'text-align:center';
+            d.textContent = 'Type a bid and press Place My Bid. Flipscout is '
+              + 'watching what happens next. Do NOT confirm anything after that.';
+            document.body.appendChild(d);
+        }""")
+        try:
+            before = int(detail(iid).get("numBids") or 0)
+        except Exception:
+            before = None
+        print("A window just opened on the lot.")
+        print("  1. Type a bid you are happy to actually place.")
+        print("  2. Press 'Place My Bid' ONCE.")
+        print("  3. STOP - do not press anything that appears after it.")
+        print(f"Watching for up to {timeout_s}s...")
+
+        deadline = time.time() + timeout_s
+        seen = None
+        while time.time() < deadline:
+            try:
+                seen = pg.evaluate(r"""() => {
+                    const q = s => [...document.querySelectorAll(s)];
+                    const modal = q('.modal,[role=dialog],.modal-content,'
+                                    + 'ngb-modal-window,.mat-dialog-container')[0];
+                    const btns = (modal || document).querySelectorAll('button');
+                    const txt = (modal || document.body).innerText || '';
+                    if (!modal && !/confirm|are you sure|review your bid/i.test(txt))
+                        return null;
+                    return {
+                        isModal: !!modal,
+                        text: txt.replace(/\s+/g,' ').slice(0, 400),
+                        buttons: [...btns].map(b => (b.innerText||'').trim())
+                                          .filter(Boolean).slice(0, 12)
+                    };
+                }""")
+            except Exception:
+                seen = None
+            if seen:
+                break
+            time.sleep(2)
+
+        after = None
+        try:
+            after = int(detail(iid).get("numBids") or 0)
+        except Exception:
+            pass
+        ctx.close()
+
+        rec = {"observed": bool(seen), "bids_before": before, "bids_after": after}
+        if seen:
+            rec.update({"confirm_dialog": seen["isModal"],
+                        "dialog_text": seen["text"][:200],
+                        "buttons": seen["buttons"]})
+            print("\nSomething appeared after the click:")
+            print(f"  modal   : {seen['isModal']}")
+            print(f"  buttons : {seen['buttons']}")
+            print(f"  text    : {seen['text'][:180]}")
+            print("\nDo NOT press anything else. Recorded.")
+        elif before is not None and after is not None and after > before:
+            rec["confirm_dialog"] = False
+            print("\nThe bid went straight through - no confirmation step.")
+            print(f"  bids {before} -> {after}")
+            print("So the earlier failure was NOT a missing confirm click.")
+        else:
+            print("\nNothing observed and the bid count did not move.")
+            print(f"  bids {before} -> {after}")
+            print("Either the click never landed, or the site rejected it "
+                  "silently. Run it again and watch the window.")
+        BIDFORM_PATH.write_text(json.dumps(rec, indent=2), encoding="utf-8")
+        return 0 if seen or (after or 0) > (before or 0) else 1
+
+
 def login(timeout_s: int = 300) -> int:
     """Open the dedicated profile VISIBLY so Leron signs in himself.
 
@@ -480,6 +643,11 @@ def main(argv=None) -> int:
     dry = "--dry-run" in argv
     if cmd == "login":
         return login()
+    if cmd == "verify":
+        if len(argv) < 2:
+            print("usage: snipe verify <item-url-or-id>")
+            return 2
+        return verify(argv[1])
     if cmd == "arm":
         if len(rest) < 2:
             print("usage: snipe arm <item-url-or-id> <max_bid> [--override]")

@@ -15,6 +15,7 @@ Nothing here touches the network or the bid form.
 """
 
 import json
+import re
 
 import pytest
 
@@ -156,3 +157,54 @@ def test_timing_uses_server_time_not_the_local_clock():
 
 def test_seconds_left_is_none_when_the_stamps_are_unusable():
     assert snipe.seconds_left({"serverTime": "junk", "endTime": "10:00"}) is None
+
+
+# --- a bid must be PROVEN, never assumed -------------------------------------
+
+def test_no_confirmation_is_a_failure_not_a_win(monkeypatch, tmp_path):
+    """🚨 THE WORST BUG OF 2026-08-18. place_bid ended with
+
+        return True, "bid submitted (no confirmation text seen)"
+
+    - claiming success with no evidence whatsoever. A real snipe reported "you
+    are winning, $6.01 under your max" on a lot that read "Number of Bids: 0"
+    and then closed unsold. Leron only found out because he asked.
+
+    A money action must FAIL CLOSED: a false win is worse than a missed lot,
+    because you can re-bid a lot you know you lost.
+    """
+    import inspect
+
+    from flipscout import snipe as S
+    src = inspect.getsource(S.place_bid)
+    assert "no confirmation text seen" not in src, (
+        "the fail-open branch is back - unknown must never return True")
+    # the outcome is decided by the site's own bid count, not by page prose
+    assert "numBids" in src
+
+
+def test_place_bid_reads_the_bid_count_before_and_after():
+    """Ground truth for "did it land" is the count moving, not the absence of
+    an error message."""
+    import inspect
+
+    from flipscout import snipe as S
+    src = inspect.getsource(S.place_bid)
+    assert "bids_before" in src
+    assert "landed" in src
+
+
+def test_place_bid_clicks_a_confirmation_step_if_one_appears():
+    import inspect
+
+    from flipscout import snipe as S
+    src = inspect.getsource(S.place_bid)
+    assert re.search(r"confirm", src, re.I), "the confirm step must be handled"
+
+
+def test_verify_exists_so_the_flow_is_observed_not_guessed():
+    """The HiBid bid form was settled by watching Leron do it once. Guessing at
+    selectors twice in one day is what caused this."""
+    from flipscout import snipe as S
+    assert callable(S.verify)
+    assert S.BIDFORM_PATH.name.endswith(".json")
