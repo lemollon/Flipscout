@@ -812,7 +812,7 @@ MODELS: list[Model] = [
     Model(
         key="switch_oled",
         label="Nintendo Switch OLED console",
-        comp=175.00, measured="2026-07-30", sample=60,
+        comp=175.00, measured="2026-08-19", sample=91,
         include=r"switch\s*oled",
         # "for switch"/"for nintendo" is the accessory tell, scoped to THIS
         # model - console names must never enter the universal camera-brand
@@ -832,7 +832,8 @@ MODELS: list[Model] = [
         outbound_shipping=10.00, category="videogames",
         comp_query="nintendo switch oled console", specificity=40,
         note="FLOOR below the $201.73 median (n=60): tablet-only units sell "
-             "$150-170 and are EXCLUDED - complete console w/ dock+joycons only.",
+             "$150-170 and are EXCLUDED - complete console w/ dock+joycons only." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=91, p25 $165.00, median $185.00): CONFIRMED the comp.",
     ),
     Model(
         key="gba_sp_101",
@@ -851,7 +852,7 @@ MODELS: list[Model] = [
     Model(
         key="gba_sp",
         label="Game Boy Advance SP (AGS-001/unspecified)",
-        comp=80.00, measured="2026-07-30", sample=51,
+        comp=80.00, measured="2026-08-19", sample=130,
         # 🚨 NOUN RULE RESTORED 2026-08-17. This was bare, and on a live eBay
         # listing it priced "Super Mario Advance 4 ... Game Boy Advance SP
         # Gameboy" - a $19 CARTRIDGE - against this $80 CONSOLE comp, because
@@ -870,19 +871,21 @@ MODELS: list[Model] = [
         outbound_shipping=5.00, category="videogames",
         comp_query="gameboy advance sp", specificity=25,
         note="FLOOR below the $84.59 median (n=51). If the photo shows AGS-101 "
-             "on the label, it's the $130+ backlit model - re-check.",
+             "on the label, it's the $130+ backlit model - re-check." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=130, p25 $80.00, median $99.00): CONFIRMED the comp.",
     ),
     Model(
         key="n3ds_xl",
         label="Nintendo 3DS XL / New 3DS XL",
-        comp=145.00, measured="2026-07-30", sample=59,
+        comp=145.00, measured="2026-08-19", sample=198,
         include=r"3ds\s*(xl|ll)",
         exclude=r"\b2ds\b|circle pad|cradle only|stylus only|charger only|"
                 r"\bcase\b|for parts|parts only|not working|broken|box only",
         outbound_shipping=6.00, category="videogames",
         comp_query="nintendo 3ds xl console", specificity=28,
         note="FLOOR at p25 of a $209.02 median (n=59) - Japanese 'New 3DS LL' "
-             "imports inflate the top. US 'New 3DS XL' sells $250+.",
+             "imports inflate the top. US 'New 3DS XL' sells $250+." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=198, p25 $174.99, median $210.00): comp is BELOW p25 and stays there - raising a ceiling is the direction that loses money.",
     ),
     Model(
         key="gamecube_console",
@@ -1532,13 +1535,14 @@ MODELS: list[Model] = [
     Model(
         key="g7x",
         label="Canon PowerShot G7X (Mark I / unspecified)",
-        comp=708.18, measured="2026-07-28", sample=13,
+        comp=708.18, measured="2026-08-19", sample=93,
         include=r"g7\s*x",
         exclude=r"for parts|parts only|not working|broken|\brepair\b",
         outbound_shipping=6.00, category="cameras",
         comp_query="canon powershot g7x", specificity=60,
         note="Mark I / unmarked floor. A Mark II/III is worth $440 more - read "
-             "the photos before settling for this number.",
+             "the photos before settling for this number." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=93, p25 $650.00, median $686.00): CONFIRMED the comp.",
     ),
     # --- High-ticket cameras (measured 2026-07-30). Leron's budget goes past
     # $100/item, so the book now carries the models where a single flip clears
@@ -1564,25 +1568,27 @@ MODELS: list[Model] = [
     Model(
         key="fuji_x100f",
         label="Fujifilm X100F",
-        comp=800.00, measured="2026-07-30", sample=60,
+        comp=800.00, measured="2026-08-19", sample=181,
         include=r"\bx100f\b",     # both-ends boundary, same reason as X100V above
         exclude=r"for parts|parts only|not working|broken|repair",
         outbound_shipping=8.00, category="cameras",
         comp_query="fujifilm x100f", specificity=63,
         note="FLOOR below the $879.99 used median (n=60). X100S/T lookalikes "
-             "sell ~$500-700 and deliberately do NOT match.",
+             "sell ~$500-700 and deliberately do NOT match." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=181, p25 $800.00, median $891.00): CONFIRMED the comp.",
     ),
     Model(
         key="contax_t2",
         label="Contax T2 (35mm compact)",
-        comp=1100.00, measured="2026-07-30", sample=44,
+        comp=1100.00, measured="2026-08-19", sample=157,
         include=r"contax\s*t2\b",
         exclude=r"for parts|parts only|not working|broken|repair|data back only",
         outbound_shipping=8.00, category="cameras",
         comp_query="contax t2 camera", comp_used_only=False, specificity=62,
         note="FLOOR below the $1,296.49 median (n=44). THE estate-sale grail - "
              "a film point-and-shoot relatives donate for nothing. Untested "
-             "units still clear $800+; T3 comps even higher (unmeasured).",
+             "units still clear $800+; T3 comps even higher (unmeasured)." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=157, p25 $1,023.99, median $1,129.99): CONFIRMED the comp.",
     ),
     Model(
         key="canon_5d3",
@@ -1603,13 +1609,14 @@ MODELS: list[Model] = [
     Model(
         key="sony_a6000",
         label="Sony a6000 (mirrorless)",
-        comp=350.00, measured="2026-07-30", sample=55,
+        comp=350.00, measured="2026-08-19", sample=202,
         include=r"\ba6000\b|ilce\s*-?\s*6000",
         exclude=r"lens only|body cap|for parts|parts only|not working|broken|repair",
         outbound_shipping=8.00, category="cameras",
         comp_query="sony a6000 camera", specificity=55,
         note="FLOOR below the $406.07 median (n=55, mostly WITH kit lens). "
-             "Body-only sells lower - price the kit, not the bare body.",
+             "Body-only sells lower - price the kit, not the bare body." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=202, p25 $339.99, median $384.75): CONFIRMED the comp.",
     ),
     Model(
         key="gopro_hero11",
@@ -1643,7 +1650,7 @@ MODELS: list[Model] = [
     Model(
         key="powershot_elph",
         label="Canon PowerShot ELPH / IXUS (digital)",
-        comp=120.00, measured="2026-07-28", sample=52,
+        comp=120.00, measured="2026-08-19", sample=202,
         include=r"\belph\b|\bixus\b|\bixy\b",
         # The 1990s APS-film Elph (Elph 2/Jr/LT/260Z/370Z) shares the name and
         # sells for $6 - one sold mid-sweep. "film camera" kills those.
@@ -1653,12 +1660,13 @@ MODELS: list[Model] = [
         comp_query="canon powershot elph", specificity=55,
         note="CONSERVATIVE FLOOR below the $184.03 median (n=52, range $72-365): "
              "early SD-series sell $65-140, named-ELPH models $150-350. Confirm "
-             "the sub-model before bidding near the max.",
+             "the sub-model before bidding near the max." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=202, p25 $119.99, median $174.88): CONFIRMED the comp.",
     ),
     Model(
         key="sony_cybershot",
         label="Sony Cyber-shot compact (non-RX)",
-        comp=75.00, measured="2026-07-28", sample=47,
+        comp=75.00, measured="2026-08-19", sample=191,
         include=r"cyber\s*-?\s*shot|\bdsc\s*-?\s*[a-z]{1,2}\d",
         # The 2001-2005 P-series and single-digit H-series are measured-cheap:
         # every P-series sold in the sweep went for $10-42 all-in, below what
@@ -1671,36 +1679,33 @@ MODELS: list[Model] = [
         comp_query="sony cyber-shot camera", specificity=50,
         note="CONSERVATIVE FLOOR below the $118.86 median (n=47, range $16-229): "
              "W/T-series sell $90-190. Confirm the sub-model before bidding "
-             "near the max.",
+             "near the max." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=191, p25 $95.00, median $128.99): comp is BELOW p25 and stays there - raising a ceiling is the direction that loses money.",
     ),
     Model(
         key="nikon_coolpix",
         label="Nikon Coolpix compact",
-        comp=55.00, measured="2026-07-28", sample=51,
+        comp=55.00, measured="2026-08-19", sample=226,
         include=r"coolpix",
         exclude=r"for parts|parts only|not working|broken",
         outbound_shipping=6.00, category="cameras",
         comp_query="nikon coolpix camera", specificity=50,
         note="CONSERVATIVE FLOOR below the $97.98 median (n=51, range $30-368), "
              "set under the AA-battery L-series ($40-70) so their tail can't "
-             "lose money; S/P-series sell $100-180.",
+             "lose money; S/P-series sell $100-180." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=226, p25 $56.83, median $89.99): CONFIRMED the comp.",
     ),
-    Model(
-        key="fujifilm_finepix",
-        label="Fujifilm FinePix compact",
-        comp=45.00, measured="2026-07-28", sample=53,
-        include=r"finepix",
-        exclude=r"for parts|parts only|not working|broken",
-        outbound_shipping=6.00, category="cameras",
-        comp_query="fujifilm finepix camera", specificity=50,
-        note="THINNEST margin in the book: floor below the $66.06 median (n=53). "
-             "Only worth it under ~$12 all-in - a $5 Goodwill shelf find, "
-             "nothing more.",
-    ),
+    # 🚨 fujifilm_finepix WAS HERE AND IS NOW DEAD (2026-08-19).
+    # It survived only because its $45 comp sat ABOVE its own measured floor.
+    # Re-measured on the routed population it is p25 $40.60 / median $60.88
+    # (n=218, up from n=53), and at $40.60 it nets $28.82 and quotes a max bid
+    # of $0.00 against the standing gate ($20 profit over $9 inbound). Even at
+    # the old $45 the ceiling was $3.64. Second tier this sweep killed at the
+    # honest number, after citizen_quartz_chrono. See DEAD_MODELS.
     Model(
         key="sony_handycam",
         label="Sony Handycam camcorder",
-        comp=120.00, measured="2026-07-28", sample=53,
+        comp=120.00, measured="2026-08-19", sample=169,
         include=r"handycam|\bdcr\s*-|\bccd\s*-\s*tr|\bhdr\s*-\s*(cx|xr|pj|sr)",
         # Tape lots borrow the name ("Hi8 tapes for Sony Handycam"), and the
         # DVD-era models are the measured-cheap end ($15-71) - excluded.
@@ -1724,7 +1729,8 @@ MODELS: list[Model] = [
         comp_query="sony handycam camcorder", specificity=50,
         note="CONSERVATIVE FLOOR below the $163.18 median (n=53). Tape-era "
              "(Video8/Hi8/MiniDV) units sell $90-200 for tape-transfer use; "
-             "include the charger in the photo check - proprietary batteries.",
+             "include the charger in the photo check - proprietary batteries." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=169, p25 $119.00, median $150.00): CONFIRMED the comp.",
     ),
     # --- film cameras (comps measured WITHOUT the Used filter) ----------------
     Model(
@@ -2136,7 +2142,7 @@ MODELS: list[Model] = [
     Model(
         key="ps_vita",
         label="PlayStation Vita console",
-        comp=150.00, measured="2026-08-15", sample=28, comp_used_only=False,
+        comp=150.00, measured="2026-08-19", sample=103, comp_used_only=False,
         # [12]\d{3}, not [12]0\d\d: PCH-1101 and PCH-1104 are real Vita
         # hardware and the old pattern missed both (caught on a live listing
         # 2026-08-16). Game SKUs are PCSE-/PCSB-, so this cannot swallow one.
@@ -2153,12 +2159,13 @@ MODELS: list[Model] = [
              "(OLED) sells above PCH-2000 (LCD). Proprietary memory card is NOT "
              "included on most units and buyers know it - a bundled card is upside, "
              "its absence is not a defect. Japanese units are region-fine but comp "
-             "lower; check the sticker.",
+             "lower; check the sticker." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=103, p25 $145.90, median $164.80): CONFIRMED the comp.",
     ),
     Model(
         key="dreamcast",
         label="Sega Dreamcast console",
-        comp=95.00, measured="2026-08-15", sample=9, comp_used_only=False,
+        comp=95.00, measured="2026-08-19", sample=24, comp_used_only=False,
         # 🚨 Was a bare `dreamcast`, which is the exact mistake
         # `_console_include` exists to prevent. Routed against 5,249 sold
         # listings on 2026-08-19 it matched exterior SCREWS ($5.99), a modem
@@ -2177,7 +2184,8 @@ MODELS: list[Model] = [
         note="n=9 - THIN sample, re-measure before bidding near the max. Heavy: "
              "outbound is $14, not the $5 a cart costs, and that eats a third of "
              "the margin. GDEMU/modded units sell far higher and are a different "
-             "product. Check the disc drive spins - it is the common failure.",
+             "product. Check the disc drive spins - it is the common failure." 
+             "Re-measured 2026-08-19 on the ROUTED population (n=24, p25 $89.94, median $119.99): CONFIRMED the comp.",
     ),
     Model(
         key="citizen_campanola",
@@ -2378,6 +2386,12 @@ DEAD_MODELS = {
         "$20-over-$9 gate. Was carried at a $62 comp that came from an "
         "unrouted query; nothing at this comp can clear the bar. "
         "'Needs a battery' PROVES it is not Eco-Drive.",
+
+    r"finepix":
+        "Fujifilm FinePix sells p25 $40.60 / median $60.88 (n=218, measured "
+        "2026-08-19) -> max bid $0.00 at the $20-over-$9 gate. Carried at a $45 "
+        "comp that was above its own measured floor; even there the ceiling was "
+        "$3.64. A compact that only ever paid as a sub-$12 shelf find.",
 
     # --- WATCH AND CAMCORDER TIERS, measured 2026-08-17 and REFUSED -------
     # Each failed the book's bar ($20 target profit over $9 inbound). They

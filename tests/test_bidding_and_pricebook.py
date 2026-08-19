@@ -820,7 +820,6 @@ def test_benched_apparel_never_matches(title, expected):
     ("Sony Cyber-shot DSC-W800 Digital Camera 20.1MP", "sony_cybershot"),
     ("Sony Cybershot DSC-RX100 20.2MP Compact Digital Point and Shoot", "sony_rx100"),
     ("Nikon COOLPIX S8000 black Digital Camera 14.2 MP 10x Optical Zoom", "nikon_coolpix"),
-    ("Fujifilm FinePix Z5fd Brown Digital Camera Retro CCD Tested", "fujifilm_finepix"),
     ("Olympus Stylus Epic MJU II 35mm F2.8 Point & Shoot Camera", "olympus_mju2"),
     ("Olympus Stylus Epic DLX 35mm Film Camera Mju II f/2.8 Tested", "olympus_mju2"),
     ("Olympus Stylus Epic Zoom 80 35mm Point & Shoot Film Camera", "stylus_epic_zoom"),
@@ -915,7 +914,9 @@ def test_camera_brand_lines_are_priced_at_a_conservative_floor():
     carries a floor below the measured median (118.86 / 97.98 / 66.06)."""
     assert BY_KEY["sony_cybershot"].comp <= 75
     assert BY_KEY["nikon_coolpix"].comp <= 55
-    assert BY_KEY["fujifilm_finepix"].comp <= 45
+    # fujifilm_finepix was retired 2026-08-19 - at its own measured p25 of
+    # $40.60 (n=218) it quotes a $0.00 max bid. See DEAD_MODELS.
+    assert "fujifilm_finepix" not in BY_KEY
     assert BY_KEY["powershot_elph"].comp <= 120
 
 
