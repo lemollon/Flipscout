@@ -143,6 +143,34 @@ def _console_include(platform: str, model_numbers: str = "") -> str:
 # paperback worth about $15. Applied to EVERY model, because this failure mode is
 # universal - guides, boxes, manuals, cases and posters all share the title.
 ACCESSORY_EXCLUDE = (
+    # 🚨 CAMERA-SHAPED ACCESSORIES. Caught at the TOP of the live board
+    # 2026-08-19, out-ranking every real camera and crowding the other
+    # categories out of the run:
+    #   "Haoge THB-X2S Metal Thumb Rest Hand Grip f/ Fujifilm X100V"
+    #        -> Fujifilm X100V, $1,300 comp, for a ~$30 grip
+    #   "Canon NB-13L Battery Pack For G7x, G5x, G9x"
+    #        -> Canon G7X, $708 comp, for a ~$20 battery
+    #   "Canon G7X - Fantasea FXG7 - Macro Flip for 67mm"
+    #        -> Canon G7X, $708 comp, for an underwater lens port
+    # `battery grip` was excluded but a bare hand/thumb grip was not, and the
+    # battery-code pattern did not cover Canon's NB- series.
+    #
+    # 🚨 "f/" IS THE STRONGEST SIGNAL and it is unambiguous: nothing describes
+    # itself as "f/ <a camera>". Plain "for" is NOT used here - "for parts",
+    # "for sale" and "for repair" are all common on real bodies.
+    r"thumb\s*rest|hand\s*grip|thumb\s*grip|\bf/\s*[a-z]|"
+    r"conversion\s*lens|macro\s*(?:flip|port)|"
+    # 🚨 NOT a bare battery part number. The first attempt excluded any title
+    # containing one and immediately broke
+    # test_a_bundled_battery_is_still_a_real_listing - a REAL $19.99 Canon
+    # SD630 against a $120 comp, killed because the seller named the battery
+    # that came with it. That test exists because this exact mistake was made
+    # once already, and a dropped deal is worse than a phantom one.
+    #
+    # The discriminator is the PHRASE, not the part number:
+    #   "Canon NB-13L Battery Pack FOR G7x"      -> the battery IS the item
+    #   "Canon PowerShot SD630 ... NB-4L Battery" -> a camera that includes one
+    r"batter(?:y|ies)\s*pack\b[^,;]{0,18}\bfor\b|"
     # 🚨 CONSOLE-SHAPED ACCESSORIES. Caught on the live board 2026-08-19:
     # "3 Sega Dreamcast jump Packs" - three ~$10 rumble packs - matched
     # the $95 Dreamcast CONSOLE, because that model's include is a bare

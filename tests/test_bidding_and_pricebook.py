@@ -1471,3 +1471,38 @@ def test_a_bulk_quantity_is_not_priced_per_unit():
 def test_single_items_are_unaffected(title):
     m = match(title)
     assert m is not None and m.units == 1
+
+
+# --- camera-shaped accessories -----------------------------------------------
+
+@pytest.mark.parametrize("title", [
+    "Haoge THB-X2S Metal Thumb Rest Hand Grip f/ Fujifilm X100V",
+    "Canon NB-13L Battery Pack For G7x, G5x, G9x",
+    "Canon G7X - Fantasea FXG7 - Macro Flip for 67mm",
+    "Fujifilm TCL-X100II Tele Conversion Lens for X100",
+])
+def test_an_accessory_is_not_the_camera_it_fits(title):
+    """🚨 These four sat at the TOP of the live board on 2026-08-19, out-ranking
+    every real camera on fake profit and crowding the other categories out of
+    the run entirely - a ~$30 thumb grip against a $1,300 X100V comp, a ~$20
+    battery against a $708 G7X comp.
+
+    `battery grip` was already excluded but a bare hand/thumb grip was not.
+    """
+    assert match(title) is None
+
+
+def test_the_f_slash_preposition_is_the_giveaway():
+    """Nothing describes ITSELF as "f/ <a camera>". Plain "for" is deliberately
+    NOT used - "for parts", "for sale" and "for repair" all appear on real
+    bodies."""
+    assert match("Random Widget f/ Fujifilm X100V") is None
+    assert match("Canon PowerShot G7X Mark II - for sale, tested") is not None
+
+
+def test_a_named_included_battery_still_prices():
+    """🚨 The narrow version of this guard excluded any battery part number and
+    broke a REAL $19.99 Canon SD630 against a $120 comp. The discriminator is
+    the phrase "battery pack FOR", not the part number - a camera that merely
+    names the battery it ships with must keep pricing."""
+    assert match("Canon PowerShot SD630 Digital ELPH 6MP Camera NB-4L Battery") is not None
