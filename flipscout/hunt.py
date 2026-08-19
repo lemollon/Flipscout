@@ -73,15 +73,6 @@ def load_config(env=None) -> dict:
         # surfaced. Cap how many picks any one model label gets per run;
         # the rest stay unseen and queue for the next run.
         "max_per_model": int(env.get("FLIPSCOUT_MAX_PER_MODEL", "3")),
-        # 🚨 A per-MODEL cap does not spread the alerts. Categories hold wildly
-        # different numbers of models - videogames 28, cameras 20, watches 10,
-        # sewing 1 - so at 3/model videogames alone can claim 84 of the 10
-        # available slots. Whichever category ranks highest on profit takes the
-        # WHOLE run, gets marked seen, and the next run is taken entirely by
-        # the next category. That is the "all watches, then all cameras, then
-        # dry" swing Leron reported on 2026-08-19, and it is not the market
-        # moving - it is the selector.
-        "max_per_category": int(env.get("FLIPSCOUT_MAX_PER_CATEGORY", "3")),
         # Optional hard freshness filter, OFF by default on purpose: for auctions
         # "listed recently" is the wrong signal - a lot posted days ago that ends
         # in 30 minutes with no bids is the better buy, because its price is
@@ -688,11 +679,9 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     # touched by `seen`) so they queue for the next run instead of being
     # silently lost - only what's actually released/sent gets marked seen.
     max_per_model = config.get("max_per_model", 3)
-    max_per_category = config.get("max_per_category", 3)
     model_counts: dict[str, int] = {}
-    cat_counts: dict[str, int] = {}
     fresh: list[dict] = []
-    capped = cat_capped = 0
+    capped = 0
     for c in cands:
         key = f"{c['row']['source']}:{c['row']['id']}"
         if key in seen:
@@ -707,19 +696,18 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
         if model_counts.get(label, 0) >= max_per_model:
             capped += 1
             continue
-        cat = getattr(c["model"], "category", "") or "?"
-        if cat_counts.get(cat, 0) >= max_per_category:
-            cat_capped += 1
-            continue
         model_counts[label] = model_counts.get(label, 0) + 1
-        cat_counts[cat] = cat_counts.get(cat, 0) + 1
         fresh.append(c)
     # Is the queue genuinely refilling, or are we just draining a backlog? This is
     # the difference between "new opportunities daily" and "one pool, dripped out".
     print(f"[hunt] already-alerted: {len(seen)} | qualifying now: {len(all_keys)} | "
           f"never-alerted: {len(unseen)} | releasing: {min(len(unseen), config['top'])} | "
-          f"deferred by per-model cap ({max_per_model}/model): {capped} | "
-          f"by per-category cap ({max_per_category}/cat): {cat_capped}")
+          f"deferred by per-model cap ({max_per_model}/model): {capped}")
+    # 🚨 KEPT after the per-category cap was removed (Leron, 2026-08-19).
+    # Alerts are ranked purely on profit again, so a single category CAN take a
+    # whole run - that is now a deliberate choice rather than a bug, and this
+    # line is the only way to see it happening. If the "all cameras, then all
+    # watches, then dry" swing comes back, it will show up here first.
     if fresh:
         mix = {}
         for c in fresh:
