@@ -234,7 +234,7 @@ class ShopGoodwill:
 
 
 from .auctionfees import (parse_premium, premium_is_stated, parse_tax,
-                          tax_is_stated, min_increment)
+                          tax_is_stated, min_increment, card_accepted)
 
 # --- HiBid ------------------------------------------------------------------
 
@@ -373,6 +373,10 @@ class HiBid:
             "buyer_premium_guessed": not stated,
             "sales_tax_rate": tax,
             "sales_tax_guessed": not tax_is_stated(pay),
+            # Leron pays by card. A cash/wire-only house is unwinnable for him
+            # however good the price - see auctionfees.card_accepted.
+            "card_ok": card_accepted(pay),
+            "payment_info": (pay or "")[:120],
             # Free text, and the ONLY place a house states its soft close
             # ("bids in the last minute extend the close by 2 minutes").
             "bidding_notice": (auc.get("biddingNotice") or "").strip()[:400],

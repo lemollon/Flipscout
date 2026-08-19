@@ -343,3 +343,42 @@ def tax_is_stated(payment_info=None) -> bool:
     if _NO_TAX.search(text):
         return True
     return _tax_near_the_word(text) is not None
+
+
+# --------------------------------------------------------------------------
+# CAN HE ACTUALLY PAY?
+#
+# 🚨 LERON PAYS BY CARD ONLY (2026-08-19). A house taking cash or bank wire
+# only is unwinnable for him however good the price - and worse than useless,
+# because a wire cannot be reversed and carries no chargeback if the goods are
+# not as described.
+#
+# Measured across 318 open HiBid auctions: 85% take a card, 1% are cash/wire
+# only. Small, but the one he asked about was in that 1% - four Mitutoyo
+# micrometers he could not have paid for.
+# --------------------------------------------------------------------------
+
+REQUIRE_CARD = os.environ.get("FLIPSCOUT_REQUIRE_CARD", "1").strip().lower() in (
+    "1", "true", "yes", "y")
+
+_TAKES_CARD = re.compile(
+    r"visa|master\s*card|amex|american\s*express|discover|credit\s*card|"
+    r"\bdebit\b|\bcc\b|\bcard\b", re.I)
+_CASH_WIRE_ONLY = re.compile(
+    r"wire\s*transfer|cash\s*only|cashier'?s?\s*check|certified\s*funds", re.I)
+
+
+def card_accepted(payment_info=None) -> bool:
+    """False only when the house clearly states cash/wire and never a card.
+
+    🚨 SILENCE IS NOT A REFUSAL. 4% of auctions state no payment terms at all
+    and 10% are unclear; treating those as no-card would throw away a seventh
+    of the board to avoid a 1% problem. Only an explicit cash/wire-only blurb
+    counts.
+    """
+    text = (payment_info or "").strip()
+    if not text:
+        return True
+    if _TAKES_CARD.search(text):
+        return True
+    return not _CASH_WIRE_ONLY.search(text)

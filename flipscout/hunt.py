@@ -34,6 +34,7 @@ from typing import Optional
 
 from .bidding import advise
 from .hunters import build_hunters
+from .auctionfees import REQUIRE_CARD
 from .notify import describe_webhook, notify_rich
 from .ebay_ui import sold_url
 from .pricebook import comp_search, match, search_terms
@@ -268,6 +269,7 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
     by_name = {h.name: h for h in (hunters if hunters is not None
                                    else build_hunters(config["sources"]))}
     out = []
+    dropped_no_card: list[str] = []
     for row in rows:
         m = match(row.get("title", ""))
         if not m:
@@ -286,6 +288,14 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
         # thin-margin categories unprofitable, so the same item is worth ~$9 more
         # to you on Craigslist than in a shipped auction.
         inbound = 0.0 if row.get("local") else config["inbound_shipping"]
+
+        # 🚨 A lot he cannot pay for is not a deal. Cash/wire-only houses are
+        # dropped outright rather than alerted with a warning: a warning on an
+        # unbuyable lot is just noise, and a wire carries no chargeback if the
+        # goods are wrong. Counted and reported below - never silently.
+        if REQUIRE_CARD and row.get("card_ok") is False:
+            dropped_no_card.append(row.get("title", "")[:50])
+            continue
 
         # A for-parts listing must never be bid at working-item comps - haircut
         # the comp before advising, so max_bid/net_resale all scale with it.
@@ -355,6 +365,14 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
     # each group is still ranked best-profit-first within itself.
     out.sort(key=lambda c: (not c["scam_shaped"], c["advice"].profit_at_open or 0),
               reverse=True)
+    # 🚨 NO SILENT CAPS. A lot dropped for being unpayable has to be counted out
+    # loud, or "no deals today" and "three deals you cannot pay for" look
+    # identical from the outside.
+    if dropped_no_card:
+        print(f"[hunt] dropped {len(dropped_no_card)} lot(s) from cash/wire-only "
+              f"houses (you pay by card): "
+              + "; ".join(dropped_no_card[:3])
+              + (" ..." if len(dropped_no_card) > 3 else ""))
     return out
 
 

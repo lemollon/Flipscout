@@ -348,3 +348,39 @@ def test_sources_without_tax_are_untouched():
     assert advise(200.0, **kw).sales_tax_rate == 0.0
     assert advise(200.0, **kw).max_bid == advise(200.0, sales_tax_rate=0.0,
                                                  **kw).max_bid
+
+
+# --- can he actually pay? ----------------------------------------------------
+
+from flipscout.auctionfees import card_accepted
+
+
+@pytest.mark.parametrize("info", [
+    "Payment Types: CASH or Bank Wire Transfer",
+    "Payment accepted: Cash, Check or Wire Transfer. 10% buyers premium.",
+    "Cash only",
+    "Certified funds or cashiers check",
+])
+def test_a_cash_or_wire_only_house_is_unpayable(info):
+    """🚨 Leron pays by CARD ONLY. A cash/wire house is unwinnable for him at
+    any price - and worse than useless, because a wire cannot be reversed and
+    carries no chargeback if the goods are not as described. The DeCosmo lot he
+    asked about on 2026-08-19 was exactly this."""
+    assert card_accepted(info) is False
+
+
+@pytest.mark.parametrize("info", [
+    "Visa, Mastercard, Cash",
+    "We accept all major credit cards",
+    "Cash, check, or credit card (4% fee)",
+])
+def test_a_card_taking_house_is_payable(info):
+    assert card_accepted(info) is True
+
+
+@pytest.mark.parametrize("info", ["", None, "   ", "Payment due within 48 hours"])
+def test_silence_is_not_a_refusal(info):
+    """🚨 4% of auctions state no payment terms and 10% are unclear. Treating
+    those as no-card would throw away a seventh of the board to avoid a 1%
+    problem - measured across 318 open auctions."""
+    assert card_accepted(info) is True
