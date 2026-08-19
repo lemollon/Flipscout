@@ -298,11 +298,18 @@ def _hibid_ends(seconds) -> str:
     Emitted as naive local time because hours_until has no zone mapping for
     hibid and compares such values against the runner's clock.
     """
+    import math
     try:
         left = float(seconds)
     except (TypeError, ValueError):
         return ""
-    if left == 0:
+    # 🚨 inf and nan reach datetime.timedelta as OverflowError / ValueError,
+    # not as a bad number - and this runs inside the row builder, so ONE
+    # poisoned lot took down the whole HiBid search. Measured 2026-08-19.
+    if left == 0 or not math.isfinite(left):
+        return ""
+    # A countdown past ~10 years is nonsense; keep timedelta in sane territory.
+    if abs(left) > 315_360_000:
         return ""
     # 🚨 THE SIGN IS UNRELIABLE, THE MAGNITUDE IS NOT. About half of search rows
     # come back with a negative countdown on lots that plainly have days to run
@@ -445,15 +452,22 @@ class HiBid:
         out: dict[str, dict] = {}
         # Local first, so that when the same lot appears in both passes the row
         # that survives is the one flagged `nearby` (dict insert order wins).
-        if self.zip_code and self.miles:
-            for L in self._query(query, limit, self.zip_code, self.miles):
-                row = self._row(L, nearby=True)
-                if row:
+        # 🚨 PER-LOT FAIL-SOFT. _row parses vendor JSON, and a single
+        # malformed lot used to raise straight out of search() - which the
+        # source-level handler then swallowed as "HiBid returned nothing".
+        # A silent source outage is far worse than one skipped lot.
+        def _rows(pairs, nearby):
+            for L in pairs:
+                try:
+                    row = self._row(L, nearby=nearby)
+                except Exception:
+                    continue
+                if row and row["id"] not in out:
                     out[row["id"]] = row
-        for L in self._query(query, limit, None, None):
-            row = self._row(L, nearby=False)
-            if row and row["id"] not in out:
-                out[row["id"]] = row
+
+        if self.zip_code and self.miles:
+            _rows(self._query(query, limit, self.zip_code, self.miles), True)
+        _rows(self._query(query, limit, None, None), False)
         return list(out.values())
 
     _CATALOG_QUERY = _HIBID_QUERY.replace(

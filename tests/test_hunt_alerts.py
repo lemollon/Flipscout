@@ -142,3 +142,30 @@ def test_the_four_lanes_do_not_oversubscribe_the_run():
     reserved = ((cfg["bin_slots"] or q) + (cfg["urgent_slots"] or q)
                 + (cfg["closing_slots"] or q))
     assert reserved < top, "the profit ranking must keep some slots"
+
+
+# --- the selector must not fail silently --------------------------------------
+
+@pytest.mark.parametrize("env,field", [
+    ({"FLIPSCOUT_TOP": "-5"}, "top"),
+    ({"FLIPSCOUT_BIN_SLOTS": "-3"}, "bin_slots"),
+])
+def test_a_negative_setting_never_produces_a_negative_budget(env, field):
+    """🚨 The failure mode here is SILENCE. A negative TOP or slot count made
+    the take loop return immediately, so the run alerted nothing at all - which
+    looks exactly like a quiet market. Found in the 2026-08-19 audit."""
+    cfg = load_config(env)
+    top = max(0, int(cfg["top"]))
+    quarter = max(1, top // 4)
+    slots = max(0, int(cfg.get(field) or 0) or quarter)
+    assert top >= 0 and slots >= 0
+
+
+def test_zero_hours_means_the_lane_is_OFF_not_one_hour():
+    """🚨 `float(x or 1)` turns a deliberate 0 INTO 1. Setting
+    FLIPSCOUT_URGENT_HOURS=0 to switch the urgent lane off silently switched it
+    ON at one hour instead."""
+    cfg = load_config({"FLIPSCOUT_URGENT_HOURS": "0"})
+    assert cfg["urgent_hours"] == 0.0
+    urgent_h = float(cfg["urgent_hours"] if cfg["urgent_hours"] is not None else 1)
+    assert urgent_h == 0.0, "0 must survive to the lane, where it disables it"

@@ -711,31 +711,64 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     fresh: list[dict] = []
     capped = 0
 
-    top = config["top"]
-    urgent_h = float(config.get("urgent_hours", 1) or 1)
-    closing_h = float(config.get("closing_hours", 12) or 12)
-    bin_slots = int(config.get("bin_slots") or 0) or max(1, top // 4)
-    urgent_slots = int(config.get("urgent_slots") or 0) or max(1, top // 4)
-    reserved = int(config.get("closing_slots") or 0) or max(1, top // 4)
+    # 🚨 CLAMP, DO NOT TRUST. Every one of these is an env var, and the
+    # failure mode is silence: a negative TOP or a negative slot count made
+    # `_take` return immediately and the run alerted NOTHING, which looks
+    # exactly like a quiet market. Measured during the 2026-08-19 audit.
+    top = max(0, int(config["top"]))
+
+    # 🚨 `or 1` turns a deliberate 0 INTO 1. Setting FLIPSCOUT_URGENT_HOURS=0
+    # to switch the lane off silently switched it on at one hour instead. A
+    # non-positive window now means the lane is off, which is what was asked.
+    urgent_h = float(config.get("urgent_hours", 1) if
+                     config.get("urgent_hours") is not None else 1)
+    closing_h = float(config.get("closing_hours", 12) if
+                      config.get("closing_hours") is not None else 12)
+    quarter = max(1, top // 4)
+    bin_slots = max(0, int(config.get("bin_slots") or 0) or quarter)
+    urgent_slots = max(0, int(config.get("urgent_slots") or 0) or quarter)
+    reserved = max(0, int(config.get("closing_slots") or 0) or quarter)
 
     eligible = [c for c in cands
                 if f"{c['row']['source']}:{c['row']['id']}" not in seen
                 and not c.get("scam_shaped")]
 
+    taken: set = set()
+    capped_keys: set = set()
+
+    def _key(c):
+        return f"{c['row']['source']}:{c['row']['id']}"
+
     def _take(pool, limit):
-        """Fill up to `limit` slots from `pool`, honouring the per-model cap."""
+        """Fill up to `limit` slots from `pool`, honouring the per-model cap.
+
+        🚨 IDENTITY IS THE KEY, NOT THE DICT. This used to test `c in fresh`,
+        which is a DEEP EQUALITY walk over every candidate already chosen -
+        including its advice dataclass and model - once per candidate per lane.
+        Quadratic, and wrong in principle: two distinct lots that happened to
+        compare equal would silently lose one.
+        """
         nonlocal capped
+        if limit <= 0:
+            return 0
         n = 0
         for c in pool:
             if n >= limit or len(fresh) >= top:
                 break
-            if c in fresh:
+            k = _key(c)
+            if k in taken:
                 continue
             label = c["model"].label
             if model_counts.get(label, 0) >= max_per_model:
-                capped += 1
+                # 🚨 Count each lot ONCE. Lanes re-walk the same pool, so a lot
+                # blocked by the model cap was counted again in every lane and
+                # the reported figure ran far above the real one.
+                if k not in capped_keys:
+                    capped_keys.add(k)
+                    capped += 1
                 continue
             model_counts[label] = model_counts.get(label, 0) + 1
+            taken.add(k)
             fresh.append(c)
             n += 1
         return n
@@ -762,14 +795,16 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     # run, because the next run may be after it has closed. Unused urgent slots
     # are not wasted - each _take is also bounded by how many slots remain free
     # overall, so the later lanes simply pick them up.
-    urgent = [c for c in eligible
-              if _left(c) is not None and 0 <= _left(c) <= urgent_h]
+    urgent = [] if urgent_h <= 0 else [
+        c for c in eligible
+        if _left(c) is not None and 0 <= _left(c) <= urgent_h]
     urgent.sort(key=lambda c: _left(c))
     took_u = _take(urgent, urgent_slots)
 
     # Then today's closers, EXCLUDING the urgent ones already taken.
-    closing = [c for c in eligible
-               if _left(c) is not None and urgent_h < _left(c) <= closing_h]
+    closing = [] if closing_h <= 0 else [
+        c for c in eligible
+        if _left(c) is not None and max(urgent_h, 0) < _left(c) <= closing_h]
     closing.sort(key=lambda c: _left(c))
     took_c = _take(closing, reserved)
 

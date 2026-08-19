@@ -889,3 +889,39 @@ def test_fb_finds_carry_the_shared_scam_flag():
     from flipscout.fbsweep import evaluate
     hit = evaluate("Nintendo Switch OLED Console", 100.0, "Houston, TX")
     assert hit is not None and "scam_shaped" in hit
+
+
+# --- one bad lot must not take down a whole source ---------------------------
+
+def test_one_poisoned_hibid_lot_does_not_kill_the_search():
+    """🚨 _row parses vendor JSON, and a single malformed lot raised straight
+    out of search() - which the source-level handler then swallowed as "HiBid
+    returned nothing". A silent source outage is far worse than one lost lot.
+
+    Measured 2026-08-19: timeLeftSeconds of infinity reached
+    datetime.timedelta as OverflowError and took the whole page with it.
+    """
+    from flipscout.hunters import HiBid
+    lots = [
+        {"id": 1, "lead": "Fluke 87V",
+         "lotState": {"highBid": 5, "timeLeftSeconds": 3600},
+         "auction": {"id": 9, "auctioneer": {}}},
+        {"id": 2, "lead": "poisoned",
+         "lotState": {"highBid": 5, "timeLeftSeconds": float("inf")},
+         "auction": {"id": 9, "auctioneer": {}}},
+        {"id": 3, "lead": "also poisoned", "lotState": None, "auction": None},
+        {"id": 4, "lead": "Fluke 90",
+         "lotState": {"highBid": 5, "timeLeftSeconds": 7200},
+         "auction": {"id": 9, "auctioneer": {}}},
+    ]
+    h = HiBid()
+    h._query = lambda *a, **k: lots
+    rows = h.search("fluke", limit=10)
+    assert len(rows) >= 3, "the healthy lots must survive"
+    assert any(r["title"] == "Fluke 87V" for r in rows)
+
+
+@pytest.mark.parametrize("bad", [float("inf"), float("nan"), -1e12, 1e12])
+def test_a_nonfinite_countdown_yields_no_end_time_instead_of_raising(bad):
+    from flipscout.hunters import _hibid_ends
+    assert _hibid_ends(bad) == ""
