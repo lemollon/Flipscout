@@ -480,6 +480,11 @@ def run(dry_run: bool = False) -> int:
             notify(msg, subject="Flipscout snipe")
     if changed:
         save_armed(armed)
+    # Close the loop on anything that has since finished.
+    try:
+        report_outcomes(dry_run=dry_run)
+    except Exception as e:
+        print(f"outcome pass failed (non-fatal): {type(e).__name__}")
     return 0
 
 
@@ -490,6 +495,148 @@ def bidform() -> dict:
         return json.loads(BIDFORM_PATH.read_text(encoding="utf-8")) or {}
     except Exception:
         return {}
+
+
+def outcome_of(iid: str, my_max: float, d: dict) -> tuple:
+    """(result, final_price, reason) once a ShopGoodwill lot is over.
+
+    result is "won", "lost" or None when it genuinely cannot be told.
+
+    🚨 SHOPGOODWILL DOES NOT SAY WHO WON. Checked on a real ended lot with a
+    signed-in session: the page reads only "Auction Ended | Bids: 0 | Current
+    Price: $8.99" - no "you won", no "you were outbid", nothing about the
+    viewer at all. So two things are certain and the rest is not:
+
+      * nobody bid          -> certainly not ours
+      * it closed ABOVE our max -> certainly not ours
+
+    Anything else is reported as UNCLEAR with a link, rather than guessed at.
+    Claiming a win we cannot see is the mistake that cost lot 273688511.
+    """
+    final = None
+    try:
+        final = float(d.get("currentPrice") or 0)
+    except (TypeError, ValueError):
+        pass
+    bids = d.get("numBids")
+    try:
+        bids = int(bids) if bids is not None else None
+    except (TypeError, ValueError):
+        bids = None
+
+    if bids == 0:
+        return "lost", final, "nobid"      # nobody bid at all, us included
+    if final is not None and my_max and final > my_max + 1e-9:
+        return "lost", final, "outbid"     # it went past our ceiling
+
+    # Ask the page anyway - if ShopGoodwill ever starts saying it, use it.
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            ctx = p.chromium.launch_persistent_context(
+                str(PROFILE_DIR), headless=True,
+                args=["--disable-blink-features=AutomationControlled"])
+            try:
+                pg = ctx.pages[0] if ctx.pages else ctx.new_page()
+                pg.goto(f"https://shopgoodwill.com/item/{iid}", timeout=40000,
+                        wait_until="domcontentloaded")
+                pg.wait_for_timeout(4000)
+                body = pg.inner_text("body") or ""
+                if re.search(r"you won|congratulations|you are the winning bidder",
+                             body, re.I):
+                    return "won", final, "page"
+                if re.search(r"you (?:were |have been )?outbid|you did not win",
+                             body, re.I):
+                    return "lost", final, "page"
+                # 🚨 The PAGE carries the bid count even when the public API
+                # answers null for it - "Auction Ended|Bids:0". That zero is
+                # the difference between "someone outbid you" and "our bidder
+                # is broken", so it is worth the extra read.
+                m = re.search(r"Bids:\s*(\d+)", body, re.I)
+                if m and int(m.group(1)) == 0:
+                    return "lost", final, "nobid"
+            finally:
+                ctx.close()
+    except Exception:
+        pass
+    return None, final, "unclear"
+
+
+def report_outcomes(dry_run: bool = False) -> int:
+    """Tell Leron whether he WON or LOST, once the auction is over.
+
+    🚨 THIS IS THE ONLY PART THAT CLOSES THE LOOP. Everything else reports at
+    BID time - a snapshot taken minutes before the close that says nothing
+    about how it ended.
+
+    It works off what the sniper itself bid on, so unlike the Bid sentry it
+    needs no "Auctions in Progress" CSV and cannot go stale - the export Leron
+    was relying on was 19.6 days old.
+    """
+    from .notify import notify
+    try:
+        armed = load_armed()
+    except ArmedFileCorrupt:
+        return 0                           # run() already shouted
+    changed = acted = 0
+    for iid, a in list(armed.items()):
+        if a.get("status") not in ("BID", "OUTBID", "FAILED"):
+            continue
+        try:
+            d = detail(iid)
+        except Exception:
+            continue
+        left = seconds_left(d)
+        if not (d.get("isItemEndTimeExpire") or (left is not None and left <= 0)):
+            continue
+
+        cap = float(a.get("max_bid") or 0)
+        res, final, why_code = outcome_of(iid, cap, d)
+        a["status"] = {"won": "WON", "lost": "LOST"}.get(res, "ENDED_UNKNOWN")
+        a["final_price"] = final
+        changed += 1
+
+        price = f"${final:,.2f}" if final is not None else "an unknown price"
+        if res == "won":
+            lines = [f":trophy: **WON** - {a['title'][:60]}",
+                     f"Yours at **{price}**, against your ${cap:,.2f} max.",
+                     "Pay the invoice, then log it with `flipscout bought`.",
+                     a["url"]]
+        elif res == "lost":
+            # 🚨 Distinguish "outbid" from "our bid never landed". They call
+            # for completely different responses, and conflating them is how a
+            # broken bidder hides behind bad luck.
+            # 🚨 "Outbid" and "our bid never landed" call for completely
+            # different responses, and conflating them is how a broken bidder
+            # hides behind bad luck.
+            why = ""
+            if why_code == "nobid":
+                why = (" :rotating_light: **Nobody bid at all - including us.** "
+                       "Our bid never landed, so this was lost to a fault, not "
+                       "to competition.")
+            elif final is not None and final > cap:
+                why = f" It went ${final - cap:,.2f} past your max."
+            lines = [f":x: **Lost** - {a['title'][:60]}",
+                     f"Closed at **{price}**; your max was ${cap:,.2f}.{why}",
+                     "Nothing was spent.", a["url"]]
+        else:
+            lines = [f":grey_question: **Ended - outcome unclear** - "
+                     f"{a['title'][:60]}",
+                     f"Closed at **{price}**, at or under your ${cap:,.2f} max, "
+                     f"so you may have taken it.",
+                     "ShopGoodwill does not say who won on the item page - "
+                     "check your account.", a["url"]]
+        msg = "\n".join(x for x in lines if x)
+        print(msg)
+        if not dry_run:
+            try:
+                notify(msg, subject="Flipscout auction result")
+            except Exception:
+                pass
+        acted += 1
+    if changed:
+        save_armed(armed)
+    return acted
 
 
 def verify(url_or_id: str, timeout_s: int = 240) -> int:

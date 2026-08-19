@@ -277,6 +277,47 @@ def registered_authed(lid: str) -> Optional[bool]:
         return None
 
 
+def outcome_authed(lid: str) -> Optional[str]:
+    """Did Leron WIN this lot? "won" / "lost" / None if it cannot be told.
+
+    🚨 MUST BE AUTHENTICATED. `buyerBidStatus` describes whoever is asking, and
+    the cheap anonymous poll is nobody - it reads NO_BID on every lot,
+    including ones he is winning. Same trap as isRegistered.
+    """
+    from playwright.sync_api import sync_playwright
+    try:
+        with sync_playwright() as p:
+            ctx = p.chromium.launch_persistent_context(
+                str(PROFILE_DIR), headless=True,
+                args=["--disable-blink-features=AutomationControlled"])
+            try:
+                pg = ctx.pages[0] if ctx.pages else ctx.new_page()
+                pg.goto(_LOT_URL.format(lid), timeout=40000,
+                        wait_until="domcontentloaded")
+                pg.wait_for_timeout(4000)
+                if not signed_in(ctx):
+                    return None
+                html = pg.content() or ""
+                m = re.search(r'"buyerBidStatus":"([A-Z_]+)"', html)
+                status = m.group(1) if m else ""
+                if status in ("WON", "HIGH_BID", "WINNING"):
+                    return "won"
+                if status in ("LOST", "OUTBID"):
+                    return "lost"
+                body = (pg.inner_text("body") or "")
+                if re.search(r"you won|congratulations", body, re.I):
+                    return "won"
+                if re.search(r"you (?:were |have been )?outbid|you lost", body, re.I):
+                    return "lost"
+                if status == "NO_BID":
+                    return "lost"          # ended with no bid of ours standing
+                return None
+            finally:
+                ctx.close()
+    except Exception:
+        return None
+
+
 def seconds_left(d: dict) -> Optional[float]:
     v = d.get("left")
     try:
@@ -756,6 +797,11 @@ def run(dry_run: bool = False) -> int:
             notify(msg, subject="Flipscout HiBid snipe")
     if changed:
         save_armed(armed)
+    # Close the loop on anything that has since finished.
+    try:
+        report_outcomes(dry_run=dry_run)
+    except Exception as e:
+        print(f"outcome pass failed (non-fatal): {type(e).__name__}")
     return 0
 
 
@@ -917,6 +963,79 @@ def verify(url_or_id: str, timeout_s: int = 240) -> int:
         print("The sniper is now allowed to bid on armed lots.")
         ctx.close()
         return 0
+
+
+def report_outcomes(dry_run: bool = False) -> int:
+    """Tell Leron whether he WON or LOST, once each auction is over.
+
+    🚨 THIS IS THE ONLY PART THAT CLOSES THE LOOP. Everything else reports at
+    BID time - "you are winning, $6.01 under your max" - which is a snapshot
+    taken minutes before the close and says nothing about how it ended. Without
+    this the last thing he ever hears about a lot is a guess.
+
+    It works off what the sniper itself bid on, so unlike the Bid sentry it
+    needs no CSV export and cannot go stale.
+    """
+    from .notify import notify
+    try:
+        armed = load_armed()
+    except ArmedFileCorrupt:
+        return 0                           # run() already shouted about this
+    changed = acted = 0
+    for lid, a in list(armed.items()):
+        if a.get("status") not in ("BID", "OUTBID"):
+            continue
+        try:
+            d = detail(lid)
+        except Exception:
+            continue
+        # Only once it is genuinely over.
+        if not (d.get("gone") or d.get("closed")
+                or (seconds_left(d) or 1) <= 0):
+            continue
+
+        final = d.get("high_bid")
+        res = outcome_authed(lid)
+        a["status"] = {"won": "WON", "lost": "LOST"}.get(res, "ENDED_UNKNOWN")
+        a["final_price"] = final
+        changed += 1
+
+        prem = float(a.get("premium") or 0)
+        tax = float(a.get("tax") or 0)
+        cap = float(a.get("max_bid") or 0)
+        if res == "won":
+            allin = (final or 0) * (1 + prem) * (1 + tax)
+            lines = [f":trophy: **WON** - {a['title'][:60]}",
+                     f"Hammer **${final:,.2f}** against your ${cap:,.2f} max."
+                     if final is not None else f"Your max was ${cap:,.2f}.",
+                     f"**${allin:,.2f} all-in** with premium and tax."
+                     if final is not None and (prem or tax) else "",
+                     "Pay the invoice, then log it with `flipscout bought`.",
+                     a["url"]]
+        elif res == "lost":
+            lines = [f":x: **Lost** - {a['title'][:60]}",
+                     (f"It went for **${final:,.2f}**; your max was "
+                      f"${cap:,.2f} - beaten by ${max(0, (final or 0) - cap):,.2f}."
+                      if final is not None else
+                      f"Your max was ${cap:,.2f}."),
+                     "Nothing was spent.", a["url"]]
+        else:
+            lines = [f":grey_question: **Ended, outcome unclear** - "
+                     f"{a['title'][:60]}",
+                     f"It closed at ${final:,.2f}. " if final is not None else "",
+                     "Check the lot yourself - the site did not say whether "
+                     "you took it.", a["url"]]
+        msg = "\n".join(x for x in lines if x)
+        print(msg)
+        if not dry_run:
+            try:
+                notify(msg, subject="Flipscout auction result")
+            except Exception:
+                pass
+        acted += 1
+    if changed:
+        save_armed(armed)
+    return acted
 
 
 def login(timeout_s: int = 300) -> int:
