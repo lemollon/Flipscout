@@ -289,6 +289,55 @@ def registered_authed(lid: str) -> Optional[bool]:
         return None
 
 
+
+# Terms that change whether a lot is worth winning, not just what it costs.
+#
+# 🚨 LERON SAID "ASSUME I ACCEPT THE TERMS WHEN I TAP THE TARGET". Taken
+# literally that means auto-registering, and this is why the answer is to show
+# him the terms instead:
+#
+#   * The terms are not uniform. Lot 313948695 (DeCosmo Industrial, 2026-08-19)
+#     is CASH OR BANK WIRE ONLY - no card, so no chargeback and an irreversible
+#     payment - with ALL LOTS MUST BE REMOVED BY SEPTEMBER 4TH (NO EXCEPTIONS)
+#     and daily storage charges after. Those are not consumer terms, and no
+#     standing "yes" should cover them sight unseen.
+#   * Registration is often not a click. That same house reserves bidder
+#     approval "at their sole discretion" and "may require a registration
+#     deposit", so a bot cannot complete it anyway.
+#
+# So the automation is: read the terms that bite, put them in front of him, and
+# let one informed tap do the rest.
+_TERM_PATTERNS = (
+    ("payment", re.compile(r"Payment\s+Types?:\s*([^\r\n|]{0,60})", re.I)),
+    ("removal", re.compile(r"(ALL LOTS MUST BE REMOVED[^.\r\n]{0,60}"
+                           r"|FINAL DATE FOR REMOVAL[^.\r\n]{0,60})", re.I)),
+    ("approval", re.compile(r"(reserves the right to deny bidding[^.]{0,70}"
+                            r"|require a registration deposit[^.]{0,40})", re.I)),
+)
+
+# Payment methods with no buyer protection. A wire cannot be reversed.
+_HARD_PAYMENT = re.compile(r"wire\s*transfer|cash\s*only|cashier'?s?\s*check", re.I)
+
+
+def terms_flags(lid: str) -> dict:
+    """The handful of auction terms that decide whether to bid at all."""
+    out = {}
+    try:
+        t = requests.get(_LOT_URL.format(lid), headers={"User-Agent": _UA},
+                         timeout=30).text
+    except Exception:
+        return out
+    flat = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", t))
+    for key, pat in _TERM_PATTERNS:
+        m = pat.search(flat)
+        if m:
+            out[key] = (m.group(1) if m.groups() else m.group(0)).strip()[:70]
+    pay = out.get("payment", "")
+    out["no_card"] = bool(_HARD_PAYMENT.search(pay)) and not re.search(
+        r"credit|visa|master|card", pay, re.I)
+    return out
+
+
 def outcome_authed(lid: str) -> Optional[str]:
     """Did Leron WIN this lot? "won" / "lost" / None if it cannot be told.
 

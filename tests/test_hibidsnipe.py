@@ -685,3 +685,38 @@ def test_no_temp_file_is_left_behind(monkeypatch, tmp_path):
     monkeypatch.setattr(H, "ARMED_PATH", p)
     H.save_armed({"a": {"max_bid": 1.0}})
     assert not list(tmp_path.glob("*.tmp")), "the temp file must not linger"
+
+
+# --- terms that decide whether to bid at all ---------------------------------
+
+def test_cash_or_wire_only_is_flagged_as_no_card(monkeypatch):
+    """🚨 Leron said "assume I accept the terms when I tap the target". Lot
+    313948695 is CASH OR BANK WIRE ONLY - no card, so no chargeback and a wire
+    cannot be reversed - with a hard removal deadline. A standing yes must not
+    cover terms like that sight unseen, so they go in front of him instead."""
+    class R:
+        text = ("Payment Types: Cash or Bank Wire Transfer "
+                "Removal: ALL LOTS MUST BE REMOVED BY SEPTEMBER 4th, 2026 "
+                "reserves the right to deny bidding privileges to any customer "
+                "and may require a registration deposit")
+        def raise_for_status(self): pass
+    monkeypatch.setattr(H.requests, "get", lambda *a, **k: R())
+    f = H.terms_flags("1")
+    assert f["no_card"] is True
+    assert "REMOVED BY SEPTEMBER" in f["removal"]
+    assert "deny bidding" in f["approval"]
+
+
+def test_a_card_paying_house_is_not_flagged(monkeypatch):
+    class R:
+        text = "Payment Types: Visa, Mastercard, Cash"
+        def raise_for_status(self): pass
+    monkeypatch.setattr(H.requests, "get", lambda *a, **k: R())
+    assert H.terms_flags("1")["no_card"] is False
+
+
+def test_terms_never_break_the_arm(monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("network down")
+    monkeypatch.setattr(H.requests, "get", boom)
+    assert H.terms_flags("1") == {}

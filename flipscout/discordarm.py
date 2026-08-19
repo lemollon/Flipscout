@@ -284,6 +284,29 @@ def _confirm(site: str, iid: str, amount: float, detail: dict,
                     f"~{secs / 60:.0f} min from now.")
     except Exception:
         pass
+    # 🚨 Put the terms that BITE in front of him at arm time. He asked that a
+    # tap imply accepting them; the honest way to honour that is to make sure
+    # he has actually seen the unusual ones first - cash-or-wire-only payment
+    # and a hard removal deadline are not things a standing yes should cover.
+    terms = []
+    if site == "hibid":
+        try:
+            from . import hibidsnipe as _hb
+            f = _hb.terms_flags(iid)
+            if f.get("no_card"):
+                terms.append(f":rotating_light: **{f.get('payment', 'No card')}** "
+                             f"- no card, so no chargeback and a wire cannot be "
+                             f"reversed.")
+            elif f.get("payment"):
+                terms.append(f"Payment: {f['payment']}")
+            if f.get("removal"):
+                terms.append(f":truck: {f['removal']}")
+            if f.get("approval"):
+                terms.append(":lock: This house approves bidders by hand and may "
+                             "want a deposit - registering is not instant.")
+        except Exception:
+            pass
+
     prem = float((detail or {}).get("premium") or 0)
     allin = f" (~${amount * (1 + prem):,.2f} all-in)" if prem else ""
     lines = [
@@ -292,7 +315,7 @@ def _confirm(site: str, iid: str, amount: float, detail: dict,
         + ("  _(stretched over the book to win it)_" if stretch else ""),
         f"**No bid has been placed yet.**{left} You'll get another message "
         f"telling you what it actually cost.",
-    ]
+    ] + terms
     try:
         notify("\n".join(lines), subject="Flipscout armed")
     except Exception:
