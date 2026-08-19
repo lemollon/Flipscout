@@ -754,8 +754,8 @@ def run(dry_run: bool = False) -> int:
             a["warned_unregistered"] = True
             changed = True
             msg = (f":lock: **Cannot snipe - you are not registered** for this "
-                   f"auction.\n{a['title'][:60]}\nRegister on the lot page and "
-                   f"it will bid as armed. Closes in {left / 60:.0f} min.\n{a['url']}")
+                   f"auction.\n{(a.get('title') or '(untitled)')[:60]}\nRegister on the lot page and "
+                   f"it will bid as armed. Closes in {left / 60:.0f} min.\n{a.get('url', '')}")
             print(msg)
             if not dry_run:
                 notify(msg, subject="Flipscout HiBid - register to bid")
@@ -767,8 +767,8 @@ def run(dry_run: bool = False) -> int:
         if left < ABORT_UNDER_S:
             a["status"] = "MISSED"
             changed = True
-            msg = (f":warning: **Snipe MISSED** {a['title'][:60]} - only "
-                   f"{left:.0f}s left when checked.\n{a['url']}")
+            msg = (f":warning: **Snipe MISSED** {(a.get('title') or '(untitled)')[:60]} - only "
+                   f"{left:.0f}s left when checked.\n{a.get('url', '')}")
             print(msg)
             if not dry_run:
                 notify(msg, subject="Flipscout HiBid snipe missed")
@@ -789,8 +789,8 @@ def run(dry_run: bool = False) -> int:
         if need > cap:
             a["status"] = "PASSED_TOO_HIGH"
             changed = True
-            msg = (f":no_entry: **Snipe passed** {a['title'][:60]} - the next "
-                   f"required bid is ${need:.2f}, above your ${cap:.2f} max.\n{a['url']}")
+            msg = (f":no_entry: **Snipe passed** {(a.get('title') or '(untitled)')[:60]} - the next "
+                   f"required bid is ${need:.2f}, above your ${cap:.2f} max.\n{a.get('url', '')}")
             print(msg)
             if not dry_run:
                 notify(msg, subject="Flipscout HiBid snipe passed")
@@ -826,7 +826,7 @@ def run(dry_run: bool = False) -> int:
         prem = float(a.get("premium") or d.get("premium") or 0)
         icon = ":dart:" if ok else (":raised_hand:" if outbid else ":x:")
         lines = [f"{icon} **HiBid snipe {'(dry run) ' if dry_run else ''}{a['status']}** "
-                 f"on {a['title'][:60]}",
+                 f"on {(a.get('title') or '(untitled)')[:60]}",
                  f"bid when it fired: **${before:.2f}**  (needed ${need:.2f})",
                  f"your armed max: **${cap:.2f}** hammer"]
         if after is not None:
@@ -851,7 +851,7 @@ def run(dry_run: bool = False) -> int:
         if d.get("extended"):
             lines.append("_This auction soft-closed and extended. Your max is a "
                          "standing proxy bid and still stands - no second bid._")
-        lines += [detail_msg, a["url"]]
+        lines += [detail_msg, a.get("url", "")]
         msg = "\n".join(lines)
         print(msg)
         if not dry_run:
@@ -1026,6 +1026,19 @@ def verify(url_or_id: str, timeout_s: int = 240) -> int:
         return 0
 
 
+def _num(v, default: float = 0.0) -> float:
+    """A float from whatever the armed file happens to hold.
+
+    🚨 Entries are written by several code paths and have gained fields all
+    session; a string or None where a number was expected used to raise and
+    take the whole outcome pass down with it.
+    """
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return default
+
+
 def report_outcomes(dry_run: bool = False) -> int:
     """Tell Leron whether he WON or LOST, once each auction is over.
 
@@ -1061,31 +1074,31 @@ def report_outcomes(dry_run: bool = False) -> int:
         a["final_price"] = final
         changed += 1
 
-        prem = float(a.get("premium") or 0)
-        tax = float(a.get("tax") or 0)
-        cap = float(a.get("max_bid") or 0)
+        prem = _num(a.get("premium"))
+        tax = _num(a.get("tax"))
+        cap = _num(a.get("max_bid"))
         if res == "won":
             allin = (final or 0) * (1 + prem) * (1 + tax)
-            lines = [f":trophy: **WON** - {a['title'][:60]}",
+            lines = [f":trophy: **WON** - {(a.get('title') or '(untitled)')[:60]}",
                      f"Hammer **${final:,.2f}** against your ${cap:,.2f} max."
                      if final is not None else f"Your max was ${cap:,.2f}.",
                      f"**${allin:,.2f} all-in** with premium and tax."
                      if final is not None and (prem or tax) else "",
                      "Pay the invoice, then log it with `flipscout bought`.",
-                     a["url"]]
+                     a.get("url", "")]
         elif res == "lost":
-            lines = [f":x: **Lost** - {a['title'][:60]}",
+            lines = [f":x: **Lost** - {(a.get('title') or '(untitled)')[:60]}",
                      (f"It went for **${final:,.2f}**; your max was "
                       f"${cap:,.2f} - beaten by ${max(0, (final or 0) - cap):,.2f}."
                       if final is not None else
                       f"Your max was ${cap:,.2f}."),
-                     "Nothing was spent.", a["url"]]
+                     "Nothing was spent.", a.get("url", "")]
         else:
             lines = [f":grey_question: **Ended, outcome unclear** - "
-                     f"{a['title'][:60]}",
+                     f"{(a.get('title') or '(untitled)')[:60]}",
                      f"It closed at ${final:,.2f}. " if final is not None else "",
                      "Check the lot yourself - the site did not say whether "
-                     "you took it.", a["url"]]
+                     "you took it.", a.get("url", "")]
         msg = "\n".join(x for x in lines if x)
         print(msg)
         if not dry_run:

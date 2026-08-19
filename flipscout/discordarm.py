@@ -307,7 +307,12 @@ def _confirm(site: str, iid: str, amount: float, detail: dict,
         except Exception:
             pass
 
-    prem = float((detail or {}).get("premium") or 0)
+    # Tolerant: the armed/detail dicts are built by several paths and a
+    # string here used to raise AFTER the arm had already succeeded.
+    try:
+        prem = float((detail or {}).get("premium") or 0)
+    except (TypeError, ValueError):
+        prem = 0.0
     allin = f" (~${amount * (1 + prem):,.2f} all-in)" if prem else ""
     lines = [
         f":dart: **Armed** - {title[:70]}",
@@ -505,7 +510,14 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             if not dry_run:
                 mod.arm(iid, use, override=bool(stretch))
                 _react(channel, m["id"], ACK_EMOJI, token)
-                _confirm(site, iid, use, d, stretch, m)
+                # 🚨 The arm is the work; the message is a receipt. A crash
+                # here used to kill scan() AFTER the lot was armed, so every
+                # remaining card in that poll went unprocessed.
+                try:
+                    _confirm(site, iid, use, d, stretch, m)
+                except Exception as e:
+                    print(f"{iid}: armed, but the confirmation failed "
+                          f"({type(e).__name__})")
             acted += 1
     if not acted:
         print("nothing to arm or disarm")

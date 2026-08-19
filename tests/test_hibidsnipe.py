@@ -720,3 +720,37 @@ def test_terms_never_break_the_arm(monkeypatch):
         raise RuntimeError("network down")
     monkeypatch.setattr(H.requests, "get", boom)
     assert H.terms_flags("1") == {}
+
+
+# --- the armed file has drifted all session ----------------------------------
+
+@pytest.mark.parametrize("entry", [
+    {"lot_id": "317852714", "max_bid": 50.0, "status": "BID", "url": "u"},   # no title
+    {"lot_id": "317852714", "title": "x", "status": "BID", "url": "u"},      # no max
+    {"lot_id": "317852714", "title": "x", "max_bid": None, "status": "BID",
+     "url": "u"},
+    {"lot_id": "317852714", "title": "x", "max_bid": 5.0, "status": "BID"},  # no url
+    {"lot_id": "317852714", "title": "x", "max_bid": 5.0, "status": "BID",
+     "url": "u", "premium": "oops"},                                        # junk
+])
+def test_a_legacy_armed_entry_does_not_kill_outcome_reporting(monkeypatch, entry):
+    """🚨 The armed file gained fields all through 2026-08-19 - premium, tax,
+    landed_at_max, stretch, gone_strikes, final_price - so an entry written an
+    hour earlier can be missing any of them.
+
+    run() wraps the outcome pass in a try/except, so ONE malformed entry
+    silently killed win/lose reporting for EVERY lot. Silence is the failure
+    mode that looks exactly like a quiet day.
+    """
+    H.save_armed({entry["lot_id"]: entry})
+    monkeypatch.setattr(H, "detail", lambda lid: _detail(closed=True, left=0))
+    monkeypatch.setattr(H, "outcome_authed", lambda lid: None)
+    H.report_outcomes(dry_run=True)          # must not raise
+
+
+def test_num_reads_whatever_the_file_holds():
+    assert H._num(None) == 0.0
+    assert H._num("oops") == 0.0
+    assert H._num("12.5") == 12.5
+    assert H._num(3) == 3.0
+    assert H._num(None, 7.0) == 7.0

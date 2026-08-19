@@ -565,3 +565,20 @@ def test_an_unreachable_detail_does_not_crash_the_confirmation(monkeypatch):
     calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI)])
     discordarm.scan()
     assert calls, "it must fall back to the card's ceiling and still arm"
+
+
+def test_a_broken_confirmation_never_costs_the_rest_of_the_poll(monkeypatch):
+    """🚨 _confirm used to raise on a junk premium AFTER the arm had already
+    succeeded, killing scan() - so every remaining card in that poll went
+    unprocessed. The arm is the work; the message is a receipt."""
+    def boom(*a, **k):
+        raise ValueError("bad premium")
+    monkeypatch.setattr(discordarm, "_confirm", boom)
+    calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI)])
+    discordarm.scan()                        # must not raise
+    assert calls, "the arm must still have happened"
+
+
+def test_confirm_tolerates_a_junk_premium():
+    discordarm._confirm("hibid", "123456789", 41.34,
+                        {"title": "x", "premium": "bad"}, 0.0, {})
