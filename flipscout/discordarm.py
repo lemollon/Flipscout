@@ -387,6 +387,15 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
                       f"reply `snipe <amount>` instead")
                 if not dry_run:
                     _react(channel, m["id"], NOPE_EMOJI, token)
+                    try:
+                        from .notify import notify
+                        notify(":warning: **NOT armed** - that card never "
+                               "printed a ceiling, so there is no number to "
+                               "arm at.\nReply `snipe <amount>` to that card "
+                               "with the figure you want.",
+                               subject="Flipscout could not arm")
+                    except Exception:
+                        pass
                 continue
             # 🚨 RE-VALIDATE THE CARD AGAINST TODAY'S BOOK.
             #
@@ -420,10 +429,25 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             except Exception:
                 fresh = ceiling          # cannot check -> trust the card
             if fresh is None:
+                # 🚨 SAY IT OUT LOUD. A refusal used to leave only a ⚠ chip,
+                # which produces no push - so a tap that was DECLINED looked
+                # exactly like a tap that worked. Leron hit 🎯 on a lot on
+                # 2026-08-19, got nothing, and had no way to know it had been
+                # turned down rather than armed.
                 print(f"{iid}: the book no longer prices this - card ceiling "
                       f"${ceiling:.2f} is stale. Reply `snipe <amount>` to override.")
                 if not dry_run:
                     _react(channel, m["id"], NOPE_EMOJI, token)
+                    try:
+                        from .notify import notify
+                        notify(
+                            f":warning: **NOT armed** - the book will not price "
+                            f"this any more, so the card's ${ceiling:,.2f} "
+                            f"ceiling is stale.\nNothing is watching it. To bid "
+                            f"anyway, reply `snipe <amount>` to that card.",
+                            subject="Flipscout could not arm")
+                    except Exception:
+                        pass
                 continue
             use = min(ceiling, fresh)
             if use < ceiling:

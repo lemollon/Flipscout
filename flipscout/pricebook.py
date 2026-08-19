@@ -143,6 +143,13 @@ def _console_include(platform: str, model_numbers: str = "") -> str:
 # paperback worth about $15. Applied to EVERY model, because this failure mode is
 # universal - guides, boxes, manuals, cases and posters all share the title.
 ACCESSORY_EXCLUDE = (
+    # 🚨 CONSOLE-SHAPED ACCESSORIES. Caught on the live board 2026-08-19:
+    # "3 Sega Dreamcast jump Packs" - three ~$10 rumble packs - matched
+    # the $95 Dreamcast CONSOLE, because that model's include is a bare
+    # `dreamcast` with no hardware-noun requirement. `controller` and
+    # `memory card` were already excluded; the pack shapes were not.
+    r"jump\s*pack|rumble\s*pack|vibration\s*pack|expansion\s*pak|"
+    r"\bvmu\b|memory\s*pak|"
     r"strategy\s*guide|game\s*guide|player'?s?\s*guide|prima\s*games|nintendo\s*power|"
     r"\bguide\b|\bbook\b|paperback|magazine|poster|\bposter\b|sticker|decal|"
     r"\bempty\b|box only|case only|cover only|manual only|insert only|label only|"
@@ -2290,6 +2297,60 @@ MULTI_EVIDENCE = re.compile(
 )
 
 
+# An explicit quantity at the HEAD of the title: "LOT (4) MITUTOYO ...",
+# "Lot of 4 Mitutoyo ...", "4x Mitutoyo ...", "(4) Mitutoyo ...".
+#
+# 🚨 THE COUNT MUST SIT IMMEDIATELY BEFORE THE MODEL, and that restriction is
+# the whole safety of this. A quantity describes the LOT, not necessarily the
+# thing we matched: "LOT (4) CAMERA BAGS AND A CANON AE-1" is four bags and ONE
+# camera, and counting four cameras would quadruple the ceiling - the expensive
+# direction to be wrong in. So the model's matched text has to start within a
+# few characters of the count, which is true of "LOT (4) MITUTOYO" and false of
+# anything with other goods in between.
+_LEAD_QTY = re.compile(
+    r"^\s*(?:lot\s*(?:of\s*)?)?\(?\s*(\d{1,2})"
+    # 🚨 A leading number is often NOT a count. Measured on the live board:
+    #   6.75" Silver Toned Citizen Eco-Drive   -> a WRIST SIZE, read as x6
+    #   2-Tone Stainless CITIZEN Eco Drive     -> a COLOUR, read as x2
+    # So reject a decimal, a compound adjective, and any dimension unit.
+    r"""(?![\d.\-"'′″]|\s*(?:mm|cm|in\b|inch|ft\b|k\b))"""
+    r"\s*\)?\s*(?:x\b\s*|pc\.?s?\b\s*|pieces?\b\s*)?", re.I)
+
+# Above this a "lot of N" is bulk junk (screws, cards) rather than N sellable
+# units, and pricing it per-unit would be absurd.
+_MAX_LEAD_QTY = 12
+
+
+def _leading_quantity(t: str, model: Model) -> int:
+    """N from an explicit head-of-title count, or 1."""
+    m = _LEAD_QTY.match(t)
+    if not m:
+        return 1
+    try:
+        n = int(m.group(1))
+    except (TypeError, ValueError):
+        return 1
+    if not 2 <= n <= _MAX_LEAD_QTY:
+        return 1
+    # 🚨 A WHOLE-TITLE ASSERTION MATCHES AT POSITION 0, ALWAYS. Models built by
+    # _citizen / _console_include compile to "^(?=.*a)(?=.*b).*$", so the
+    # adjacency test below is meaningless for them - everything looks adjacent.
+    # That produced exactly the over-count this guard exists to prevent, on the
+    # live board: "Lot of 4 Watches Seiko Quartz ... Citizen Eco-Drive" priced
+    # FOUR Citizens out of a mixed-brand lot. For assertion models the count
+    # cannot be tied to the thing matched, so it is not trusted at all.
+    if model.include.lstrip().startswith("^(?="):
+        return 1
+    hit = re.search(model.include, t)
+    if not hit:
+        return 1
+    # The model must be what the count is counting - i.e. it starts right where
+    # the count phrase ends, not after a list of other goods.
+    if hit.start() - m.end() > 12:
+        return 1
+    return n
+
+
 def count_units(title: str, model: Model) -> int:
     """How many of `model` the title claims.
 
@@ -2310,9 +2371,14 @@ def count_units(title: str, model: Model) -> int:
         s = " ".join(m.group(0).split())
         counts[s] = counts.get(s, 0) + 1
     hits = max(counts.values(), default=0)
-    if hits <= 1:
-        return 1
-    return hits if MULTI_EVIDENCE.search(t) else 1
+    if hits > 1 and MULTI_EVIDENCE.search(t):
+        return hits
+    # 🚨 An explicit count beats repetition, and used to be ignored entirely:
+    # "LOT (4) MITUTOYO 0-1\" DIGITAL MICROMETERS" names the model once, so
+    # this returned 1 and priced four micrometers as one - a $30 ceiling on a
+    # lot worth $191 (measured 2026-08-19). Every multi-item lot was
+    # under-priced the same way.
+    return _leading_quantity(t, model)
 
 # --- benched categories -----------------------------------------------------
 # Leron 2026-08-15: "i dont want to flip clothes, i like the cameras, watches

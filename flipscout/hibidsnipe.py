@@ -189,9 +189,21 @@ def bidform_ok() -> bool:
 
 
 def _blob(text: str, key: str):
-    """Pull one JSON value out of the page's embedded state."""
-    m = re.search(rf'"{key}":\s*(\{{.*?\}}|\[.*?\]|"[^"]*"|true|false|null|-?[\d.]+)',
-                  text, re.S)
+    """Pull one JSON value out of the page's embedded state.
+
+    🚨 THE STRING BRANCH MUST ALLOW ESCAPED QUOTES. `"[^"]*"` stops at the
+    first quote character, and an INCH MARK inside a title is exactly that:
+
+        "lead":"LOT (4) MITUTOYO 0-1\" DIGITAL MICROMETERS"
+
+    That captured a truncated fragment, json.loads rejected it, and the title
+    came back empty - so the book could not price the lot and arming was
+    refused as "stale". Measured 2026-08-19 on a lot Leron tapped. Inch marks
+    are everywhere in tool listings, so this silently blocked a whole category.
+    """
+    m = re.search(
+        rf'"{key}":\s*(\{{.*?\}}|\[.*?\]|"(?:[^"\\]|\\.)*"|true|false|null|-?[\d.]+)',
+        text, re.S)
     if not m:
         return None
     try:

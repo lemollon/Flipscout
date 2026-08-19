@@ -1389,3 +1389,85 @@ def test_merchandise_carrying_a_camera_name_is_not_the_camera():
     assert match("Canon PowerShot G7 X Name Tag From Japan") is None
     assert match("Canon G7X Fridge Magnet") is None
     assert match("Canon PowerShot G7X Mark II Untested") is not None
+
+# --- an explicit count at the head of the title ------------------------------
+
+@pytest.mark.parametrize("title,want", [
+    ('LOT (4) MITUTOYO 0-1" DIGITAL MICROMETERS', 4),
+    ("Lot of 4 Mitutoyo micrometers", 4),
+    ("4x Mitutoyo micrometer", 4),
+    ("(3) Mitutoyo micrometers", 3),
+])
+def test_an_explicit_lot_count_is_honoured(title, want):
+    """🚨 count_units only counted REPEATED mentions, so a title naming the
+    model once - "LOT (4) MITUTOYO ..." - priced four micrometers as one.
+    Measured 2026-08-19 on a live lot: a $30.40 ceiling on a lot worth $191.
+    Every multi-item lot was under-priced the same way.
+    """
+    m = match(title)
+    assert m is not None and m.units == want
+
+
+@pytest.mark.parametrize("title", [
+    # 🚨 The quantity counts the LOT, not necessarily the thing we matched.
+    "LOT (4) CAMERA BAGS AND A CANON AE-1 35mm SLR Camera",
+    "Lot of 6 lenses with one Canon AE-1 35mm SLR Camera",
+    "LOT (500) SCREWS AND A Mitutoyo micrometer",
+])
+def test_a_count_that_is_not_counting_the_model_is_ignored(title):
+    """Over-counting quadruples the ceiling, which is the expensive direction
+    to be wrong in. The model must start right where the count ends."""
+    m = match(title)
+    assert m is not None and m.units == 1
+
+
+@pytest.mark.parametrize("title", [
+    # 🚨 Models built with _console_include / _citizen compile to a WHOLE-TITLE
+    # assertion, which matches at position 0 - so the "is the count next to the
+    # model" test is meaningless for them and the count is not trusted at all.
+    # Deliberately conservative: it under-counts a genuine "Lot of 2 Switch
+    # consoles" rather than over-count a mixed-brand watch lot, which is what
+    # it was actually doing on the live board.
+    "Lot of 2 Nintendo Switch consoles",
+    "Lot of 4 Watches Seiko Quartz 2-Tone Silver Citizen Eco-Drive",
+])
+def test_assertion_style_models_never_trust_a_count(title):
+    m = match(title)
+    assert m is None or m.units == 1
+
+
+@pytest.mark.parametrize("title,want", [
+    # 🚨 A leading number is often not a count at all. Both measured live:
+    ('6.75" Silver Toned Citizen Eco-Drive Wrist Watch', 1),   # a WRIST SIZE
+    ("2-Tone Stainless CITIZEN Eco Drive E100-K17543 WR100", 1),  # a COLOUR
+])
+def test_a_measurement_or_colour_is_not_a_quantity(title, want):
+    m = match(title)
+    assert m is None or m.units == want
+
+
+def test_a_console_shaped_accessory_is_not_a_console():
+    """🚨 "3 Sega Dreamcast jump Packs" - three ~$10 rumble packs - matched the
+    $95 Dreamcast CONSOLE, because that model's include is a bare `dreamcast`
+    with no hardware-noun requirement. The count change turned one bad match
+    into three."""
+    assert match("3 Sega Dreamcast jump Packs") is None
+    assert match("Sega Dreamcast jump Pack") is None
+    assert match("Nintendo 64 Expansion Pak") is None
+    assert match("Sega Dreamcast Console") is not None
+
+
+def test_a_bulk_quantity_is_not_priced_per_unit():
+    """"Lot of 20" is bulk junk, not 20 sellable units."""
+    m = match("Lot of 20 Mitutoyo micrometers")
+    assert m is not None and m.units == 1
+
+
+@pytest.mark.parametrize("title", [
+    "Mitutoyo micrometer",
+    "Sony Cybershot DSC-W70 3X Zoom",          # a zoom spec, not a lot of three
+    "Fluke 175 True RMS Digital Multimeter",   # a model number, not a count
+])
+def test_single_items_are_unaffected(title):
+    m = match(title)
+    assert m is not None and m.units == 1
