@@ -255,6 +255,50 @@ def seed_missing(msgs: list, channel: str, token: str, dry_run: bool = False) ->
     return done
 
 
+def _confirm(site: str, iid: str, amount: float, detail: dict,
+             stretch: float, msg: dict) -> None:
+    """Post a real message saying the lot is armed.
+
+    🚨 A REACTION IS NOT A NOTIFICATION. Arming used to leave only a ✅ chip on
+    the card, which produces no push and is invisible on a phone. Leron armed a
+    lot on 2026-08-18, saw nothing, and reasonably assumed it had failed - the
+    tick was there, he just could not see it.
+
+    🚨 IT ALSO HAS TO SAY THAT NO BID HAS BEEN PLACED. His words were "I did
+    not get anything confirming I made the bid", and he had not made one: 🎯
+    arms, and the bid happens three minutes before the close. A confirmation
+    that does not draw that line invites exactly this confusion again.
+    """
+    from .notify import notify
+    title = (detail.get("title") if isinstance(detail, dict) else "") or ""
+    if not title:
+        for e in (msg.get("embeds") or []):
+            title = e.get("title") or title
+    left = ""
+    try:
+        secs = float(detail.get("left") if site == "hibid"
+                     else __import__("flipscout.snipe", fromlist=["x"])
+                     .seconds_left(detail))
+        if secs > 0:
+            left = (f" It fires about 3 minutes before the close, "
+                    f"~{secs / 60:.0f} min from now.")
+    except Exception:
+        pass
+    prem = float((detail or {}).get("premium") or 0)
+    allin = f" (~${amount * (1 + prem):,.2f} all-in)" if prem else ""
+    lines = [
+        f":dart: **Armed** - {title[:70]}",
+        f"Max bid **${amount:,.2f}**{allin}"
+        + ("  _(stretched over the book to win it)_" if stretch else ""),
+        f"**No bid has been placed yet.**{left} You'll get another message "
+        f"telling you what it actually cost.",
+    ]
+    try:
+        notify("\n".join(lines), subject="Flipscout armed")
+    except Exception:
+        pass                               # never let this block the arm
+
+
 def scan(limit: int = 50, dry_run: bool = False) -> int:
     """Poll the channel and act on 🎯 / ❌ / `snipe <n>` replies."""
     token, channel = _cfg()
@@ -295,6 +339,11 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
         if not dry_run:
             mod.arm(iid, val, override=True)     # he named the number himself
             _react(channel, rep.get("id") or m["id"], ACK_EMOJI, token)
+            try:
+                _confirm(site, iid, val, mod.detail(iid), 0.0,
+                         by_id.get(rep.get("id"), rep))
+            except Exception:
+                pass
         acted += 1
 
     for m in msgs:
@@ -322,6 +371,12 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             print(f"disarm {site} {iid}")
             if not dry_run:
                 mod.disarm(iid)
+                try:
+                    from .notify import notify
+                    notify(f":x: **Disarmed** - {iid} will not be bid on.",
+                           subject="Flipscout disarmed")
+                except Exception:
+                    pass
             acted += 1
             continue
         if (emojis & {ARM_EMOJI, STRETCH_EMOJI}) and iid not in armed:
@@ -345,6 +400,11 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             # An explicit `snipe 45` reply is different and is NOT re-checked -
             # there he named the number himself and may well be overriding on
             # purpose.
+            # 🚨 Initialise BEFORE the try. When detail() fails - a network
+            # blip, a lot that has vanished - the fall-back path still needs
+            # something to hand to the confirmation message, and referencing an
+            # unassigned `d` there turned a recoverable blip into a crash.
+            d = {}
             try:
                 d = mod.detail(iid)
                 if site == "hibid":
@@ -398,6 +458,7 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             if not dry_run:
                 mod.arm(iid, use, override=bool(stretch))
                 _react(channel, m["id"], ACK_EMOJI, token)
+                _confirm(site, iid, use, d, stretch, m)
             acted += 1
     if not acted:
         print("nothing to arm or disarm")

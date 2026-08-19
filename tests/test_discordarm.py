@@ -501,3 +501,67 @@ def test_a_dry_run_seeds_nothing(monkeypatch):
     monkeypatch.setattr(discordarm, "_react", lambda *a, **k: put.append(a) or True)
     discordarm.seed_missing([bare], "chan", "tok", dry_run=True)
     assert put == []
+
+
+# --- arming has to be visible ------------------------------------------------
+
+def test_arming_sends_a_real_message_not_just_a_reaction(monkeypatch):
+    """🚨 A REACTION IS NOT A NOTIFICATION. Arming used to leave only a ✅ chip,
+    which produces no push and is invisible on a phone. Leron armed a lot on
+    2026-08-18, saw nothing, and reasonably concluded it had failed - the tick
+    was there, he just could not see it."""
+    sent = []
+    import flipscout.notify as N
+    monkeypatch.setattr(N, "notify", lambda text, **k: sent.append(text))
+    _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI)])
+    discordarm.scan()
+    assert sent, "arming must post a message"
+    assert "Armed" in sent[0]
+
+
+def test_the_confirmation_says_no_bid_has_been_placed(monkeypatch):
+    """🚨 His words were "nothing confirming I made the bid" - and he had not
+    made one. 🎯 arms; the bid happens three minutes before the close. A
+    confirmation that does not draw that line invites the same confusion."""
+    sent = []
+    import flipscout.notify as N
+    monkeypatch.setattr(N, "notify", lambda text, **k: sent.append(text))
+    _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI)])
+    discordarm.scan()
+    assert "No bid has been placed yet" in sent[0]
+    assert "41.34" in sent[0], "it must state the number it armed at"
+
+
+def test_disarming_is_announced_too(monkeypatch):
+    sent = []
+    import flipscout.notify as N
+    monkeypatch.setattr(N, "notify", lambda text, **k: sent.append(text))
+    snipe.save_armed({"273876344": {"id": "273876344", "title": "x",
+                                    "max_bid": 41.34, "status": "ARMED",
+                                    "url": "u"}})
+    _feed(monkeypatch, [_card(react=discordarm.DISARM_EMOJI)])
+    discordarm.scan()
+    assert sent and "Disarmed" in sent[0]
+
+
+def test_a_failing_confirmation_never_blocks_the_arm(monkeypatch):
+    """The arm is the real work; the message is a receipt."""
+    import flipscout.notify as N
+    monkeypatch.setattr(N, "notify",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("down")))
+    calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI)])
+    discordarm.scan()
+    assert calls, "the arm must still happen"
+
+
+def test_an_unreachable_detail_does_not_crash_the_confirmation(monkeypatch):
+    """🚨 `d` was assigned inside the try, so a detail() failure - a network
+    blip, a vanished lot - turned a recoverable fall-back into a crash."""
+    sent = []
+    import flipscout.notify as N
+    monkeypatch.setattr(N, "notify", lambda text, **k: sent.append(text))
+    monkeypatch.setattr(snipe, "detail",
+                        lambda i: (_ for _ in ()).throw(RuntimeError("no net")))
+    calls = _feed(monkeypatch, [_card(react=discordarm.ARM_EMOJI)])
+    discordarm.scan()
+    assert calls, "it must fall back to the card's ceiling and still arm"
