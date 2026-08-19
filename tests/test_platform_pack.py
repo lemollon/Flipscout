@@ -614,11 +614,25 @@ def test_an_untiered_citizen_no_longer_prices():
 @pytest.mark.parametrize("title,price", [
     ("Xbox Series X Halo Infinite Limited Edition Console", 123.0),
     ("Starrett Surface Gage", 25.0),
-    ("FujiFilm Finepix 1300", 10.0),
 ])
 def test_the_real_finds_from_that_run_still_price(title, price):
     from flipscout.fbsweep import evaluate
     assert evaluate(title, price, "Houston, TX") is not None
+
+
+def test_the_finepix_find_did_not_survive_measurement():
+    """🚨 SAME SHAPE AS THE CITIZEN GOLD-TONE WATCH ABOVE, and it belongs next
+    to it. "FujiFilm Finepix 1300" at $10 was on the real-finds list, and it
+    qualified only because the comp was $45 - eleven percent ABOVE the tier's
+    own measured floor.
+
+    Re-measured 2026-08-19 on the routed population: p25 $40.60 / median $60.88
+    (n=218, up from n=53). At $40.60 the tier nets $28.82 and quotes a $0.00
+    max bid against the standing gate, so it was retired rather than carried at
+    a number that could never pay. A $10 FinePix is fair value, not a find.
+    """
+    from flipscout.fbsweep import evaluate
+    assert evaluate("FujiFilm Finepix 1300", 10.0, "Houston, TX") is None
 
 
 def test_travel_and_carry_cases_are_bundle_aware():
