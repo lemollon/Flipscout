@@ -84,8 +84,15 @@ def load_config(env=None) -> dict:
         # bid up before it ends and its "profit at open" is fiction; a lot
         # closing in two hours is priced almost final and is the one the bot can
         # actually win. So part of every run is reserved for the closing lane.
+        # TWO WINDOWS, because they are two different jobs (Leron, 2026-08-19):
+        #   URGENT  - closing within the hour. Arm it NOW or lose it. Rare, so
+        #             the slots are few, and unused ones fall through.
+        #   CLOSING - closing today. Get it armed while there is still slack.
+        # Whatever is left goes to the ordinary profit ranking.
+        "urgent_hours": float(env.get("FLIPSCOUT_URGENT_HOURS", "1")),
+        "urgent_slots": int(env.get("FLIPSCOUT_URGENT_SLOTS", "0")),    # 0 = top/4
         "closing_hours": float(env.get("FLIPSCOUT_CLOSING_HOURS", "12")),
-        "closing_slots": int(env.get("FLIPSCOUT_CLOSING_SLOTS", "0")),  # 0 = half
+        "closing_slots": int(env.get("FLIPSCOUT_CLOSING_SLOTS", "0")),  # 0 = top/4
         # Optional hard freshness filter, OFF by default on purpose: for auctions
         # "listed recently" is the wrong signal - a lot posted days ago that ends
         # in 30 minutes with no bids is the better buy, because its price is
@@ -697,8 +704,10 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     capped = 0
 
     top = config["top"]
+    urgent_h = float(config.get("urgent_hours", 1) or 1)
     closing_h = float(config.get("closing_hours", 12) or 12)
-    reserved = int(config.get("closing_slots") or 0) or max(1, top // 2)
+    urgent_slots = int(config.get("urgent_slots") or 0) or max(1, top // 4)
+    reserved = int(config.get("closing_slots") or 0) or max(1, top // 4)
 
     eligible = [c for c in cands
                 if f"{c['row']['source']}:{c['row']['id']}" not in seen
@@ -733,16 +742,27 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
             return None
         return hours_until(c["row"].get("ends"), source=c["row"].get("source"))
 
-    closing = [c for c in eligible
-               if _left(c) is not None and 0 <= _left(c) <= closing_h]
-    closing.sort(key=lambda c: _left(c))
-    took = _take(closing, reserved)
+    # 🚨 URGENT FIRST. A lot closing inside the hour cannot wait for the next
+    # run, because the next run may be after it has closed. Unused urgent slots
+    # are not wasted - each _take is also bounded by how many slots remain free
+    # overall, so the later lanes simply pick them up.
+    urgent = [c for c in eligible
+              if _left(c) is not None and 0 <= _left(c) <= urgent_h]
+    urgent.sort(key=lambda c: _left(c))
+    took_u = _take(urgent, urgent_slots)
 
-    # Then the usual profit ranking for everything else.
+    # Then today's closers, EXCLUDING the urgent ones already taken.
+    closing = [c for c in eligible
+               if _left(c) is not None and urgent_h < _left(c) <= closing_h]
+    closing.sort(key=lambda c: _left(c))
+    took_c = _take(closing, reserved)
+
+    # Everything else on the usual profit ranking.
     _take(eligible, top - len(fresh))
-    if closing:
-        print(f"[hunt] closing lane (<={closing_h:g}h): {len(closing)} candidate(s), "
-              f"{took} alerted")
+    if urgent or closing:
+        print(f"[hunt] urgent lane (<={urgent_h:g}h): {len(urgent)} candidate(s), "
+              f"{took_u} alerted | closing lane (<={closing_h:g}h): "
+              f"{len(closing)} candidate(s), {took_c} alerted")
     # Is the queue genuinely refilling, or are we just draining a backlog? This is
     # the difference between "new opportunities daily" and "one pool, dripped out".
     print(f"[hunt] already-alerted: {len(seen)} | qualifying now: {len(all_keys)} | "
