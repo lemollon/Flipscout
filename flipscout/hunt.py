@@ -73,6 +73,19 @@ def load_config(env=None) -> dict:
         # surfaced. Cap how many picks any one model label gets per run;
         # the rest stay unseen and queue for the next run.
         "max_per_model": int(env.get("FLIPSCOUT_MAX_PER_MODEL", "3")),
+        # 🚨 RANKING ON profit_at_open IS BIASED TOWARDS LOTS NOBODY HAS BID ON.
+        # Measured on 505 live lots (2026-08-19): median profit at open is
+        # $30.57 for lots closing inside 6h and $69.79 for lots more than 3 days
+        # out - not because the distant ones are better, but because their price
+        # has not moved yet. So the top 20 by profit contained ZERO lots closing
+        # within 6 hours, median 46.9 hours left.
+        #
+        # That is exactly backwards for a sniper. A lot with days to run will be
+        # bid up before it ends and its "profit at open" is fiction; a lot
+        # closing in two hours is priced almost final and is the one the bot can
+        # actually win. So part of every run is reserved for the closing lane.
+        "closing_hours": float(env.get("FLIPSCOUT_CLOSING_HOURS", "12")),
+        "closing_slots": int(env.get("FLIPSCOUT_CLOSING_SLOTS", "0")),  # 0 = half
         # Optional hard freshness filter, OFF by default on purpose: for auctions
         # "listed recently" is the wrong signal - a lot posted days ago that ends
         # in 30 minutes with no bids is the better buy, because its price is
@@ -682,22 +695,54 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     model_counts: dict[str, int] = {}
     fresh: list[dict] = []
     capped = 0
-    for c in cands:
-        key = f"{c['row']['source']}:{c['row']['id']}"
-        if key in seen:
-            continue
-        # SCAM-SHAPED asks never go out as a new-find alert - board only,
-        # with a loud warning, sorted to the bottom. See scam_shaped().
-        if c.get("scam_shaped"):
-            continue
-        if len(fresh) >= config["top"]:
-            break
-        label = c["model"].label
-        if model_counts.get(label, 0) >= max_per_model:
-            capped += 1
-            continue
-        model_counts[label] = model_counts.get(label, 0) + 1
-        fresh.append(c)
+
+    top = config["top"]
+    closing_h = float(config.get("closing_hours", 12) or 12)
+    reserved = int(config.get("closing_slots") or 0) or max(1, top // 2)
+
+    eligible = [c for c in cands
+                if f"{c['row']['source']}:{c['row']['id']}" not in seen
+                and not c.get("scam_shaped")]
+
+    def _take(pool, limit):
+        """Fill up to `limit` slots from `pool`, honouring the per-model cap."""
+        nonlocal capped
+        n = 0
+        for c in pool:
+            if n >= limit or len(fresh) >= top:
+                break
+            if c in fresh:
+                continue
+            label = c["model"].label
+            if model_counts.get(label, 0) >= max_per_model:
+                capped += 1
+                continue
+            model_counts[label] = model_counts.get(label, 0) + 1
+            fresh.append(c)
+            n += 1
+        return n
+
+    # THE CLOSING LANE FIRST. Soonest-closing wins inside it, not richest -
+    # within a few hours of the end the clock is the scarce thing, and the
+    # sniper needs to be armed before it runs out.
+    # 🚨 hours_until, not a new helper - it already knows each source's clock
+    # convention, and a home-rolled parse here would be the FLASHPOINT bug all
+    # over again. Fixed-price asks are skipped: nothing "ends" on a buy-now.
+    def _left(c):
+        if c["row"].get("listing_type") == "fixed":
+            return None
+        return hours_until(c["row"].get("ends"), source=c["row"].get("source"))
+
+    closing = [c for c in eligible
+               if _left(c) is not None and 0 <= _left(c) <= closing_h]
+    closing.sort(key=lambda c: _left(c))
+    took = _take(closing, reserved)
+
+    # Then the usual profit ranking for everything else.
+    _take(eligible, top - len(fresh))
+    if closing:
+        print(f"[hunt] closing lane (<={closing_h:g}h): {len(closing)} candidate(s), "
+              f"{took} alerted")
     # Is the queue genuinely refilling, or are we just draining a backlog? This is
     # the difference between "new opportunities daily" and "one pool, dripped out".
     print(f"[hunt] already-alerted: {len(seen)} | qualifying now: {len(all_keys)} | "

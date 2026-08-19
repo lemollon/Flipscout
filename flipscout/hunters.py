@@ -267,7 +267,7 @@ query LotSearch($searchText: String, $pageNumber: Int!, $pageLength: Int!,
         description
         shippingOffered
         featuredPicture { thumbnailLocation fullSizeLocation }
-        lotState { bidCount highBid minBid isClosed buyNow }
+        lotState { bidCount highBid minBid isClosed buyNow timeLeftSeconds }
         auction {
           id eventName buyerPremium biddingNotice bidType paymentInfo
           bidIncrements { minBidIncrement upToAmount }
@@ -278,6 +278,47 @@ query LotSearch($searchText: String, $pageNumber: Int!, $pageLength: Int!,
   }
 }
 """
+
+
+def _hibid_ends(seconds) -> str:
+    """A local wall-clock `ends` from HiBid's per-lot COUNTDOWN.
+
+    🚨 HIBID ROWS CARRIED NO END TIME AT ALL - `ends` was hardcoded to "".
+    hours_until's own docstring says "HiBid sends nothing", and that was true
+    of what we ASKED for, not of what it has: every lot ships
+    lotState.timeLeftSeconds. The cost was invisible until a closing-soon lane
+    was added and matched zero HiBid lots (2026-08-19) - the one source whose
+    bidding path is verified end to end could never be prioritised by urgency.
+
+    🚨 USE THE COUNTDOWN, NOT auction.bidCloseDateTime. That is the AUCTION's
+    close, carries no timezone, and under a staggered close individual lots end
+    hours after it - three lots of one auction were measured 20 seconds apart
+    while all reporting the same bidCloseDateTime.
+
+    Emitted as naive local time because hours_until has no zone mapping for
+    hibid and compares such values against the runner's clock.
+    """
+    try:
+        left = float(seconds)
+    except (TypeError, ValueError):
+        return ""
+    if left == 0:
+        return ""
+    # 🚨 THE SIGN IS UNRELIABLE, THE MAGNITUDE IS NOT. About half of search rows
+    # come back with a negative countdown on lots that plainly have days to run
+    # ("25d 4h 59m" alongside a negative number of seconds), the lot page agrees
+    # with the search on the same value, and re-probing minutes later can return
+    # it positive. So it is transient vendor noise, not "already ended".
+    #
+    # abs() is safe HERE because this only decides ALERT ORDER: the worst case
+    # is a lot prioritised on the wrong clock, which costs one slot in a run.
+    #
+    # 🚨 DO NOT COPY THIS INTO THE SNIPER. hibidsnipe reads its own countdown
+    # straight from the lot page and refuses to bid on a negative one, because
+    # there the same guess would fire a real bid at the wrong moment. It polls
+    # every minute, so a transient negative self-corrects.
+    end = _dt.datetime.now() + _dt.timedelta(seconds=abs(left))
+    return end.isoformat(timespec="minutes")
 
 
 class HiBid:
@@ -384,7 +425,7 @@ class HiBid:
             "bids": st.get("bidCount"),
             "handling": None,          # auctioneer-set; unknown from search
             "image": pic.get("fullSizeLocation") or pic.get("thumbnailLocation") or "",
-            "ends": "",
+            "ends": _hibid_ends(st.get("timeLeftSeconds")),
             "description": (L.get("description") or "")[:400],
             # Who and where, so an alert can tell you whether it's a drive or a
             # gamble. HiBid's `city` comes through lowercased ("houston").
