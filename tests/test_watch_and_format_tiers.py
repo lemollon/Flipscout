@@ -31,12 +31,12 @@ from flipscout.pricebook import BY_KEY, DEAD_MODELS, match
 
 CITIZEN_TIERS = [
     ("Citizen Campanola Grand Complication Mens Watch",      "citizen_campanola"),
+    ("Citizen Promaster Chronograph 0610-H03281 Navy Dial",  "citizen_promaster_chrono"),
     ("Citizen Promaster Aqualand Diver 200m Mens Watch",     "citizen_promaster"),
     ("Citizen Nighthawk Eco-Drive Pilot Mens Watch",         "citizen_nighthawk"),
     ("Citizen Eco-Drive Chronograph Mens Watch Steel",       "citizen_ecodrive_chrono"),
     ("Citizen Eco-Drive Perpetual Calendar Mens Watch",      "citizen_perpetual"),
     ("Citizen Eco-Drive Mens Watch Stainless Steel",         "citizen_ecodrive_mens"),
-    ("Citizen Chronograph Two-Tone Mens Watch Blue Dial",    "citizen_quartz_chrono"),
     ("Citizen Mens Quartz Black Dial Stainless Watch",       "citizen_quartz_mens"),
 ]
 
@@ -53,14 +53,85 @@ def test_the_tiers_are_ordered_by_value_not_alphabetically():
     chronograph must never be priced as a plain Eco-Drive."""
     comp = lambda k: BY_KEY[k].comp
     assert comp("citizen_promaster") > comp("citizen_ecodrive_mens")
-    assert comp("citizen_ecodrive_chrono") > comp("citizen_quartz_chrono")
+    assert comp("citizen_ecodrive_chrono") > comp("citizen_ecodrive_mens")
     assert comp("citizen_ecodrive_mens") > comp("citizen_quartz_mens")
+    # A diver is worth more than the same brand's land chronograph, and both
+    # beat a plain Eco-Drive. Measured 2026-08-19: p25 $183 vs $150 vs $62.
+    assert comp("citizen_promaster") > comp("citizen_promaster_chrono")
+    assert comp("citizen_promaster_chrono") > comp("citizen_ecodrive_chrono")
     # and specificity must break ties toward the MORE specific tier
     for high, low in [("citizen_campanola", "citizen_ecodrive_mens"),
+                      ("citizen_promaster_chrono", "citizen_promaster"),
                       ("citizen_promaster", "citizen_ecodrive_mens"),
-                      ("citizen_ecodrive_chrono", "citizen_quartz_chrono"),
+                      ("citizen_ecodrive_chrono", "citizen_ecodrive_mens"),
                       ("citizen_ecodrive_mens", "citizen_quartz_mens")]:
         assert BY_KEY[high].specificity > BY_KEY[low].specificity, f"{high} vs {low}"
+
+
+# --- the 2026-08-19 re-measure ---------------------------------------------
+# Leron: "fix the citizen watch comps in the price book". Every tier was
+# re-measured on the population it ACTUALLY RECEIVES after routing, rather than
+# on what its comp_query returns. Three tiers were over by 43-65% and one died.
+
+def test_a_promaster_chronograph_is_not_priced_as_a_diver():
+    """🚨 THE MISS THAT STARTED THIS. `citizen_promaster` includes
+    `promaster|aqualand`, so every land chronograph was quoted at the DIVER
+    comp. Leron asked about a Promaster 0610-H03299 whose only two solds were
+    $125 and $150; the book answered $200.
+    """
+    m = match("Citizen Promaster 0610-H03299 Vintage 1996 Reverse Panda "
+              "Chronograph Wristwatch")
+    assert m.model.key == "citizen_promaster_chrono"
+    assert m.model.comp == 150.00
+    # ...and a real diver still gets the diver comp.
+    d = match("Citizen Promaster Aqualand JP2000-08E 200m Diver Watch")
+    assert d.model.key == "citizen_promaster"
+
+
+def test_the_ecodrive_chrono_comp_is_not_inflated_by_halo_models():
+    """🚨 THE WORST NUMBER IN THE BOOK: $145 against a routed p25 of $88.
+
+    174 of the 329 solds its comp_query returns are Skyhawks and Promasters
+    that route to a HIGHER tier and never reach this one. Measuring on the
+    query instead of on the routed population inherited their prices.
+    """
+    assert BY_KEY["citizen_ecodrive_chrono"].comp == 88.00
+    # the contaminating titles must still route away from this tier
+    for t in ["Citizen Eco-Drive Skyhawk Black Eagle Chronograph Mens Watch",
+              "CITIZEN PROMASTER TSUNO AV0070-57L Eco-Drive Chronograph"]:
+        assert match(t).model.key != "citizen_ecodrive_chrono", t
+
+
+def test_the_plain_quartz_chronograph_tier_is_dead():
+    """It comped at $62 and looked alive. Re-measured it is p25 $43, which
+    quotes a $0.00 max bid at the book's standing gate - it could never clear
+    the bar, so it was dropped rather than left pretending to be a candidate.
+    """
+    assert "citizen_quartz_chrono" not in BY_KEY
+    assert match("Citizen Chronograph Two-Tone Mens Watch Blue Dial") is None
+
+
+def test_the_dead_quartz_chrono_rule_is_anchored():
+    """🚨 It is the only watch rule carrying a NEGATIVE lookahead. Unanchored,
+    `re.search` retries at every offset until `(?!.*eco.?drive)` succeeds PAST
+    the word it is meant to veto - which would condemn every Eco-Drive chrono
+    in the book. Assert the vetoes actually hold.
+    """
+    for t in ["Citizen Eco-Drive Chronograph Mens Watch Steel",
+              "Citizen Eco-Drive Skyhawk Blue Angels Chronograph Watch",
+              "Citizen Promaster Chronograph 0610-H03281 Navy Dial"]:
+        m = match(t)
+        assert m is not None, t
+        assert not m.dead_also_present, f"{t} wrongly flagged dead: {m.dead_also_present}"
+
+
+def test_every_citizen_comp_carries_fresh_measurement_evidence():
+    """No comp without a date and a sample behind it - the book's own rule."""
+    for k, mdl in BY_KEY.items():
+        if not k.startswith("citizen_"):
+            continue
+        assert mdl.measured == "2026-08-19", f"{k} was not re-measured"
+        assert mdl.sample >= 30, f"{k} sample too thin to floor a comp"
 
 
 def test_the_brand_level_citizen_comp_is_gone():
