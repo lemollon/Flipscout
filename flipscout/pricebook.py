@@ -114,6 +114,73 @@ _CAMERA_JUNK = (
 )
 
 
+# --- Pokemon cart guard, 2026-08-19 -----------------------------------------
+# 🚨 THE INVERSE OF `_console_include`, AND IT HAD NEVER BEEN WRITTEN.
+# That helper stops a CONSOLE tier matching a game. Nothing stopped a GAME tier
+# matching a console - and a console bundled with the cart is the single most
+# expensive look-alike a cart tier can have, because the console IS the price.
+#
+# Routing 1,460 sold Pokemon listings on 2026-08-19 found the tiers contaminated
+# from BOTH SIDES at once, which is why the comps looked wrong in two directions
+# depending on which half you looked at:
+#
+#   DRAGGING DOWN - Japanese carts, a different product that will not play on
+#   English hardware. 132 of 404 routed listings, and they are genuinely cheap:
+#       $2.56  Pokemon Red Nintendo GameBoy Japan - BC3662
+#       $8.88  Pokemon Sapphire Nintendo GameBoy Advance Japan - BC4416
+#   The console tiers have excluded `japan|ntsc-j` for months; the cart tiers
+#   never did.
+#
+#   DRAGGING UP - consoles sold WITH a cart, and accessories:
+#       $99.00  Nintendo Game Boy Color Clear Atomic Purple CGB-001 W/ Pokemon
+#      $120.00  Nintendo Game Boy Advance SP AGS-001 Console w/ Pokemon Ruby
+#       $99.95  Pokemon Crystal Version Cartridge SHELL
+#       $85.00  GameShark Special Edition for Pokemon Crystal
+#       $35.40  Pokemon Ruby Version Instruction Booklet Manual
+#   Every one of those sat at or below the tier's measured p25, so they were
+#   setting the floor.
+#
+# 🚨 The hardware terms here are deliberately NARROW - console nouns and MODEL
+# NUMBERS only. A plain cart listing legitimately says "Game Boy Color" in its
+# title ("Pokemon Crystal Version Nintendo Game Boy Color Authentic"), so the
+# platform NAME can never be the tell. Same rule as everywhere else in this
+# file, pointed the other way.
+_PKMN_JUNK = (
+    # a different region is a different product
+    r"\bjapan\w*\b|\bjpn\b|\bjap\b|ntsc-?j|japanese|\bpal\b|\beur\b|"
+    # sold WITH the hardware -> the hardware is the price
+    r"\bconsoles?\b|\bsystems?\b|\bhandhelds?\b|\bags-?\d|\bagb-?001|\bcgb-?001|"
+    r"\bdmg-?01|\bmgb-?001|game\s*boy\s*pocket|game\s*boy\s*micro|\bsp\s*console\b|"
+    r"\bgba\s*sp\b|game\s*boy\s*advance\s*sp|\bcharger\b|"
+    # 🚨 NOT `\blots?\b`, AND NOT A BARE `\bcase\b`. Both were tried and both
+    # broke deliberate, tested behaviour:
+    #   * test_pokemon_in_a_lot_still_prices_as_pokemon requires "Lot of 10
+    #     Game Boy Advance games incl Pokemon Emerald" to keep pricing - the
+    #     lot caution carries a named-title lookahead precisely so a junk-titled
+    #     box naming a payable cart still alerts. A multi-cart lot is admittedly
+    #     not a single-cart comp; alerting on it anyway is the considered trade.
+    #   * a bare `case` killed "Pokemon Emerald Version GBA w/ case", which is
+    #     a cart that happens to include one. Same shared-noun lesson as the
+    #     camera `cap`; `case only` is already handled by the base exclude.
+    # What IS kept is the console-plus-games shape, which is unambiguous.
+    r"\+\s*games?\b|&\s*(?:asst\.?\s*)?games?\b|with\s+\d+\s+games?|"
+    # accessories that carry the game's name
+    r"cartridge\s*shell|\bshell\s*only\b|gameshark|game\s*shark|action\s*replay|"
+    r"instruction\s*booklet|\bbooklet\b|\bgamepad\b|\bcontroller\b|\bstrategy\b|"
+    r"\bno\s*label\b|label\s*only|\bsticker\b|"
+    # 🚨 AND THE TRADING CARDS, WHICH ARE NAMED AFTER THE GAMES. "Pokemon
+    # Crystal Guardians" and "EX FireRed & LeafGreen" are TCG SETS, so a card
+    # carries the cart's exact name and matched the cart tier:
+    #     $19.99  Pokemon Crystal Guardians - Manectric 8/100 Holo Rare Swirl
+    #      $2.00  Pokemon Firered & Leafgreen Regular Metapod Pokemon Reversal
+    #      $9.99  Pokemon Fire Red & Leaf Green 2004 Used 4 Pocket Ultra Pro Binder
+    # The set-number form (8/100) is the most reliable tell a listing is a card.
+    r"\b\d{1,3}\s*/\s*\d{2,3}\b|\bholo\b|\breverse\s*holo\b|\bpsa\s*\d|\bcgc\b|"
+    r"\bbgs\b|\bgraded\b|\bbinder\b|\bbooster\b|\btcg\b|\bplaymat\b|\btin\b|"
+    r"\bcrystal\s*guardians\b|\bswirl\b|\bpromo\b|\bfoil\b"
+)
+
+
 # --- console accessory guard, 2026-08-19 ------------------------------------
 # The same sweep that found the camera straps found the console equivalent.
 # `_console_include` demands a console noun OR a hardware model number, and the
@@ -623,29 +690,38 @@ MODELS: list[Model] = [
     Model(
         key="ipod_classic_160",
         label="iPod Classic 160GB",
-        comp=149.99, measured="2026-07-25", sample=21,
+        comp=100.00, measured="2026-08-19", sample=23,
         include=r"ipod\s*(classic)?[^a-z0-9]{0,6}160\s*gb|160\s*gb[^a-z0-9]{0,6}ipod",
         exclude=r"for parts|parts only|not working|broken|\bcase only\b|charger only|cable only",
         outbound_shipping=6.00, category="ipods", comp_query="ipod classic 160gb",
         specificity=30,
+        note="RE-MEASURED 2026-08-19 on the ROUTED population: p25 $100.00 of a "
+             "$143.90 median (n=23). Was $149.99 on n=21 - the whole iPod "
+             "block was floored on samples of 8 to 21, which is why every tier was over.",
     ),
     Model(
         key="ipod_classic_120",
         label="iPod Classic 120GB",
-        comp=136.07, measured="2026-07-25", sample=8,
+        comp=100.00, measured="2026-08-19", sample=16,
         include=r"ipod\s*(classic)?[^a-z0-9]{0,6}120\s*gb|120\s*gb[^a-z0-9]{0,6}ipod",
         exclude=r"for parts|parts only|not working|broken|\bcase only\b|charger only",
         outbound_shipping=6.00, category="ipods", comp_query="ipod classic 120gb",
         specificity=30,
+        note="RE-MEASURED 2026-08-19 on the ROUTED population: p25 $100.00 of a "
+             "$115.12 median (n=16). Was $136.07 on n=8 - the whole iPod "
+             "block was floored on samples of 8 to 21, which is why every tier was over.",
     ),
     Model(
         key="ipod_classic_80",
         label="iPod Classic/Video 80GB",
-        comp=135.60, measured="2026-07-25", sample=11,
+        comp=84.44, measured="2026-08-19", sample=21,
         include=r"ipod\s*(classic|video)?[^a-z0-9]{0,6}80\s*gb|80\s*gb[^a-z0-9]{0,6}ipod",
         exclude=r"for parts|parts only|not working|broken|\bcase only\b|charger only",
         outbound_shipping=6.00, category="ipods", comp_query="ipod classic 80gb",
         specificity=30,
+        note="RE-MEASURED 2026-08-19 on the ROUTED population: p25 $84.44 of a "
+             "$99.99 median (n=21). Was $135.60 on n=11 - the whole iPod "
+             "block was floored on samples of 8 to 21, which is why every tier was over.",
     ),
     Model(
         key="ipod_video_30",
@@ -671,33 +747,23 @@ MODELS: list[Model] = [
     Model(
         key="ipod_classic_nocap",
         label="iPod Classic/Video (capacity unknown)",
-        comp=131.58, measured="2026-07-25", sample=58,
+        comp=85.00, measured="2026-08-19", sample=566,
         include=r"\bipod\s*(classic|video)\b",
         exclude=r"for parts|parts only|not working|broken|\bcase only\b|charger only",
         outbound_shipping=6.00, category="ipods", comp_query="ipod classic",
         comp_used_only=True, specificity=15,
-        note="capacity unknown - check photo; 160GB sells $150, 80GB $135",
+        note="RE-MEASURED 2026-08-19 on the ROUTED population: p25 $85.00 of a "
+             "$105.00 median (n=566). Was $131.58 on n=58 - the whole iPod "
+             "block was floored on samples of 8 to 21, which is why every tier was over.",
     ),
-    Model(
-        key="ipod_nano",
-        label="iPod Nano",
-        comp=49.00, measured="2026-08-13", sample=123,
-        include=r"\bipod\s*nano\b",
-        exclude=r"\barmband\b|\bdock\s*only\b|\bcable\s*only\b|\bcase\s*only\b|"
-                r"charger only|for parts|parts only|not working|broken",
-        outbound_shipping=5.00, category="ipods", comp_query="ipod nano",
-        comp_used_only=True, specificity=30,
-    ),
-    Model(
-        key="ipod_touch",
-        label="iPod Touch",
-        comp=39.99, measured="2026-08-13", sample=123,
-        include=r"\bipod\s*touch\b",
-        exclude=r"\bcase\s*only\b|charger only|for parts|parts only|not working|broken",
-        outbound_shipping=5.00, category="ipods", comp_query="ipod touch",
-        comp_used_only=True, specificity=30,
-        note="thin margin - only cheap lots qualify; 6th/7th gen sell higher",
-    ),
+    # 🚨 ipod_nano WAS HERE AND IS NOW DEAD (2026-08-19). Re-measured on the
+    # population it actually receives it is p25 $35.00 / median $50.00 (n=251, up from n=123),
+    # which quotes a max bid of $0.00 against the standing gate ($20 profit
+    # over $9 inbound). See DEAD_MODELS.
+    # 🚨 ipod_touch WAS HERE AND IS NOW DEAD (2026-08-19). Re-measured on the
+    # population it actually receives it is p25 $19.50 / median $29.99 (n=160, up from n=123),
+    # which quotes a max bid of $0.00 against the standing gate ($20 profit
+    # over $9 inbound). See DEAD_MODELS.
 
     # --- Pokemon Game Boy carts (measured 2026-07-25) ------------------------
     # The best margins in the book. TWO real dangers, both encoded below:
@@ -736,8 +802,11 @@ MODELS: list[Model] = [
                 r"box only|manual only|for parts|parts only",
         outbound_shipping=5.00, category="pokemon", comp_query="pokemon emerald gameboy advance",
         specificity=40,
-        note="HIGH VALUE = high repro risk. Verify the cart before bidding; "
-             "comp sample is small (n=7) and search-biased.",
+        note="Routed re-measure 2026-08-19: p25 $81.00 / median $145.00 (n=10). "
+             "NO COMP CHANGE. THIN. Comp held. "
+             "The guard was the fix here, not the number - see _PKMN_JUNK: this "
+             "tier was matching Japanese carts, consoles sold WITH the game, "
+             "cartridge shells and TCG singles named after the game.",
     ),
     Model(
         key="pkmn_crystal",
@@ -748,7 +817,11 @@ MODELS: list[Model] = [
                 r"box only|manual only|for parts|parts only",
         outbound_shipping=5.00, category="pokemon", comp_query="pokemon crystal gameboy color",
         specificity=40,
-        note="n=2 - treat as an ESTIMATE. Re-measure before trusting.",
+        note="Routed re-measure 2026-08-19: p25 $120.00 / median $189.99 (n=22). "
+             "NO COMP CHANGE. Comp held at $145.28, above this p25 but well under the $189.99 median, pending a cleaner sample. "
+             "The guard was the fix here, not the number - see _PKMN_JUNK: this "
+             "tier was matching Japanese carts, consoles sold WITH the game, "
+             "cartridge shells and TCG singles named after the game.",
     ),
     Model(
         key="pkmn_firered_leafgreen",
@@ -772,34 +845,41 @@ MODELS: list[Model] = [
         # Carried at $95, a FLOOR below both medians rather than the ~$104 pooled
         # median: FireRed's p25 of $60 is a fatter cheap tail than LeafGreen's
         # $80.62, and the two share one model here.
-        note="RE-MEASURED 2026-08-15: loose median ~$104 both halves (n=102), "
-             "carried at a $95 floor. HIGH VALUE = HIGH REPRO RISK - the $25-30 "
-             "band on eBay IS the reproduction tier, so a cheap US cart is a red "
-             "flag, not a deal. Verify before bidding: tri-wing screw (not "
-             "Phillips), AGB-BPGE-USA on the label, and it must hold a save. "
-             "Japanese carts are legitimately $42-45 - check the label for ESRB.",
+        note="Routed re-measure 2026-08-19: p25 $69.00 / median $120.00 (n=28). "
+             "NO COMP CHANGE. Comp held at $95: this p25 is dragged by TCG singles and $1.50 carts that the guard does not catch, so it reads low. "
+             "The guard was the fix here, not the number - see _PKMN_JUNK: this "
+             "tier was matching Japanese carts, consoles sold WITH the game, "
+             "cartridge shells and TCG singles named after the game.",
     ),
     Model(
         key="pkmn_ruby_sapphire",
         label="Pokemon Ruby / Sapphire (GBA)",
-        comp=71.99, measured="2026-07-25", sample=0, comp_used_only=False,
+        comp=71.99, measured="2026-08-19", sample=10, comp_used_only=False,
         include=r"(pok[eé]mon|pokeman)\s*(ruby|sapphire)",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
         outbound_shipping=5.00, category="pokemon", comp_query="pokemon ruby gameboy advance",
         specificity=40,
-        note="Verify authenticity before bidding.",
+        note="Routed re-measure 2026-08-19: p25 $66.00 / median $91.00 (n=10). "
+             "NO COMP CHANGE. THIN. Comp held. Was carried on sample=0, which is the FireRed trap this book already learned once. "
+             "The guard was the fix here, not the number - see _PKMN_JUNK: this "
+             "tier was matching Japanese carts, consoles sold WITH the game, "
+             "cartridge shells and TCG singles named after the game.",
     ),
     Model(
         key="pkmn_rby",
         label="Pokemon Red / Blue / Yellow (GB)",
-        comp=50.15, measured="2026-07-25", sample=0, comp_used_only=False,
+        comp=50.15, measured="2026-08-19", sample=52, comp_used_only=False,
         include=r"(pok[eé]mon|pokeman)\s*(red|blue|yellow)\b",
         exclude=r"repro|reproduction|fake|custom|not authentic|\bcase only\b|"
                 r"box only|manual only|for parts|parts only",
         outbound_shipping=5.00, category="pokemon", comp_query="pokemon yellow gameboy",
         specificity=40,
-        note="Save battery is usually dead - it does not stop a sale but mention it.",
+        note="Routed re-measure 2026-08-19: p25 $83.65 / median $129.00 (n=52). "
+             "NO COMP CHANGE. Comp HELD at $50.15 below that p25 on purpose: the cheap tail still carries reproduction carts that no title tells apart ($5.50 for a Blue that really sells $40+), so the floor is not trustworthy enough to raise a ceiling on. Was carried on sample=0. "
+             "The guard was the fix here, not the number - see _PKMN_JUNK: this "
+             "tier was matching Japanese carts, consoles sold WITH the game, "
+             "cartridge shells and TCG singles named after the game.",
     ),
 
     # --- Game consoles (measured 2026-07-30, eBay solds, all-in). Leron asked
@@ -2393,6 +2473,14 @@ DEAD_MODELS = {
         "comp that was above its own measured floor; even there the ceiling was "
         "$3.64. A compact that only ever paid as a sub-$12 shelf find.",
 
+    r"\bipod\s*nano\b":
+        "iPod Nano sells p25 $35 / median $50 (n=251, measured 2026-08-19) -> "
+        "max bid $0.00 at the $20-over-$9 gate. Was carried at $49 on n=123.",
+    r"\bipod\s*touch\b":
+        "iPod Touch sells p25 $19.50 / median $29.99 (n=160, measured "
+        "2026-08-19) -> max bid $0.00. Was carried at $39.99 and even there the "
+        "ceiling was $0.29, so it had effectively been dead for a while.",
+
     # --- WATCH AND CAMCORDER TIERS, measured 2026-08-17 and REFUSED -------
     # Each failed the book's bar ($20 target profit over $9 inbound). They
     # are recorded rather than dropped because every one of them was a real
@@ -2599,6 +2687,13 @@ MODELS = [replace(m, exclude=(m.exclude + "|" + _CAMERA_JUNK) if m.exclude
 MODELS = [replace(m, exclude=(m.exclude + "|" + _CONSOLE_JUNK) if m.exclude
                              else _CONSOLE_JUNK)
           if m.category == "videogames" else m
+          for m in MODELS]
+
+# ...and for the Pokemon carts, which needed the guard pointed the other way -
+# see _PKMN_JUNK.
+MODELS = [replace(m, exclude=(m.exclude + "|" + _PKMN_JUNK) if m.exclude
+                             else _PKMN_JUNK)
+          if m.category == "pokemon" else m
           for m in MODELS]
 
 # Rebuilt AFTER both passes - the dict above was keyed off the pre-replace

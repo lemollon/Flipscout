@@ -8,7 +8,7 @@ $20. A TI-83 Plus sells $25.37 and can never clear it.
 import pytest
 
 from flipscout.bidding import advise, next_valid_bid
-from flipscout.pricebook import BY_KEY, match, search_terms
+from flipscout.pricebook import BY_KEY, MODELS, match, search_terms
 from flipscout import hunt
 
 
@@ -511,14 +511,31 @@ def test_pokemon_comps_are_the_loose_price_not_the_boxed_one():
     assert BY_KEY["pkmn_crystal"].comp < 200
 
 
-def test_unverified_comps_are_flagged_as_estimates():
-    """sample=0 makes the alert print 'estimate, not measured'."""
-    for k in ("pkmn_ruby_sapphire", "pkmn_rby"):
-        assert BY_KEY[k].sample == 0, k
-    # pkmn_firered_leafgreen was RE-MEASURED 2026-08-15 (comp $76.49 -> $95.00,
-    # sample 0 -> 102) - it's no longer an unmeasured guess, so it dropped out
-    # of the "estimate" list above and gets its own assertion instead.
+def test_no_comp_in_the_book_is_an_unmeasured_guess():
+    """🚨 THIS TEST USED TO ASSERT THE OPPOSITE, AND THAT WAS THE POINT OF IT.
+
+    It pinned `pkmn_ruby_sapphire` and `pkmn_rby` at sample=0 so their alerts
+    would print "estimate, not measured" - carrying a $71.99 and a $50.15 comp
+    with literally nothing behind them. pkmn_firered_leafgreen had already
+    escaped that list on 2026-08-15 (comp $76.49 -> $95.00, sample 0 -> 102).
+
+    On 2026-08-19 the last two were measured on the routed population (n=52 and
+    n=10), so the estimate list is now EMPTY and this test flips to guarding
+    that it stays empty. Neither comp moved - see their notes for why the guard,
+    not the number, was the fix.
+    """
+    # 🚨 TWO REMAIN, AND THEY ARE NAMED SO THEY CANNOT HIDE. Both are
+    # calculators and both were outside the 2026-08-19 sweep, which covered
+    # watches, cameras, consoles, Pokemon and iPods. Asserting the EXACT set
+    # rather than a count means a third unmeasured comp fails this test the day
+    # it is added, while the known two stay visible as debt.
+    KNOWN_UNMEASURED = {"ti84ce_python", "tinspire_cx"}
+    unmeasured = {m.key for m in MODELS if m.active and m.sample == 0}
+    assert unmeasured == KNOWN_UNMEASURED, (
+        f"unmeasured comps changed: {unmeasured ^ KNOWN_UNMEASURED}")
     assert BY_KEY["pkmn_firered_leafgreen"].sample == 102
+    for k in ("pkmn_ruby_sapphire", "pkmn_rby"):
+        assert BY_KEY[k].measured == "2026-08-19", k
 
 
 def test_run_reports_whether_delivery_actually_happened(capsys, monkeypatch):

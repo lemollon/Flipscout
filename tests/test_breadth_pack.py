@@ -36,9 +36,25 @@ def test_tripod_never_matches_any_ipod_model():
     assert match("Vintage Camera Tripod with Carrying Case") is None
 
 
-def test_ipod_nano_and_touch_price():
-    assert match("Apple iPod Nano 6th Generation 8GB Blue").model.key == "ipod_nano"
-    assert match("Apple iPod Touch 5th Gen 32GB Space Gray").model.key == "ipod_touch"
+def test_ipod_nano_and_touch_are_retired_not_merely_cheap():
+    """🚨 BOTH DIED AT THEIR HONEST NUMBERS (2026-08-19).
+
+    The whole iPod block was floored on samples of 8 to 21. Re-measured on the
+    routed population, nano is p25 $35 / median $50 (n=251) and touch is p25
+    $19.50 / median $29.99 (n=160) - each quoting a max bid of $0.00 against
+    the standing gate ($20 profit over $9 inbound). Touch had been effectively
+    dead for a while: even at its old $39.99 the ceiling was $0.29.
+
+    They are refused with a NUMBER rather than silently dropped, so a listing
+    still says why it is not a deal.
+    """
+    from flipscout.pricebook import BY_KEY, DEAD_MODELS
+    import re
+    assert "ipod_nano" not in BY_KEY and "ipod_touch" not in BY_KEY
+    for title in ("apple ipod nano 6th generation 8gb blue",
+                  "apple ipod touch 5th gen 32gb space gray"):
+        assert match(title) is None
+        assert [w for pat, w in DEAD_MODELS.items() if re.search(pat, title)], title
 
 
 def test_ipod_nano_armband_case_rejected():

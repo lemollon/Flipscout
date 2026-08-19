@@ -353,3 +353,85 @@ def test_no_camera_or_console_comp_outlives_its_measurement():
             continue
         assert m.measured >= "2026-07-28", f"{m.key} has no measurement date"
         assert m.sample > 0, f"{m.key} shipped on sample=0"
+
+
+# --- the 2026-08-19 Pokemon + iPod pass --------------------------------------
+
+@pytest.mark.parametrize("title", [
+    # 🚨 THREE-SIDED CONTAMINATION, all real, all from 1,460 routed solds.
+    # A different REGION (a Japanese cart will not play on English hardware):
+    "Pokemon Red Nintendo GameBoy Japan - BC3662",
+    "Pokemon Sapphire Nintendo GameBoy Advance Japan - BC4416",
+    # ACCESSORIES that carry the game's name:
+    "Pokemon Crystal Version Cartridge Shell - Nintendo Game Boy Color GBC",
+    "GameShark Special Edition for Pokemon Crystal Game Boy Color Untested",
+    "Pokemon Ruby Version Instruction Booklet Manual Nintendo Game Boy Advance",
+    # TRADING CARDS - the TCG sets are NAMED after the games, so a card carries
+    # the cart's exact name. The set-number form (8/100) is the reliable tell.
+    "Pokemon Crystal Guardians - Manectric 8/100 Holo Rare Swirl",
+])
+def test_a_pokemon_cart_tier_never_prices_a_non_cart(title):
+    assert match(title) is None
+
+
+def test_a_console_sold_with_a_cart_prices_as_the_console():
+    """🚨 THE INVERSE OF `_console_include`, AND IT HAD NEVER BEEN WRITTEN.
+
+    That helper stops a CONSOLE tier matching a game. Nothing stopped a GAME
+    tier matching a console - and the console IS the price. These two sat at or
+    below their tier's measured p25, so they were setting the floor:
+        $99.00  Nintendo Game Boy Color Clear Atomic Purple CGB-001 W/ Pokemon
+       $120.00  Nintendo Game Boy Advance SP AGS-001 Console w/ Pokemon Ruby
+    """
+    m = match("Nintendo Game Boy Advance SP AGS-001 Console w/ Pokemon Ruby")
+    assert m is not None and not m.model.key.startswith("pkmn_")
+    assert match("Nintendo Game Boy Color Clear Atomic Purple CGB-001 W/ Pokemon "
+                 "Crystal") is None or not match(
+        "Nintendo Game Boy Color Clear Atomic Purple CGB-001 W/ Pokemon Crystal"
+    ).model.key.startswith("pkmn_")
+
+
+@pytest.mark.parametrize("title,key", [
+    ("Pokemon Emerald Version Game Boy Advance GBA Authentic Loose Cartridge",
+     "pkmn_emerald"),
+    ("Pokemon Crystal Version Nintendo Game Boy Color GBC Tested", "pkmn_crystal"),
+    # 🚨 DELIBERATE: a junk-titled lot naming a payable cart still alerts. A
+    # bare `lot` exclusion was tried and reverted - see the note in _PKMN_JUNK.
+    ("Lot of 10 Game Boy Advance games incl Pokemon Emerald tested", "pkmn_emerald"),
+    # ...and a cart that merely INCLUDES a case is still a cart. Same shared-noun
+    # lesson as the camera `cap`.
+    ("Pokemon Emerald Version GBA w/ case for sale", "pkmn_emerald"),
+])
+def test_a_real_cart_survives_the_pokemon_guard(title, key):
+    m = match(title)
+    assert m is not None, f"{title!r} was wrongly rejected"
+    assert m.model.key == key
+
+
+def test_the_pokemon_comps_were_deliberately_not_moved():
+    """🚨 THE GUARD WAS THE FIX; THE NUMBER WAS NOT TOUCHED, ON PURPOSE.
+
+    After cleaning, the routed samples came out at n=10-52 with reproduction
+    carts still in the cheap tail that no title distinguishes ($5.50 for a Blue
+    that really sells $40+). That is not a floor worth moving a live ceiling
+    on, in either direction, so every Pokemon comp is unchanged and each note
+    records what the measurement said and why it was not acted on.
+    """
+    assert BY_KEY["pkmn_rby"].comp == 50.15
+    assert BY_KEY["pkmn_ruby_sapphire"].comp == 71.99
+    assert BY_KEY["pkmn_crystal"].comp == 145.28
+    assert BY_KEY["pkmn_emerald"].comp == 108.75
+    assert BY_KEY["pkmn_firered_leafgreen"].comp == 95.00
+    # ...but the two that carried NOTHING behind them now carry a sample.
+    assert BY_KEY["pkmn_rby"].sample == 52
+    assert BY_KEY["pkmn_ruby_sapphire"].sample == 10
+
+
+def test_the_ipod_block_was_floored_on_tiny_samples():
+    """Every surviving iPod tier came down; the old comps rested on n=8 to 21."""
+    for key, comp in (("ipod_classic_160", 100.00), ("ipod_classic_120", 100.00),
+                      ("ipod_classic_80", 84.44), ("ipod_classic_nocap", 85.00)):
+        assert BY_KEY[key].comp == comp, key
+        assert BY_KEY[key].measured == "2026-08-19", key
+    # the catch-all gained the biggest sample in the whole book
+    assert BY_KEY["ipod_classic_nocap"].sample == 566
