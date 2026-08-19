@@ -269,8 +269,11 @@ def test_variant_models_deliberately_keep_bare_name_matching():
     """
     # 🚨 gba_sp was REMOVED from this list on 2026-08-17 - it now carries the
     # noun rule. See test_gba_sp_noun_rule_is_net_positive_on_ebay.
-    for key in ("switch_oled", "gba_sp_101", "n3ds_xl",
-                "ps_vita", "dreamcast"):
+    # 🚨 dreamcast was REMOVED on 2026-08-19 to the same standard, and only to
+    # that standard - see test_dreamcast_noun_rule_is_net_positive. It is a
+    # BASE platform name, not a variant, so the docstring's reasoning never
+    # covered it in the first place.
+    for key in ("switch_oled", "gba_sp_101", "n3ds_xl", "ps_vita"):
         assert not BY_KEY[key].include.startswith("^(?="), (
             f"{key} was given the noun rule; see this test's docstring")
 
@@ -453,7 +456,12 @@ def test_every_pack_comp_is_measured_with_a_real_sample():
     three weeks on sample=0, which turned out to be LOW, not high."""
     for key in PACK:
         m = BY_KEY[key]
-        assert m.measured == "2026-08-16", f"{key} comp is not from the pack measurement"
+        # 2026-08-19 is the routed re-measure (see the camera/console sweep):
+        # six pack comps were re-floored on the population each tier actually
+        # RECEIVES rather than on what its comp_query returns. Both dates are
+        # real measurements with a real sample; what this guards is that a comp
+        # never ships without one.
+        assert m.measured in ("2026-08-16", "2026-08-19"),             f"{key} comp is not from a real measurement"
         assert m.sample >= 30, f"{key} shipped on n={m.sample}"
 
 
@@ -687,3 +695,34 @@ def test_the_garage_sale_digest_is_not_collateral_damage():
     from flipscout.garagesales import hot
     got = hot({"title": "Estate sale", "desc": "Fluke 87 multimeter, cameras, tools"})
     assert "Fluke 87" in got
+
+
+def test_dreamcast_noun_rule_is_net_positive():
+    """🚨 THE EVIDENCE FOR REMOVING dreamcast FROM THE BARE-NAME LIST.
+
+    The list above records that applying the noun rule to six models was tried
+    on 2026-08-16 and reverted, because it cost real listings while killing no
+    junk. dreamcast was re-tested on 2026-08-19 against 5,249 sold listings and
+    the result was the opposite: the rule removed SIX listings and every one of
+    them was junk or mislabelled -
+
+        $26.99  Dreamcast HKT-8600 Pack /Rumble Vibration Tremor DC Official
+        $50.00  Official MadCatz Dream Blaster - Sega Dreamcast - Sensor Issue
+        $75.00  Dreamcast GD-ROM Drive 3.3V - VA1 - NEW CAPACITORS
+        $99.95  SEGA Dreamcast Optical GD-ROM Drive VA1 (RECAPPED)
+        $99.99  Sega GENESIS Console Gaming System Only White HKT-3020
+       $140.00  Sega Dreamcast DreamPi Box
+
+    - zero real consoles. The Genesis one is the tell: it was matching on the
+    bare `hkt-3020` branch, so a Genesis was being priced against a Dreamcast
+    comp. Removing them moved the measured p25 from $50.00 to $89.94, which is
+    why the tier no longer needs its comp cut at all.
+    """
+    m = BY_KEY["dreamcast"]
+    assert m.include.startswith("^(?=")
+    assert match("Sega Dreamcast White Console Power/Eject/Tested").model.key == "dreamcast"
+    for junk in ["OEM Replacement Sega Dreamcast Authentic Exterior Screws (4Pcs.)",
+                 "Performance Sega Dreamcast Tremor Pak Model P-20-313",
+                 "VGA box for Sega Dreamcast consoles - Grey (made in USA)",
+                 "Sega Genesis Console Gaming System Only White HKT-3020"]:
+        assert match(junk) is None or match(junk).model.key != "dreamcast", junk

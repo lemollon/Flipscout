@@ -57,6 +57,88 @@ _BUNDLED = (r"(?<!with )(?<!w/ )(?<!w/)(?<!and )(?<!& )(?<!\+ )(?<!\+)"
             r"(?<!includes )(?<!incl )(?<!plus )(?<!, )(?<!,)")
 
 
+# --- camera accessory guard, 2026-08-19 -------------------------------------
+# 🚨 THE CONSOLE LESSON, RE-LEARNED ON CAMERAS. `_console_include` below exists
+# because a platform name is never hardware evidence - "Battlefield 4 Xbox One"
+# is a game. The camera tiers never got the equivalent guard, and it cost the
+# same way: routing 4,292 sold camera listings through the book on 2026-08-19,
+# the CHEAPEST quarter of `canon_ae1` was not cheap cameras at all -
+#
+#     $2.61  Canon Genuine Neck/Shoulder Strap For AE-1 A-1 From Japan
+#     $3.99  CANON FD Body CAMERA CAP for AE-1 A-1 AT-1 AV-1 ...
+#     $7.99  Canon AE-1, AE-1Program, & AT-1 Screws
+#     $7.99  Canon AE-1 ... Viewfinder Eyepiece
+#     $9.50  Beautiful Pentax K-1000 Camera Manual
+#    $11.45  Polaroid SX-70 Land Camera Alpha SE Original Manual In English
+#    $15.00  Vintage Polaroid SX-70 Tripod Mount #111
+#
+# - and every one of them MATCHED, so the book would quote a $2.61 strap
+# against a $150 camera comp and card it as a buy. It also dragged the measured
+# p25 down, which is why the comps had to be re-measured only AFTER this guard
+# was in place; measuring first bakes strap prices into the floor.
+#
+# 🚨 ACCESSORY_EXCLUDE did not catch these. Its `\bfor\s+(canon|nikon|...)`
+# guard only fires on a BRAND name, and an accessory names the MODEL instead
+# ("Strap For AE-1"). Its `manual only` and `neck strap` are likewise too
+# narrow for "Original Manual In English" and "Neck/Shoulder Strap".
+#
+# Each term below is bundle-aware via _BUNDLED, because the same word is
+# legitimate when the camera comes WITH one ("AE-1 w/ Cap" is a camera; "CAMERA
+# CAP for AE-1" is a cap), and `manual` carries an extra guard because "manual
+# focus" describes half the film cameras ever made.
+# 🚨 THE DISCRIMINATOR IS "FOR", NOT THE NOUN. A first cut listed `cap` and
+# `strap` as junk outright and it rejected REAL CAMERAS: "Pentax K1000 SLR
+# camera with body cap" and "K1000 ... w/ 50mm Lens w/ Lens Cap" are cameras
+# that happen to include a cap. _BUNDLED does not save them either, because the
+# bundling word is not adjacent - "w/ Lens Cap" puts "Lens" between "w/" and
+# "cap".
+#
+# What actually separates them is the word FOR: an accessory states
+# compatibility ("Strap For AE-1", "CAMERA CAP for AE-1 A-1 AT-1 AV-1"), a
+# camera never does. So the shared nouns are junk ONLY near a "for", and the
+# nouns that are never part of a camera sale are junk outright.
+_CAMERA_FOR = r"[^,;]{0,45}"
+_CAMERA_JUNK = (
+    # shared with real listings -> only junk when sold AS "for <model>"
+    rf"\bstraps?\b{_CAMERA_FOR}\bfor\b|\bfor\b{_CAMERA_FOR}\bstraps?\b|"
+    rf"\bcaps?\b{_CAMERA_FOR}\bfor\b|\bfor\b{_CAMERA_FOR}\bcaps?\b|"
+    rf"\bfilters?\b{_CAMERA_FOR}\bfor\b|\bfor\b{_CAMERA_FOR}\bfilters?\b|"
+    # never part of a camera sale
+    r"\bscrews?\b|\beyepiece\b|\binstruction\b|tripod\s*mount|kick\s*stand|"
+    r"remote\s*shutter|\bcold\s*shoe\b|lens\s*hood|battery\s*door|"
+    r"focusing\s*screen\b|pressure\s*plate|take\s*-?\s*up\s*spool|\bbellows\b|"
+    r"\bdata\s*back\b|\bshutter\s*button\b|\bnameplate\b|\brepair\s*manual\b|"
+    # "manual" is the camera's booklet, EXCEPT where it describes the camera
+    # itself - "manual focus" covers half the film cameras ever made.
+    rf"{_BUNDLED}\bmanual\b(?!\s*(?:focus|wind|advance|exposure|film))"
+)
+
+
+# --- console accessory guard, 2026-08-19 ------------------------------------
+# The same sweep that found the camera straps found the console equivalent.
+# `_console_include` demands a console noun OR a hardware model number, and the
+# MODEL NUMBER BRANCH IS THE LEAK: accessories carry SCPH numbers too.
+#
+#     $8.00  Sony PlayStation 2 PS2 RFU Adapter SCPH-10071 Official OEM
+#    $10.98  OEM Sony PS2 SLIM AC Adapter Power Supply & AV Cable SCPH-7010
+#    $24.99  Sony PlayStation 2 PS2 Multitap Black SCPH-10090
+#     $5.99  OEM Replacement Sega Dreamcast Authentic Exterior Screws (4Pcs.)
+#    $16.90  Performance Sega Dreamcast Tremor Pak Model P-20-313
+#
+# Two rules, because two shapes. Nouns that are NEVER a console sale are junk
+# outright. Nouns that are legitimate as bundled extras ("PS2 Console with AC
+# Adapter") are junk only when NO console noun appears in the title at all -
+# expressed as an anchored negative lookahead, since a bundle-aware lookbehind
+# cannot survive a compound noun ("with AC adapter" puts "AC" between the
+# marker and the word, the same way "w/ Lens Cap" defeated it on cameras).
+_CONSOLE_JUNK = (
+    r"\bmultitap\b|\brfu\b|\bmodem\b|port\s*cover|\bvga\s*box\b|"
+    r"tremor\s*pak|\bscrews?\b|supply\s*board|\bexterior\s*shell\b|"
+    r"^(?!.*(?:consoles?|systems?|handhelds?))"
+    r".*\b(?:adapters?|power\s*supply|av\s*cables?|power\s*cords?)\b"
+)
+
+
 # --- watch tiering, 2026-08-17 ----------------------------------------------
 # 🚨 THE MOST EXPENSIVE LESSON IN THIS FILE, RE-LEARNED THE HARD WAY.
 #
@@ -755,7 +837,7 @@ MODELS: list[Model] = [
     Model(
         key="gba_sp_101",
         label="Game Boy Advance SP AGS-101 (backlit)",
-        comp=130.00, measured="2026-07-30", sample=47,
+        comp=116.50, measured="2026-08-19", sample=168,
         include=r"ags\s*-?\s*101|backlit\s*(game\s*boy|gba|sp)|(gba|sp)\s*backlit",
         exclude=r"\bips\b|modded|custom|shell|housing|repro|for parts|parts only|"
                 r"not working|broken|box only|charger only",
@@ -763,7 +845,8 @@ MODELS: list[Model] = [
         comp_query="gameboy advance sp ags-101", specificity=30,
         note="FLOOR below the $136.58 median (n=47, AGS-001 bleed in the tail). "
              "The BACKLIT screen is the trade: AGS-101 vs 001 is 1.6x. Verify "
-             "the label says AGS-101 in the photo.",
+             "the label says AGS-101 in the photo." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $116.50 of a $139.99 median (n=168). Was $130.00.",
     ),
     Model(
         key="gba_sp",
@@ -819,14 +902,15 @@ MODELS: list[Model] = [
     Model(
         key="n64_console",
         label="Nintendo 64 console",
-        comp=95.00, measured="2026-07-30", sample=53,
+        comp=82.99, measured="2026-08-19", sample=32,
         include=r"(nintendo\s*64|\bn\s*-?64\b)\s*(console|system)",
         exclude=r"controller only|expansion pak only|jumper pak|\bcase\b|"
                 r"for parts|parts only|not working|broken|box only|cover|door",
         outbound_shipping=10.00, category="videogames",
         comp_query="nintendo 64 console", specificity=26,
         note="FLOOR at ~p25 of a $152.83 median (n=53, game-cart bleed in the "
-             "search). Funtastic colors and boxed bundles sell $180+.",
+             "search). Funtastic colors and boxed bundles sell $180+." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $82.99 of a $119.00 median (n=32). Was $95.00.",
     ),
 
     # === THE PLATFORM PACK (measured 2026-08-16) ==============================
@@ -924,7 +1008,7 @@ MODELS: list[Model] = [
     Model(
         key="ps2_console",
         label="Sony PlayStation 2 console",
-        comp=70.00, measured="2026-08-16", sample=85,
+        comp=59.99, measured="2026-08-19", sample=43,
         include=_console_include(r"\bps2\b|playstation\s*2", r"\bscph-\d{4,5}\w?\b"),
         exclude=r"ps3|ps4|ps5|playstation\s*[345]|"
                 r"\bfor\s+(the\s+)?(ps2|playstation)\b|controller|dualshock|"
@@ -933,7 +1017,8 @@ MODELS: list[Model] = [
         outbound_shipping=12.00, category="videogames",
         comp_query="playstation 2 console", specificity=30,
         note="FLOOR at p25 of a $95 median (n=85). Thin margin - max pay is "
-             "~$28 - but Goodwill's PS2 median is $11.99, so the room is real.",
+             "~$28 - but Goodwill's PS2 median is $11.99, so the room is real." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $59.99 of a $89.95 median (n=43). Was $70.00.",
     ),
     Model(
         key="psp_console",
@@ -964,7 +1049,7 @@ MODELS: list[Model] = [
     Model(
         key="xbox_one",
         label="Xbox One / One S / One X console",
-        comp=71.00, measured="2026-08-16", sample=103,
+        comp=63.92, measured="2026-08-19", sample=53,
         include=_console_include(r"xbox\s*one\b", r"\bmodel\s*1(?:540|681)\b"),
         exclude=r"xbox\s*360|series\s*[sx]\b|\bkinect\b|"
                 r"\bfor\s+(the\s+)?xbox\b|controller|\bcase\b|\bskin\b|"
@@ -974,7 +1059,8 @@ MODELS: list[Model] = [
         comp_query="xbox one console", specificity=30,
         note="FLOOR at p25 of an $89 median (n=103). Xbox 360 is MEASURED AND "
              "DEAD ($69.95, max pay $11.76) - see DEAD_MODELS. Keeping 360 out "
-             "of this include is what makes the model safe.",
+             "of this include is what makes the model safe." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $63.92 of a $89.99 median (n=53). Was $71.00.",
     ),
     Model(
         key="wiiu_console",
@@ -994,7 +1080,7 @@ MODELS: list[Model] = [
     Model(
         key="switch_base",
         label="Nintendo Switch console (v1/v2, non-OLED)",
-        comp=120.00, measured="2026-08-16", sample=69,
+        comp=105.00, measured="2026-08-19", sample=50,
         include=_console_include(r"nintendo\s*switch", r"\bhac-001\b"),
         exclude=r"\boled\b|switch\s*lite|switch\s*2\b|"
                 r"\bfor\s+(the\s+)?(nintendo|switch)\b|joy.?cons?\s+only|"
@@ -1005,7 +1091,8 @@ MODELS: list[Model] = [
         comp_query="nintendo switch console", specificity=30,
         note="FLOOR at p25 of a $141.67 median (n=69). The base Switch was "
              "ENTIRELY ABSENT from the book - switch_oled only matched 'switch "
-             "oled', so every plain HAC-001 on Goodwill (80 live) was invisible.",
+             "oled', so every plain HAC-001 on Goodwill (80 live) was invisible." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $105.00 of a $129.99 median (n=50). Was $120.00.",
     ),
     Model(
         key="switch_lite",
@@ -1083,7 +1170,7 @@ MODELS: list[Model] = [
     Model(
         key="gba_original",
         label="Game Boy Advance (original AGB-001)",
-        comp=59.00, measured="2026-08-16", sample=99,
+        comp=53.06, measured="2026-08-19", sample=105,
         # Leron's link #274075162 is exactly this: "Game Boy Advance Pokemon
         # Edition AGB-001". It was FETCHED by the existing "pokemon game boy
         # advance" term and then dropped, because the book knew only the SP.
@@ -1100,7 +1187,8 @@ MODELS: list[Model] = [
              "$28.86, so most listed GBAs are ALREADY TOO EXPENSIVE - the "
              "point of this model is to price them and say no out loud, not "
              "to chase them. Specificity is below gba_sp (25) so an SP in the "
-             "title always wins.",
+             "title always wins." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $53.06 of a $69.99 median (n=105). Was $59.00.",
     ),
 
     # --- Loose GBA/GBC carts that hide inside junk-titled lots ---------------
@@ -1160,7 +1248,14 @@ MODELS: list[Model] = [
         key="zelda_link_awakening_dx",
         label="Zelda: Link's Awakening DX (GBC)",
         comp=50.00, measured="2026-08-16", sample=166,
-        include=r"link'?s\s*awakening",
+        # 🚨 THE TIER IS THE *DX* CART AND THE PATTERN NEVER SAID SO. Bare
+        # `link's awakening` also matches the 1993 monochrome Game Boy release,
+        # which is a different product at a tenth the price: of 32 routed solds
+        # on 2026-08-19 the p25 was $4.61 against this tier's $50 comp, and the
+        # cheap end was wall-to-wall "Zelda Link's Awakening Nintendo GameBoy
+        # Japan" at $2-4. Require the DX/Color evidence the label claims.
+        include=r"link'?s\s*awakening(?=.*(?:\bdx\b|\bcolor\b|\bgbc\b))|"
+                r"(?:\bdx\b|\bcolor\b|\bgbc\b)(?=.*link'?s\s*awakening)",
         exclude=r"\bswitch\b|\brepro\b|reproduction|\bfake\b|bootleg|\bsealed\b|"
                 r"\bcib\b|box only|\bmanual\b|label only|for parts|parts only",
         outbound_shipping=5.00, category="videogames",
@@ -1413,24 +1508,26 @@ MODELS: list[Model] = [
     Model(
         key="g7x_mark3",
         label="Canon PowerShot G7X Mark III",
-        comp=1145.90, measured="2026-07-28", sample=11,
+        comp=915.00, measured="2026-08-19", sample=109,
         include=r"g7\s*x.{0,25}mark\s*(iii\b|3\b)",
         exclude=r"for parts|parts only|not working|broken|\brepair\b",
         outbound_shipping=6.00, category="cameras",
         comp_query="canon powershot g7x mark iii", specificity=66,
         note="Vlogger-boom pricing - verify it powers on; a broken pop-up flash "
-             "unit still sold for $606.",
+             "unit still sold for $606." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $915.00 of a $1,099.00 median (n=109). Was $1,145.90.",
     ),
     Model(
         key="g7x_mark2",
         label="Canon PowerShot G7X Mark II",
-        comp=1149.35, measured="2026-07-28", sample=27,
+        comp=992.32, measured="2026-08-19", sample=181,
         include=r"g7\s*x.{0,25}mark\s*(ii\b|2\b)",
         exclude=r"for parts|parts only|not working|broken|\brepair\b",
         outbound_shipping=6.00, category="cameras",
         comp_query="canon powershot g7x mark ii", specificity=65,
         note="The single most valuable item in the book. TikTok made this THE "
-             "camera; it sold for $699 new in 2016.",
+             "camera; it sold for $699 new in 2016." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $992.32 of a $1,062.26 median (n=181). Was $1,149.35.",
     ),
     Model(
         key="g7x",
@@ -1490,7 +1587,7 @@ MODELS: list[Model] = [
     Model(
         key="canon_5d3",
         label="Canon EOS 5D Mark III",
-        comp=400.00, measured="2026-07-30", sample=57,
+        comp=330.00, measured="2026-08-19", sample=163,
         include=r"5d\s*mark\s*iii|5d\s*mk\s*iii|\b5d3\b",
         # \b after ii keeps this from swallowing Mark II ($250) titles; the
         # include's explicit iii keeps Mark IV ($900) from matching either.
@@ -1500,7 +1597,8 @@ MODELS: list[Model] = [
         outbound_shipping=10.00, category="cameras",
         comp_query="canon 5d mark iii", specificity=56,
         note="$416.07 used median (n=57), floored to $400. Check shutter count "
-             "if stated; body-only is the normal sale.",
+             "if stated; body-only is the normal sale." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $330.00 of a $399.00 median (n=163). Was $400.00.",
     ),
     Model(
         key="sony_a6000",
@@ -1516,19 +1614,20 @@ MODELS: list[Model] = [
     Model(
         key="gopro_hero11",
         label="GoPro HERO 11 Black",
-        comp=160.00, measured="2026-07-30", sample=17,
+        comp=104.50, measured="2026-08-19", sample=69,
         include=r"hero\s*-?\s*11\b",
         exclude=r"session|mount|frame only|housing only|lens cover|door|"
                 r"battery only|charger only|for parts|parts only|not working|broken",
         outbound_shipping=6.00, category="cameras",
         comp_query="gopro hero 11 black", specificity=52,
         note="FLOOR covering the Mini variant (~$158); full-size medians "
-             "$204.63 (n=17). Hero 9/10/12 are unmeasured - do not assume.",
+             "$204.63 (n=17). Hero 9/10/12 are unmeasured - do not assume." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $104.50 of a $149.99 median (n=69). Was $160.00.",
     ),
     Model(
         key="sony_rx100",
         label="Sony RX100 / ZV-1 (1-inch compact)",
-        comp=541.99, measured="2026-07-28", sample=5,
+        comp=358.88, measured="2026-08-19", sample=211,
         # HX99 used to ride along here; it's a 1/2.3-inch travel zoom, NOT an
         # RX100-class 1-inch, and no HX99 comp was ever measured - the sentry
         # nearly advised raising toward $434 on one (2026-07-30). Unpriced
@@ -1538,7 +1637,8 @@ MODELS: list[Model] = [
         outbound_shipping=6.00, category="cameras",
         comp_query="sony rx100 camera", specificity=62,
         note="n=5 - thin sample, and later marks (M3-M7) comp higher than the "
-             "original. Re-measure before bidding near the max.",
+             "original. Re-measure before bidding near the max." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $358.88 of a $503.00 median (n=211). Was $541.99.",
     ),
     Model(
         key="powershot_elph",
@@ -1630,7 +1730,7 @@ MODELS: list[Model] = [
     Model(
         key="olympus_mju2",
         label="Olympus mju-II / Stylus Epic (non-zoom)",
-        comp=484.85, measured="2026-07-28", sample=12, comp_used_only=False,
+        comp=359.00, measured="2026-08-19", sample=124, comp_used_only=False,
         # The fixed-lens f/2.8 Epic IS the mju-II and sells 2.8x the Zoom
         # variants. "Zoom" in the title demotes it to the model below.
         include=r"mju\s*-?\s*(ii\b|2\b)|stylus\s+epic\b",
@@ -1638,23 +1738,25 @@ MODELS: list[Model] = [
         outbound_shipping=6.00, category="cameras",
         comp_query="olympus stylus epic mju", specificity=62,
         note="The model IS the trade: fixed-lens f/2.8 sells $485 (n=12, range "
-             "$300-690), the Zoom versions $176. Confirm NO 'Zoom' on the body.",
+             "$300-690), the Zoom versions $176. Confirm NO 'Zoom' on the body." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $359.00 of a $449.00 median (n=124). Was $484.85.",
     ),
     Model(
         key="stylus_epic_zoom",
         label="Olympus Stylus Epic Zoom 80/115/170",
-        comp=175.68, measured="2026-07-28", sample=28, comp_used_only=False,
+        comp=139.00, measured="2026-08-19", sample=262, comp_used_only=False,
         include=r"stylus\s+(epic\s+)?zoom\s*(80|115|170)|epic\s+zoom",
         exclude=r"for parts|parts only|not working|broken|damaged",
         outbound_shipping=6.00, category="cameras",
         comp_query="olympus stylus epic zoom", specificity=58,
         note="Film-revival pricing on a 90s drugstore camera. Untested units "
-             "sold $15-40, so the working comp only applies if it powers on.",
+             "sold $15-40, so the working comp only applies if it powers on." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $139.00 of a $169.97 median (n=262). Was $175.68.",
     ),
     Model(
         key="canon_ae1",
         label="Canon AE-1 / AE-1 Program (35mm SLR)",
-        comp=150.20, measured="2026-07-28", sample=31, comp_used_only=False,
+        comp=89.00, measured="2026-08-19", sample=159, comp_used_only=False,
         # `can+on` also catches the constant "Cannon" misspelling - one sold
         # for full price under it during the sweep.
         include=r"can+on.{0,50}\bae\s*-?\s*1\b|\bae\s*-?\s*1\b.{0,50}can+on|"
@@ -1664,24 +1766,26 @@ MODELS: list[Model] = [
         comp_query="canon ae-1 camera", specificity=55,
         note="Comp is body+lens (how they're found and sold). 1/3 of solds are "
              "Japan imports at a discount. Mechanical: listen for the 'AE-1 "
-             "squeal' note in the listing; 'film tested' is the magic phrase.",
+             "squeal' note in the listing; 'film tested' is the magic phrase." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $89.00 of a $129.99 median (n=159). Was $150.20.",
     ),
     Model(
         key="pentax_k1000",
         label="Pentax K1000 (35mm SLR)",
-        comp=139.99, measured="2026-07-28", sample=45, comp_used_only=False,
+        comp=85.50, measured="2026-08-19", sample=194, comp_used_only=False,
         include=r"k\s*-?\s*1000\b",
         # The Pentax KM/ME/MX read almost identically and comp differently.
         exclude=r"\bkm\b|\bme\s+super\b|\bmx\b|for parts|parts only|not working|broken",
         outbound_shipping=9.00, category="cameras",
         comp_query="pentax k1000 camera", specificity=55,
         note="The perpetual photo-class camera - demand never dies. Comp is "
-             "body+50mm; body-only sold $49-85.",
+             "body+50mm; body-only sold $49-85." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $85.50 of a $125.00 median (n=194). Was $139.99.",
     ),
     Model(
         key="polaroid_sx70",
         label="Polaroid SX-70 (folding)",
-        comp=99.99, measured="2026-07-28", sample=35, comp_used_only=False,
+        comp=60.00, measured="2026-08-19", sample=97, comp_used_only=False,
         include=r"\bsx\s*-?\s*70\b",
         # The plastic OneStep/Rainbow box cameras share the SX-70 film format
         # and sell for $11-30; only the folding SLR (and its Sonar/Alpha
@@ -1692,7 +1796,8 @@ MODELS: list[Model] = [
         comp_query="polaroid sx-70 camera", specificity=55,
         note="33% of solds are parts/untested - the folding mechanism and rollers "
              "die. Working sells $100 (Sonar $120-200, Alpha 1 $160-300); "
-             "untested only $40-85, so bid the condition you're actually buying.",
+             "untested only $40-85, so bid the condition you're actually buying." 
+             "RE-MEASURED 2026-08-19 on the ROUTED population: p25 $60.00 of a $100.00 median (n=97). Was $99.99.",
     ),
 
     # === Women's apparel (measured 2026-07-28) ================================
@@ -2054,7 +2159,13 @@ MODELS: list[Model] = [
         key="dreamcast",
         label="Sega Dreamcast console",
         comp=95.00, measured="2026-08-15", sample=9, comp_used_only=False,
-        include=r"dreamcast|\bhkt-?\s*3020\b",
+        # 🚨 Was a bare `dreamcast`, which is the exact mistake
+        # `_console_include` exists to prevent. Routed against 5,249 sold
+        # listings on 2026-08-19 it matched exterior SCREWS ($5.99), a modem
+        # module, a VGA box and a Tremor Pak - all under $27, all priced
+        # against a $95 console comp. This tier predates the platform pack that
+        # gave every other console its hardware-evidence guard.
+        include=_console_include(r"dreamcast", r"hkt-?\s*3020"),
         exclude=r"\bgames?\b|controller|\bvmu\b|\bdisc\b|memory card|"
                 r"for parts|parts only|broken|not working|japan|japanese|\bjap\b|"
                 r"ntsc-j|\bpal\b|region free|modded|modchip|\bgdemu\b",
@@ -2459,6 +2570,27 @@ BENCHED_CATEGORIES = {"outerwear", "womens-apparel"}
 
 MODELS = [replace(m, active=False) if m.category in BENCHED_CATEGORIES else m
           for m in MODELS]
+
+# 🚨 THE ACCESSORY GUARD IS APPLIED BY CATEGORY, NOT PASTED INTO 20 EXCLUDES.
+# Every camera tier needs it (see _CAMERA_JUNK for what it cost not to have
+# one), and pasting it into each `exclude=` means the twenty-first tier someone
+# adds next month silently ships without it. Same reasoning as benching by
+# category above: the rule belongs to the category, so state it once.
+MODELS = [replace(m, exclude=(m.exclude + "|" + _CAMERA_JUNK) if m.exclude
+                             else _CAMERA_JUNK)
+          if m.category == "cameras" else m
+          for m in MODELS]
+
+# Same rule, same reason, for consoles - see _CONSOLE_JUNK.
+MODELS = [replace(m, exclude=(m.exclude + "|" + _CONSOLE_JUNK) if m.exclude
+                             else _CONSOLE_JUNK)
+          if m.category == "videogames" else m
+          for m in MODELS]
+
+# Rebuilt AFTER both passes - the dict above was keyed off the pre-replace
+# objects, so anything reading BY_KEY would otherwise see a model whose
+# excludes and active flag disagree with the one `match()` actually uses.
+BY_KEY = {m.key: m for m in MODELS}
 
 
 def match(title: str) -> Optional[Match]:

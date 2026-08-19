@@ -14,7 +14,15 @@ def test_backlit_sp_prices_above_the_plain_sp():
     m001 = match("Nintendo Gameboy Advance SP AGS001 Cobalt Blue")
     assert m101.model.key == "gba_sp_101"
     assert m001.model.key == "gba_sp"
-    assert m101.model.comp > m001.model.comp * 1.5    # the backlight IS the trade
+    # 🚨 THE MULTIPLIER WAS NEVER MEASURED, THE PREMIUM IS. This asserted
+    # `> 1.5x` against comps of $130 and $80, neither of which came from a
+    # routed sample. The 2026-08-19 re-measure put the backlit tier at its
+    # measured p25 of $116.50 (n=168) while the plain SP's $80 was confirmed
+    # (p25 $80.00, n=130) - a real 1.46x premium that the old assertion would
+    # have failed. Assert the premium exists and is material; do NOT hold a
+    # comp above its own measurement to satisfy a round number.
+    assert m101.model.comp > m001.model.comp * 1.25   # the backlight IS the trade
+    assert m101.model.comp > m001.model.comp + 30
 
 
 def test_plain_sp_title_never_prices_as_the_101():

@@ -669,12 +669,18 @@ def test_poshmark_rows_price_through_the_book():
     html = '''<html>
 <script type="application/ld+json">{"@type":"ItemList","itemListElement":[
  {"@type":"ListItem","position":1,"url":"https://poshmark.com/listing/GoPro-HERO-11-Black-6a58fc086cb7779a11e57943"}]}</script>
-<div class="tile-grid-redesign__price-current"> $80</div>
+<div class="tile-grid-redesign__price-current"> $35</div>
 </html>'''
     rows = Poshmark.parse(html)
     got = hunt.evaluate(rows, CFG, hunters=[])
     keys = {c["model"].key for c in got}
-    assert "gopro_hero11" in keys             # $80 vs a $160 comp
+    # 🚨 The FIXTURE PRICE is the knob here, not the comp. This was $80
+    # against a $160 comp; the 2026-08-19 routed re-measure put gopro_hero11 at
+    # $104.50, so $80 no longer clears the deep-discount gate and the row was
+    # dropped - which read as a parser failure. The test only claims a Poshmark
+    # row runs the same evaluate() pipeline, so re-anchor the price and leave
+    # the measured comp alone.
+    assert "gopro_hero11" in keys             # $35 vs a $104.50 comp
 
 
 def test_unprofitable_models_are_removed_not_kept_at_zero():
@@ -752,7 +758,9 @@ def test_shopify_rows_price_through_the_book():
     built around an active model instead of re-purposing an apparel one."""
     from flipscout.hunters import ShopifyStore
     payload = {"resources": {"results": {"products": [
-        {"id": 223, "title": "GoPro HERO 11 Black Action Camera", "price": "80.00",
+        # $35, not the original $80 - see the Poshmark test above: the comp
+        # is now $104.50 and $80 no longer clears the deep-discount gate.
+        {"id": 223, "title": "GoPro HERO 11 Black Action Camera", "price": "35.00",
          "available": True, "url": "/products/gopro-hero-11?_pos=1",
          "image": "https://cdn.shopify.com/x.jpg"},
     ]}}}
