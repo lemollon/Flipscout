@@ -89,6 +89,14 @@ def load_config(env=None) -> dict:
         #             the slots are few, and unused ones fall through.
         #   CLOSING - closing today. Get it armed while there is still slack.
         # Whatever is left goes to the ordinary profit ranking.
+        # 🚨 BUY-IT-NOW PROFIT IS REAL; AUCTION "PROFIT AT OPEN" IS NOT.
+        # A fixed price is the price - no bidding war, no proxy sniping you at
+        # the buzzer, and no waiting days to find out. An auction's profit at
+        # open is measured against a price that has not moved yet and will,
+        # which is why lots days out look richest (median $69.79 at >3d vs
+        # $30.57 inside 6h). Ranking the two together on the same number
+        # flatters the auction every time, so BIN gets its own slots.
+        "bin_slots": int(env.get("FLIPSCOUT_BIN_SLOTS", "0")),          # 0 = top/4
         "urgent_hours": float(env.get("FLIPSCOUT_URGENT_HOURS", "1")),
         "urgent_slots": int(env.get("FLIPSCOUT_URGENT_SLOTS", "0")),    # 0 = top/4
         "closing_hours": float(env.get("FLIPSCOUT_CLOSING_HOURS", "12")),
@@ -706,6 +714,7 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     top = config["top"]
     urgent_h = float(config.get("urgent_hours", 1) or 1)
     closing_h = float(config.get("closing_hours", 12) or 12)
+    bin_slots = int(config.get("bin_slots") or 0) or max(1, top // 4)
     urgent_slots = int(config.get("urgent_slots") or 0) or max(1, top // 4)
     reserved = int(config.get("closing_slots") or 0) or max(1, top // 4)
 
@@ -742,6 +751,13 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
             return None
         return hours_until(c["row"].get("ends"), source=c["row"].get("source"))
 
+    # BUY IT NOW. Ranked by PROFIT rather than by clock - unlike the closing
+    # lanes, nothing is running out, and the number is trustworthy because the
+    # price is final. Leron can act on these immediately: no registration, no
+    # sniper, no bidding war.
+    binned = [c for c in eligible if c["row"].get("listing_type") == "fixed"]
+    took_b = _take(binned, bin_slots)
+
     # 🚨 URGENT FIRST. A lot closing inside the hour cannot wait for the next
     # run, because the next run may be after it has closed. Unused urgent slots
     # are not wasted - each _take is also bounded by how many slots remain free
@@ -759,10 +775,11 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
 
     # Everything else on the usual profit ranking.
     _take(eligible, top - len(fresh))
-    if urgent or closing:
-        print(f"[hunt] urgent lane (<={urgent_h:g}h): {len(urgent)} candidate(s), "
-              f"{took_u} alerted | closing lane (<={closing_h:g}h): "
-              f"{len(closing)} candidate(s), {took_c} alerted")
+    if binned or urgent or closing:
+        print(f"[hunt] buy-it-now lane: {len(binned)} candidate(s), {took_b} "
+              f"alerted | urgent (<={urgent_h:g}h): {len(urgent)}, {took_u} "
+              f"alerted | closing (<={closing_h:g}h): {len(closing)}, "
+              f"{took_c} alerted")
     # Is the queue genuinely refilling, or are we just draining a backlog? This is
     # the difference between "new opportunities daily" and "one pool, dripped out".
     print(f"[hunt] already-alerted: {len(seen)} | qualifying now: {len(all_keys)} | "

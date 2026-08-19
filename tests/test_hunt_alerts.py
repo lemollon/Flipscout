@@ -112,3 +112,33 @@ def test_a_tiny_top_still_reserves_at_least_one_slot_each():
     silently stop working."""
     cfg = load_config({"FLIPSCOUT_TOP": "2"})
     assert max(1, cfg["top"] // 4) == 1
+
+
+# --- buy it now ---------------------------------------------------------------
+
+def test_buy_it_now_gets_its_own_slots():
+    """🚨 A fixed price IS the price - no bidding war, no proxy sniping you at
+    the buzzer, no waiting days. An auction's "profit at open" is measured
+    against a price that has not moved yet and will, which is why lots days out
+    look richest ($69.79 median at >3d vs $30.57 inside 6h).
+
+    Ranking the two on the same number flatters the auction every time. Of the
+    top 10 by profit only 3 were buy-it-now, against 166 on the board.
+    """
+    cfg = load_config({"FLIPSCOUT_TOP": "20"})
+    assert "bin_slots" in cfg
+    assert (cfg["bin_slots"] or max(1, cfg["top"] // 4)) >= 1
+
+
+def test_bin_slots_are_overridable():
+    assert load_config({"FLIPSCOUT_BIN_SLOTS": "8"})["bin_slots"] == 8
+
+
+def test_the_four_lanes_do_not_oversubscribe_the_run():
+    """Reserving everything would starve the profit ranking entirely."""
+    cfg = load_config({"FLIPSCOUT_TOP": "20"})
+    top = cfg["top"]
+    q = max(1, top // 4)
+    reserved = ((cfg["bin_slots"] or q) + (cfg["urgent_slots"] or q)
+                + (cfg["closing_slots"] or q))
+    assert reserved < top, "the profit ranking must keep some slots"
