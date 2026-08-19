@@ -2071,39 +2071,64 @@ MODELS: list[Model] = [
     Model(
         key="citizen_campanola",
         label="Citizen Campanola / Satellite Wave / Attesa / The Citizen",
-        comp=200.00, measured="2026-08-17", sample=14,
+        comp=200.00, measured="2026-08-19", sample=54,
         include=_citizen(r"campanola|satellite\s*wave|\battesa\b|the\s+citizen|series\s*8"),
         exclude=_WATCH_JUNK,
         outbound_shipping=8.00, category="watches", specificity=64,
         comp_query="citizen campanola satellite wave watch",
-        note="FLOOR far below a $549 median (n=14 THIN, $78-$2,520). The halo "
-             "tier - if a title says Campanola it is worth checking by hand.",
+        note="HELD at $200 on purpose, far below the measured p25 of $350 "
+             "(n=54, median $840). The only tier the 2026-08-19 re-measure left "
+             "alone: it is the halo tier, the spread runs to four figures, and "
+             "raising a ceiling is the direction that loses money. If a title "
+             "says Campanola, comp it by hand - the book is deliberately "
+             "leaving money on the table here rather than guessing.",
+    ),
+    Model(
+        key="citizen_promaster_chrono",
+        label="Citizen Promaster chronograph (not a diver)",
+        comp=150.00, measured="2026-08-19", sample=83,
+        include=_citizen(r"promaster").replace(").*$", r")(?=.*chrono).*$"),
+        exclude=_WATCH_JUNK + r"|" + _LADIES + r"|aqualand|\bdivers?\b|\bdiving\b|"
+                r"\bwr\s?200\b|\bwr\s?300\b|\b200\s*m\b|\b300\s*m\b|\bbn0\d|\bny0\d",
+        outbound_shipping=8.00, category="watches", specificity=63,
+        comp_query="citizen promaster chronograph",
+        note="FLOOR at p25 $150 of a $219 median (n=83, routed). Split OUT of "
+             "the diver tier on 2026-08-19: the include there is "
+             "`promaster|aqualand`, so every land chrono was being priced at the "
+             "DIVER comp. Divers p25 $184, chronos p25 $150 - a real gap, "
+             "though smaller than it looked from one lot. 🚨 The vintage 0610-* "
+             "quartz chronos are the THIN end and disagree with each other: "
+             "0610-H03299 (reverse panda) sold $125 and $150, while the "
+             "0610-H03281 navy sold $225 twice. Comp the exact reference before "
+             "bidding near the max.",
     ),
     Model(
         key="citizen_promaster",
         label="Citizen Promaster / Aqualand diver",
-        comp=200.00, measured="2026-08-17", sample=31,
+        comp=183.00, measured="2026-08-19", sample=587,
         include=_citizen(r"promaster|aqualand"),
         exclude=_WATCH_JUNK,
         outbound_shipping=8.00, category="watches", specificity=62,
         comp_query="citizen promaster diver watch",
-        note="FLOOR at ~p25 of a $280 median (n=31). Dive models hold value far "
-             "better than any dress Citizen.",
+        note="FLOOR at p25 $183 of a $260 median (n=587, routed - chronographs "
+             "now go to citizen_promaster_chrono above). Dive models hold value "
+             "far better than any dress Citizen. Was $200 on a n=31 sample.",
     ),
     Model(
         key="citizen_nighthawk",
         label="Citizen Nighthawk / Skyhawk / Blue Angels / Navihawk",
-        comp=145.00, measured="2026-08-17", sample=12,
+        comp=129.00, measured="2026-08-19", sample=307,
         include=_citizen(r"nighthawk|skyhawk|blue\s*angels|navihawk|red\s*arrows"),
         exclude=_WATCH_JUNK,
         outbound_shipping=8.00, category="watches", specificity=60,
         comp_query="citizen nighthawk skyhawk watch",
-        note="FLOOR at p25 of a $300 median (n=12 THIN). The pilot line.",
+        note="FLOOR at p25 $129 of a $176 median (n=307, routed). The pilot "
+             "line. Was $145 on n=12; the bigger sample moved it down, not up.",
     ),
     Model(
         key="citizen_ecodrive_chrono",
         label="Citizen Eco-Drive chronograph",
-        comp=145.00, measured="2026-08-17", sample=201,
+        comp=88.00, measured="2026-08-19", sample=146,
         # 🚨 the extra condition goes INSIDE the anchored group. Appending
         # `(?=.*chrono)` after `_citizen(...)` put it after the closing `.*$`,
         # i.e. at end-of-string, where it can never match.
@@ -2111,22 +2136,26 @@ MODELS: list[Model] = [
         exclude=_WATCH_JUNK + r"|" + _LADIES,
         outbound_shipping=8.00, category="watches", specificity=58,
         comp_query="citizen eco drive chronograph mens watch",
-        note="FLOOR at p25 of a $199.95 median (n=201) - the best-sampled tier "
-             "in the whole Citizen book.",
+        note="FLOOR at p25 $88 of a $139 median (n=146, routed). 🚨 THIS WAS "
+             "$145 AND IT WAS THE WORST NUMBER IN THE BOOK - 65% over. It came "
+             "from running comp_query raw: 174 of those 329 solds are SKYHAWKS "
+             "and PROMASTERS that route to a higher tier and never reach this "
+             "one, and they dragged the median from $139 to $160. Measure a "
+             "tier on what it RECEIVES, never on what its query returns.",
     ),
     Model(
         key="citizen_perpetual",
         label="Citizen Eco-Drive Perpetual Calendar",
-        comp=85.00, measured="2026-08-17", sample=38,
+        comp=85.00, measured="2026-08-19", sample=35,
         include=_citizen(r"perpetual\s*calendar"),
         exclude=_WATCH_JUNK,
         outbound_shipping=8.00, category="watches", specificity=56,
         comp_query="citizen eco drive perpetual calendar",
-        note="FLOOR at $85 - BETWEEN two samples that disagree, and below both "
-             "medians. Split of the broad Eco-Drive population: n=21, p25 $66, "
-             "median $150. Targeted perpetual+bracelet query: n=38, p25 $99, "
-             "median $139. Taking the thinner sample's p25 alone would floor "
-             "this at $66 and quote a $29 max bid on a watch that clears $139. "
+        note="HELD at $85, just under a re-measured p25 of $88 (n=35, median "
+             "$152, 2026-08-19) - the routed sample CONFIRMED the old number, "
+             "so it did not move. It had been set BETWEEN two samples that "
+             "disagreed: broad Eco-Drive split n=21 p25 $66, targeted "
+             "perpetual+bracelet n=38 p25 $99. "
              "🚨 Eco-Drive has a "
              "CAPACITOR, not a battery - a dead one is a $40-70 watchmaker job, "
              "not a $5 swap, and sellers routinely write 'needs a battery'. "
@@ -2135,41 +2164,36 @@ MODELS: list[Model] = [
     Model(
         key="citizen_ecodrive_mens",
         label="Citizen Eco-Drive (men's, no complication)",
-        comp=95.00, measured="2026-08-17", sample=111,
+        comp=62.00, measured="2026-08-19", sample=227,
         include=_citizen(r"eco.?drive"),
         exclude=_WATCH_JUNK + r"|" + _LADIES + r"|chrono|perpetual|promaster|"
                 r"nighthawk|skyhawk|blue\s*angels|navihawk|campanola|satellite\s*wave",
         outbound_shipping=8.00, category="watches", specificity=44,
         comp_query="citizen eco drive mens watch",
-        note="FLOOR at p25 of a $150 median (n=111). 🚨 LADIES Eco-Drive is a "
-             "different product at $40 p25 and is DEAD - see DEAD_MODELS. The "
-             "gender word in the title is the whole difference.",
+        note="FLOOR at p25 $62 of a $100 median (n=227, routed). Was $95 on a "
+             "raw-query n=111 that still had the halo models in it. 🚨 LADIES "
+             "Eco-Drive is a different product at $40 p25 and is DEAD - see "
+             "DEAD_MODELS. The gender word in the title is the whole "
+             "difference.",
     ),
-    Model(
-        key="citizen_quartz_chrono",
-        label="Citizen quartz chronograph (not Eco-Drive)",
-        comp=62.00, measured="2026-08-17", sample=59,
-        include=_citizen(r"chrono"),
-        exclude=_WATCH_JUNK + r"|" + _LADIES + r"|eco.?drive|promaster|nighthawk|"
-                r"skyhawk|blue\s*angels|navihawk|campanola",
-        outbound_shipping=8.00, category="watches", specificity=42,
-        comp_query="citizen chronograph two tone mens watch",
-        note="FLOOR at p25 of a $99 median (n=59). An Eco-Drive chrono is worth "
-             "TWICE this ($199.95 median) - check the dial for 'Eco-Drive', and "
-             "note that 'needs a battery' PROVES it is NOT Eco-Drive.",
-    ),
+    # 🚨 citizen_quartz_chrono WAS HERE AND IS NOW DEAD (2026-08-19).
+    # Comped at $62 it looked like a live tier. Re-measured on the population it
+    # actually receives it is p25 $43 / median $80 (n=43), which nets $28.90 and
+    # quotes a max bid of $0.00 against the book's standing gate ($20 profit over
+    # $9 inbound). It could never clear the bar; the inflated comp was the only
+    # thing keeping it in the book. See DEAD_MODELS.
     Model(
         key="citizen_quartz_mens",
         label="Citizen quartz, men's (plain 3-hand)",
-        comp=48.00, measured="2026-08-17", sample=49,
+        comp=44.00, measured="2026-08-19", sample=149,
         include=_citizen(r"men'?s\b|mens\b"),
         exclude=_WATCH_JUNK + r"|" + _LADIES + r"|eco.?drive|chrono|perpetual|"
                 r"promaster|nighthawk|skyhawk|navihawk|campanola|elegance",
         outbound_shipping=8.00, category="watches", specificity=30,
         comp_query="citizen mens quartz black dial watch",
-        note="FLOOR at ~p25 of a $95 median (n=49) and the THINNEST margin in "
-             "the Citizen book - max bid is about $4 before inbound shipping, so "
-             "this only ever pays on a local pickup.",
+        note="FLOOR at p25 $44 of a $75 median (n=149, routed) and the THINNEST "
+             "margin in the Citizen book - max bid is about $1 before inbound "
+             "shipping, so this only ever pays on a local pickup.",
     ),
 ]
 
@@ -2230,6 +2254,20 @@ DEAD_MODELS = {
     r"((game\s*boy|gameboy)\s*pocket|\bmgb\s*-?\s*001\b)":
         "Game Boy Pocket sells $49.90 (n=154, measured 2026-08-16) -> max pay "
         "$6.29 against a $21 Goodwill median. Cheapest handheld measured",
+    # 🚨 ANCHORED, and it MUST be - this is the only watch entry carrying a
+    # NEGATIVE lookahead. Unanchored, `re.search` retries at every offset, so
+    # `(?!.*eco.?drive)` would eventually succeed at a position PAST the words
+    # it is meant to veto and condemn every Eco-Drive chrono. Same trap the
+    # `_citizen` docstring describes, in the opposite direction.
+    r"^(?=.*\bcitizen\b)(?=.*chrono)"
+    r"(?!.*(eco.?drive|promaster|aqualand|nighthawk|skyhawk|blue\s*angels|"
+    r"navihawk|red\s*arrows|campanola|satellite\s*wave|attesa)).*$":
+        "Citizen quartz chronograph that is NOT Eco-Drive sells p25 $43 / "
+        "median $80 (n=43, measured 2026-08-19) -> max bid $0.00 at the "
+        "$20-over-$9 gate. Was carried at a $62 comp that came from an "
+        "unrouted query; nothing at this comp can clear the bar. "
+        "'Needs a battery' PROVES it is not Eco-Drive.",
+
     # --- WATCH AND CAMCORDER TIERS, measured 2026-08-17 and REFUSED -------
     # Each failed the book's bar ($20 target profit over $9 inbound). They
     # are recorded rather than dropped because every one of them was a real
