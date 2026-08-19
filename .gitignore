@@ -30,6 +30,10 @@ fb_sweep_run.log
 .hibidprofile/
 snipe_armed.json
 hibid_armed.json
+# Which watch-list lots have already been carded. Per-machine, and committing it
+# would tell every other checkout those lots were already alerted - i.e. it
+# would SILENCE them. Same reason as its siblings above.
+hibid_watch_seen.json
 hibid_bidform.json
 sgw_bidform.json
 SNIPE_DISABLED
