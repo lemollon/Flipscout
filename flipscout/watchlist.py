@@ -162,6 +162,16 @@ def hibid_ids() -> dict:
 
 # --- what one watched item is worth ------------------------------------------
 
+def _gw_image(d: dict) -> str:
+    """First photo of a ShopGoodwill item, assembled from its two fields."""
+    server = (d.get("imageServer") or "").strip().rstrip("/")
+    paths = (d.get("imageUrlString") or "").strip()
+    if not server or not paths:
+        return ""
+    first = paths.split(";")[0].replace("\\", "/").lstrip("/")
+    return f"{server}/{first}" if first else ""
+
+
 def _goodwill_item(iid: str) -> Optional[dict]:
     from . import snipe
     d = snipe.detail(iid)
@@ -178,7 +188,11 @@ def _goodwill_item(iid: str) -> Optional[dict]:
         "bids": snipe.bid_count(d),
         "ceiling": snipe.book_ceiling(title, inbound=inbound),
         "premium": 0.0,
-        "image": (d.get("imageServer") or "") and "",
+        # 🚨 THIS LINE WAS `(d.get("imageServer") or "") and ""`, which is
+        # always the empty string - so every ShopGoodwill card shipped without
+        # a picture. The server and the path are two separate fields and the
+        # path is a semicolon-separated list of BACKSLASHED relative paths.
+        "image": _gw_image(d),
     }
 
 
@@ -200,7 +214,9 @@ def _hibid_item(lid: str) -> Optional[dict]:
         "ceiling": H.book_ceiling(title, premium=prem,
                                  tax=float(d.get("tax") or 0)),
         "premium": prem,
-        "image": "",
+        # Was hardcoded empty when this moved out of hibidwatch, which is why
+        # the HiBid cards arrived with no images. See hibidsnipe._og_image.
+        "image": d.get("image") or "",
     }
 
 

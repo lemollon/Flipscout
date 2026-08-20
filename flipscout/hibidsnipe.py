@@ -212,6 +212,15 @@ def _blob(text: str, key: str):
         return None
 
 
+def _og_image(text: str) -> str:
+    """The lot's own featured image, from the page's og:image meta tag."""
+    m = re.search(r'<meta property="og:image" content="([^"]{4,400})"', text)
+    if not m:
+        return ""
+    url = m.group(1).replace("&amp;", "&").strip()
+    return url if url.startswith("http") else ""
+
+
 def detail(lid: str) -> dict:
     """Everything about one lot, from ONE response.
 
@@ -277,6 +286,13 @@ def detail(lid: str) -> dict:
         #
         # Only an authenticated read can answer this; see registered_authed().
         "registered": True if st.get("isRegistered") else None,
+        # 🚨 og:image, NOT featuredPicture. The page carries 212 copies of
+        # `fullSizeLocation` and every one before the lot's own record belongs
+        # to a DIFFERENT lot in the same catalog - the same trap that made this
+        # function read the wrong lot in the first place. og:image is the one
+        # image the page states about ITSELF, and by the time we reach here the
+        # `"id":<lid>` anchor has already proved the page is this lot.
+        "image": _og_image(t),
         "increments": _blob(t, "bidIncrements"),
         "premium": parse_premium(_blob(t, "buyerPremium")),
         "tax": parse_tax(_blob(t, "paymentInfo"), _blob(t, "state")),

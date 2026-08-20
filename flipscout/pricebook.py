@@ -114,6 +114,18 @@ _CAMERA_JUNK = (
 )
 
 
+# 🚨 THE CARD TIERS MUST NEVER EAT A GAME. A sealed WATA- or PSA-graded
+# Pokemon cartridge is a four-figure item, and "PSA 10" appears on both a slab
+# and a graded game. Matching a graded Emerald against a $92 CARD comp would be
+# the most expensive mistake in that block, so every pokemon-cards tier
+# excludes the console vocabulary outright.
+_PKMN_GAME_WORDS = (
+    r"\bgba\b|game\s*boy|gameboy|\bgbc\b|\bgbа\b|cartridge|\bcart\b|"
+    r"nintendo\s*(?:ds|3ds|switch|64)|\bconsole\b|\bhandheld\b|\bwata\b|"
+    r"\bvga\b|\bsealed\s+game\b|\bvideo\s*game\b|\bagb-|\bcgb-|\bdmg-"
+)
+
+
 # --- Pokemon cart guard, 2026-08-19 -----------------------------------------
 # 🚨 THE INVERSE OF `_console_include`, AND IT HAD NEVER BEEN WRITTEN.
 # That helper stops a CONSOLE tier matching a game. Nothing stopped a GAME tier
@@ -168,6 +180,12 @@ _PKMN_JUNK = (
     r"cartridge\s*shell|\bshell\s*only\b|gameshark|game\s*shark|action\s*replay|"
     r"instruction\s*booklet|\bbooklet\b|\bgamepad\b|\bcontroller\b|\bstrategy\b|"
     r"\bno\s*label\b|label\s*only|\bsticker\b|"
+    # 🚨 A GRADED OR SEALED GAME IS NOT A LOOSE CART. Caught 2026-08-20 while
+    # adding the card tiers: "Pokemon Emerald Game Boy Advance WATA 9.8 Sealed"
+    # priced against pkmn_emerald's $108.75 loose-cart comp, and a WATA 9.8
+    # sealed Emerald is a four-figure item. The grade and the seal are the
+    # whole product; refusing is right until there is a measured tier for them.
+    r"\bwata\b|\bvga\s*\d|\b(?:psa|bgs|cgc)\s*\d|\bgraded\b|\bsealed\b|"
     # 🚨 AND THE TRADING CARDS, WHICH ARE NAMED AFTER THE GAMES. "Pokemon
     # Crystal Guardians" and "EX FireRed & LeafGreen" are TCG SETS, so a card
     # carries the cart's exact name and matched the cart tier:
@@ -883,6 +901,68 @@ MODELS: list[Model] = [
              "tier was matching Japanese carts, consoles sold WITH the game, "
              "cartridge shells and TCG singles named after the game.",
     ),
+    # --- Pokemon TRADING CARDS, measured 2026-08-20 --------------------------
+    # 🚨 CATEGORY "pokemon-cards", NOT "pokemon". The cart tiers carry
+    # _PKMN_JUNK, which exists to keep TCG singles OUT of them - giving these
+    # the same category would apply that guard to itself and reject every card
+    # on sight.
+    #
+    # 🚨 AND THEY MUST NOT EAT GRADED GAMES. A sealed WATA/PSA-graded Pokemon
+    # cartridge is a four-figure item; matching it against a $92 card comp
+    # would be the most expensive mistake in this block, so every tier here
+    # excludes the console/cartridge vocabulary outright.
+    #
+    # Measured against 2,764 sold TCG listings. The honest finding is that most
+    # of this category CANNOT be priced from a title - see the lot entries in
+    # DEAD_MODELS. What survives is where the title states the two things that
+    # actually drive the price: a GRADE, or a named chase card from the vintage
+    # era.
+    Model(
+        key="pkmn_card_graded_high",
+        label="Pokemon card, graded 9 or 10 (PSA/BGS/CGC)",
+        comp=112.50, measured="2026-08-20", sample=111,
+        include=r"(?=.*pok[eé]mon|.*\bpkmn\b)(?=.*\b(?:psa|bgs|cgc)\s*(?:10|9\.5|9)\b).*",
+        exclude=_PKMN_GAME_WORDS + r"|\blot\b|\bbulk\b|\breprint\b|\bproxy\b|"
+                r"\bfake\b|\bcustom\b|\bmetal\b|\bcoin\b|\bsticker\b",
+        outbound_shipping=5.00, category="pokemon-cards", specificity=48,
+        comp_query="pokemon psa 10 card",
+        note="FLOOR at p25 $112.50 of a $249.99 median (n=111). The grade IS "
+             "the comp here - a slab states its condition, which is the one "
+             "thing a raw card's title never does.",
+    ),
+    Model(
+        key="pkmn_card_graded",
+        label="Pokemon card, graded (any grade)",
+        comp=92.00, measured="2026-08-20", sample=256,
+        include=r"(?=.*pok[eé]mon|.*\bpkmn\b)(?=.*\b(?:psa|bgs|cgc|ace)\s*(?:10|9\.5|9|8|7)\b).*",
+        exclude=_PKMN_GAME_WORDS + r"|\blot\b|\bbulk\b|\breprint\b|\bproxy\b|"
+                r"\bfake\b|\bcustom\b|\bmetal\b|\bcoin\b|\bsticker\b",
+        outbound_shipping=5.00, category="pokemon-cards", specificity=46,
+        comp_query="pokemon psa graded card",
+        note="FLOOR at p25 $92 of a $200 median (n=256). Wide on purpose - a "
+             "PSA 7 and a PSA 10 of the same card differ 10x, so the 9/10 tier "
+             "above takes the ones that say so.",
+    ),
+    Model(
+        key="pkmn_card_vintage_chase",
+        label="Pokemon vintage single, named chase card (1999-2004)",
+        comp=51.00, measured="2026-08-20", sample=142,
+        include=(r"(?=.*pok[eé]mon|.*\bpkmn\b)"
+                 r"(?=.*\b(?:199\d|200[0-4])\b)"
+                 r"(?=.*(?:charizard|blastoise|venusaur|lugia|umbreon|espeon|"
+                 r"mewtwo|\bmew\b|rayquaza|gengar|dragonite|shining)).*"),
+        exclude=_PKMN_GAME_WORDS + r"|\blot\b|\bbulk\b|\(\d+\)|\bx\s?\d+\b|"
+                r"\b(?:psa|bgs|cgc)\b|\breprint\b|\bproxy\b|\bfake\b|\bcustom\b|"
+                r"\bjumbo\b|\bsticker\b|\bcoin\b|\bbinder\b",
+        outbound_shipping=5.00, category="pokemon-cards", specificity=44,
+        comp_query="pokemon vintage charizard card",
+        note="FLOOR at p25 $51 of a $128.26 median (n=142). 🚨 THE THINNEST "
+             "MARGIN IN THE BOOK - a $9.84 ceiling at the standing gate, so "
+             "this only ever pays on a cheap local lot. Condition is the whole "
+             "variable and a raw card's title does not state it; buy the "
+             "picture, not the words.",
+    ),
+
     Model(
         key="pkmn_rby",
         label="Pokemon Red / Blue / Yellow (GB)",
@@ -2497,6 +2577,57 @@ DEAD_MODELS = {
         "iPod Touch sells p25 $19.50 / median $29.99 (n=160, measured "
         "2026-08-19) -> max bid $0.00. Was carried at $39.99 and even there the "
         "ceiling was $0.29, so it had effectively been dead for a while.",
+
+    # --- POKEMON CARD LOTS, measured 2026-08-20 and REFUSED ---------------
+    # 🚨 THE HONEST ANSWER TO "make the pokemon cards price": MOST OF THEM
+    # CANNOT BE PRICED FROM A TITLE, and saying so is worth more than a number.
+    #
+    # An unsorted vintage lot ran p25 $10.72, median $25.18, max $1,061 on 65
+    # sold listings - a hundred-fold spread, because the value is in WHICH
+    # cards are in the pile and what condition they are in, and the title says
+    # neither. At the standing gate ($20 over $9 inbound, $5 out) a card tier
+    # needs a comp near $40 before ANY bid clears, so a $10.72 floor quotes
+    # $0.00 and a median-based comp would be a guess with money behind it.
+    #
+    # What IS priceable is where the title states the price driver: a GRADE, or
+    # a named chase card from the vintage era. Those three tiers are live - see
+    # pkmn_card_graded_high / pkmn_card_graded / pkmn_card_vintage_chase.
+    # 🚨 DOES NOT REQUIRE THE WORD "CARD". Leron's own watch list had
+    # "(3) 2000 Dark Pokémon - Charizard, Flareon, Etc", which is plainly a
+    # card lot and never says "card" - it fell through with no tier AND no
+    # reason, which is the one outcome worse than either.
+    #
+    # 🚨 AND IT MUST NOT SWALLOW A GAME LOT. "Lot of 10 Game Boy Advance games
+    # incl Pokemon Emerald" is deliberately still priced (see
+    # test_pokemon_in_a_lot_still_prices_as_pokemon), so the console vocabulary
+    # is excluded here rather than in the caller.
+    r"^(?=.*pok[eé]mon|.*\bpkmn\b)"
+    r"(?=.*(?:\blots?\b|\bbulk\b|\bcollection\b|\bbinder\b|\(\d+\)))"
+    r"(?!.*(?:\bgba\b|game\s*boy|gameboy|\bgbc\b|cartridge|\bcart\b|"
+    r"\bconsole\b|\bhandheld\b|nintendo\s*(?:ds|3ds|switch|64)|\bvideo\s*game\b))"
+    r"(?!.*\b(?:psa|bgs|cgc)\s*\d).*$":
+        "An unsorted Pokemon CARD LOT sells p25 $10.72 / median $25.18 on n=65 "
+        "(measured 2026-08-20) with a max of $1,061 - a 100x spread the title "
+        "cannot resolve, and $0.00 of room at the $20-over-$9 gate. Value is "
+        "which cards and what condition; buy these off the PHOTOS or not at "
+        "all. A graded slab or a named vintage chase card DOES price - see the "
+        "pokemon-cards tiers.",
+
+    # A RAW VINTAGE SINGLE THAT NAMES NO CHASE CARD. Measured on n=357 holo
+    # singles from 1999-2003: p25 $10.50, median $23.26 - which is $0.00 of
+    # room at the standing gate, and non-holo commons are cheaper still. The
+    # chase names carry this category; everything else is bulk with a date on
+    # it. (Leron's "2002 Pokemon Pikachu 124" is exactly this shape.)
+    r"^(?=.*pok[eé]mon|.*\bpkmn\b)(?=.*\b(?:199\d|200[0-4])\b)"
+    r"(?!.*(?:charizard|blastoise|venusaur|lugia|umbreon|espeon|mewtwo|\bmew\b|"
+    r"rayquaza|gengar|dragonite|shining))"
+    r"(?!.*\b(?:psa|bgs|cgc)\s*\d)"
+    r"(?!.*(?:\bgba\b|game\s*boy|gameboy|\bgbc\b|cartridge|\bcart\b|\bconsole\b|"
+    r"\bhandheld\b|nintendo\s*(?:ds|3ds|switch|64)|\bvideo\s*game\b)).*$":
+        "A raw vintage Pokemon single naming no chase card sells p25 $10.50 / "
+        "median $23.26 (n=357, measured 2026-08-20) -> $0.00 of room at the "
+        "$20-over-$9 gate. Name a chase card or show a grade and it prices; "
+        "otherwise it is bulk with a date on it.",
 
     # --- WATCH AND CAMCORDER TIERS, measured 2026-08-17 and REFUSED -------
     # Each failed the book's bar ($20 target profit over $9 inbound). They
