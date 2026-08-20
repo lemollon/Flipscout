@@ -31,7 +31,7 @@ from .ebay_ui import sold_url
 from .pricebook import comp_search
 
 
-def item(c: dict) -> dict:
+def item(c: dict, alerted: bool = False) -> dict:
     """One evaluated candidate -> one board row."""
     row, model, adv, m = c["row"], c["model"], c["advice"], c["match"]
     where = ", ".join(x for x in (row.get("city"), row.get("state")) if x)
@@ -80,6 +80,11 @@ def item(c: dict) -> dict:
         "scam_shaped": scam,
         "condition": row.get("condition") or "",
         "best_offer": bool(row.get("best_offer")),
+        # Did Leron actually get a card for this one, or is it only
+        # inventory? ebayclose sends its T-10 last call on what he was
+        # SENT, and on nothing else - the whole board is ~150 closing
+        # auctions a day, which is a feed, not a last call.
+        "alerted": bool(alerted),
     }
 
 
@@ -92,8 +97,16 @@ def _rank_key(i: dict):
     return (not i.get("scam_shaped"), i.get("profit_at_open") or -1e9)
 
 
-def build(cands: list, now: Optional[_dt.datetime] = None) -> dict:
-    items = [item(c) for c in cands]
+def build(cands: list, now: Optional[_dt.datetime] = None,
+          alerted: Optional[set] = None) -> dict:
+    """`alerted` is the set of "source:id" keys Leron has been sent a card
+    for - hunt's seen-cache plus whatever is going out this run. Rows carry
+    it so a downstream job can tell news from inventory; omitting it marks
+    everything un-alerted, which errs toward silence."""
+    alerted = alerted or set()
+    items = [item(c, alerted=(f"{c['row'].get('source')}:"
+                              f"{c['row'].get('id')}") in alerted)
+             for c in cands]
     return {
         "generated": (now or _dt.datetime.now(_dt.timezone.utc)).isoformat(timespec="seconds"),
         "count": len(items),
@@ -103,10 +116,11 @@ def build(cands: list, now: Optional[_dt.datetime] = None) -> dict:
     }
 
 
-def write(cands: list, path: str, now: Optional[_dt.datetime] = None) -> Optional[str]:
+def write(cands: list, path: str, now: Optional[_dt.datetime] = None,
+          alerted: Optional[set] = None) -> Optional[str]:
     """Write the board (JSON + a browsable BOARD.md next to it). Returns the
     path, or None on failure - publishing must never take the watcher down."""
-    board = build(cands, now=now)
+    board = build(cands, now=now, alerted=alerted)
     try:
         parent = os.path.dirname(path)
         if parent:

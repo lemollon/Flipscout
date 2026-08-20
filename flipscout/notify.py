@@ -145,8 +145,16 @@ def describe_webhook(url: str, session=None) -> str:
         return f"could not resolve webhook: {e}"
 
 
-def notify_rich(candidates: list, content: str = "", env=None, session=None) -> list[str]:
+def notify_rich(candidates: list, content: str = "", env=None, session=None,
+                seed: bool = True) -> list[str]:
     """Post candidates to the webhook as embeds (image + clickable link).
+
+    🚨 `seed=False` FOR ANY CARD discordarm CANNOT ARM. The chips below are
+    the only "buttons" this design has, and `discordarm.parse_card` only
+    recognises shopgoodwill.com/item and hibid.com/lot links - so a 🎯 on an
+    eBay card is a control that silently does nothing while reading exactly
+    like one that worked. Senders that post un-armable cards (ebayclose)
+    turn it off; everything else keeps the one-tap default.
 
     Discord caps a message at 10 embeds, so this chunks. Fail-soft like notify():
     a dead webhook prints instead of raising.
@@ -192,11 +200,12 @@ def notify_rich(candidates: list, content: str = "", env=None, session=None) -> 
                              json={"embeds": [emb]}, timeout=15)
             r.raise_for_status()
             sent.append("webhook")
-            try:
-                seed_arm_reactions((r.json() or {}).get("id"), env=env,
-                                   session=session)
-            except Exception:
-                pass                       # a missing tap-target never blocks the alert
+            if seed:
+                try:
+                    seed_arm_reactions((r.json() or {}).get("id"), env=env,
+                                       session=session)
+                except Exception:
+                    pass                   # a missing tap-target never blocks the alert
         except Exception as e:
             body = ""
             resp = getattr(e, "response", None)

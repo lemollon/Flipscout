@@ -560,7 +560,14 @@ def to_alert(c: dict) -> dict:
 # looked 7 hours closer to ending than it was. Leron, 8/1: an "ENDS in ~0.1h"
 # alert for a lot the site showed with 6 hours left. Same clock-bug family as
 # FLASHPOINT: never raw-compare timestamps across zones.
-_ENDS_TZ = {"goodwill": "America/Los_Angeles", "nellis": "UTC"}
+# 🚨 eBay's itemEndDate is UTC (it ships with a Z). Without an entry here
+# `hours_until` compares it to a NAIVE LOCAL clock, which is only right by
+# accident on the UTC GitHub runner - run the same code on Leron's box
+# (America/Chicago) and every eBay auction reads five hours further out
+# than it is. ebayclose.py runs locally and every minute, so it would have
+# fired the T-10 call at T-5h10m, or never. Added 2026-08-20.
+_ENDS_TZ = {"goodwill": "America/Los_Angeles", "nellis": "UTC",
+            "ebay": "UTC"}
 
 
 def hours_until(ends: Optional[str], now: Optional[_dt.datetime] = None,
@@ -851,7 +858,13 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     # leaves the last good board in place instead of blanking it.
     from . import board as _board
     board_file = config.get("board_file")
-    if board_file and _board.write(cands, board_file):
+    # 🚨 `seen` PLUS this run's picks, not `seen` alone. The board is written
+    # before the alerts go out and before seen is saved, so flagging off
+    # `seen` by itself would mark everything sent THIS run as un-alerted and
+    # ebayclose would skip the T-10 call on the very lots he just got a card
+    # for. That is the whole feature failing on exactly the newest item.
+    _alerted = seen | {f"{c['row']['source']}:{c['row']['id']}" for c in fresh}
+    if board_file and _board.write(cands, board_file, alerted=_alerted):
         print(f"[hunt] deals board: {len(cands)} item(s) -> {board_file}")
 
     # Independent of whether any deal qualified: the estate-sale calendar is
