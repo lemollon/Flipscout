@@ -187,7 +187,12 @@ def test_no_confirmation_is_a_failure_not_a_win(monkeypatch, tmp_path):
     assert "no confirmation text seen" not in src, (
         "the fail-open branch is back - unknown must never return True")
     # the outcome is decided by the site's own bid count, not by page prose
-    assert "numBids" in src
+    # 🚨 via bid_count(), NOT a raw field read. This asserted `"numBids" in src`
+    # and passed for weeks while being the bug: the detail API returns
+    # `numberOfBids` and never `numBids`, so the proof-of-landing compared None
+    # to None on every snipe and always fell through to "UNVERIFIED".
+    assert "bid_count(" in src
+    assert '.get("numBids")' not in src, "raw numBids reads are the bug"
 
 
 def test_place_bid_reads_the_bid_count_before_and_after():
@@ -257,3 +262,43 @@ def test_the_confirm_step_never_re_clicks_the_trigger_button():
     src = inspect.getsource(snipe.place_bid)
     assert "if b == btn:" in src and "continue" in src, \
         "the confirm loop must skip the button it already clicked"
+
+
+def test_the_confirm_click_uses_the_label_verify_recorded():
+    """🚨 GROUND TRUTH FROM THE REAL DIALOG (Leron, 2026-08-20, item 274020144).
+
+        heading : Confirm Bid
+        body    : "Click Place Bid to confirm your bid of $7.99"
+                  "Once you place your bid, you cannot cancel it."
+        buttons : [Close] [Place Bid]
+
+    So the confirm control is "Place Bid" and the TRIGGER is "Place My Bid".
+    Both matched the old hardcoded list, and query_selector_all returns DOM
+    order - so the "confirmation" click landed back on the trigger, the real
+    confirm was never pressed, and three snipes submitted without landing.
+
+    place_bid must prefer the RECORDED label so a re-wording is a one-line
+    re-verify instead of another silent miss.
+    """
+    import inspect
+    src = inspect.getsource(snipe.place_bid)
+    assert "bidform().get(\"confirm_text\")" in src
+    assert "if b == btn:" in src, "must never re-click the trigger"
+
+
+def test_the_recorded_bidform_matches_what_was_observed():
+    """The file is evidence, not configuration - keep it honest.
+
+    Reads the REAL repo file, not the fixture's stand-in: the autouse fixture
+    redirects BIDFORM_PATH so the other tests can run without one.
+    """
+    import json as _json
+    import pathlib
+    real = pathlib.Path(snipe.__file__).resolve().parent.parent / "sgw_bidform.json"
+    if not real.exists():
+        pytest.skip("sgw_bidform.json not present in this checkout")
+    bf = _json.loads(real.read_text(encoding="utf-8"))
+    assert bf.get("confirm_text") == "Place Bid"
+    assert bf.get("trigger_button") == "Place My Bid"
+    assert bf.get("confirm_dialog") is True
+    assert bf.get("max_input") == "#currentBid"
