@@ -97,51 +97,8 @@ INBOUND = float(os.environ.get("FLIPSCOUT_INBOUND_SHIP", "9"))
 TARGET_PROFIT = float(os.environ.get("FLIPSCOUT_TARGET_PROFIT", "20"))
 
 
-def _now() -> _dt.datetime:
-    return _dt.datetime.now(_dt.timezone.utc)
-
-
-def load_state() -> dict:
-    """Which lots have already been carded, and when we last looked.
-
-    🚨 A CORRUPT STATE FILE MUST NOT PASS FOR AN EMPTY ONE IN SILENCE. Starting
-    clean is the right recovery - the cost is one duplicate card, not a lost
-    arm - but it has to be said out loud, or a re-carded watch list reads as a
-    bug in the alerting rather than a damaged file.
-    """
-    try:
-        d = json.loads(STATE_PATH.read_text(encoding="utf-8"))
-        if isinstance(d, dict) and isinstance(d.get("seen"), dict):
-            return d
-        raise ValueError("state file is not the expected shape")
-    except FileNotFoundError:
-        return {"seen": {}, "last_run": None}
-    except Exception as e:
-        print(f"[hibidwatch] :warning: {STATE_PATH.name} is unreadable "
-              f"({type(e).__name__}: {e}) - starting a fresh one. Lots already "
-              f"carded may be carded once more.")
-        return {"seen": {}, "last_run": None}
-
-
-def save_state(state: dict) -> None:
-    STATE_PATH.write_text(json.dumps(state, indent=2, sort_keys=True),
-                          encoding="utf-8")
-
-
-def due(state: dict, now: Optional[_dt.datetime] = None) -> bool:
-    last = state.get("last_run")
-    if not last:
-        return True
-    try:
-        prev = _dt.datetime.fromisoformat(last)
-    except (TypeError, ValueError):
-        return True
-    if prev.tzinfo is None:
-        prev = prev.replace(tzinfo=_dt.timezone.utc)
-    return ((now or _now()) - prev).total_seconds() >= MIN_GAP_MIN * 60
-
-
 _TOTAL = re.compile(r"Showing\s+[\d,]+\s*-\s*[\d,]+\s+of\s+([\d,]+)\s+lot", re.I)
+
 
 
 def parse_total(body: str) -> Optional[int]:
@@ -211,101 +168,6 @@ def scrape(timeout_s: int = 60) -> dict:
     return out
 
 
-def card(lid: str, d: dict, image: str = "") -> dict:
-    """One watched lot -> one Discord card. A ceiling only when it is real."""
-    title = (d.get("title") or "").strip()
-    prem = float(d.get("premium") or 0)
-    tax = float(d.get("tax") or 0)
-    price = d.get("high_bid")
-    step = min_increment(price or 0, d.get("increments"))
-    m = match(title)
-
-    ends = None
-    try:
-        secs = float(d.get("left"))
-        ends = (f"~{secs / 60:.0f} min" if secs < 5400
-                else f"~{secs / 3600:.1f} h")
-    except (TypeError, ValueError):
-        pass
-
-    c = {
-        "title": title[:240],
-        "url": LOT_URL.format(lid),
-        "buy_url": LOT_URL.format(lid),
-        "image": image or None,
-        "source": "hibid (your watch list)",
-        "bids": d.get("bids"),
-        "ends": ends,
-        "listing_type": "auction",
-        "buyer_premium_rate": prem,
-        "sales_tax_rate": tax,
-        "verdict": "watch",
-    }
-
-    if not m:
-        # 🚨 NOT A REJECTION - AN ADMISSION. The book covering nothing like this
-        # says something about the book, not about the lot. He watched it, so
-        # it is still worth telling him it is live; what Flipscout cannot do is
-        # put a number on it.
-        c["reason"] = (
-            ":grey_question: **You watched this. The book has no comp for it,** "
-            "so Flipscout will not name a ceiling - reply `snipe <amount>` to "
-            "this card with the max hammer bid you want and it arms at exactly "
-            "that."
-            + (f"\n_Buyer's premium {prem * 100:.4g}% is charged on top of the "
-               f"hammer._" if prem else ""))
-        return c
-
-    ceiling = book_ceiling(title, premium=prem, inbound=INBOUND,
-                           target_profit=TARGET_PROFIT, tax=tax)
-    adv = advise(m.model.comp, units=m.units, inbound_shipping=INBOUND,
-                 outbound_shipping=m.model.outbound_shipping,
-                 target_profit=TARGET_PROFIT, current_price=price,
-                 min_bid=d.get("min_bid"), increment=float(step or 1.0),
-                 bid_count=int(d.get("bids") or 0),
-                 buyer_premium_rate=prem, sales_tax_rate=tax)
-    c["comp"] = m.model.comp
-    c["open_bid"] = adv.open_bid
-
-    if ceiling is None or (adv.open_bid or 0) > ceiling:
-        # 🚨 PRINT NO CEILING RATHER THAN ONE HE CANNOT USE. A ceiling below the
-        # next valid bid is not a bid at all, and showing it invites a tap that
-        # arms a number the site would reject.
-        c["verdict"] = "pass"
-        # 🚨 MIND THE WORDING, NOT JUST THE FIELD. discordarm reads a ceiling
-        # out of the card's TEXT - "ceiling"/"max bid" followed by a dollar
-        # figure - and it reads every embed field, not just the money ones. The
-        # first draft of this branch printed no max_bid field and still said
-        # "The book's ceiling is $10.42", which parsed as a live ceiling: a card
-        # promising 🎯 would not arm it, that armed it. Say the number without
-        # the trigger words, and let _ceiling_leak below catch any relapse.
-        c["reason"] = (
-            ":no_entry: **Already past what it is worth.** The next valid bid is "
-            f"**${(adv.open_bid or 0):,.2f}**"
-            + (f" ({d.get('bids')} bids)" if d.get("bids") else "")
-            + (f", and the book stops at **${ceiling:,.2f}** hammer."
-               if ceiling is not None
-               else ", and the book will not price this at all.")
-            + "\nNo bid line is printed on purpose, so 🎯 will not arm it. To "
-              "take it anyway, reply `snipe <amount>`.")
-        return c
-
-    c["verdict"] = "buy"
-    c["max_bid"] = ceiling
-    c["reason"] = (
-        f":eyes: **From your HiBid watch list.** Tap 🎯 to arm the snipe at "
-        f"**${ceiling:,.2f}** hammer"
-        + (f" (~${ceiling * (1 + prem):,.2f} all-in after the "
-           f"{prem * 100:.4g}% premium)" if prem else "")
-        + f".\nComp ${m.model.comp:,.2f}"
-        + (f" · clears ~${adv.profit_at_open:,.2f} if it stops at "
-           f"${(adv.open_bid or 0):,.2f}" if adv.profit_at_open else "")
-        + "\n**Arming places no bid** - it fires about 3 minutes before the "
-          "close."
-        + ("\n:lock: You must be REGISTERED for this auction or the sniper "
-           "refuses it." if d.get("registered") is not True else ""))
-    return c
-
 
 def ceiling_leak(c: dict) -> Optional[float]:
     """What discordarm would ARM this card at, if it disagrees with the card.
@@ -331,100 +193,10 @@ def ceiling_leak(c: dict) -> Optional[float]:
     return None if (seen is not None and abs(seen - want) < 0.005) else seen
 
 
-def run(dry_run: bool = False, force: bool = False, notifier=notify_rich) -> int:
-    state = load_state()
-    if not force and not due(state):
-        print(f"[hibidwatch] last run under {MIN_GAP_MIN:.0f} min ago - skipping")
-        return 0
 
-    wl = scrape()
-    if not wl["ok"]:
-        # 🚨 LOUD. A read that FAILED and a watch list that is EMPTY produce the
-        # same zero cards, so the difference has to be said out loud or the feed
-        # dies without anybody noticing.
-        msg = (f":warning: **Flipscout could not read your HiBid watch list** - "
-               f"{wl['error']}. Nothing you watch is being carded until this is "
-               f"fixed.")
-        print(f"[hibidwatch] {msg}")
-        if not dry_run:
-            try:
-                notify(msg, subject="Flipscout HiBid watch list")
-            except Exception:
-                pass
-        return 1
-
-    ids, total = wl["ids"], wl["total"]
-    state["last_run"] = _now().isoformat()
-    print(f"[hibidwatch] watch list: {len(ids)} lot(s) read"
-          + (f", HiBid reports {total}" if total is not None else ""))
-    # 🚨 NO SILENT CAPS. If the paginator says there are more than we picked up,
-    # the shortfall is named rather than quietly dropped.
-    if total is not None and total > len(ids):
-        print(f"[hibidwatch] :warning: {total - len(ids)} watched lot(s) were "
-              f"NOT read - the list runs past what one page returned. They are "
-              f"not being carded.")
-
-    armed = load_armed()
-    seen = state["seen"]
-    cards, carded = [], []
-    for lid in ids:
-        if lid in armed:
-            continue                       # already decided, already armed
-        if lid in seen:
-            continue                       # carded once; silence means no
-        try:
-            d = detail(lid)
-        except Exception as e:
-            print(f"[hibidwatch] {lid}: lookup failed ({type(e).__name__}) - "
-                  f"leaving it for the next run")
-            continue
-        if d.get("gone") or d.get("closed"):
-            continue
-        c = card(lid, d, wl["images"].get(lid, ""))
-        leak = ceiling_leak(c)
-        if leak is not None:
-            # Never post a card whose text authorises a number its own author
-            # did not intend. Dropping it costs one alert; sending it can cost
-            # a bid.
-            print(f"[hibidwatch] :warning: {lid}: card would arm at ${leak:,.2f} "
-                  f"but its ceiling is {c.get('max_bid')} - NOT posting it. "
-                  f"This is a wording bug in card(), not a HiBid problem.")
-            continue
-        cards.append(c)
-        carded.append(lid)
-
-    if not cards:
-        print("[hibidwatch] nothing new on the watch list")
-        if not dry_run:
-            save_state(state)
-        return 0
-
-    header = (f"👀 **{len(cards)} lot(s) from your HiBid watch list** — you "
-              f"picked these, so every one gets a card even where the book has "
-              f"no opinion.")
-    print(header)
-    for c in cards:
-        print(f"  - [{c['verdict']}] {c['title'][:60]} "
-              + (f"ceiling ${c['max_bid']:,.2f}" if c.get("max_bid")
-                 else "NO ceiling"))
-    if dry_run:
-        return 0
-
-    notifier(cards, content=header)
-    for lid in carded:
-        seen[lid] = _now().isoformat()
-    save_state(state)
-    return 0
-
-
-def main(argv=None) -> int:
-    import sys
-    argv = list(sys.argv[1:] if argv is None else argv)
-    from .mybids import load_env_file
-    load_env_file()
-    return run(dry_run="--dry-run" in argv or "--dry" in argv,
-               force="--force" in argv)
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+# 🚨 run()/card()/main() MOVED TO watchlist.py ON 2026-08-20.
+# Leron asked for ShopGoodwill's watch list too, plus a 30-minute call to arm.
+# A second module that also read HiBid would have carded every lot twice, so
+# the entrypoint lives there now and this file keeps only what it owns: the
+# HiBid scrape, and ceiling_leak, which is the guard that a card's TEXT never
+# authorises more than its `max_bid` does.
