@@ -39,3 +39,7 @@ hibid_bidform.json
 sgw_bidform.json
 SNIPE_DISABLED
 snipe_run.log
+
+# Local queue for the eBay T-10 last call (ebayclose). Machine state, like
+# flipscout_seen.json - it is rebuilt from the published board on first run.
+ebay_closing_state.json
