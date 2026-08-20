@@ -107,7 +107,20 @@ _ITEM = re.compile(
 # against the live channel on 2026-08-18: 0 of 25 cards parsed a ceiling.
 _CEILING = re.compile(
     r"(?:don'?t pay over|max bid|ceiling)[^$\d]{0,40}\$\s*([\d,]+\.?\d*)", re.I)
-_REPLY = re.compile(r"\bsnipe\s+\$?\s*([\d,]+\.?\d*)", re.I)
+# 🚨 A BARE NUMBER IS ENOUGH, AND IT HAS TO BE.
+#
+# This only ever fires on a message that REPLIES to a Flipscout card, so the
+# context is already unambiguous - demanding the word "snipe" on top of that
+# bought nothing and cost a lot. Leron hit the ceiling-less refusal four times
+# in a row on a phone, where replying to a message is already three taps before
+# you type anything; making him also remember a keyword is how a working escape
+# hatch goes unused.
+#
+# Anchored end to end so it is a DELIBERATE amount and not a number that
+# happened to appear in a sentence: "25", "$25", "snipe 25", "arm $25.50",
+# "max 25" and "bid 25" all arm; "looks like 25 of them are junk" does not.
+_REPLY = re.compile(r"^\s*(?:snipe|arm|bid|max|cap)?\s*\$?\s*"
+                    r"([\d,]+(?:\.\d{1,2})?)\s*(?:usd|dollars?)?\s*$", re.I)
 
 
 def _cfg() -> tuple:
@@ -380,7 +393,13 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
         # a HUMAN also tapped it. Discord reports `me` (did this bot react) and
         # `count`, so a seeded chip needs count > 1 before it means anything.
         # Without this every card would arm itself the moment it was posted.
-        emojis = set()
+        # 🚨 AND WHAT THE BOT ITSELF HAS ALREADY SAID. A ⚠ that this bot put on
+        # a card is its record that it has ALREADY refused that tap. Without
+        # reading it back, the refusal has no memory: the 🎯 stays on the card
+        # forever, so every poll refuses again. Leron tapped 🎯 on four
+        # ceiling-less cards on 2026-08-20 and got FOURTEEN identical "NOT
+        # armed" messages in a row, once a minute, still climbing.
+        emojis, bot_chips = set(), set()
         for r in (m.get("reactions") or []):
             name = (r.get("emoji") or {}).get("name")
             if not name:
@@ -388,6 +407,8 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             human = int(r.get("count") or 0) - (1 if r.get("me") else 0)
             if human > 0:
                 emojis.add(name)
+            if r.get("me"):
+                bot_chips.add(name)
         if not emojis & {ARM_EMOJI, DISARM_EMOJI, STRETCH_EMOJI}:
             continue
         site, iid, ceiling = parse_card(m)
@@ -411,16 +432,27 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
             if ceiling is None:
                 # 🚨 Never invent the number. If the card did not print a
                 # ceiling, Leron never saw one, so reacting authorised nothing.
+                #
+                # 🚨 BUT SAY IT ONCE. The ⚠ below is the record that this tap
+                # has already been answered; reading it back is what stops the
+                # refusal repeating every minute for as long as the 🎯 sits on
+                # the card.
+                if NOPE_EMOJI in bot_chips:
+                    continue                   # already told him about this one
                 print(f"{iid}: 🎯 but the card shows no ceiling - "
-                      f"reply `snipe <amount>` instead")
+                      f"reply with an amount instead")
                 if not dry_run:
                     _react(channel, m["id"], NOPE_EMOJI, token)
                     try:
                         from .notify import notify
-                        notify(":warning: **NOT armed** - that card never "
-                               "printed a ceiling, so there is no number to "
-                               "arm at.\nReply `snipe <amount>` to that card "
-                               "with the figure you want.",
+                        notify(f":warning: **Not armed - no ceiling on that "
+                               f"card.**\nThe book cannot price it, so there is "
+                               f"no number you have seen and therefore none I "
+                               f"may arm at.\n\n**Reply to that card with just "
+                               f"the number** - `25`, `$25`, or `snipe 25` all "
+                               f"work - and it arms at exactly that.\n"
+                               f"_Lot {iid}. Saying this once; the ⚠ on the "
+                               f"card is my note that I already did._",
                                subject="Flipscout could not arm")
                     except Exception:
                         pass

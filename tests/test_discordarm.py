@@ -582,3 +582,81 @@ def test_a_broken_confirmation_never_costs_the_rest_of_the_poll(monkeypatch):
 def test_confirm_tolerates_a_junk_premium():
     discordarm._confirm("hibid", "123456789", 41.34,
                         {"title": "x", "premium": "bad"}, 0.0, {})
+
+
+# --- the ceiling-less refusal must be said ONCE ------------------------------
+
+def _card_msg(mid, iid, chips):
+    """A Flipscout card with `chips` = {emoji: (count, bot_reacted)}."""
+    return {"id": mid, "content": "",
+            "embeds": [{"title": "Some lot", "url": f"https://hibid.com/lot/{iid}",
+                        "fields": [{"name": "Links",
+                                    "value": f"[Buy it here](https://hibid.com/lot/{iid})"}]}],
+            "reactions": [{"emoji": {"name": e}, "count": c, "me": me}
+                          for e, (c, me) in chips.items()]}
+
+
+def test_a_ceilingless_tap_is_refused_once_not_every_minute(monkeypatch, capsys):
+    """🚨 THE REFUSAL HAD NO MEMORY.
+
+    The 🎯 stays on the card forever, so a refusal that does not record itself
+    fires again on every poll. Leron tapped 🎯 on four ceiling-less cards on
+    2026-08-20 and got FOURTEEN identical "NOT armed" messages, once a minute,
+    still climbing. The ⚠ the bot puts on the card is the record; reading it
+    back is what stops the loop.
+    """
+    from flipscout import discordarm as DA
+    monkeypatch.setattr(DA, "_cfg", lambda: ("tok", "chan"))
+    # already refused: 🎯 tapped by a human, ⚠ already placed by the bot
+    msg = _card_msg("m1", "999888777",
+                    {DA.ARM_EMOJI: (2, True), DA.NOPE_EMOJI: (1, True)})
+    monkeypatch.setattr(DA, "_get", lambda *a, **k: [msg])
+    monkeypatch.setattr(DA, "seed_missing", lambda *a, **k: 0)
+    monkeypatch.setattr(DA, "_react", lambda *a, **k: True)
+    sent = []
+    monkeypatch.setattr("flipscout.notify.notify",
+                        lambda msg, **k: sent.append(msg))
+    DA.scan()
+    assert not sent, "the refusal repeated even though the bot had already ⚠'d it"
+
+
+def test_a_ceilingless_tap_IS_refused_the_first_time(monkeypatch):
+    from flipscout import discordarm as DA
+    monkeypatch.setattr(DA, "_cfg", lambda: ("tok", "chan"))
+    msg = _card_msg("m1", "999888777", {DA.ARM_EMOJI: (2, True)})   # no ⚠ yet
+    monkeypatch.setattr(DA, "_get", lambda *a, **k: [msg])
+    monkeypatch.setattr(DA, "seed_missing", lambda *a, **k: 0)
+    monkeypatch.setattr(DA, "_react", lambda *a, **k: True)
+    sent = []
+    monkeypatch.setattr("flipscout.notify.notify",
+                        lambda msg, **k: sent.append(msg))
+    DA.scan()
+    assert len(sent) == 1
+    assert "Reply to that card" in sent[0]
+
+
+# --- naming your own number ---------------------------------------------------
+
+@pytest.mark.parametrize("text,want", [
+    ("25", 25.0), ("$25", 25.0), ("snipe 25", 25.0), ("arm $25.50", 25.5),
+    ("max 25", 25.0), ("bid 25", 25.0), ("25.00", 25.0), ("$1,250", 1250.0),
+])
+def test_a_bare_number_reply_is_a_valid_max(text, want):
+    """🚨 IT ONLY EVER FIRES ON A REPLY TO A CARD, so the context is already
+    unambiguous - demanding the word "snipe" on top bought nothing and cost a
+    lot. On a phone, replying is three taps before you type anything; making
+    him also remember a keyword is how a working escape hatch goes unused."""
+    from flipscout import discordarm as DA
+    m = DA._REPLY.search(text)
+    assert m is not None, f"{text!r} should be accepted"
+    assert DA._money(m.group(1)) == want
+
+
+@pytest.mark.parametrize("text", [
+    "looks like 25 of them are junk", "what about 25 or 30", "snipe it",
+    "no", "", "maybe 25?",
+])
+def test_a_number_inside_a_sentence_is_not_an_authorisation(text):
+    """Anchored end to end on purpose: an amount must be DELIBERATE."""
+    from flipscout import discordarm as DA
+    assert DA._REPLY.search(text) is None, f"{text!r} must not arm anything"

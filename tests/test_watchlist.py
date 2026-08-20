@@ -192,3 +192,37 @@ def test_corrupt_state_starts_clean_rather_than_crashing(capsys):
     st = W.load_state()
     assert st["seen"] == {} and st["warned"] == {}
     assert "unreadable" in capsys.readouterr().out
+
+
+# --- images -----------------------------------------------------------------
+
+def test_shopgoodwill_image_is_assembled_from_its_two_fields():
+    """🚨 THIS SHIPPED BROKEN IN #49 AND LERON CAUGHT IT.
+
+    The line was `(d.get("imageServer") or "") and ""`, which evaluates to the
+    empty string no matter what - so every card went out with no picture. The
+    server and the path are separate fields, and the path is a semicolon
+    separated list of BACKSLASHED relative paths.
+    """
+    d = {"imageServer": "https://img.example.com/production/",
+         "imageUrlString": r"106\Items\2026-08-14\abc.jpg;106\Items\2026-08-14\def.jpg"}
+    assert W._gw_image(d) == "https://img.example.com/production/106/Items/2026-08-14/abc.jpg"
+
+
+@pytest.mark.parametrize("d", [
+    {},
+    {"imageServer": "https://img.example.com/"},
+    {"imageUrlString": r"106\Items\abc.jpg"},
+    {"imageServer": "", "imageUrlString": ""},
+])
+def test_a_missing_image_is_empty_not_a_crash(d):
+    assert W._gw_image(d) == ""
+
+
+def test_a_card_without_an_image_simply_has_no_image_key():
+    """Condition is most of the buy decision, so the picture matters - but a
+    missing one must not stop the card going out."""
+    c = W.card(_item(left=10 * 60), closing=True)
+    assert "image" not in c
+    c2 = W.card({**_item(left=10 * 60), "image": "https://x/y.jpg"}, closing=True)
+    assert c2["image"] == "https://x/y.jpg"

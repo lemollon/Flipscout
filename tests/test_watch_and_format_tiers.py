@@ -21,10 +21,13 @@ Every case below is a REAL listing with its measured population, kept verbatim
 so a future change has to answer to the actual market rather than to intuition.
 """
 
+import re
+
 import pytest
 
 from flipscout.bidding import advise
-from flipscout.pricebook import BY_KEY, DEAD_MODELS, MODELS, match
+from flipscout.pricebook import (BY_KEY, DEAD_MODELS, MODELS, match,
+                                  normalize)
 
 # ---------------------------------------------------------------- Citizen ---
 # Measured 2026-08-17, eBay solds, each tier filtered then floored at p25.
@@ -435,3 +438,75 @@ def test_the_ipod_block_was_floored_on_tiny_samples():
         assert BY_KEY[key].measured == "2026-08-19", key
     # the catch-all gained the biggest sample in the whole book
     assert BY_KEY["ipod_classic_nocap"].sample == 566
+
+
+# --- Pokemon TRADING CARDS, measured 2026-08-20 ------------------------------
+# Leron: "fix the pokemon card tiers so those price". The honest answer is that
+# only part of this category CAN be priced from a title, and the refusals carry
+# the measurement that says why.
+
+@pytest.mark.parametrize("title,key", [
+    ("1999 Pokemon Base Set Charizard 4/102 PSA 10 Holo", "pkmn_card_graded_high"),
+    ("Pokemon Neo Genesis Lugia 9/111 BGS 9.5", "pkmn_card_graded_high"),
+    ("Pokemon Blastoise 2/102 Base Set PSA 8", "pkmn_card_graded"),
+    ("2000 Pokemon Team Rocket Dark Charizard Holo 4/82 Unlimited",
+     "pkmn_card_vintage_chase"),
+])
+def test_a_card_whose_title_states_the_price_driver_prices(title, key):
+    """A GRADE or a named vintage chase card - the two things a title actually
+    says that move the number."""
+    m = match(title)
+    assert m is not None, f"{title!r} should price"
+    assert m.model.key == key
+
+
+@pytest.mark.parametrize("title", [
+    # 🚨 REAL ITEMS FROM LERON'S OWN WATCH LIST, 2026-08-20.
+    "Lot Of 1999-2002 Pokemon Cards",
+    "(8) 1999-04 Holo Pokemon Cards",
+    "(3) 2000 Dark Pokemon - Charizard, Flareon, Etc",
+    "2002 Pokemon Pikachu 124",
+])
+def test_an_unpriceable_card_is_refused_WITH_a_measured_reason(title):
+    """🚨 NO TIER *AND* NO REASON IS THE ONE OUTCOME WORSE THAN EITHER.
+
+    An unsorted vintage lot ran p25 $10.72 / median $25.18 / max $1,061 on
+    n=65 - a hundred-fold spread the title cannot resolve. Doubling the sample
+    to 5,101 listings left the chase-lot shape at n=14, where two listings of
+    the SAME card (Dark Charizard 4 04/82) differ 7x on edition and condition
+    alone. That is a finding, not a sampling problem, so these refuse - but
+    they refuse with the number behind the refusal.
+    """
+    assert match(title) is None
+    hits = [why for pat, why in DEAD_MODELS.items()
+            if re.search(pat, normalize(title))]
+    assert hits, f"{title!r} falls through with no tier and no reason"
+
+
+def test_a_graded_GAME_never_prices_as_a_graded_card():
+    """🚨 THE EXPENSIVE ONE. "PSA 10" appears on a slab AND on a graded sealed
+    cartridge, and a WATA 9.8 sealed Emerald is a four-figure item. It matched
+    pkmn_emerald's $108.75 loose-cart comp before this guard."""
+    for t in ("Pokemon Emerald Game Boy Advance WATA 9.8 Sealed",
+              "Pokemon Red Version Game Boy PSA 10 Sealed",
+              "Pokemon Crystal GBC Cartridge PSA 9"):
+        assert match(t) is None, t
+    # ...and a plain loose cart still prices
+    assert match("Pokemon Emerald Version Game Boy Advance GBA Authentic Loose "
+                 "Cartridge").model.key == "pkmn_emerald"
+
+
+def test_the_card_tiers_are_their_own_category():
+    """🚨 category "pokemon-cards", NOT "pokemon". The cart tiers carry
+    _PKMN_JUNK, which exists to keep TCG singles OUT of them - sharing the
+    category would apply that guard to the card tiers themselves and reject
+    every card on sight."""
+    for k in ("pkmn_card_graded_high", "pkmn_card_graded", "pkmn_card_vintage_chase"):
+        assert BY_KEY[k].category == "pokemon-cards", k
+    assert BY_KEY["pkmn_emerald"].category == "pokemon"
+
+
+def test_a_game_lot_naming_pokemon_still_prices():
+    """The refusal must not swallow the deliberate lot behaviour."""
+    m = match("Lot of 10 Game Boy Advance games incl Pokemon Emerald tested")
+    assert m is not None and m.model.key == "pkmn_emerald"
