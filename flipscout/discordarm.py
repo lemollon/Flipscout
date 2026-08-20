@@ -72,6 +72,7 @@ from __future__ import annotations
 import os
 import re
 import sys
+import time
 from typing import Optional
 
 import requests
@@ -556,10 +557,119 @@ def scan(limit: int = 50, dry_run: bool = False) -> int:
     return 0
 
 
+_HOOK_RE = re.compile(r"/webhooks/(\d+)/([\w-]+)")
+
+
+def delete_message(channel: str, msg: dict, token: str) -> tuple:
+    """Delete one message. Returns (ok, how).
+
+    🚨 THE BOT TOKEN CANNOT DO THIS AND DOES NOT NEED TO.
+
+    Deleting a message you did not author needs MANAGE_MESSAGES, which this bot
+    does not have - measured 2026-08-20, it holds VIEW_CHANNEL, SEND_MESSAGES,
+    READ_MESSAGE_HISTORY and ADD_REACTIONS and nothing else, with no channel
+    overwrite. Every bot-token delete came back 403 Missing Permissions.
+
+    But Flipscout's alerts are posted by a WEBHOOK, and a webhook may delete
+    its OWN messages with no permission at all:
+
+        DELETE /webhooks/{id}/{token}/messages/{message_id}
+
+    So the webhook route is tried FIRST and the bot route is only the fallback.
+    That is not a workaround - it is the correct endpoint for the thing we are
+    deleting, and it means cleanup never depends on a permission grant.
+    """
+    mid = msg.get("id")
+    hook = (os.environ.get("FLIPSCOUT_ALERT_WEBHOOK") or "").strip()
+    m = _HOOK_RE.search(hook)
+    if m and str(msg.get("webhook_id")) == m.group(1):
+        r = requests.delete(
+            f"{API}/webhooks/{m.group(1)}/{m.group(2)}/messages/{mid}", timeout=20)
+        if r.status_code in (200, 204):
+            return True, "webhook"
+        if r.status_code == 429:
+            time.sleep(float((r.json() or {}).get("retry_after", 1.5)) + 0.25)
+            r = requests.delete(
+                f"{API}/webhooks/{m.group(1)}/{m.group(2)}/messages/{mid}", timeout=20)
+            if r.status_code in (200, 204):
+                return True, "webhook"
+    r = requests.delete(f"{API}/channels/{channel}/messages/{mid}", timeout=20,
+                        headers={"Authorization": f"Bot {token}"})
+    if r.status_code in (200, 204):
+        return True, "bot"
+    if r.status_code == 403:
+        return False, ("403 - the bot lacks MANAGE_MESSAGES and this message "
+                       "was not posted by our webhook")
+    return False, f"HTTP {r.status_code}"
+
+
+# What cleanup is allowed to remove. Deliberately one narrow shape: the
+# ceiling-less refusal, which used to repeat once a minute per tapped card.
+_JUNK = re.compile(r"(?:NOT|Not) armed.*ceiling", re.S)
+
+
+def cleanup(limit: int = 500, dry_run: bool = True) -> int:
+    """Remove DUPLICATE bot notifications, keeping the newest of each kind.
+
+    🚨 THREE CONDITIONS, ALL REQUIRED, and a deal card can never satisfy them:
+    posted by OUR webhook, carries NO embed, and matches the junk text. A card
+    always has an embed, so the thing you would actually miss is structurally
+    excluded rather than merely unlikely.
+    """
+    token, channel = _cfg()
+    if not token or not channel:
+        print("no FLIPSCOUT_DISCORD_BOT_TOKEN / FLIPSCOUT_DISCORD_CHANNEL_ID")
+        return 2
+    hook = _HOOK_RE.search(os.environ.get("FLIPSCOUT_ALERT_WEBHOOK") or "")
+    seen_newest, targets, scanned, before = False, [], 0, None
+    while scanned < limit:
+        params = {"limit": 100}
+        if before:
+            params["before"] = before
+        try:
+            msgs = _get(f"/channels/{channel}/messages", token, **params)
+        except Exception as e:
+            print(f"read failed: {type(e).__name__}: {e}")
+            return 1
+        if not msgs:
+            break
+        scanned += len(msgs)
+        for m in msgs:
+            if m.get("embeds"):
+                continue                   # never a card
+            if hook and str(m.get("webhook_id")) != hook.group(1):
+                continue                   # never someone else's message
+            if not _JUNK.search(m.get("content") or ""):
+                continue
+            if not seen_newest:
+                seen_newest = True         # keep one as the record
+                continue
+            targets.append(m)
+        before = msgs[-1]["id"]
+
+    print(f"scanned {scanned} messages, {len(targets)} duplicate(s) to remove"
+          + (" (keeping the newest)" if seen_newest else ""))
+    if dry_run or not targets:
+        for m in targets[:10]:
+            print(f"   would delete {m['timestamp'][:19]}")
+        return 0
+    ok = 0
+    for m in targets:
+        good, how = delete_message(channel, m, token)
+        ok += bool(good)
+        if not good:
+            print(f"   {m['id']}: {how}")
+        time.sleep(0.35)
+    print(f"deleted {ok} of {len(targets)}")
+    return 0 if ok == len(targets) else 1
+
+
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     from .mybids import load_env_file
     load_env_file()
+    if argv and argv[0] == "cleanup":
+        return cleanup(dry_run="--yes" not in argv)
     return scan(dry_run="--dry-run" in argv)
 
 
