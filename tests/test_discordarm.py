@@ -660,3 +660,77 @@ def test_a_number_inside_a_sentence_is_not_an_authorisation(text):
     """Anchored end to end on purpose: an amount must be DELIBERATE."""
     from flipscout import discordarm as DA
     assert DA._REPLY.search(text) is None, f"{text!r} must not arm anything"
+
+
+# --- cleanup, and why it does not need MANAGE_MESSAGES -----------------------
+
+def test_delete_prefers_the_webhook_route_over_the_bot_token(monkeypatch):
+    """🚨 THE BOT TOKEN CANNOT DELETE AND DOES NOT NEED TO.
+
+    Deleting a message you did not author needs MANAGE_MESSAGES. Measured
+    2026-08-20, this bot holds VIEW_CHANNEL, SEND_MESSAGES,
+    READ_MESSAGE_HISTORY and ADD_REACTIONS and nothing else, with no channel
+    overwrite - all 43 bot-token deletes came back 403.
+
+    Flipscout's alerts are posted by a WEBHOOK, and a webhook may delete its
+    OWN messages with no permission at all. That is the correct endpoint for
+    what we are deleting, so it is tried FIRST.
+    """
+    from flipscout import discordarm as DA
+    monkeypatch.setenv("FLIPSCOUT_ALERT_WEBHOOK",
+                       "https://discord.com/api/webhooks/999/tok-abc")
+    called = []
+
+    class R:
+        status_code = 204
+        def json(self): return {}
+
+    monkeypatch.setattr(DA.requests, "delete",
+                        lambda url, **k: called.append(url) or R())
+    ok, how = DA.delete_message("chan", {"id": "m1", "webhook_id": "999"}, "tok")
+    assert ok and how == "webhook"
+    assert "/webhooks/999/tok-abc/messages/m1" in called[0]
+    assert "/channels/" not in called[0], "must not use the bot route first"
+
+
+def test_a_message_from_another_webhook_falls_back_to_the_bot_route(monkeypatch):
+    from flipscout import discordarm as DA
+    monkeypatch.setenv("FLIPSCOUT_ALERT_WEBHOOK",
+                       "https://discord.com/api/webhooks/999/tok-abc")
+    called = []
+
+    class R:
+        status_code = 403
+        text = "Missing Permissions"
+        def json(self): return {}
+
+    monkeypatch.setattr(DA.requests, "delete",
+                        lambda url, **k: called.append(url) or R())
+    ok, how = DA.delete_message("chan", {"id": "m1", "webhook_id": "111"}, "tok")
+    assert not ok and "403" in how
+    assert "/channels/chan/messages/m1" in called[0]
+
+
+def test_cleanup_can_never_delete_a_deal_card(monkeypatch):
+    """🚨 A card ALWAYS carries an embed, so excluding embeds makes the thing
+    you would actually miss structurally impossible to hit - not merely
+    unlikely."""
+    from flipscout import discordarm as DA
+    monkeypatch.setattr(DA, "_cfg", lambda: ("tok", "chan"))
+    monkeypatch.setenv("FLIPSCOUT_ALERT_WEBHOOK",
+                       "https://discord.com/api/webhooks/999/tok-abc")
+    card = {"id": "c1", "webhook_id": "999", "timestamp": "2026-08-20T10:00:00",
+            "content": ":warning: NOT armed - no ceiling",   # junk text AND
+            "embeds": [{"title": "a real lot"}]}             # ...but a card
+    junk = [{"id": f"j{i}", "webhook_id": "999", "embeds": [],
+             "timestamp": "2026-08-20T10:00:00",
+             "content": ":warning: **NOT armed** - never printed a ceiling"}
+            for i in range(3)]
+    pages = [junk + [card], []]
+    monkeypatch.setattr(DA, "_get", lambda *a, **k: pages.pop(0))
+    deleted = []
+    monkeypatch.setattr(DA, "delete_message",
+                        lambda ch, m, t: deleted.append(m["id"]) or (True, "webhook"))
+    DA.cleanup(dry_run=False)
+    assert "c1" not in deleted, "a deal card was deleted"
+    assert deleted == ["j1", "j2"], "the newest junk message must be kept"
