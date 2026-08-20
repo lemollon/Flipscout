@@ -246,8 +246,25 @@ def _citizen(tier: str) -> str:
 _LADIES = (r"\bladies\b|\blady'?s?\b|\bwomen'?s?\b|\bwomens\b|\bgirls?\b|"
            r"\bfemale\b")
 
+# 🚨 `band` AND `strap` NEED THE "for/only" TEST, NOT A BUNDLE LOOKBEHIND.
+# These were `_BUNDLED\bband\b|_BUNDLED\bstrap\b`, which fails for exactly the
+# reason the camera `cap` did: the bundling word is not adjacent. "Citizen
+# Sport Eco Drive Chronograph LEATHER STRAP Watch" has "Leather" sitting
+# between, so the lookbehind never sees "with", and a real watch was thrown
+# away. Found 2026-08-20 on an item Leron had actually favourited - it carded
+# with NO ceiling, and the reason was the book refusing to price it at all.
+#
+# Nearly every watch title names its strap ("leather strap", "rubber strap",
+# "steel bracelet"), so this was silently blinding the book to a whole shape of
+# listing. Seiko and G-Shock were unaffected only because they do not use this
+# constant.
+#
+# A strap is junk when it is what is being SOLD - "Strap for Citizen", "Band
+# Only" - and not when the watch merely has one.
 _WATCH_JUNK = (r"\bfor citizen\b|\bfor seiko\b|compatible\s+with|"
-               rf"{_BUNDLED}\bband\b|{_BUNDLED}\bstrap\b|bracelet only|"
+               r"\b(?:straps?|bands?|bracelets?)\b[^,;]{0,45}\bfor\b|"
+               r"\bfor\b[^,;]{0,45}\b(?:straps?|bands?|bracelets?)\b|"
+               r"\b(?:strap|band|bracelet)s?\s*only\b|"
                r"\bbezel\b|crystal only|movement only|dial only|"
                r"for parts|parts only|\bbroken\b|not working")
 
