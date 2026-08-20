@@ -219,18 +219,45 @@ def detail(lid: str) -> dict:
     introspection and exposes no single-lot query (`lot` takes an ID but
     returns an opaque LotAccessType), while the page embeds the whole state
     object the site's own UI runs on.
+
+    🚨 THE PAGE IS NOT ALWAYS THE LOT YOU ASKED FOR. Measured 2026-08-20:
+    hibid.com/lot/318429788 returned a body whose `lead` was "1988 Pillsberry
+    Company cookie jar" while the page's own <title> said "Complete Gameboy
+    Advance Pokemon Sapphire Version", and /lot/313948695 came back once as
+    "Back to the Future 3 Movie Script" with isClosed=true, then correctly as
+    the Mitutoyo micrometers with six days left on the next poll. Same URL,
+    same second, different lot.
+
+    Reading that blindly is how all four armed lots died: run() believes
+    `closed` immediately, so one contaminated response retires a live snipe
+    permanently and silently, and arm() priced two ceilings off the WRONG
+    item's title ("STOP Sign" for what is really a Casio G-Shock).
+
+    So every field is now read from the requested lot's OWN record, anchored on
+    `"id":<lid>,` - `lead` sits 31 bytes after it and `lotState` 153. If that
+    anchor is absent the response is about some other lot and is reported as
+    `gone` (a transient bad fetch, which the caller already handles with a
+    three-strike rule) plus `mismatch`, so it can never be mistaken for the
+    site saying this lot has ended.
     """
     r = requests.get(_LOT_URL.format(lid), headers={"User-Agent": _UA}, timeout=30)
     r.raise_for_status()
     t = r.text
-    st = _blob(t, "lotState") or {}
+    anchor = t.find(f'"id":{lid},')
+    if anchor == -1:
+        return {"lot_id": lid, "gone": True, "mismatch": True}
+    # Lot-scoped: everything that describes THIS lot lives in its own record.
+    scope = t[anchor:anchor + 20000]
+    st = _blob(scope, "lotState") or {}
     if not st:
         # Closed and archived auctions serve a stripped shell with no state.
         return {"lot_id": lid, "gone": True}
     return {
         "lot_id": lid,
         "gone": False,
-        "title": (_blob(t, "lead") or "").strip(),
+        # 🚨 SCOPED, like lotState. This is the field that priced the wrong
+        # item: read from the whole document it returned another lot's name.
+        "title": (_blob(scope, "lead") or "").strip(),
         # 🚨 UNKNOWN, NOT ZERO. `or 0` collapsed "the page did not say" into
         # "the lot is at $0.00", and run() then priced the next bid off that
         # phantom and reported "$0.00 when it fired" - a number that was never
@@ -435,6 +462,23 @@ def arm(url_or_id: str, max_bid: float, override: bool = False,
         stretch: float = 0.0) -> int:
     lid = lot_id(url_or_id)
     d = detail(lid)
+    # 🚨 NEVER PRICE A CEILING OFF A PAGE THAT IS NOT THIS LOT. This already
+    # happened twice: lot 317709253 was armed at $11.09 as "STOP Sign" and is
+    # really a Casio G-Shock, and 318429788 was armed at $22.77 as a "1992
+    # Topps Baseball Card Set" and is really a Pokemon Sapphire cart. Both
+    # ceilings came from the book pricing somebody else's item. Retry rather
+    # than arm - the contamination is intermittent, so the next read is usually
+    # clean.
+    for _ in range(4):
+        if not d.get("mismatch"):
+            break
+        time.sleep(1.5)
+        d = detail(lid)
+    if d.get("mismatch"):
+        print(f"{lid}: HiBid kept returning a DIFFERENT lot's page for this "
+              f"URL (5 tries). Not arming - a ceiling priced off the wrong "
+              f"item is worse than no ceiling. Try again in a minute.")
+        return 1
     if d.get("gone"):
         print(f"{lid}: lot is closed or archived - nothing to arm")
         return 1
@@ -704,7 +748,13 @@ def run(dry_run: bool = False) -> int:
         #
         # `closed` is different: that is the site stating the lot is finished,
         # so it is believed immediately.
-        if d.get("closed"):
+        # 🚨 A MISMATCHED PAGE IS NOT THIS LOT, SO IT CANNOT END THIS LOT.
+        # detail() sets `mismatch` when the body it got back belongs to a
+        # different lot (see its docstring - HiBid does this intermittently).
+        # Believing `closed` off one of those is what silently retired all four
+        # armed lots on 2026-08-19 while every one of them was still live with
+        # days to run. Fall through to the three-strike `gone` path instead.
+        if d.get("closed") and not d.get("mismatch"):
             a["status"] = "ENDED_UNBID"
             changed = True
             continue

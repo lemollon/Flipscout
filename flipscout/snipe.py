@@ -268,7 +268,7 @@ def place_bid(iid: str, amount: float, dry_run: bool) -> tuple:
             box.fill(f"{amount:.2f}")
             # Ground truth for "did it land", read BEFORE we touch anything.
             try:
-                bids_before = detail(iid).get("numBids")
+                bids_before = bid_count(detail(iid))
             except Exception:
                 bids_before = None
             btn = None
@@ -289,10 +289,31 @@ def place_bid(iid: str, amount: float, dry_run: bool) -> tuple:
             # second control is pressed. Missing this is why a snipe reported
             # success on 2026-08-18 while the lot still read "Number of
             # Bids: 0".
+            # 🚨 USE WHAT VERIFY OBSERVED, NOT A GUESS LIST.
+            #
+            # Leron ran `snipe verify` on item 274020144 on 2026-08-20 and the
+            # dialog is real: heading "Confirm Bid", body "Click Place Bid to
+            # confirm your bid of $7.99", buttons [Close] [Place Bid]. So the
+            # confirm control is "Place Bid" while the TRIGGER is "Place My
+            # Bid" - and both matched the old pattern.
+            #
+            # That is the whole failure. query_selector_all returns DOM order,
+            # the trigger comes first, so the "confirmation" click landed back
+            # on the button already pressed. The real confirm was never touched
+            # and the bid never went in - three lots, none landed, one of them
+            # a camcorder that closed at $10.00 against a $72.70 max.
+            #
+            # Skipping `btn` fixes the ordering; preferring the RECORDED label
+            # means a future wording change is a one-line re-verify rather than
+            # another silent miss.
+            want = (bidform().get("confirm_text") or "").strip()
+            pattern = (re.escape(want) if want else
+                       r"confirm|confirm bid|yes|ok|place bid|submit")
             for b in pg.query_selector_all("button, input[type='submit']"):
+                if b == btn:
+                    continue                # never re-click the trigger
                 label = (b.inner_text() or b.get_attribute("value") or "").strip()
-                if re.fullmatch(r"(confirm|confirm bid|yes|ok|place bid|"
-                                r"place my bid|submit)", label, re.I):
+                if re.fullmatch(pattern, label, re.I):
                     try:
                         b.click()
                     except Exception:
@@ -322,7 +343,7 @@ def place_bid(iid: str, amount: float, dry_run: bool) -> tuple:
             landed = None
             try:
                 fresh = detail(iid)
-                after_bids = fresh.get("numBids")
+                after_bids = bid_count(fresh)
                 if after_bids is not None and bids_before is not None:
                     landed = int(after_bids) > int(bids_before)
                 elif after_bids is not None:
@@ -368,6 +389,31 @@ def run(dry_run: bool = False) -> int:
                 pass
         return 1
     if not armed:
+        return 0
+    # 🚨 THE GATE HIBID HAS HAD ALL ALONG, AND THIS FILE DID NOT.
+    #
+    # `bidform()` was written and then never called, so ShopGoodwill has been
+    # bidding BLIND: place_bid clicks "Place My Bid" and then guesses at the
+    # confirmation control from a fixed list of labels. Measured 2026-08-18/19,
+    # three armed lots all failed the same way - "submitted but could not
+    # confirm it landed", and every one closed with Bids: 0. A $72.70 max lost
+    # a camcorder that ended at $10.00 with nobody bidding at all.
+    #
+    # Refusing is strictly better than failing silently: a refusal names the
+    # one command that fixes it, where a blind click just loses the lot and
+    # reports a fault after the fact.
+    if not dry_run and not bidform():
+        msg = (":lock: **ShopGoodwill sniping is OFF until the bid form is "
+               "proven.** `sgw_bidform.json` does not exist, so nothing has "
+               "ever recorded what happens after 'Place My Bid' - and the last "
+               "three snipes all submitted without landing.\n"
+               "Run once, in a visible window:  "
+               "`python -m flipscout.snipe verify <item-url>`")
+        print(msg)
+        try:
+            notify(msg, subject="Flipscout - ShopGoodwill bid form unproven")
+        except Exception:
+            pass
         return 0
     changed = False
     for iid, a in list(armed.items()):
@@ -488,6 +534,35 @@ def run(dry_run: bool = False) -> int:
     return 0
 
 
+def bid_count(d: dict):
+    """How many bids the site says this item has, or None.
+
+    🚨 THE FIELD IS `numberOfBids`, AND THIS MODULE ASKED FOR `numBids`.
+
+    Measured 2026-08-20 on item 274020144: the detail response carries 88
+    fields, `numberOfBids` is 1, and `numBids` is not among them. mybids.py has
+    read `numberOfBids` correctly all along; snipe.py asked for the wrong name
+    in five places, and every one of them is on the VERIFICATION path.
+
+    The consequence was silent and total: place_bid proves a bid landed by
+    watching this number move, so it was comparing None to None on every single
+    snipe and falling through to "UNVERIFIED - submitted but could not confirm
+    it landed". The bid may or may not have gone in; the code could never tell,
+    and run() then booked it as FAILED either way. verify() had the same hole,
+    which is why it could not report whether a click had worked.
+
+    Tolerant of both spellings so a future rename cannot re-open this.
+    """
+    for key in ("numberOfBids", "numBids"):
+        v = d.get(key)
+        if v is not None:
+            try:
+                return int(v)
+            except (TypeError, ValueError):
+                return None
+    return None
+
+
 def bidform() -> dict:
     if not BIDFORM_PATH.exists():
         return {}
@@ -518,7 +593,7 @@ def outcome_of(iid: str, my_max: float, d: dict) -> tuple:
         final = float(d.get("currentPrice") or 0)
     except (TypeError, ValueError):
         pass
-    bids = d.get("numBids")
+    bids = bid_count(d)
     try:
         bids = int(bids) if bids is not None else None
     except (TypeError, ValueError):
@@ -690,7 +765,7 @@ def verify(url_or_id: str, timeout_s: int = 240) -> int:
             document.body.appendChild(d);
         }""")
         try:
-            before = int(detail(iid).get("numBids") or 0)
+            before = bid_count(detail(iid))
         except Exception:
             before = None
         print("A window just opened on the lot.")
@@ -726,7 +801,7 @@ def verify(url_or_id: str, timeout_s: int = 240) -> int:
 
         after = None
         try:
-            after = int(detail(iid).get("numBids") or 0)
+            after = bid_count(detail(iid))
         except Exception:
             pass
         ctx.close()

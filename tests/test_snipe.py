@@ -27,6 +27,13 @@ def isolate(tmp_path, monkeypatch):
     monkeypatch.setattr(snipe, "ARMED_PATH", tmp_path / "armed.json")
     monkeypatch.setattr(snipe, "KILL_SWITCH", tmp_path / "SNIPE_DISABLED")
     monkeypatch.setattr(snipe, "PROFILE_DIR", tmp_path / "profile")
+    # Most tests exercise what happens AFTER the bid form is proven, so give
+    # them a verified record - the same shape tests/test_hibidsnipe.py uses.
+    # The gate itself is tested separately below.
+    bf = tmp_path / "sgw_bidform.json"
+    bf.write_text('{"confirm_dialog": true, "buttons": ["Confirm Bid"]}',
+                  encoding="utf-8")
+    monkeypatch.setattr(snipe, "BIDFORM_PATH", bf)
     yield
 
 
@@ -180,7 +187,12 @@ def test_no_confirmation_is_a_failure_not_a_win(monkeypatch, tmp_path):
     assert "no confirmation text seen" not in src, (
         "the fail-open branch is back - unknown must never return True")
     # the outcome is decided by the site's own bid count, not by page prose
-    assert "numBids" in src
+    # 🚨 via bid_count(), NOT a raw field read. This asserted `"numBids" in src`
+    # and passed for weeks while being the bug: the detail API returns
+    # `numberOfBids` and never `numBids`, so the proof-of-landing compared None
+    # to None on every snipe and always fell through to "UNVERIFIED".
+    assert "bid_count(" in src
+    assert '.get("numBids")' not in src, "raw numBids reads are the bug"
 
 
 def test_place_bid_reads_the_bid_count_before_and_after():
@@ -208,3 +220,85 @@ def test_verify_exists_so_the_flow_is_observed_not_guessed():
     from flipscout import snipe as S
     assert callable(S.verify)
     assert S.BIDFORM_PATH.name.endswith(".json")
+
+
+def test_it_refuses_to_bid_until_the_bid_form_is_proven(tmp_path, monkeypatch, capsys):
+    """🚨 THE GATE HIBID HAD AND THIS FILE DID NOT.
+
+    `bidform()` was written and never called, so ShopGoodwill bid BLIND:
+    place_bid clicks "Place My Bid" and then guesses the confirmation control
+    from a fixed list of labels. Measured 2026-08-18/19, three armed lots all
+    failed identically - "submitted but could not confirm it landed" - and
+    every one closed with Bids: 0. A $72.70 max lost a camcorder that ended at
+    $10.00 with nobody bidding at all.
+
+    Refusing names the one command that fixes it; bidding blind just loses the
+    lot and reports a fault afterwards.
+    """
+    monkeypatch.setattr(snipe, "BIDFORM_PATH", tmp_path / "nope.json")
+    snipe.save_armed({"1": {"item_id": "1", "max_bid": 10.0, "status": "ARMED",
+                            "url": "https://shopgoodwill.com/item/1"}})
+    called = []
+    monkeypatch.setattr(snipe, "place_bid",
+                        lambda *a, **k: called.append(a) or (True, "should not happen"))
+    assert snipe.run() == 0
+    assert not called, "bid was attempted with an unproven form"
+    out = capsys.readouterr().out
+    assert "snipe verify" in out
+    # ...and the armed lot is left ARMED, not retired, so it can still be won.
+    assert snipe.load_armed()["1"]["status"] == "ARMED"
+
+
+def test_the_confirm_step_never_re_clicks_the_trigger_button():
+    """🚨 "place my bid" WAS IN THE CONFIRM LIST, and query_selector_all
+    returns DOM order - so the "confirmation" click usually landed back on the
+    ORIGINAL button. The real confirm control was never pressed, which is why
+    a bid could be submitted and never land.
+
+    Asserted against the source because the behaviour lives inside a Playwright
+    session that these tests deliberately never open.
+    """
+    import inspect
+    src = inspect.getsource(snipe.place_bid)
+    assert "if b == btn:" in src and "continue" in src, \
+        "the confirm loop must skip the button it already clicked"
+
+
+def test_the_confirm_click_uses_the_label_verify_recorded():
+    """🚨 GROUND TRUTH FROM THE REAL DIALOG (Leron, 2026-08-20, item 274020144).
+
+        heading : Confirm Bid
+        body    : "Click Place Bid to confirm your bid of $7.99"
+                  "Once you place your bid, you cannot cancel it."
+        buttons : [Close] [Place Bid]
+
+    So the confirm control is "Place Bid" and the TRIGGER is "Place My Bid".
+    Both matched the old hardcoded list, and query_selector_all returns DOM
+    order - so the "confirmation" click landed back on the trigger, the real
+    confirm was never pressed, and three snipes submitted without landing.
+
+    place_bid must prefer the RECORDED label so a re-wording is a one-line
+    re-verify instead of another silent miss.
+    """
+    import inspect
+    src = inspect.getsource(snipe.place_bid)
+    assert "bidform().get(\"confirm_text\")" in src
+    assert "if b == btn:" in src, "must never re-click the trigger"
+
+
+def test_the_recorded_bidform_matches_what_was_observed():
+    """The file is evidence, not configuration - keep it honest.
+
+    Reads the REAL repo file, not the fixture's stand-in: the autouse fixture
+    redirects BIDFORM_PATH so the other tests can run without one.
+    """
+    import json as _json
+    import pathlib
+    real = pathlib.Path(snipe.__file__).resolve().parent.parent / "sgw_bidform.json"
+    if not real.exists():
+        pytest.skip("sgw_bidform.json not present in this checkout")
+    bf = _json.loads(real.read_text(encoding="utf-8"))
+    assert bf.get("confirm_text") == "Place Bid"
+    assert bf.get("trigger_button") == "Place My Bid"
+    assert bf.get("confirm_dialog") is True
+    assert bf.get("max_input") == "#currentBid"
