@@ -27,6 +27,13 @@ def isolate(tmp_path, monkeypatch):
     monkeypatch.setattr(snipe, "ARMED_PATH", tmp_path / "armed.json")
     monkeypatch.setattr(snipe, "KILL_SWITCH", tmp_path / "SNIPE_DISABLED")
     monkeypatch.setattr(snipe, "PROFILE_DIR", tmp_path / "profile")
+    # Most tests exercise what happens AFTER the bid form is proven, so give
+    # them a verified record - the same shape tests/test_hibidsnipe.py uses.
+    # The gate itself is tested separately below.
+    bf = tmp_path / "sgw_bidform.json"
+    bf.write_text('{"confirm_dialog": true, "buttons": ["Confirm Bid"]}',
+                  encoding="utf-8")
+    monkeypatch.setattr(snipe, "BIDFORM_PATH", bf)
     yield
 
 
@@ -208,3 +215,45 @@ def test_verify_exists_so_the_flow_is_observed_not_guessed():
     from flipscout import snipe as S
     assert callable(S.verify)
     assert S.BIDFORM_PATH.name.endswith(".json")
+
+
+def test_it_refuses_to_bid_until_the_bid_form_is_proven(tmp_path, monkeypatch, capsys):
+    """🚨 THE GATE HIBID HAD AND THIS FILE DID NOT.
+
+    `bidform()` was written and never called, so ShopGoodwill bid BLIND:
+    place_bid clicks "Place My Bid" and then guesses the confirmation control
+    from a fixed list of labels. Measured 2026-08-18/19, three armed lots all
+    failed identically - "submitted but could not confirm it landed" - and
+    every one closed with Bids: 0. A $72.70 max lost a camcorder that ended at
+    $10.00 with nobody bidding at all.
+
+    Refusing names the one command that fixes it; bidding blind just loses the
+    lot and reports a fault afterwards.
+    """
+    monkeypatch.setattr(snipe, "BIDFORM_PATH", tmp_path / "nope.json")
+    snipe.save_armed({"1": {"item_id": "1", "max_bid": 10.0, "status": "ARMED",
+                            "url": "https://shopgoodwill.com/item/1"}})
+    called = []
+    monkeypatch.setattr(snipe, "place_bid",
+                        lambda *a, **k: called.append(a) or (True, "should not happen"))
+    assert snipe.run() == 0
+    assert not called, "bid was attempted with an unproven form"
+    out = capsys.readouterr().out
+    assert "snipe verify" in out
+    # ...and the armed lot is left ARMED, not retired, so it can still be won.
+    assert snipe.load_armed()["1"]["status"] == "ARMED"
+
+
+def test_the_confirm_step_never_re_clicks_the_trigger_button():
+    """🚨 "place my bid" WAS IN THE CONFIRM LIST, and query_selector_all
+    returns DOM order - so the "confirmation" click usually landed back on the
+    ORIGINAL button. The real confirm control was never pressed, which is why
+    a bid could be submitted and never land.
+
+    Asserted against the source because the behaviour lives inside a Playwright
+    session that these tests deliberately never open.
+    """
+    import inspect
+    src = inspect.getsource(snipe.place_bid)
+    assert "if b == btn:" in src and "continue" in src, \
+        "the confirm loop must skip the button it already clicked"

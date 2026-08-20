@@ -289,7 +289,14 @@ def place_bid(iid: str, amount: float, dry_run: bool) -> tuple:
             # second control is pressed. Missing this is why a snipe reported
             # success on 2026-08-18 while the lot still read "Number of
             # Bids: 0".
+            # 🚨 NEVER RE-CLICK THE BUTTON WE JUST PRESSED. "place my bid" was
+            # in this very list, and query_selector_all returns DOM order - so
+            # the first match was usually the ORIGINAL button, not the
+            # confirmation. The second click landed back on the trigger, the
+            # real confirm control was never pressed, and the bid never placed.
             for b in pg.query_selector_all("button, input[type='submit']"):
+                if b == btn:
+                    continue
                 label = (b.inner_text() or b.get_attribute("value") or "").strip()
                 if re.fullmatch(r"(confirm|confirm bid|yes|ok|place bid|"
                                 r"place my bid|submit)", label, re.I):
@@ -368,6 +375,31 @@ def run(dry_run: bool = False) -> int:
                 pass
         return 1
     if not armed:
+        return 0
+    # 🚨 THE GATE HIBID HAS HAD ALL ALONG, AND THIS FILE DID NOT.
+    #
+    # `bidform()` was written and then never called, so ShopGoodwill has been
+    # bidding BLIND: place_bid clicks "Place My Bid" and then guesses at the
+    # confirmation control from a fixed list of labels. Measured 2026-08-18/19,
+    # three armed lots all failed the same way - "submitted but could not
+    # confirm it landed", and every one closed with Bids: 0. A $72.70 max lost
+    # a camcorder that ended at $10.00 with nobody bidding at all.
+    #
+    # Refusing is strictly better than failing silently: a refusal names the
+    # one command that fixes it, where a blind click just loses the lot and
+    # reports a fault after the fact.
+    if not dry_run and not bidform():
+        msg = (":lock: **ShopGoodwill sniping is OFF until the bid form is "
+               "proven.** `sgw_bidform.json` does not exist, so nothing has "
+               "ever recorded what happens after 'Place My Bid' - and the last "
+               "three snipes all submitted without landing.\n"
+               "Run once, in a visible window:  "
+               "`python -m flipscout.snipe verify <item-url>`")
+        print(msg)
+        try:
+            notify(msg, subject="Flipscout - ShopGoodwill bid form unproven")
+        except Exception:
+            pass
         return 0
     changed = False
     for iid, a in list(armed.items()):
