@@ -244,3 +244,22 @@ def test_the_product_url_is_the_page_the_price_came_from():
     c = sc.Candidate(product_id="72584", name="Michael Jordan #57",
                      set_name="Basketball Cards 1986 Fleer")
     assert c.url == "https://www.sportscardspro.com/game/72584"
+
+
+def test_the_set_and_the_variant_both_disambiguate_a_pokemon_card():
+    """🚨 "Alakazam #1" is a real card in Base Set, Base Set 2, Expedition,
+    Shadowless AND Team Rocket. Filtering on the card number alone left nine
+    candidates, and the ambiguity guard then refused every Pokemon card - which
+    looked exactly like "the source has no data"."""
+    assert sc._set_tokens("Base") == sc._set_tokens("Pokemon Base Set")
+    assert sc._set_tokens("Base") != sc._set_tokens("Pokemon Base Set 2")
+    assert sc._set_tokens("Neo Discovery") == sc._set_tokens("Pokemon Neo Discovery")
+
+
+def test_no_stray_control_characters_in_this_module():
+    """🚨 A patch script run through a shell heredoc collapsed a regex word
+    boundary into byte 0x08 here on 2026-08-22 - the exact bug `pricebook`
+    already guards against. The escape now lives in the WORD_END constant."""
+    src = open(sc.__file__, "rb").read()
+    for bad in (b"\x08", b"\x07", b"\x0b", b"\x0c"):
+        assert bad not in src, f"control char {bad!r} in sportscards.py"

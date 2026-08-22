@@ -242,3 +242,22 @@ def test_the_comp_link_is_a_tcgplayer_search_not_the_dead_api_url():
     assert "prices.pokemontcg.io" not in c.url
     assert c.url.startswith("https://www.tcgplayer.com/search/pokemon/product")
     assert "Alakazam" in c.url
+
+
+def test_a_grade_keyed_price_overrides_the_raw_slab_rule():
+    """🚨 THE GRADE ITSELF CARRIES VALUE AND THE RAW PRICE CANNOT SEE IT.
+    Measured the day the PriceCharting token went in: a PSA 10 Litten comps at
+    $35.00 while the raw card is $0.25. The raw-only rule called that a PASS -
+    "a slabbed common worth the plastic" - and was wrong by 140x."""
+    from flipscout.sportscards import Candidate
+    g = Candidate(product_id="1", name="Litten #32", set_name="Pokemon Temporal Forces",
+                  price=35.00, ungraded=0.25, volume=87)
+    v = pk.verdict(pk.identify("Pokemon PSA 10 Litten #32"), _comp(0.25), graded=g)
+    assert v.verdict != pk.PASS
+    assert "$35.00 in PSA 10" in v.why and "PriceCharting" in v.why
+
+
+def test_without_a_grade_price_the_raw_slab_rule_still_applies():
+    """The token is optional; the old conservative rule is the fallback."""
+    v = pk.verdict(pk.identify("Pokemon PSA 10 Litten #32"), _comp(0.25), graded=None)
+    assert v.verdict == pk.PASS

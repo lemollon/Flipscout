@@ -245,12 +245,28 @@ def _save_cache() -> None:
         pass
 
 
-def _get(path: str, params: dict, session=None, tries: int = 3) -> Optional[dict]:
+# Pokemon lives on the pricecharting.com side of the same account. Sports is
+# scoped by the sportscardspro host (see the module docstring); Pokemon has no
+# such host, so its results are filtered on console-name instead.
+_POKE_HOST = "https://www.pricecharting.com"
+
+# A regex word boundary, held in a NAMED CONSTANT on purpose.
+# A patch script written through a shell heredoc collapses the
+# two-character escape into byte 0x08 (backspace) before Python
+# ever sees it - `pricebook` has a CI guard for exactly this and
+# this file just repeated the mistake. Referencing a constant
+# means the escape is written once, in one place, by hand.
+WORD_END = chr(92) + "b"
+
+
+def _get(path: str, params: dict, session=None, tries: int = 3,
+         host: Optional[str] = None) -> Optional[dict]:
     """None means "could not ask" - never "no such card"."""
     session = session or requests
     for i in range(tries):
         try:
-            r = session.get(f"{_HOST}{path}", params=params, timeout=_TIMEOUT)
+            r = session.get(f"{host or _HOST}{path}", params=params,
+                            timeout=_TIMEOUT)
             if r.status_code == 200:
                 d = r.json() or {}
                 return d if d.get("status") != "error" else {}
@@ -453,3 +469,113 @@ def read(title: str, ask: Optional[float] = None, session=None,
     except Exception:
         comp = None
     return verdict(title, ask, comp)
+
+
+# --- Pokemon, graded ---------------------------------------------------------
+# 🚨 THIS CLOSES THE GAP `pokemontcg` DELIBERATELY LEFT OPEN. TCGplayer's market
+# price is the RAW card, so a slab got a verdict and no ceiling - "the grade is
+# sitting on a genuinely valuable card, you set the number". The same $49
+# subscription that prices sports cards prices Pokemon BY GRADE:
+#
+#     1999 Alakazam #1 Base Set   raw $35.56   G7 $84.13   G9 $299.50
+#                                 PSA 10 $2,675.00   BGS 10 $3,478.00
+#
+# A live HiBid lot - "1999 Pokemon Alakazam Holo #1 PSA 7" at a $32 bid - went
+# from "no ceiling" to a card that comps at $84.13 in the grade it is actually
+# in. That is the difference between a hint and a decision.
+#
+# 🚨 THE TWO SOURCES DISAGREE ON RAW, AND BY A LOT: TCGplayer says $69.45 for
+# that Alakazam, PriceCharting says $35.56. Neither is wrong - they measure
+# different marketplaces - but do NOT mix them in one sentence. Graded numbers
+# come from here; the raw number stays whichever source is being quoted.
+
+
+
+def _set_tokens(name: str) -> frozenset:
+    """A set's identity as a bag of words, so two spellings of it can be
+    compared.
+
+    pokemontcg calls it "Base"; PriceCharting calls it "Pokemon Base Set". The
+    words "pokemon" and "set" carry no information and appear on one side only,
+    so they come out - what is left ("base") matches, while "Base Set 2" keeps
+    its "2" and correctly does not.
+    """
+    words = re.findall(r"[a-z0-9]+", (name or "").lower())
+    return frozenset(w for w in words if w not in {"pokemon", "set", "cards",
+                                                   "card", "the"})
+
+
+def pokemon_price(name: str, set_name: str, number: str,
+                  grade: Optional[str] = None, session=None, env=None,
+                  variant: str = "") -> Optional[Candidate]:
+    """PriceCharting's price for one Pokemon card, at `grade`. None if unknown.
+
+    Identity comes from `pokemontcg` (which reads set and card number out of a
+    scrappy title far better than a keyword search can); this only prices what
+    that already identified.
+    """
+    tok = token(env)
+    if not tok or not name:
+        return None
+    q = " ".join(x for x in ("pokemon", name, set_name, number) if x)
+    d = _get("/api/products", {"t": tok, "q": q}, session=session,
+             host=_POKE_HOST)
+    if not d:
+        return None
+    poke = [p for p in (d.get("products") or [])
+            if "pokemon" in (p.get("console-name") or "").lower()]
+    if not poke:
+        return None
+    # 🚨 THE CARD NUMBER IS THE DISAMBIGUATOR, and it is in the product name as
+    # "#4". Without it "Charizard Base Set" matches nine products across
+    # reprints and the top hit is whatever the search ranks first.
+    if number:
+        exact = [p for p in poke
+                 if re.search(r"#\s*" + re.escape(str(number)) + WORD_END,
+                              p.get("product-name") or "")]
+        poke = exact or poke
+    # 🚨 THE NUMBER ALONE IS NOT ENOUGH - THE SET IS THE OTHER HALF. "Alakazam
+    # #1" is a real card in Base Set, Base Set 2, Expedition, Shadowless AND
+    # Team Rocket (as Dark Alakazam). Filtering on the number alone left nine
+    # candidates and the ambiguity guard then refused every Pokemon card, which
+    # looked exactly like "the source has no data".
+    if set_name:
+        want = _set_tokens(set_name)
+        same = [p for p in poke
+                if _set_tokens(p.get("console-name") or "") == want]
+        poke = same or poke
+    # 🚨 AND THE VARIANT IS THE THIRD HALF. One card number in one set is still
+    # several products: Base Set Alakazam #1 exists plain, as [Shadowless], and
+    # as [1999-2000]. Shadowless is a different print run worth a multiple, so
+    # this is not cosmetic - it is the same lesson as a sports parallel.
+    #
+    # No variant stated in the title -> take the PLAIN one. A title that does
+    # not say "shadowless" is not describing a shadowless card, and guessing
+    # upward is how a comp inflates.
+    if len(poke) > 1:
+        def bracket(pr):
+            m = re.search(r"\[([^\]]+)\]", pr.get("product-name") or "")
+            return (m.group(1) if m else "").lower()
+        if variant:
+            v = variant.lower()
+            want = [pr for pr in poke if v in bracket(pr)]
+        else:
+            want = [pr for pr in poke if not bracket(pr)]
+        poke = want or poke
+    if len(poke) > 1:
+        return None                    # still ambiguous -> no price, as ever
+    p0 = poke[0]
+    full = _get("/api/product", {"t": tok, "id": p0.get("id")}, session=session,
+                host=_POKE_HOST) or {}
+    price = _pennies(full.get(_column(grade)))
+    if price is None:
+        return None
+    try:
+        vol = int(full.get("sales-volume") or 0) or None
+    except (TypeError, ValueError):
+        vol = None
+    return Candidate(product_id=str(p0.get("id") or ""),
+                     name=p0.get("product-name") or name,
+                     set_name=p0.get("console-name") or set_name,
+                     price=price, ungraded=_pennies(full.get(UNGRADED)),
+                     volume=vol)
