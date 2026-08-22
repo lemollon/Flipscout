@@ -411,3 +411,33 @@ def test_no_ebay_keys_is_not_an_error(capsys):
     finds = _find()
     price_scout_finds(finds, comps=NoKeys())
     assert "lookup failed" in capsys.readouterr().out       # noted, not raised
+
+
+def test_the_fallback_announces_itself_in_discord(monkeypatch):
+    """🚨 A DIAGNOSTIC NOBODY READS IS NOT A DIAGNOSTIC.
+
+    With FLIPSCOUT_CARDS_WEBHOOK unset these cards fall back to the main
+    channel - deliberately, so a routing rule can never make an alert vanish -
+    and the only symptom is that they turn up in the wrong place. `[hunt] card
+    destination: NOT SET` already said so on every run, but that is a CI log
+    line, and the person wondering why his cards are in the wrong channel is
+    looking at Discord. The same symptom got reported twice while that line was
+    printing correctly.
+    """
+    from flipscout.hunt import _post_scout
+    monkeypatch.delenv("FLIPSCOUT_CARDS_WEBHOOK", raising=False)
+    monkeypatch.setenv("FLIPSCOUT_ALERT_WEBHOOK", "http://main")
+    sent = []
+    _post_scout(_rows(), {}, set(), lambda a, content="", **k: sent.append(content) or ["webhook"])
+    assert "belong in your cards channel" in sent[0]
+    assert "FLIPSCOUT_CARDS_WEBHOOK" in sent[0]
+
+
+def test_no_scolding_once_the_channel_is_configured(monkeypatch):
+    """It must go quiet the moment it is fixed, or it becomes wallpaper."""
+    from flipscout.hunt import _post_scout
+    monkeypatch.setenv("FLIPSCOUT_ALERT_WEBHOOK", "http://main")
+    monkeypatch.setenv("FLIPSCOUT_CARDS_WEBHOOK", "http://cards")
+    sent = []
+    _post_scout(_rows(), {}, set(), lambda a, content="", **k: sent.append(content) or ["webhook:cards"])
+    assert "belong in your cards channel" not in sent[0]

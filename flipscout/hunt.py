@@ -38,7 +38,7 @@ from .cards import comp_url as cards_comp_url
 from .cards import one_liner as card_line, read as read_card
 from .hunters import build_hunters
 from .auctionfees import REQUIRE_CARD
-from .notify import describe_webhook, notify_rich
+from .notify import describe_webhook, destination, notify_rich
 from .ebay_ui import sold_url
 from .pricebook import comp_search, match, search_terms
 
@@ -884,8 +884,24 @@ def _post_scout(rows: list, config: dict, seen: set, notifier) -> tuple:
     chase = sum(1 for c in finds if c["read"].verdict == "CHASE")
     header = (f":card_index: **Card scout** - {len(alerts)} worth opening"
               + (f" ({chase} CHASE)" if chase else "") + "\n"
-              f"_No comps on these - nobody measured them. Each one links its "
-              f"own eBay SOLD search; check that before you bid anything._")
+              f"_No measured comps on these. Each links its own eBay SOLD "
+              f"search; check that before you bid anything._")
+
+    # 🚨 SAY IT WHERE HE IS ACTUALLY LOOKING. When FLIPSCOUT_CARDS_WEBHOOK is
+    # unset these cards fall back to the MAIN channel - deliberately, so a
+    # routing rule can never make an alert vanish - and the only symptom is
+    # that they turn up in the wrong place. `[hunt] card destination: NOT SET`
+    # already says so, but that is a CI log line, and the person wondering why
+    # his cards are in the wrong channel is looking at Discord, not at Actions.
+    # Leron reported the same symptom twice while that line was printing
+    # correctly on every run. A diagnostic nobody reads is not a diagnostic.
+    _url, _chan, label = destination({"category": "sports-cards"}, os.environ)
+    if label == "webhook":
+        header += ("\n:warning: **These belong in your cards channel, not here.** "
+                   "`FLIPSCOUT_CARDS_WEBHOOK` is not set, so they fall back to "
+                   "this one. Add it under repo Settings -> Secrets and "
+                   "variables -> Actions (and `FLIPSCOUT_CARDS_CHANNEL_ID` as a "
+                   "*Variable*, or the cards arrive with no tap-to-arm chips).")
     sent = notifier(alerts, content=header)
     if sent:
         print(f"[hunt] SCOUT: {len(alerts)} card find(s) via {', '.join(sent)}.")
