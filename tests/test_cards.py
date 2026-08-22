@@ -501,3 +501,40 @@ def test_the_tiers_land_in_a_category_the_merch_guard_skips():
     word "card" exactly as it did the Pokemon tiers."""
     from flipscout.pricebook import CARD_CATEGORIES
     assert "sports-cards" in CARD_CATEGORIES
+
+
+# --- a cartridge is not a card ---------------------------------------------
+
+@pytest.mark.parametrize("title", [
+    "Pokemon Ruby for GameBoy Advance Cartridge Only",
+    "Pokemon Silver Version Gameboy Color Game",
+    "Gameboy Pokemon Special Edition Game Cartridge (Untested)",
+    "3 Nintendo Game Boy Advance GBA Games Pac - Man Pokemon Pinball Loose",
+    "Nintendo GameBoy Color Pokemon Edition with Pokemon Pikachu, Gold, Crystal Games",
+    "Pokemon FireRed for Nintendo GameBoy Advance Cartridge Only",
+])
+def test_a_pokemon_cartridge_is_not_a_card(title):
+    """🚨 "POKEMON" ON ITS OWN IS NOT A CARD, AND THE CARDS CHANNEL PROVED IT.
+
+    Leron, 2026-08-22: "The cards channel is getting pokemon video games, is
+    only supposed to get pokemon cards". `_TCG` opens on the bare word, so
+    every cartridge read as a TCG card and `notify.channel_for` routed it to
+    the cards lane. Five were sitting in #cards.
+    """
+    r = read(title)
+    assert not r.is_card, f"cartridge read as a card: {title!r}"
+    from flipscout.notify import channel_for
+    assert channel_for({"title": title}) == "", "a cartridge belongs in #deals"
+
+
+@pytest.mark.parametrize("title", [
+    "Pokeman TCG-Houndour 103/146 Legends Awakened -LP-2008-Non Holo",
+    "1999 Pokemon Alakazam Holo #1 PSA 7",
+    "Pokemon Charizard PSA 10",
+    "(5) PSA Graded Football Rookie Cards",
+])
+def test_the_guard_does_not_eat_real_cards(title):
+    """The other direction, which is how guards like this go wrong."""
+    from flipscout.notify import channel_for
+    assert read(title).is_card
+    assert channel_for({"title": title}) == "cards"

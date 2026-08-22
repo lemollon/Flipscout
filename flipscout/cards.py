@@ -131,6 +131,25 @@ _TCG = re.compile(
 # Pokemon specifically: the one TCG this repo has a real price source for.
 _POKEMON = re.compile(r"pok[eé]mon|\bpkmn\b")
 
+# 🚨 "POKEMON" ON ITS OWN IS NOT A CARD, AND THE CARDS CHANNEL PROVED IT.
+# Leron, 2026-08-22: "The cards channel is getting pokemon video games, is only
+# supposed to get pokemon cards". Five cartridges were sitting in #cards:
+#
+#     Pokemon Ruby for GameBoy Advance Cartridge Only
+#     Pokemon Silver Version Gameboy Color Game
+#     Gameboy Pokemon Special Edition Game Cartridge (Untested)
+#
+# `_TCG` opens on the bare word, `read()` then returns family="tcg", and
+# `notify.channel_for` routes anything `is_card` to the cards lane - so every
+# Pokemon CARTRIDGE routed as a Pokemon CARD.
+#
+# `pricebook._PKMN_GAME_WORDS` is the same guard pointed the other way: it
+# keeps cartridges out of the card TIERS. Imported rather than re-written, so
+# the two can never drift - the last time this vocabulary was duplicated, one
+# copy learned "console sold WITH the game" and the other did not.
+from .pricebook import _PKMN_GAME_WORDS as _GAME_WORDS
+_VIDEO_GAME = re.compile(_GAME_WORDS, re.I)
+
 
 # --- the era rule -----------------------------------------------------------
 # "Avoid 80s and '90s" is the JUNK WAX ERA and it is the most reliable rule in
@@ -418,6 +437,11 @@ def read(title: str) -> CardRead:
         # Offline only - this runs on every listing in a 10,000-row sweep, and
         # the price lookup belongs in the scout where it is capped at the dozen
         # cards actually posted.
+        # A cartridge is not a card, whatever else the title says. Checked
+        # BEFORE the price sources, because both of them would happily look up
+        # "Pokemon Ruby" and hand back a trading card of the same name.
+        if _VIDEO_GAME.search(t):
+            return CardRead(title=title)
         if _POKEMON.search(t):
             from .pokemontcg import identify as _pid, verdict as _pv
             v = _pv(_pid(title))
