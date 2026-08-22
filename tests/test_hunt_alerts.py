@@ -169,3 +169,45 @@ def test_zero_hours_means_the_lane_is_OFF_not_one_hour():
     assert cfg["urgent_hours"] == 0.0
     urgent_h = float(cfg["urgent_hours"] if cfg["urgent_hours"] is not None else 1)
     assert urgent_h == 0.0, "0 must survive to the lane, where it disables it"
+
+
+# --- a card with no photo, added 2026-08-22 ---------------------------------
+
+def _card_row(**over):
+    row = {"title": "2018 Panini Prizm Luka Doncic RC Auto /99",
+           "source": "hibid", "url": "http://x", "listing_type": "auction",
+           "image": "http://img"}
+    row.update(over)
+    return row
+
+
+def _body(row):
+    """The alert body for one row, priced against any real model."""
+    from flipscout import hunt
+    from flipscout.pricebook import BY_KEY
+    from flipscout.bidding import advise
+    model = BY_KEY["pkmn_card_graded_high"]
+    adv = advise(comp=model.comp, outbound_shipping=model.outbound_shipping,
+                 inbound_shipping=9.0, target_profit=20.0)
+    m = type("M", (), {"dead_also_present": [], "label": model.label})()
+    return hunt.to_alert({"row": row, "model": model, "advice": adv,
+                          "match": m})["reason"]
+
+
+def test_a_card_with_a_photo_says_nothing_extra():
+    assert "No photo on this listing" not in _body(_card_row())
+
+
+def test_a_card_with_no_photo_is_called_out():
+    """🚨 On a raw card the picture IS the condition, and condition is most of
+    the value. A photo-less card alert must not look like every other one."""
+    body = _body(_card_row(image=None))
+    assert "No photo on this listing" in body
+    assert "condition is most of the value" in body
+
+
+def test_a_non_card_with_no_photo_is_not_nagged():
+    """Every other category carries the trade in the title, so this would just
+    be one more warning nobody reads."""
+    body = _body(_card_row(title="Canon AE-1 35mm Film Camera", image=None))
+    assert "No photo on this listing" not in body

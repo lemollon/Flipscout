@@ -503,6 +503,19 @@ def to_alert(c: dict) -> dict:
     cl = card_line(read_card(row.get("title") or ""))
     if cl:
         bits.append(f":card_index: {cl}")
+        # 🚨 A CARD ALERT WITH NO PHOTO IS NOT AN ALERT. On every other
+        # category the picture is a nice-to-have and the title carries the
+        # trade; on a raw card the title cannot state condition and condition
+        # IS most of the value - which is why the vintage-chase tier's own note
+        # says "buy the picture, not the words". 520 of the 521 listings on the
+        # board carry an image, so this is rare - and precisely because it is
+        # rare it would otherwise arrive as a silently worse alert that looks
+        # exactly like every other one.
+        if not row.get("image"):
+            bits.append(":warning: **No photo on this listing.** On a card that "
+                        "is disqualifying, not cosmetic - condition is most of "
+                        "the value and the title never states it. Open the "
+                        "listing and look before treating this as priced.")
 
     # WHO is selling it and WHERE. On the local auction sources this is the
     # difference between a 30-minute drive and an unknown, so say it plainly.
