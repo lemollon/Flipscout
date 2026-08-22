@@ -150,6 +150,29 @@ _POKEMON = re.compile(r"pok[eé]mon|\bpkmn\b")
 from .pricebook import _PKMN_GAME_WORDS as _GAME_WORDS
 _VIDEO_GAME = re.compile(_GAME_WORDS, re.I)
 
+# 🚨 AND NEITHER IS A PLUSH TOY. Blocking cartridges just moved the leak: the
+# very next run put these in #cards, all on the strength of the word "Pokemon":
+#
+#     Monopoly Pokemon Johto Edition Board Game
+#     Funko Pop! Games: Pokemon Jumbo Cresselia #965 Limited Edition
+#     Pokemon Psyduck Plush Toy 2024 Nintendo Creatures Game Freak
+#     2022 Pokemon TCG Battle Academy Board Game Set 3 Decks Pikachu
+#
+# The last one even says "TCG" - it is a boxed board game that contains decks,
+# not a card. This is the same family as the "1pc Pokemon Crystal Ball Pikachu"
+# that once quoted a $100 max bid on a plastic toy: MERCHANDISE BORROWING A
+# VALUABLE NAME. `pricebook` keeps this vocabulary in ACCESSORY_EXCLUDE for
+# every non-card model; the card reader needs its own because the card tiers
+# are deliberately exempt from that one.
+_MERCH = re.compile(
+    r"\bplush\b|\bplushie\b|\bstuffed\b|\bfunko\b|\bpop!|\bbobblehead\b|"
+    r"\bboard\s*game\b|\bmonopoly\b|\bjigsaw\b|\bpuzzle\b|\bkeychain\b|"
+    r"\bkey\s*chain\b|\blanyard\b|\bbackpack\b|\blunch\s*box\b|\bmug\b|"
+    r"\bblanket\b|\bpillow\b|\bposter\b|\bt-?shirt\b|\bhoodie\b|\bhat\b|"
+    r"\bfigurine\b|\baction\s*figure\b|\bcrystal\s*ball\b|\bnight\s*light\b|"
+    r"\bslippers\b|\bcostume\b|\bplate\b|\bwallet\b|\bumbrella\b",
+    re.I)
+
 
 # --- the era rule -----------------------------------------------------------
 # "Avoid 80s and '90s" is the JUNK WAX ERA and it is the most reliable rule in
@@ -440,7 +463,7 @@ def read(title: str) -> CardRead:
         # A cartridge is not a card, whatever else the title says. Checked
         # BEFORE the price sources, because both of them would happily look up
         # "Pokemon Ruby" and hand back a trading card of the same name.
-        if _VIDEO_GAME.search(t):
+        if _VIDEO_GAME.search(t) or _MERCH.search(t):
             return CardRead(title=title)
         if _POKEMON.search(t):
             from .pokemontcg import identify as _pid, verdict as _pv

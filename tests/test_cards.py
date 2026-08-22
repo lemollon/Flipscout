@@ -538,3 +538,24 @@ def test_the_guard_does_not_eat_real_cards(title):
     from flipscout.notify import channel_for
     assert read(title).is_card
     assert channel_for({"title": title}) == "cards"
+
+
+@pytest.mark.parametrize("title", [
+    "Monopoly Pokemon Johto Edition Board Game",
+    "Funko Pop! Games: Pokemon Jumbo Cresselia #965 Limited Edition",
+    "Pokemon Psyduck Plush Toy 2024 Nintendo Creatures Game Freak Yellow",
+    "2022 Pokemon TCG Battle Academy Board Game Set 3 Decks Pikachu Eevee",
+    "1pc Pokemon Crystal Ball Pikachu Gengar",
+])
+def test_pokemon_merchandise_is_not_a_card(title):
+    """Blocking cartridges just moved the leak - the very next run put a plush
+    toy, a Funko Pop, a Monopoly set and a boxed board game in #cards, all on
+    the strength of the word "Pokemon".
+
+    🚨 The Battle Academy one even says "TCG": it is a board game that CONTAINS
+    decks. Same family as the crystal ball that once quoted a $100 max bid on
+    a plastic toy.
+    """
+    from flipscout.notify import channel_for
+    assert not read(title).is_card, f"merchandise read as a card: {title!r}"
+    assert channel_for({"title": title}) == ""
