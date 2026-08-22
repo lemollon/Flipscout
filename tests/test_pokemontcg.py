@@ -229,3 +229,16 @@ def test_a_pile_never_reaches_the_network():
     assert pk.lookup(pk.identify("Lot of 300 Pokemon cards"), session=s,
                      use_cache=False) is None
     assert s.asked == [], "a lot cannot be priced, so do not spend a call on it"
+
+
+def test_the_comp_link_is_a_tcgplayer_search_not_the_dead_api_url():
+    """🚨 The API's own `tcgplayer.url` (prices.pokemontcg.io/tcgplayer/<id>)
+    returns 502. A comp link that fails reads as evidence right up until you
+    click it, which is worse than no link at all. Checked live 2026-08-22."""
+    c = pk.PokeComp(card_id="base1-1", name="Alakazam", set_name="Base",
+                    released="1999/01/09", number="1", rarity="Rare Holo",
+                    printing="holofoil", market=69.45,
+                    tcg_url="https://prices.pokemontcg.io/tcgplayer/base1-1")
+    assert "prices.pokemontcg.io" not in c.url
+    assert c.url.startswith("https://www.tcgplayer.com/search/pokemon/product")
+    assert "Alakazam" in c.url

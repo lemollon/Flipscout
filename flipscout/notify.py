@@ -204,6 +204,11 @@ def build_embed(c: dict) -> dict:
     links = []
     if c.get("buy_url"):
         links.append(f"[Buy it here]({c['buy_url']})")
+    # 🚨 THE PRICE LINKS ITS OWN EVIDENCE. A comp you cannot click is a comp
+    # you have to take on trust; this one goes FIRST because it is the number
+    # the card actually quotes, where the eBay search is only a second opinion.
+    if c.get("comp_source_url"):
+        links.append(f"[Check this comp]({c['comp_source_url']})")
     if c.get("comps_url"):
         links.append(f"[See what it sold for on eBay]({c['comps_url']})")
     if links:
