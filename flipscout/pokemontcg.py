@@ -488,7 +488,8 @@ class PokeVerdict:
         return self.verdict in (LOOK, CHASE, PRICED)
 
 
-def verdict(pid: PokeId, comp: Optional[PokeComp] = None) -> PokeVerdict:
+def verdict(pid: PokeId, comp: Optional[PokeComp] = None,
+            graded=None) -> PokeVerdict:
     """Should he open this listing, and what is the card actually worth?
 
     🚨 NEVER RETURNS A CEILING FOR A GRADED CARD. TCGplayer's market price is
@@ -541,6 +542,22 @@ def verdict(pid: PokeId, comp: Optional[PokeComp] = None) -> PokeVerdict:
             "card and is too low." if understated else "")
 
     if pid.graded:
+        # 🚨 THE GRADE ITSELF CARRIES VALUE, AND THE RAW PRICE CANNOT SEE IT.
+        # Measured 2026-08-22 the day the PriceCharting token went in: a PSA 10
+        # Litten comps at $35.00 while the raw card is $0.25. The raw-only rule
+        # below called that a PASS - "a slabbed common worth the plastic" - and
+        # it was wrong by 140x. When a grade-keyed price exists it decides,
+        # because it is measuring the thing actually being sold.
+        if graded is not None and graded.price:
+            gp = graded.price
+            thin = (f" 🚨 Thin: about {graded.volume} sold in a year."
+                    if graded.volume is not None and graded.volume < 12 else "")
+            return PokeVerdict(
+                CHASE if gp >= _SLAB_REAL else (LOOK if gp >= _SLAB_FLOOR else PASS),
+                f"**{graded.name}** - {graded.set_name} - **${gp:,.2f} in "
+                f"{pid.grade}** (PriceCharting), against ${graded.ungraded:,.2f} "
+                f"raw. That is a comp for the slab you are actually bidding "
+                f"on.{tail}{thin}", comp, pid)
         if comp.market < _SLAB_FLOOR and not understated:
             return PokeVerdict(
                 PASS,
@@ -578,7 +595,13 @@ def verdict(pid: PokeId, comp: Optional[PokeComp] = None) -> PokeVerdict:
 
 
 def read(title: str, session=None) -> PokeVerdict:
-    """Title in, verdict + real market price out. One call, fail-soft."""
+    """Title in, verdict + real price out. One call, fail-soft.
+
+    Two sources, each doing the half it is good at: `pokemontcg` reads the
+    card's IDENTITY out of a scrappy title (set and card number, free), and
+    PriceCharting prices the SLAB by grade (paid, needs SPORTSCARDSPRO_TOKEN).
+    Neither can do the other's job - see the note in `verdict`.
+    """
     pid = identify(title)
     comp = None
     if pid.priceable:
@@ -586,4 +609,14 @@ def read(title: str, session=None) -> PokeVerdict:
             comp = lookup(pid, session=session)
         except Exception:
             comp = None                 # never let a price source break a run
-    return verdict(pid, comp)
+    graded = None
+    if pid.graded and comp is not None and not comp.ambiguous:
+        try:
+            from .sportscards import pokemon_price
+            graded = pokemon_price(
+                comp.name, comp.set_name, comp.number, pid.grade,
+                variant=("shadowless" if pid.shadowless else
+                         "1st edition" if pid.first_edition else ""))
+        except Exception:
+            graded = None               # a missing grade price is not a failure
+    return verdict(pid, comp, graded=graded)
