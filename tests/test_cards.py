@@ -72,12 +72,48 @@ def test_a_high_grade_beats_the_era_veto():
     assert slabbed.score > raw.score
 
 
-def test_1986_is_not_junk_wax():
-    """The refinement flagged in cards.py: the print-run explosion starts in
-    1987, and a literal 'avoid the 80s' bins the Fleer Jordan."""
+# --- rule 1a: the named exceptions ------------------------------------------
+# Asked directly whether he really avoids the whole of the 80s and 90s,
+# 2026-08-22: "80's and 90s unless Kobe 96 or Jordan 86". The escape is a
+# NAMED CARD, not a date boundary - which is why this file no longer carries
+# the 1987 cutoff its first cut invented.
+
+@pytest.mark.parametrize("title", [
+    "1986 Fleer Michael Jordan #57 Rookie Card",
+    "1996 Topps Chrome Kobe Bryant RC #138",
+    "1996-97 Topps Chrome Kobe Bryant Refractor Rookie",
+])
+def test_the_two_named_cards_escape_the_era_veto(title):
+    r = read(title)
+    assert r.era == "junk wax"          # the era is not in dispute
+    assert r.verdict == "CHASE"         # the exception is
+    assert any("EXCEPT this one" in why for why in r.reasons)
+
+
+@pytest.mark.parametrize("title", [
+    "1991 Fleer Michael Jordan #29 Basketball Card",   # right player, wrong year
+    "1998 Topps Kobe Bryant #68",                      # right player, wrong year
+    "1986 Donruss Baseball Card #55",                  # right year, wrong player
+])
+def test_the_exception_is_a_card_not_a_player_or_a_year(title):
+    """🚨 NOT "Jordan is good" - "the 1986 Jordan is good". A 1991 Fleer Jordan
+    is junk wax and takes the full veto, which is exactly the distinction he
+    was drawing. The year pairing is also what makes a bare surname safe:
+    `jordan` alone would match Jordan Love."""
+    assert v(title) == "PASS"
+
+
+def test_a_named_exception_also_waives_its_bulk_brand_penalty():
+    """1986 Fleer IS the product that matters; scoring it as a bulk-era brand
+    would contradict the exception in the same breath as granting it."""
     r = read("1986 Fleer Michael Jordan #57 Rookie Card")
-    assert r.era == "pre-junk-wax"
-    assert r.verdict != "PASS"
+    assert not any(s.kind == "brand" and s.points < 0 for s in r.signals)
+
+
+def test_the_1987_boundary_is_gone():
+    """The first cut treated 1980-1986 as ordinary. He said the decade is out,
+    so a 1986 common is now as dead as a 1991 one."""
+    assert read("1986 Donruss Baseball Card #55").era == "junk wax"
 
 
 def test_pre_1980_vintage_is_its_own_game():

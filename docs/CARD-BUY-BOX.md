@@ -49,22 +49,46 @@ This is the **junk wax era** and it is the most reliable rule in the hobby: the
 manufacturers printed to meet demand that never came, so supply is effectively
 infinite and a mint 1990 common is worth less than the sleeve you put it in.
 
-**Where the code disagrees, and why.** Taken literally, "avoid the 80s" bins
-the 1986 Fleer Jordan and the 1980 Topps Henderson — the two most valuable
-cards of that decade. The print-run explosion actually starts in **1987**
-(Topps and Donruss both went to unlimited runs that year), so the code vetoes
-**1987–1999** and treats **1980–1986** as ordinary: no bonus, no veto, the card
-still has to earn its way on the other four rules.
+**The escape is a named card, not a date.** Asked directly whether he really
+avoids the whole of both decades, 2026-08-22:
 
-*This is the one departure from what the shop said, and it should be
-confirmed.* Everything else below is his rule as given.
+> "80's and 90s unless **Kobe 96** or **Jordan 86**"
 
-**The documented exception:** a **9 or 10 grade beats the era veto**. Junk wax
+So the veto runs **1980–1999**, and two specific cards are excepted by name:
+
+| card | why |
+|---|---|
+| **Jordan, 1986** | the 1986 Fleer rookie — the card of the era |
+| **Kobe, 1996** | the 1996–97 rookie year |
+
+An earlier version of this file invented a **1987 cutoff** instead, reasoning
+that the print-run explosion starts that year and a literal "avoid the 80s"
+bins the Fleer Jordan. He was asked, and his answer is both more faithful and
+more accurate: a 1986 Donruss common is exactly as worthless as a 1991 one, and
+no date range separates them — what separates them is being one of two
+particular rookies. The 1987 boundary is gone.
+
+**It is a card, not a player and not a year.** A 1991 Fleer Jordan takes the
+full veto; so does a 1998 Kobe; so does a 1986 Donruss common. That pairing is
+also what makes a bare surname safe to match — `jordan` alone would catch
+Jordan Love, but paired with 1986 it can only be the one Jordan.
+
+A named exception waives the era rule *outright*, and waives its bulk-era brand
+penalty too: 1986 Fleer is the exact product that matters, so scoring it as a
+junk brand would contradict the exception in the same breath as granting it.
+
+**Adding more is one line each** in `_ERA_EXCEPTIONS` plus one test — if he
+names others (a Griffey 89, a Rice 84, a LeBron 03), they go straight in.
+
+**The other exception:** a **9 or 10 grade beats the era veto**. Junk wax
 was printed without limit, so the only scarcity it has left is *condition* —
 which is exactly what a slab certifies. A PSA 10 1989 rookie is a real card in
 a decade of coasters.
 
 Pre-1980 is a different game entirely: printed small, and thrown away.
+
+> Nothing in the code now departs from the shop's advice. The one place it did
+> is the section above, and he settled it.
 
 ### 2 & 3. Chase cards and hit cards, not base cards
 

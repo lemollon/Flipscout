@@ -286,10 +286,11 @@ CHASE - pull it out and photograph it.  (score 117)
 > not what to pay. The rules, where they came from, and the one place the code
 > departs from the shop's advice: **[docs/CARD-BUY-BOX.md](docs/CARD-BUY-BOX.md)**.
 
-The short version: **avoid 1987–1999** (junk wax — printed without limit),
+The short version: **avoid 1980–1999** (junk wax — printed without limit),
 ignore **base cards** (they're in every pack), and hunt **autos, serial-numbered
-cards, parallels and rookies**. A grade is the one thing that beats the era
-rule, because condition is the only scarcity junk wax has left.
+cards, parallels and rookies**. Two named cards escape the era rule — a
+**Jordan 86** and a **Kobe 96** — and so does any **9 or 10 grade**, because
+condition is the only scarcity junk wax has left.
 
 ## Make the most of your driving time
 

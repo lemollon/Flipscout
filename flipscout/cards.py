@@ -118,16 +118,35 @@ _TCG = re.compile(
 # supply is effectively infinite and a mint 1990 common is worth less than the
 # sleeve you put it in.
 #
-# 🚨 REFINED AT ONE EDGE, DELIBERATELY. Taken literally, "avoid the 80s" bins
-# the 1986 Fleer Jordan and the 1980 Topps Henderson - the two most valuable
-# cards of that decade. The overprinting actually starts around 1987 (Topps and
-# Donruss both went to unlimited print runs that year), so 1980-1986 is treated
-# as ORDINARY here: no bonus, no veto, the card still has to earn its way on
-# the other four rules. 1987-1999 keeps the full veto exactly as given.
-# Flagged rather than smuggled in - see docs/CARD-BUY-BOX.md, this is the one
-# place the code departs from what the shop said and it should be confirmed.
-_JUNK_WAX = (1987, 1999)
-_PRE_JUNK = (1980, 1986)
+# 🚨 THE WHOLE DECADE IS OUT, AND THE ESCAPE IS A NAMED CARD.
+#
+# The first cut of this file refined "avoid the 80s" into a 1987 cutoff, on the
+# reasoning that the print-run explosion starts in 1987 and a literal reading
+# bins the 1986 Fleer Jordan. Leron asked him directly, 2026-08-22:
+#
+#     "80's and 90s unless Kobe 96 or Jordan 86"
+#
+# So the boundary was wrong and the exceptions are SPECIFIC CARDS. That is both
+# more faithful and more accurate: a 1986 Donruss common is exactly as
+# worthless as a 1991 one, and no date range separates them - what separates
+# them is being one of two particular rookies.
+_JUNK_WAX = (1980, 1999)
+
+# player -> the years that escape the veto, and why. One line each.
+#
+# 🚨 THE YEAR IS WHAT MAKES THE BARE SURNAME SAFE. `\bjordan\b` alone would
+# match Jordan Love and Jordan Spieth; paired with 1986 it can only be the one
+# Jordan. Same reason the list is keyed on the pair rather than the name: this
+# is emphatically NOT "Jordan is good", it is "the 1986 Jordan is good". A 1991
+# Fleer Jordan is junk wax and still gets the full veto, which is precisely the
+# distinction he was drawing.
+_ERA_EXCEPTIONS = (
+    ("jordan", {1986}, "the 1986 Fleer rookie - the card of the era"),
+    # His rookie season is 1996-97 and _YEAR reads the LEADING year, so both
+    # "1996 Topps Chrome" and "1996-97 Topps Chrome" land on 1996. Kept to the
+    # year he named: a 1997-98 Kobe is his second year, not a rookie.
+    ("kobe", {1996}, "the 1996-97 rookie year"),
+)
 
 # 🚨 A YEAR IS NOT A CARD NUMBER. "#1952" and "124/1999" are positions in a
 # set; the lookarounds keep both out. Season spans ("2023-24 Prizm") are read
@@ -140,11 +159,19 @@ def _era(year: Optional[int]) -> str:
         return "unknown"
     if year <= 1979:
         return "vintage"
-    if _PRE_JUNK[0] <= year <= _PRE_JUNK[1]:
-        return "pre-junk-wax"
     if _JUNK_WAX[0] <= year <= _JUNK_WAX[1]:
         return "junk wax"
     return "modern"
+
+
+def _era_exception(t: str, year: Optional[int]):
+    """The named card that escapes the era veto, or None. See _ERA_EXCEPTIONS."""
+    if year is None:
+        return None
+    for name, years, why in _ERA_EXCEPTIONS:
+        if year in years and re.search(rf"\b{name}\b", t):
+            return why
+    return None
 
 
 # --- hits: the cards that are GUARANTEED not to be in every pack ------------
@@ -417,21 +444,29 @@ def read(title: str) -> CardRead:
     # precisely what a 9 or a 10 certifies. A PSA 10 1989 rookie is a real card
     # in a decade of coasters, and a blanket era veto would bin it.
     if r.era == "junk wax":
+        exception = _era_exception(t, r.year)
         graded_high = bool(gm and float(gm.group(2)) >= 9)
-        pts = -17 if graded_high else -35
-        sig.append(Signal("era", f"{r.year} is JUNK WAX (1987-1999) - printed "
-                                 f"without limit, so the commons are worthless"
-                          + (". The grade is the exception: condition is the "
-                             "only scarcity this era has left." if graded_high
-                             else " and the stars are barely better."), pts))
+        if exception:
+            # 🚨 A NAMED EXCEPTION WAIVES THE ERA RULE OUTRIGHT, not partially.
+            # He named these against a decade he otherwise refuses, so a card
+            # that clears that bar is not a junk-wax card wearing a discount.
+            sig.append(Signal("era", f"{r.year} is junk wax, EXCEPT this one - "
+                                     f"{exception}. The named exception to the "
+                                     f"decade rule.", 25))
+            # ...and so is its brand. "1986 Fleer" is the exact product that
+            # matters; carding it as a bulk-era brand contradicts the exception.
+            sig = [x for x in sig if not (x.kind == "brand" and x.points < 0)]
+        else:
+            sig.append(Signal("era", f"{r.year} is JUNK WAX (1980-1999) - printed "
+                                     f"without limit, so the commons are worthless"
+                              + (". The grade is the exception: condition is the "
+                                 "only scarcity this era has left." if graded_high
+                                 else " and the stars are barely better."),
+                              -17 if graded_high else -35))
     elif r.era == "vintage":
         sig.append(Signal("era", f"{r.year} is PRE-1980 vintage - a different "
                                  f"game from the junk wax rule: these were "
                                  f"printed small and thrown away.", 15))
-    elif r.era == "pre-junk-wax":
-        sig.append(Signal("era", f"{r.year} is before the 1987 print-run "
-                                 f"explosion - not junk wax, but not a reason "
-                                 f"to buy on its own either.", 0))
 
     if _HOBBY_NAMES.search(t):
         sig.append(Signal("player", "Names a card-shop-tier player - a bump, "
