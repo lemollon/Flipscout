@@ -162,6 +162,11 @@ class PokeComp:
     candidates: int = 1
     low: Optional[float] = None         # cheapest candidate, when ambiguous
     high: Optional[float] = None        # dearest candidate, when ambiguous
+    # 🚨 THE PAGE THE NUMBER CAME FROM. Leron, 2026-08-22: "there should be a
+    # link to the comp on each card". A price with no way to check it is a
+    # price you have to take on trust, and this repo's whole posture is the
+    # opposite - every claim links its own evidence.
+    tcg_url: str = ""
     source: str = "tcgplayer/pokemontcg.io"
 
     @property
@@ -184,7 +189,17 @@ class PokeComp:
 
     @property
     def url(self) -> str:
-        return f"https://www.pokemontcg.io/cards/{self.card_id}"
+        """Where to check this price - a TCGplayer search for THIS card.
+
+        🚨 NOT the API's own `tcgplayer.url`. It looks like the obvious answer
+        and it is dead: `prices.pokemontcg.io/tcgplayer/base1-1` returns 502.
+        A comp link that 404s is worse than no link, because it reads as
+        evidence right up until you click it. Checked live 2026-08-22.
+        """
+        from urllib.parse import quote_plus
+        q = quote_plus(f"{self.name} {self.set_name} {self.number}".strip())
+        return ("https://www.tcgplayer.com/search/pokemon/product"
+                f"?productLineName=pokemon&q={q}")
 
 
 def _norm(title: str) -> str:
@@ -422,6 +437,7 @@ def lookup(pid: PokeId, session=None, use_cache: bool = True) -> Optional[PokeCo
         printing=col, market=round(float(mk), 2),
         prices={k: v.get("market") for k, v in prices.items()
                 if v.get("market") is not None},
+        tcg_url=((c.get("tcgplayer") or {}).get("url") or ""),
         candidates=1 if pinned else max(2, len(priced)),
         low=None if pinned else round(lo, 2),
         high=None if pinned else round(hi, 2),

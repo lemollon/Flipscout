@@ -236,3 +236,11 @@ def test_a_rejected_token_is_a_real_answer_not_a_blip():
                       env={"SPORTSCARDSPRO_TOKEN": "bad"}, use_cache=False)
     assert comp is not None and comp.n == 0
     assert len(s.urls) == 1
+
+
+def test_the_product_url_is_the_page_the_price_came_from():
+    """🚨 A comp you cannot click is a comp you have to take on trust.
+    /game/<id> redirects to the real product page - verified live 2026-08-22."""
+    c = sc.Candidate(product_id="72584", name="Michael Jordan #57",
+                     set_name="Basketball Cards 1986 Fleer")
+    assert c.url == "https://www.sportscardspro.com/game/72584"

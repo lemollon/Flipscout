@@ -640,6 +640,24 @@ def _market_line(m) -> str:
             "sellers write it. Check the sold search.")
 
 
+def _comp_source_url(c: dict) -> str:
+    """The page behind the number this card quotes, or "".
+
+    🚨 ONLY WHEN THE CARD IS PINNED TO ONE PRODUCT. On an ambiguous match the
+    card quotes a RANGE across several products, and linking one of them would
+    put a single price behind a sentence that deliberately refused to name one.
+    """
+    sv = c.get("sports")
+    comp = getattr(sv, "comp", None)
+    if comp is not None and comp.priced and comp.pinned and comp.candidates:
+        return comp.candidates[0].url
+    pv = c.get("poke")
+    pc = getattr(pv, "comp", None)
+    if pc is not None and not pc.ambiguous:
+        return pc.url
+    return ""
+
+
 def to_scout_alert(c: dict) -> dict:
     """One scout find -> the Discord embed payload. No comp, no ceiling."""
     row, r = c["row"], c["read"]
@@ -654,9 +672,14 @@ def to_scout_alert(c: dict) -> dict:
     verdict = getattr(pv0, "verdict", None) or r.verdict
     if verdict == "UNKNOWN":
         verdict = r.verdict
+    # 🚨 "PASS - worth opening" IS A CONTRADICTION, and it shipped on every
+    # refused card. The verdict now comes from a source that can say no, so the
+    # sentence after it has to be able to say no too.
+    _tail = {"CHASE": "pull it out and photograph it",
+             "PASS": "the numbers say don't bother - here's why",
+             "UNKNOWN": "nothing could price it; a human has to look"}
     bits = [f"**{verdict}** - "
-            + ("pull it out and photograph it" if verdict == "CHASE"
-               else "one signal fired; worth opening") + "."]
+            + _tail.get(verdict, "one signal fired; worth opening") + "."]
     if getattr(pv0, "comp", None) is None or c.get("sports") is not None:
         for s in r.signals:
             bits.append(f"• {s.detail}")
@@ -695,8 +718,28 @@ def to_scout_alert(c: dict) -> dict:
         market = _market_line(c.get("market"))
         if market:
             bits.append(market)
+    # 🚨 DO NOT SAY "NO MEASURED COMP" ON A CARD THAT JUST PRINTED ONE.
+    # Leron, 2026-08-22: "why am i still seeing no measured comps on the
+    # cards". He was reading a card that said "$65.00 ungraded
+    # (SportsCardsPro)" and then, one line down, "No measured comp". Both
+    # sentences shipped because this footer only checked the Pokemon verdict
+    # and a PASS - so every priced SPORTS card contradicted itself.
+    #
+    # The substance behind the footer is still true and still worth saying:
+    # there is a COMP but there is no CEILING, because condition and (for a
+    # sports card) which parallel it is are not in the title. So the two cases
+    # get different sentences instead of one wrong one.
+    priced = (getattr(sv, "comp", None) is not None and sv.comp.priced
+              and sv.comp.low is not None) or cp is not None
     if sv is not None and sv.verdict == "PASS":
         pass                               # the refusal above already said why
+    elif priced:
+        bits.append(":triangular_flag_on_post: **A comp, not a ceiling.** That "
+                    "figure is what the card is worth - it is not a max bid. "
+                    "Condition is not in the title" +
+                    (", and neither is which parallel this is"
+                     if sv is not None and getattr(sv.comp, "n", 1) > 1 else "") +
+                    ". **You decide the bid.**")
     elif pv is None or getattr(pv, "verdict", "") != "PRICED":
         bits.append(":no_entry: **No measured comp, so no ceiling.** A title "
                     "cannot state condition and condition is most of a raw "
@@ -721,6 +764,9 @@ def to_scout_alert(c: dict) -> dict:
         # card has no ceiling, which makes the question MORE pressing here, not
         # less: there is no second number to reveal what kind of listing it is.
         "listing_type": row.get("listing_type", "auction"),
+        # The page the quoted price came from - SportsCardsPro's product page
+        # or TCGplayer's, whichever priced it. "" when nothing did.
+        "comp_source_url": _comp_source_url(c),
         # Routes to the cards channel either way (notify.CARD_CATEGORIES holds
         # both); named honestly so the log's category mix does not report every
         # Pokemon card as a sports card.
@@ -1022,10 +1068,19 @@ def _post_scout(rows: list, config: dict, seen: set, notifier) -> tuple:
     price_scout_finds(finds)
     alerts = [to_scout_alert(c) for c in finds]
     chase = sum(1 for c in finds if c["read"].verdict == "CHASE")
+    # 🚨 THE HEADER SAID "no measured comps on these" TOO, and since the card
+    # sources went in most of them DO have one. Count, don't assume.
+    priced = sum(1 for c in finds
+                 if getattr(c.get("sports"), "comp", None) is not None
+                 and c["sports"].comp.priced and c["sports"].comp.low is not None
+                 or getattr(c.get("poke"), "comp", None) is not None)
     header = (f":card_index: **Card scout** - {len(alerts)} worth opening"
               + (f" ({chase} CHASE)" if chase else "") + "\n"
-              f"_No measured comps on these. Each links its own eBay SOLD "
-              f"search; check that before you bid anything._")
+              + (f"_{priced} of {len(alerts)} carry a real comp - what the card "
+                 f"is worth, not a max bid. Condition is still yours to judge._"
+                 if priced else
+                 "_No measured comps on these. Each links its own eBay SOLD "
+                 "search; check that before you bid anything._"))
 
     # 🚨 SAY IT WHERE HE IS ACTUALLY LOOKING. When FLIPSCOUT_CARDS_WEBHOOK is
     # unset these cards fall back to the MAIN channel - deliberately, so a
