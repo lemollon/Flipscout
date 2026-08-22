@@ -78,6 +78,7 @@ from typing import Optional
 import requests
 
 from . import snipe
+from .notify import BUY_NOW_MARK
 
 API = "https://discord.com/api/v10"
 ARM_EMOJI = "\N{DIRECT HIT}"        # 🎯
@@ -272,6 +273,13 @@ def seed_missing(msgs: list, channel: str, token: str, dry_run: bool = False) ->
         # and is deliberately left bare - a chip on it would be a lie.
         site, iid, _ = parse_card(m)
         if not iid:
+            continue
+        # 🚨 NOR ON A BUY IT NOW. A 🎯 means "bid at the ceiling three minutes
+        # before it closes", and a fixed-price listing has no close - so the
+        # chip cannot do anything, and offering it is the same "am I bidding or
+        # buying?" confusion wearing a button. Matched on the banner
+        # notify.build_embed prints, which card_text() already flattens.
+        if BUY_NOW_MARK in card_text(m):
             continue
         have = {(r.get("emoji") or {}).get("name") for r in (m.get("reactions") or [])
                 if r.get("me")}

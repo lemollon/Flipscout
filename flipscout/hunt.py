@@ -470,9 +470,16 @@ def to_scout_alert(c: dict) -> dict:
     bits = [f"**{r.verdict}** - {'pull it out and photograph it' if r.verdict == 'CHASE' else 'one signal fired; worth opening'}."]
     for s in r.signals:
         bits.append(f"• {s.detail}")
+    # 🚨 "ASKING" ON AN AUCTION IS A LIE, and this said it on every scout card
+    # regardless of type - the exact confusion Leron reported. An auction's
+    # current price is a number that will move; an ask is a number that will
+    # not.
     ask = row.get("price")
     if ask is not None:
-        bits.append(f"Asking **${float(ask):,.2f}**.")
+        fixed = (row.get("listing_type") or "auction") == "fixed"
+        bits.append(f"**${float(ask):,.2f}** " +
+                    ("asking - pay it and it is yours." if fixed else
+                     "current bid - this will move before it closes."))
     # 🚨 THE HONEST HEADLINE, EVERY TIME. Without this line a card sitting
     # beside priced alerts reads as though somebody checked the money.
     bits.append(":no_entry: **No comp - nobody measured this.** There is no "
@@ -493,6 +500,10 @@ def to_scout_alert(c: dict) -> dict:
         "source": row.get("source"),
         "buy_url": row.get("url"),
         "comps_url": comps,
+        # Carried so build_embed can print the bidding/buying banner. A scout
+        # card has no ceiling, which makes the question MORE pressing here, not
+        # less: there is no second number to reveal what kind of listing it is.
+        "listing_type": row.get("listing_type", "auction"),
         "category": "sports-cards",     # routes to the cards channel
         "reason": "\n".join(bits),
     }

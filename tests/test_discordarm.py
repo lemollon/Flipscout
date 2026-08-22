@@ -777,3 +777,32 @@ def test_a_bare_string_channel_is_not_iterated_character_by_character(monkeypatc
     monkeypatch.setattr(DA, "seed_missing", lambda *a, **k: 0)
     DA.scan()
     assert polled == ["/channels/chan/messages"]
+
+
+def test_no_snipe_chips_on_a_buy_it_now(monkeypatch):
+    """🚨 A 🎯 MEANS "BID THREE MINUTES BEFORE IT CLOSES", and a fixed-price
+    listing has no close. Offering the chip is the same "am I bidding or
+    buying?" confusion wearing a button."""
+    from flipscout import discordarm as DA
+    from flipscout.notify import BUY_NOW_MARK
+    reacted = []
+    monkeypatch.setattr(DA, "_react", lambda *a, **k: reacted.append(a) or True)
+    monkeypatch.setattr(DA, "parse_card", lambda m: ("goodwill", "123", 40.0))
+
+    buy = {"id": "m1", "content": "", "reactions": [],
+           "embeds": [{"fields": [{"name": "​", "value": f"**{BUY_NOW_MARK} - you are BUYING.**"}]}]}
+    assert DA.seed_missing([buy], "chan", "tok") == 0
+    assert reacted == []
+
+
+def test_snipe_chips_still_go_on_an_auction(monkeypatch):
+    from flipscout import discordarm as DA
+    from flipscout.notify import AUCTION_MARK
+    reacted = []
+    monkeypatch.setattr(DA, "_react", lambda *a, **k: reacted.append(a) or True)
+    monkeypatch.setattr(DA, "parse_card", lambda m: ("goodwill", "123", 40.0))
+
+    auc = {"id": "m1", "content": "", "reactions": [],
+           "embeds": [{"fields": [{"name": "​", "value": f"**{AUCTION_MARK} - you are BIDDING.**"}]}]}
+    assert DA.seed_missing([auc], "chan", "tok") == 1
+    assert len(reacted) == 3          # 🎯 🔥 ❌

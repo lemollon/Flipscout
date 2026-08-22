@@ -301,3 +301,54 @@ def test_the_cards_channel_is_seeded_with_its_own_channel_id(monkeypatch):
                FLIPSCOUT_CARDS_CHANNEL_ID="222")
     notify_rich([CAND, CARD_CAND], env=env, session=RoutingSession())
     assert seeded == ["111", "222"]
+
+
+# --- bidding or buying, added 2026-08-22 ------------------------------------
+# Leron: "I don't know if I'm bidding or buying." The only thing separating the
+# two was the field labels "Open at"/"Asking" and "MAX bid"/"Don't pay over" -
+# small grey type, invisible on a phone, below numbers whose MEANING depends on
+# the answer.
+
+def test_an_auction_says_you_are_bidding_first_and_loudly():
+    e = build_embed(dict(CAND, listing_type="auction"))
+    first = e["fields"][0]["value"]
+    assert notify.AUCTION_MARK in first and "BIDDING" in first
+
+
+def test_a_fixed_price_says_you_are_buying_first_and_loudly():
+    e = build_embed(dict(CAND, listing_type="fixed"))
+    first = e["fields"][0]["value"]
+    assert notify.BUY_NOW_MARK in first and "BUYING" in first
+
+
+def test_the_banner_sits_above_the_money():
+    """🚨 The numbers mean different things depending on the answer, so it
+    cannot sit below them."""
+    e = build_embed(dict(CAND, listing_type="auction"))
+    names = [f["name"] for f in e["fields"]]
+    money = next(i for i, f in enumerate(e["fields"])
+                 if f["name"] in ("Open at", "Asking", "Sells for", "Costs now"))
+    assert money > 0 and notify.AUCTION_MARK in e["fields"][0]["value"], names
+
+
+def test_an_unknown_listing_type_says_nothing_rather_than_guessing():
+    """🚨 A WRONG "AUCTION" IS WORSE THAN A MISSING ONE, and some senders (the
+    board digest) carry no listing type at all."""
+    e = build_embed({k: v for k, v in CAND.items() if k != "listing_type"})
+    assert notify.AUCTION_MARK not in str(e["fields"])
+    assert notify.BUY_NOW_MARK not in str(e["fields"])
+
+
+def test_the_source_alone_cannot_answer_it():
+    """Measured on the live board: ShopGoodwill posts BOTH (212 auction, 10
+    fixed), so "goodwill means auction" is right 95% of the time - the worst
+    kind of rule."""
+    import json, pathlib, collections
+    board = pathlib.Path(__file__).resolve().parent.parent / "docs" / "deals.json"
+    if not board.exists():
+        return
+    items = json.loads(board.read_text())["items"]
+    per = collections.defaultdict(set)
+    for i in items:
+        per[i.get("source")].add(i.get("listing_type"))
+    assert len(per["goodwill"]) > 1, "goodwill no longer mixes; revisit the banner"

@@ -107,6 +107,40 @@ def _send_webhook(url: str, text: str, session=None) -> None:
 # Discord renders "embeds": a clickable title, a thumbnail, and labelled fields.
 # Slack ignores the key and still shows `content`, so this stays fail-soft.
 
+# --- am I bidding or buying? ------------------------------------------------
+# 🚨 THE ANSWER WAS TWO WORDS OF GREY LABEL TEXT. Leron, 2026-08-22: "I don't
+# know if I'm bidding or buying." He was right and it was not close: the ONLY
+# thing separating an auction card from a buy-it-now card was the field labels
+# "Open at" vs "Asking" and "MAX bid" vs "Don't pay over" - small grey type,
+# effectively invisible on a phone.
+#
+# It is not a cosmetic distinction. On an auction you place one bid and may
+# lose; on a fixed-price listing you pay and it is yours, the price is
+# negotiable in person, and there is nothing to snipe. Getting it backwards
+# means either chasing a price that was never an auction, or waiting out a
+# "close" on a listing that has none while somebody else buys it.
+#
+# 🚨 AND IT IS NOT INFERABLE FROM THE SOURCE. Measured on the live board:
+# ShopGoodwill posts BOTH (212 auction, 10 fixed), so "goodwill means auction"
+# is a rule that is right 95% of the time, which is the worst kind.
+#
+# Stated as the FIRST field on every card, full width, above the money. The
+# marker strings are matched by discordarm.seed_missing - a buy-it-now card
+# must not get snipe chips, because a 🎯 on something with no closing time is
+# the same confusion wearing a button.
+AUCTION_MARK = "\N{HAMMER} AUCTION"
+BUY_NOW_MARK = "\N{SHOPPING TROLLEY} BUY IT NOW"
+
+_ACTION_TEXT = {
+    "auction": (f"**{AUCTION_MARK} - you are BIDDING.** Place ONE bid at your "
+                f"max in the closing seconds, then walk away. Nothing is yours "
+                f"until it closes."),
+    "fixed": (f"**{BUY_NOW_MARK} - you are BUYING.** Pay the ask and it is "
+              f"yours right now. No bidding, no closing time - and the price "
+              f"is usually negotiable in person."),
+}
+
+
 VERDICT_COLORS = {
     "buy": 0x2ECC71,      # green  - clears your bar
     "watch": 0xF1C40F,    # yellow - close, needs a judgement call
@@ -121,6 +155,14 @@ def build_embed(c: dict) -> dict:
     and any of: all_in, comp, max_bid, bids, ends.
     """
     fields = []
+    # 🚨 FIRST, ABOVE THE MONEY. The numbers mean different things depending on
+    # this answer, so it cannot sit below them - see _ACTION_TEXT.
+    # Emitted only when the listing type is actually KNOWN: a wrong "AUCTION"
+    # is worse than a missing one, and some senders (the board digest) carry no
+    # listing type at all.
+    action = _ACTION_TEXT.get((c.get("listing_type") or "").lower())
+    if action:
+        fields.append({"name": "\u200b", "value": action, "inline": False})
     # The embed title is the ONLY clickable link Discord shows - which means
     # it's the only place the name lives, and Discord gives no way to copy
     # text out of a link (mobile long-press just opens it). Inline code
