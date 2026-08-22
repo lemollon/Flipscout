@@ -560,6 +560,10 @@ def to_alert(c: dict) -> dict:
         "open_bid": adv.open_bid,
         "listing_type": row.get("listing_type", "auction"),
         "source": row.get("source"),
+        # What the book PRICED it as. notify routes on this before falling back
+        # to reading the title, because the category is what the money was
+        # actually computed from.
+        "category": model.category,
         "buy_url": row.get("url"),        # where to buy it
         "comps_url": comps_link,          # the eBay solds backing the claim
         "reason": "\n".join(bits),

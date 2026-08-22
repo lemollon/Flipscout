@@ -606,7 +606,7 @@ def test_a_ceilingless_tap_is_refused_once_not_every_minute(monkeypatch, capsys)
     back is what stops the loop.
     """
     from flipscout import discordarm as DA
-    monkeypatch.setattr(DA, "_cfg", lambda: ("tok", "chan"))
+    monkeypatch.setattr(DA, "_cfg", lambda: ("tok", ["chan"]))
     # already refused: 🎯 tapped by a human, ⚠ already placed by the bot
     msg = _card_msg("m1", "999888777",
                     {DA.ARM_EMOJI: (2, True), DA.NOPE_EMOJI: (1, True)})
@@ -622,7 +622,7 @@ def test_a_ceilingless_tap_is_refused_once_not_every_minute(monkeypatch, capsys)
 
 def test_a_ceilingless_tap_IS_refused_the_first_time(monkeypatch):
     from flipscout import discordarm as DA
-    monkeypatch.setattr(DA, "_cfg", lambda: ("tok", "chan"))
+    monkeypatch.setattr(DA, "_cfg", lambda: ("tok", ["chan"]))
     msg = _card_msg("m1", "999888777", {DA.ARM_EMOJI: (2, True)})   # no ⚠ yet
     monkeypatch.setattr(DA, "_get", lambda *a, **k: [msg])
     monkeypatch.setattr(DA, "seed_missing", lambda *a, **k: 0)
@@ -716,7 +716,7 @@ def test_cleanup_can_never_delete_a_deal_card(monkeypatch):
     you would actually miss structurally impossible to hit - not merely
     unlikely."""
     from flipscout import discordarm as DA
-    monkeypatch.setattr(DA, "_cfg", lambda: ("tok", "chan"))
+    monkeypatch.setattr(DA, "_cfg", lambda: ("tok", ["chan"]))
     monkeypatch.setenv("FLIPSCOUT_ALERT_WEBHOOK",
                        "https://discord.com/api/webhooks/999/tok-abc")
     card = {"id": "c1", "webhook_id": "999", "timestamp": "2026-08-20T10:00:00",
@@ -734,3 +734,46 @@ def test_cleanup_can_never_delete_a_deal_card(monkeypatch):
     DA.cleanup(dry_run=False)
     assert "c1" not in deleted, "a deal card was deleted"
     assert deleted == ["j1", "j2"], "the newest junk message must be kept"
+
+
+# --- multi-channel polling, added 2026-08-22 --------------------------------
+
+def test_every_configured_channel_is_polled(monkeypatch):
+    """🚨 THE CARDS CHANNEL MUST BE ARMABLE TOO. Alerts route by subject now
+    (see notify.CHANNELS); a poller that only reads the default channel leaves
+    every card in the cards channel with no chips and no 🎯 ever seen."""
+    from flipscout import discordarm as DA
+    monkeypatch.setenv("FLIPSCOUT_DISCORD_BOT_TOKEN", "tok")
+    monkeypatch.setenv("FLIPSCOUT_DISCORD_CHANNEL_ID", "111")
+    monkeypatch.setenv("FLIPSCOUT_CARDS_CHANNEL_ID", "222")
+    assert DA._cfg() == ("tok", ["111", "222"])
+
+    polled = []
+    monkeypatch.setattr(DA, "_get",
+                        lambda path, *a, **k: polled.append(path) or [])
+    monkeypatch.setattr(DA, "seed_missing", lambda *a, **k: 0)
+    DA.scan()
+    assert polled == ["/channels/111/messages", "/channels/222/messages"]
+
+
+def test_the_same_channel_twice_is_polled_once(monkeypatch):
+    """Pointing the cards webhook at the default channel is a legitimate setup
+    (one channel, routing off) and must not double every reaction."""
+    from flipscout import discordarm as DA
+    monkeypatch.setenv("FLIPSCOUT_DISCORD_BOT_TOKEN", "tok")
+    monkeypatch.setenv("FLIPSCOUT_DISCORD_CHANNEL_ID", "111")
+    monkeypatch.setenv("FLIPSCOUT_CARDS_CHANNEL_ID", "111")
+    assert DA._cfg() == ("tok", ["111"])
+
+
+def test_a_bare_string_channel_is_not_iterated_character_by_character(monkeypatch):
+    """`_cfg` returned one id as a string until 2026-08-22. A string is
+    iterable, so the new loop would poll channels "c", "h", "a", "n"."""
+    from flipscout import discordarm as DA
+    monkeypatch.setattr(DA, "_cfg", lambda: ("tok", "chan"))
+    polled = []
+    monkeypatch.setattr(DA, "_get",
+                        lambda path, *a, **k: polled.append(path) or [])
+    monkeypatch.setattr(DA, "seed_missing", lambda *a, **k: 0)
+    DA.scan()
+    assert polled == ["/channels/chan/messages"]

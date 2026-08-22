@@ -161,6 +161,55 @@ Measured 2026-08-22: **0 of the 521 listings** on the live board draw a card
 line, which is the contract — a reader that speaks up on cameras and
 calculators turns every alert into wallpaper. That is pinned as a test.
 
+## The #cards channel
+
+Card alerts go to their own Discord channel; everything else stays in the main
+one. Two repo secrets, both optional — with neither set, everything lands in
+the main channel exactly as before:
+
+```bash
+gh secret set FLIPSCOUT_CARDS_WEBHOOK    -R lemollon/Flipscout   # the webhook URL
+gh variable set FLIPSCOUT_CARDS_CHANNEL_ID --body <channel id> -R lemollon/Flipscout
+```
+
+**Both are needed, and they are not the same thing.** The webhook is how alerts
+are *posted*; the channel id is how the bot *places the 🎯 / 🔥 / ❌ chips* on
+them. Set only the webhook and cards arrive un-armable — the seeding call 404s
+against the default channel and nothing visible says so. `describe_webhook()`
+prints the channel id a webhook resolves to:
+
+```bash
+python -c "from flipscout.notify import describe_webhook; print(describe_webhook('<url>'))"
+```
+
+Routing rules:
+
+- A listing the book priced as a **card category** (`pokemon-cards`) routes on
+  that — authoritative, because it is what the money was computed from.
+- Anything else whose **title reads as a sports card** routes on the reader.
+- 🚨 **An unset cards webhook falls back to the main channel.** A routing rule
+  may never make an alert vanish; silence is the failure that looks exactly
+  like the watcher having died.
+
+`discordarm` polls every configured channel, so arming works in both.
+
+## 🚨 What actually arrives there today
+
+**Only the graded and vintage-chase Pokémon tiers.** Nothing else can, and it
+is worth being precise about why.
+
+`hunt.evaluate()` drops any listing that does not match a priced model — no
+comp, no ceiling, no alert. Sports cards have no measured comp (and per the top
+of this page, they should not get an invented one), so **no sports card can
+reach the channel through the normal alert path**. What ships today is the
+triage: `flipscout card` on demand, and a `Card read:` line on card alerts that
+do fire.
+
+Making the channel carry sports cards needs a **scout pass**: sweep card search
+terms, run the reader, post `CHASE` verdicts with no ceiling and a clear "no
+comp — this is a look-at-it, not a buy" label. That is a real build and a real
+decision, because it means posting listings the book cannot price. Not done.
+
 ## Feeding it more
 
 The rules above are regexes in one file with a test each. New brands, new
