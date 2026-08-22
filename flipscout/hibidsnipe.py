@@ -121,6 +121,11 @@ SNIPE_AT_S = int(os.environ.get("FLIPSCOUT_HIBID_SNIPE_SECONDS", "180"))
 ABORT_UNDER_S = int(os.environ.get("FLIPSCOUT_HIBID_ABORT_UNDER", "25"))
 
 
+# How close to the close a lot has to be before a missing response is allowed
+# to mean "it ended". Outside this window a lot that stops responding is a bad
+# fetch, not a finished auction - see the note in the `gone` branch.
+GONE_TRUST_S = 2 * 3600
+
 def lot_id(s: str) -> str:
     m = re.search(r"/lot/(\d{6,})", str(s)) or re.search(r"(\d{6,})", str(s))
     if not m:
@@ -777,12 +782,55 @@ def run(dry_run: bool = False) -> int:
         if d.get("gone"):
             a["gone_strikes"] = int(a.get("gone_strikes") or 0) + 1
             changed = True
-            if a["gone_strikes"] >= 3:
+            # 🚨 THREE BAD FETCHES IN SIX MINUTES WERE KILLING SNIPES SIX DAYS
+            # OUT. Leron, 2026-08-22: "i click the sniper on items i like and i
+            # never see it bid". Measured in snipe_run.log - FIVE armed lots
+            # died this way, every one of them at 8,700+ minutes to go:
+            #
+            #     318305867: 8792.5 min left - waiting
+            #     318305867: no lot data (strike 1/3)
+            #     318305867: no lot data (strike 2/3)
+            #     318305867: no lot data three polls running - retiring
+            #
+            # The three-strike rule was itself a fix for retiring on the FIRST
+            # bad response, and it is still too eager: the poll runs every
+            # couple of minutes, so three in a row is a six-minute outage. A
+            # lot with days left has not ended, whatever the API says, and the
+            # cost of waiting is one more poll while the cost of retiring is
+            # the whole snipe.
+            #
+            # So the countdown decides, not the strike count. Near the close a
+            # missing lot really can mean it is over; days out it never does.
+            last = a.get("last_left")
+            near = last is not None and last <= GONE_TRUST_S
+            if near and a["gone_strikes"] >= 3:
                 a["status"] = "ENDED_UNBID"
-                print(f"{lid}: no lot data three polls running - retiring")
+                msg = (f":warning: **Snipe retired** "
+                       f"{(a.get('title') or '(untitled)')[:60]} - HiBid stopped "
+                       f"returning this lot three polls running, within "
+                       f"{GONE_TRUST_S/3600:.0f}h of its close. No bid was "
+                       f"placed.\n{a.get('url', '')}")
+                print(msg)
+                if not dry_run:
+                    notify(msg, subject="Flipscout HiBid snipe retired")
+            elif a["gone_strikes"] in (3, 30, 120):
+                # 🚨 SAY IT OUT LOUD, BUT ONCE IN A WHILE. A snipe that is
+                # quietly blind is the thing being complained about; a snipe
+                # that says so every two minutes is worse.
+                left_txt = (f"{last/3600:.0f}h" if last else "an unknown time")
+                msg = (f":grey_question: **Still watching, but blind** "
+                       f"{(a.get('title') or '(untitled)')[:60]} - HiBid has "
+                       f"returned no data for {a['gone_strikes']} polls. Last "
+                       f"seen with {left_txt} left, so it is being KEPT armed."
+                       f"\n{a.get('url', '')}")
+                print(msg)
+                if not dry_run:
+                    notify(msg, subject="Flipscout HiBid lot went quiet")
             else:
-                print(f"{lid}: no lot data (strike {a['gone_strikes']}/3) - "
-                      f"probably a bad response, keeping it armed")
+                print(f"{lid}: no lot data (strike {a['gone_strikes']}) - "
+                      f"last seen with "
+                      + (f"{last/60:.0f} min left" if last else "no countdown")
+                      + " - keeping it armed")
             continue
         if a.get("gone_strikes"):
             a["gone_strikes"] = 0          # it came back
@@ -791,6 +839,11 @@ def run(dry_run: bool = False) -> int:
         if left is None:
             print(f"{lid}: no countdown in the response - skipping")
             continue
+        # The last countdown we actually saw. Without this a `gone` poll has no
+        # way to tell "closing in ten minutes" from "closing in six days".
+        if left > 0:
+            a["last_left"] = left
+            changed = True
         if left < 0:
             # 🚨 Not "it ended" - HiBid's own search endpoint has been seen
             # returning a negative countdown for lots with days left on them
