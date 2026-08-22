@@ -290,3 +290,33 @@ def test_a_scout_alert_routes_to_the_cards_channel():
     from flipscout import notify
     a = to_scout_alert(scout_cards(_rows(), {})[0])
     assert notify.channel_for(a) == "cards"
+
+
+def test_the_run_says_where_cards_go(monkeypatch, capsys):
+    """🚨 A MISSING CARDS WEBHOOK LOOKS EXACTLY LIKE A WORKING SETUP. The
+    fallback to the main channel is deliberate - a routing rule must never make
+    an alert vanish - so the only symptom of an unmapped secret is that cards
+    quietly pile into the main channel and the cards channel reads as broken.
+    That is precisely what happened: the code was written and the workflow was
+    never taught to pass the secret through."""
+    from flipscout import hunt
+    monkeypatch.delenv("FLIPSCOUT_CARDS_WEBHOOK", raising=False)
+    monkeypatch.setattr(hunt, "sweep", lambda *a, **k: [])
+    monkeypatch.setattr(hunt, "describe_webhook", lambda u: "none")
+    try:
+        hunt.run(notifier=lambda *a, **k: [])
+    except Exception:
+        pass
+    out = capsys.readouterr().out
+    assert "card destination" in out and "NOT SET" in out
+
+
+def test_the_workflow_passes_the_cards_secrets_through():
+    """The scar this file already carries, one channel over: "three of them
+    were set and silently inert for a full run, and the log looked perfectly
+    healthy". A secret not mapped in watch.yml does not reach the job."""
+    import pathlib
+    wf = (pathlib.Path(__file__).resolve().parent.parent
+          / ".github" / "workflows" / "watch.yml").read_text()
+    assert "FLIPSCOUT_CARDS_WEBHOOK" in wf
+    assert "FLIPSCOUT_CARDS_CHANNEL_ID" in wf
