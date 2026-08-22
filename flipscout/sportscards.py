@@ -425,8 +425,8 @@ def verdict(title: str, ask: Optional[float],
     lo, hi = comp.low, comp.high
     if lo is None:
         return SportsVerdict(LOOK, f"**{who}**{grade} - matched {comp.n} "
-                                   f"parallel(s) but the source carries no "
-                                   f"price for that grade.", comp)
+                                   f"parallel(s); the source has no price for "
+                                   f"that grade.", comp)
     thin = [c.volume for c in comp.candidates if c.volume is not None]
     liq = (" 🚨 Thin: about "
            f"{min(thin)} sold in a year - a price with nobody behind it."
