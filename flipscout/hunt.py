@@ -33,6 +33,7 @@ import os
 from typing import Optional
 
 from .bidding import advise
+from .cards import comp_query as cards_comp_query
 from .cards import comp_url as cards_comp_url
 from .cards import one_liner as card_line, read as read_card
 from .hunters import build_hunters
@@ -463,6 +464,83 @@ def scout_cards(rows: list, config: dict, seen: Optional[set] = None,
     return out[:limit]
 
 
+# --- live market numbers for a card the book cannot price -------------------
+# 🚨 THE SCOUT SHIPPED WITH A LINK AND NO NUMBER, AND THAT WAS HALF AN ANSWER.
+# Leron, 2026-08-22: "You are missing the comps on the cards - you need to find
+# them." He is right. A verdict plus a search URL asks him to do the lookup
+# himself on every card, which is exactly the work the tool exists to remove.
+#
+# eBay's Browse API is APPROVED and LIVE on this app and the keys are already in
+# the Actions secrets, so the numbers CAN be fetched - just not the ones the
+# book normally uses:
+#
+#   Marketplace Insights (SOLD prices)  - a Limited Release API, closed to new
+#       users. _insights() is implemented and returns (None, []) on 403/404, so
+#       the day access is granted this starts reporting real solds with nothing
+#       to change here.
+#   Browse (ACTIVE asks)                - live today.
+#
+# 🚨 AN ASK IS NOT A SALE, AND THIS MUST NEVER PRETEND OTHERWISE. Asks skew
+# high (everything unsold is still listed at its optimistic price) and a card
+# nobody buys can carry a hundred asks. So this NEVER produces a comp, never a
+# ceiling, never a max bid - `source` is printed on the card so the difference
+# is on the alert rather than in a docstring, and the sold-search link stays
+# there for him to check in one tap.
+#
+# QUOTA: bounded by the scout cap, so at most 12 lookups per run - ~288/day
+# against a budget where the sixteen card TERMS were costing ~1,150. That is
+# the trade this makes: stop spending quota searching eBay for cards, spend a
+# fraction of it pricing the ones the auction sources already found.
+def price_scout_finds(finds: list, comps=None) -> None:
+    """Attach live eBay market numbers to each scout find, in place. Fail-soft."""
+    if not finds:
+        return
+    if comps is None:
+        try:
+            from .ebay_api import EbayApiComps
+            comps = EbayApiComps()
+        except Exception as e:            # no keys configured - say so once
+            print(f"[scout] no eBay lookup ({type(e).__name__}); cards ship "
+                  f"with their sold-search link only.")
+            return
+    ok = 0
+    for c in finds:
+        q = cards_comp_query(c["read"])
+        if not q:
+            continue
+        try:
+            c["market"] = comps.lookup(q)
+            ok += 1
+        except Exception as e:
+            # One dead lookup must never cost the whole card - it still has a
+            # verdict, a photo and a link, which is what it shipped with before.
+            print(f"[scout] lookup failed for {q[:40]!r}: {type(e).__name__}")
+    if ok:
+        print(f"[scout] priced {ok}/{len(finds)} find(s) against live eBay data")
+
+
+def _market_line(m) -> str:
+    """One line of real numbers, honest about which kind they are."""
+    if m is None:
+        return ""
+    sold, asks = m.sold_price, m.active_count
+    if sold is not None:
+        return (f":moneybag: **SOLD median ${sold:,.2f}**"
+                + (f" across {m.sold_count} sale(s)" if m.sold_count else "")
+                + (f", range ${m.low:,.2f}-${m.high:,.2f}" if m.low and m.high else "")
+                + " - measured from eBay's sold data.")
+    if asks:
+        rng = (f" (${m.low:,.2f}-${m.high:,.2f})" if m.low and m.high else "")
+        return (f":chart_with_upwards_trend: **{asks} listed on eBay right now**"
+                f"{rng}. 🚨 Those are ASKING prices, not sales - unsold cards "
+                f"stay listed at optimistic numbers, so treat this as the "
+                f"ceiling of opinion, not the floor of value. **Open the sold "
+                f"search below before you bid.**")
+    return (":grey_question: Nothing comparable listed on eBay right now - "
+            "either it is genuinely scarce or the title does not match how "
+            "sellers write it. Check the sold search.")
+
+
 def to_scout_alert(c: dict) -> dict:
     """One scout find -> the Discord embed payload. No comp, no ceiling."""
     row, r = c["row"], c["read"]
@@ -482,10 +560,13 @@ def to_scout_alert(c: dict) -> dict:
                      "current bid - this will move before it closes."))
     # 🚨 THE HONEST HEADLINE, EVERY TIME. Without this line a card sitting
     # beside priced alerts reads as though somebody checked the money.
-    bits.append(":no_entry: **No comp - nobody measured this.** There is no "
-                "ceiling on this card because a title cannot state condition, "
-                "and condition is most of a raw card's value. "
-                "**Check the sold prices before you bid anything.**")
+    market = _market_line(c.get("market"))
+    if market:
+        bits.append(market)
+    bits.append(":no_entry: **No measured comp, so no ceiling.** A title cannot "
+                "state condition and condition is most of a raw card's value - "
+                "the numbers above are the market talking, not a price this "
+                "tool stands behind. **You decide the bid.**")
     if not row.get("image"):
         bits.append(":warning: **No photo on this listing** - on a card that is "
                     "disqualifying, not cosmetic.")
@@ -798,6 +879,7 @@ def _post_scout(rows: list, config: dict, seen: set, notifier) -> tuple:
         return set(), []
     if not finds:
         return set(), []
+    price_scout_finds(finds)
     alerts = [to_scout_alert(c) for c in finds]
     chase = sum(1 for c in finds if c["read"].verdict == "CHASE")
     header = (f":card_index: **Card scout** - {len(alerts)} worth opening"

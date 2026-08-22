@@ -267,7 +267,10 @@ def test_a_scout_alert_states_that_nobody_measured_it():
     reads as though somebody checked the money."""
     from flipscout.hunt import scout_cards, to_scout_alert
     a = to_scout_alert(scout_cards(_rows(), {})[0])
-    assert "No comp" in a["reason"] and "nobody measured this" in a["reason"]
+    assert "No measured comp, so no ceiling" in a["reason"]
+    # 🚨 The live market numbers added later must not soften this: they say what
+    # the market is doing, never what this tool stands behind.
+    assert "not a price this tool stands behind" in a["reason"]
 
 
 def test_a_scout_alert_carries_no_number_to_bid_on():
@@ -320,3 +323,91 @@ def test_the_workflow_passes_the_cards_secrets_through():
           / ".github" / "workflows" / "watch.yml").read_text()
     assert "FLIPSCOUT_CARDS_WEBHOOK" in wf
     assert "FLIPSCOUT_CARDS_CHANNEL_ID" in wf
+
+
+# --- live market numbers on a scout card, 2026-08-22 ------------------------
+# Leron: "You are missing the comps on the cards - you need to find them."
+# The scout shipped with a verdict and a search URL, which asks him to do the
+# lookup himself on every card - the work the tool exists to remove.
+
+def _find():
+    from flipscout.hunt import scout_cards
+    return scout_cards([{"title": "2018 Panini Prizm Luka Doncic Silver Prizm RC Auto /99",
+                         "id": "1", "source": "hibid", "url": "u", "image": "i",
+                         "price": 40, "listing_type": "auction"}], {})
+
+
+class _Provider:
+    def __init__(self, comp): self.comp, self.seen = comp, []
+    def lookup(self, q, observed_price=None):
+        self.seen.append(q)
+        return self.comp
+
+
+def test_sold_data_is_reported_as_a_sale():
+    from flipscout.comps import Comp
+    from flipscout.hunt import price_scout_finds, to_scout_alert
+    finds = _find()
+    price_scout_finds(finds, comps=_Provider(Comp(
+        query="q", sold_price=310.0, sold_count=24, active_count=61,
+        source="ebay_insights", low=180.0, high=650.0)))
+    body = to_scout_alert(finds[0])["reason"]
+    assert "SOLD median $310.00" in body and "24 sale(s)" in body
+
+
+def test_asks_are_never_reported_as_a_sale():
+    """🚨 THE WHOLE DISCIPLINE OF THIS FEATURE. Marketplace Insights (solds) is
+    closed to new users, so today only ACTIVE asks come back - and asks skew
+    high, because everything unsold is still listed at its optimistic price."""
+    from flipscout.comps import Comp
+    from flipscout.hunt import price_scout_finds, to_scout_alert
+    finds = _find()
+    price_scout_finds(finds, comps=_Provider(Comp(
+        query="q", sold_price=None, active_count=61, source="ebay_browse",
+        low=180.0, high=650.0)))
+    body = to_scout_alert(finds[0])["reason"]
+    assert "61 listed on eBay right now" in body
+    assert "ASKING prices, not sales" in body
+    assert "SOLD median" not in body
+
+
+def test_a_market_number_never_becomes_a_ceiling():
+    """It may say what the market is doing. It may never say what to bid."""
+    from flipscout.comps import Comp
+    from flipscout.hunt import price_scout_finds, to_scout_alert
+    finds = _find()
+    price_scout_finds(finds, comps=_Provider(Comp(
+        query="q", sold_price=310.0, sold_count=24, source="ebay_insights")))
+    a = to_scout_alert(finds[0])
+    assert a.get("comp") is None and a.get("max_bid") is None
+    assert "No measured comp, so no ceiling" in a["reason"]
+
+
+def test_the_lookup_uses_the_cards_precise_query():
+    """Not the raw title (seller hype returns nothing) and not the category."""
+    from flipscout.comps import Comp
+    from flipscout.hunt import price_scout_finds
+    p = _Provider(Comp(query="q", sold_price=None))
+    price_scout_finds(_find(), comps=p)
+    assert p.seen and "luka" in p.seen[0] and "/99" in p.seen[0]
+    assert "🔥" not in p.seen[0]
+
+
+def test_a_dead_lookup_never_costs_the_card(capsys):
+    """It still has a verdict, a photo and a link - what it shipped with."""
+    from flipscout.hunt import price_scout_finds, to_scout_alert
+    class Boom:
+        def lookup(self, q, observed_price=None): raise RuntimeError("429")
+    finds = _find()
+    price_scout_finds(finds, comps=Boom())
+    body = to_scout_alert(finds[0])["reason"]
+    assert "CHASE" in body and "lookup failed" in capsys.readouterr().out
+
+
+def test_no_ebay_keys_is_not_an_error(capsys):
+    from flipscout.hunt import price_scout_finds
+    class NoKeys:
+        def lookup(self, q, observed_price=None): raise RuntimeError("no creds")
+    finds = _find()
+    price_scout_finds(finds, comps=NoKeys())
+    assert "lookup failed" in capsys.readouterr().out       # noted, not raised
