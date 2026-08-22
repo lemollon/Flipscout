@@ -78,6 +78,7 @@ from typing import Optional
 import requests
 
 from . import snipe
+from .notify import BUY_NOW_MARK
 
 API = "https://discord.com/api/v10"
 ARM_EMOJI = "\N{DIRECT HIT}"        # 🎯
@@ -125,8 +126,24 @@ _REPLY = re.compile(r"^\s*(?:snipe|arm|bid|max|cap)?\s*\$?\s*"
 
 
 def _cfg() -> tuple:
-    return (os.environ.get("FLIPSCOUT_DISCORD_BOT_TOKEN", "").strip(),
-            os.environ.get("FLIPSCOUT_DISCORD_CHANNEL_ID", "").strip())
+    """(token, [channel ids]) - EVERY channel alerts are posted to.
+
+    🚨 ONE CHANNEL WAS AN ASSUMPTION, NOT A DESIGN. Alerts route by subject
+    since 2026-08-22 (see notify.CHANNELS), and a poller that reads only the
+    default channel leaves every card in the cards channel un-armable: the
+    chips never get seeded there and a 🎯 tap is never seen. Deduped and
+    order-preserving so the default channel is still polled first.
+    """
+    from .notify import CHANNELS
+    ids = [os.environ.get("FLIPSCOUT_DISCORD_CHANNEL_ID", "").strip()]
+    for _hook, chan_var in CHANNELS.values():
+        ids.append(os.environ.get(chan_var, "").strip())
+    seen, out = set(), []
+    for c in ids:
+        if c and c not in seen:
+            seen.add(c)
+            out.append(c)
+    return os.environ.get("FLIPSCOUT_DISCORD_BOT_TOKEN", "").strip(), out
 
 
 def _get(path: str, token: str, **params):
@@ -257,6 +274,13 @@ def seed_missing(msgs: list, channel: str, token: str, dry_run: bool = False) ->
         site, iid, _ = parse_card(m)
         if not iid:
             continue
+        # 🚨 NOR ON A BUY IT NOW. A 🎯 means "bid at the ceiling three minutes
+        # before it closes", and a fixed-price listing has no close - so the
+        # chip cannot do anything, and offering it is the same "am I bidding or
+        # buying?" confusion wearing a button. Matched on the banner
+        # notify.build_embed prints, which card_text() already flattens.
+        if BUY_NOW_MARK in card_text(m):
+            continue
         have = {(r.get("emoji") or {}).get("name") for r in (m.get("reactions") or [])
                 if r.get("me")}
         want = {ARM_EMOJI, STRETCH_EMOJI, DISARM_EMOJI} - have
@@ -342,12 +366,28 @@ def _confirm(site: str, iid: str, amount: float, detail: dict,
 
 
 def scan(limit: int = 50, dry_run: bool = False) -> int:
-    """Poll the channel and act on 🎯 / ❌ / `snipe <n>` replies."""
-    token, channel = _cfg()
-    if not token or not channel:
+    """Poll every configured channel and act on 🎯 / ❌ / `snipe <n>` replies."""
+    token, channels = _cfg()
+    # 🚨 A STRING IS ITERABLE, AND THAT IS THE BUG. `_cfg` used to return ONE
+    # channel id; anything still handing back a bare string would be iterated
+    # CHARACTER BY CHARACTER here, polling four channels named "c", "h", "a",
+    # "n" and reporting each failure as real. Caught immediately by an existing
+    # test's stub, which is the only reason it is a comment and not an outage.
+    if isinstance(channels, str):
+        channels = [channels] if channels else []
+    if not token or not channels:
         print("no FLIPSCOUT_DISCORD_BOT_TOKEN / FLIPSCOUT_DISCORD_CHANNEL_ID - "
               "see this module's docstring for the one-time setup")
         return 2
+    # Worst status wins, so one dead channel is reported rather than masked by
+    # another that polled cleanly.
+    rc = 0
+    for channel in channels:
+        rc = max(rc, _scan_channel(channel, token, limit, dry_run))
+    return rc
+
+
+def _scan_channel(channel: str, token: str, limit: int, dry_run: bool) -> int:
     try:
         msgs = _get(f"/channels/{channel}/messages", token, limit=limit)
     except Exception as e:

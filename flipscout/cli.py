@@ -14,9 +14,11 @@ you get for free from eBay's "Sold items" search filter. No API key, no scraping
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 
 from .analyzer import Candidate, Thresholds, analyze, analyze_csv, max_pay
+from .cards import explain as explain_card, read as read_card
 from .categories import format_goldmines
 from .comps import Comp, load_memory, save_comp
 from .fees import CONSERVATIVE, FeeModel
@@ -105,6 +107,119 @@ def cmd_watch(args) -> int:
     res = run_watch(cfg, notifier=dry if args.dry else notify)
     print(f"\n{res['new']} new / {res['scanned']} scanned"
           + (f", sent via {res['sent']}" if res["sent"] else ""))
+    return 0
+
+
+def cmd_card(args) -> int:
+    """Triage a sports-card title against the card-shop buy box.
+
+    🚨 PRINTS A VERDICT, NEVER A PRICE - see flipscout.cards for why. This is
+    the "should I even pick this one up" pass, which is the question a table of
+    a thousand cards actually poses.
+    """
+    for title in args.titles:
+        if len(args.titles) > 1:
+            print(f"\n{title}")
+        print(explain_card(read_card(title)))
+    return 0
+
+
+def cmd_cardcomp(args) -> int:
+    """Measure a sports-card tier, and print the Model it becomes.
+
+    🚨 THIS IS THE LAST MILE BETWEEN A VERDICT AND A CEILING. `cards` triages
+    and refuses to invent a number; the book refuses to ship one that was not
+    measured. So the only thing standing between the card scout and real max
+    bids is a browser measurement per tier - and this makes that one paste.
+    """
+    from .cards import CARD_TIERS
+    from .ebay_ui import EXTRACT_JS, build_report, load_raw, sold_url
+
+    tiers = {t.key: t for t in CARD_TIERS}
+
+    if not args.tier:
+        print("SPORTS-CARD TIERS WAITING ON A MEASUREMENT\n")
+        print("Each needs ONE browser paste. Do the sealed box first if you only\n"
+              "do one - it is the only card product with no condition variable.\n")
+        for t in CARD_TIERS:
+            print(f"  {t.key}")
+            print(f"      {t.label}")
+            print(f"      {t.why}")
+            print(f"      flipscout cardcomp {t.key}\n")
+        return 0
+
+    t = tiers.get(args.tier)
+    if not t:
+        print(f"error: unknown tier {args.tier!r}. Run `flipscout cardcomp` for "
+              f"the list.", file=sys.stderr)
+        return 1
+
+    if not args.source:
+        print(f"MEASURING: {t.label}\n")
+        print("1. Open this in your normal Chrome:\n")
+        print(f"   {sold_url(t.query)}\n")
+        print("2. DevTools (F12) -> Console, paste this, Enter. It copies to your clipboard:")
+        print("   " + "-" * 56)
+        for line in EXTRACT_JS.strip().splitlines():
+            print("   " + line)
+        print("   " + "-" * 56)
+        print(f"\n3. Save the clipboard to a file, then:")
+        print(f'     flipscout cardcomp {t.key} --from comps.json')
+        return 0
+
+    text = sys.stdin.read() if args.source == "-" else open(args.source, encoding="utf-8").read()
+    try:
+        rows = load_raw(text)
+    except ValueError as e:
+        print(f"error: couldn't parse that as JSON ({e}).", file=sys.stderr)
+        return 1
+
+    rep = build_report(t.query, rows, resell_shipping=args.ship)
+    for w in rep.warnings():
+        print(f"  ! {w}")
+    prices = sorted(r.all_in for r in (rep.clean or rep.rows))
+    if not prices:
+        print("no usable sold rows - nothing to measure.", file=sys.stderr)
+        return 1
+    # 🚨 NEAREST-RANK, NOT len//4. With 40 prices - ten at $100 and thirty at
+    # $500 - `prices[40 // 4]` is index 10, the ELEVENTH value, which is $500:
+    # it reports the expensive cohort as the floor. Off by one at exactly the
+    # boundary, and in the expensive direction, since the whole point of
+    # quoting p25 is to sit BELOW the cheap tail the title cannot separate out.
+    p25 = round(prices[max(0, math.ceil(0.25 * len(prices)) - 1)], 2)
+    med = rep.headline
+
+    print(f"\n{t.label}")
+    print(f"  n={len(prices)} clean of {len(rep.rows)} parsed")
+    print(f"  p25 ${p25:,.2f}   median ${med:,.2f}   range ${prices[0]:,.2f}-${prices[-1]:,.2f}")
+
+    # 🚨 THE FLOOR, NOT THE MIDDLE. Every card population carries a cheaper
+    # cohort the title cannot separate out, and the book's own card tiers are
+    # all pinned at p25 for that reason. A median-based comp is a guess with
+    # money behind it.
+    from .bidding import advise
+    adv = advise(comp=p25, outbound_shipping=args.ship or 5.0,
+                 inbound_shipping=args.inbound, target_profit=args.target)
+    print(f"\n  At p25 the ceiling is ${adv.max_bid:,.2f} "
+          f"(${args.target:,.0f} profit over ${args.inbound:,.0f} inbound).")
+    if adv.max_bid <= 0:
+        print("  🚨 $0.00 - this tier CANNOT clear the gate. Record it in "
+              "DEAD_MODELS with these numbers rather than shipping it.")
+        return 0
+
+    print(f"\n  Paste into pricebook.MODELS:\n")
+    print(f'    Model(')
+    print(f'        key="{t.key}",')
+    print(f'        label="{t.label}",')
+    print(f'        comp={p25}, measured="{args.today}", sample={len(prices)},')
+    print(f'        include=r"{t.include}",')
+    print(f'        exclude=r"\\breprint\\b|\\bproxy\\b|\\bcustom\\b|\\bfake\\b|\\blot\\b|\\bbulk\\b",')
+    print(f'        outbound_shipping={args.ship or 5.0}, category="sports-cards",')
+    print(f'        comp_query="{t.query}", comp_used_only=False,')
+    print(f'        specificity={t.specificity},')
+    print(f'        note="FLOOR at p25 ${p25:,.2f} of a ${med:,.2f} median '
+          f'(n={len(prices)}).",')
+    print(f'    ),')
     return 0
 
 
@@ -333,6 +448,23 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("goldmines", help="print the goldmine-category buy-box cheat-sheet") \
        .set_defaults(func=cmd_goldmines)
+
+    pcc = sub.add_parser(
+        "cardcomp",
+        help="measure a sports-card tier in the browser -> a real priced Model")
+    pcc.add_argument("tier", nargs="?", help="tier key (omit to list them)")
+    pcc.add_argument("--from", dest="source", default=None,
+                     help="the pasted JSON file, or - for stdin")
+    pcc.add_argument("--ship", type=float, default=5.0, help="your outbound postage")
+    pcc.add_argument("--inbound", type=float, default=9.0, help="shipping TO you")
+    pcc.add_argument("--target", type=float, default=20.0, help="target profit")
+    pcc.add_argument("--today", default="", help="measurement date (YYYY-MM-DD)")
+    pcc.set_defaults(func=cmd_cardcomp)
+
+    pcard = sub.add_parser(
+        "card", help="triage a sports-card title (chase/hit/rookie read, no price)")
+    pcard.add_argument("titles", nargs="+", help="one or more card titles")
+    pcard.set_defaults(func=cmd_card)
 
     pw = sub.add_parser("watch", help="run your watchlist once and alert on new deals")
     pw.add_argument("queries", nargs="*", help="override the FLIPSCOUT_WATCHLIST searches")

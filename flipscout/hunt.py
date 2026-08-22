@@ -33,6 +33,8 @@ import os
 from typing import Optional
 
 from .bidding import advise
+from .cards import comp_url as cards_comp_url
+from .cards import one_liner as card_line, read as read_card
 from .hunters import build_hunters
 from .auctionfees import REQUIRE_CARD
 from .notify import describe_webhook, notify_rich
@@ -404,6 +406,109 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
     return out
 
 
+# --- the card scout ---------------------------------------------------------
+# 🚨 THE ONE PLACE THIS REPO ALERTS WITHOUT A COMP, AND WHY IT IS ALLOWED.
+#
+# Every other alert in Flipscout carries two numbers behind a MEASURED comp,
+# and `evaluate()` drops anything that matches no model precisely so an
+# unpriced guess can never reach a bid. That rule is not being relaxed here:
+# a scout card carries NO comp, NO ceiling and NO max bid, and it is posted to
+# a different channel from the priced alerts so the two can never be confused.
+#
+# What justifies it is that cards are the one category where the title CANNOT
+# be priced and yet CAN be triaged. The book measured this directly (see
+# DEAD_MODELS): an unsorted card lot ran p25 $10.72 / median $25.18 / max
+# $1,061 on n=65 - a hundred-fold spread no comp can straddle. But the shop's
+# five rules read straight off the same title and say, correctly, which of
+# those thousand listings is the $1,061 one.
+#
+# So the scout answers a different question from the rest of the file. Not
+# "what do I bid" - "which of these do I open". Leron, 2026-08-22: "I'm
+# expecting more cards to come out in the channel don't be shy."
+#
+# 🚨 IT MUST NEVER SAY A NUMBER. Not a comp, not a ceiling, not an estimate.
+# The value assessment it DOES carry is the eBay SOLD search for that exact
+# card (cards.comp_url) - the real prices, one tap away, aimed by the identity
+# the title states. That is the same promise the priced alerts make, minus the
+# claim we have not earned.
+SCOUT_VERDICTS = ("CHASE", "LOOK")
+
+
+def scout_cards(rows: list, config: dict, seen: Optional[set] = None,
+                limit: int = 12) -> list[dict]:
+    """Cards worth OPENING, from listings no model could price.
+
+    Deliberately runs on the rows `evaluate()` threw away. A listing that DID
+    price is already alerting with real numbers and must not be posted twice.
+    """
+    seen = seen or set()
+    out = []
+    for row in rows:
+        title = row.get("title") or ""
+        if match(title):                      # priced elsewhere, with numbers
+            continue
+        key = f"{row.get('source')}:{row.get('id')}"
+        if key in seen:
+            continue
+        r = read_card(title)
+        if r.verdict not in SCOUT_VERDICTS:
+            continue
+        out.append({"row": row, "read": r, "key": key})
+    # Best first, so a cap cuts the weakest rather than an arbitrary tail.
+    out.sort(key=lambda c: c["read"].score, reverse=True)
+    if len(out) > limit:
+        # 🚨 SAY WHAT WAS DROPPED. A silent cap reads as "that was everything",
+        # which is how a quiet channel gets mistaken for a quiet market.
+        print(f"[scout] {len(out)} card finds, posting top {limit}")
+    return out[:limit]
+
+
+def to_scout_alert(c: dict) -> dict:
+    """One scout find -> the Discord embed payload. No comp, no ceiling."""
+    row, r = c["row"], c["read"]
+    comps = cards_comp_url(r)
+    bits = [f"**{r.verdict}** - {'pull it out and photograph it' if r.verdict == 'CHASE' else 'one signal fired; worth opening'}."]
+    for s in r.signals:
+        bits.append(f"• {s.detail}")
+    # 🚨 "ASKING" ON AN AUCTION IS A LIE, and this said it on every scout card
+    # regardless of type - the exact confusion Leron reported. An auction's
+    # current price is a number that will move; an ask is a number that will
+    # not.
+    ask = row.get("price")
+    if ask is not None:
+        fixed = (row.get("listing_type") or "auction") == "fixed"
+        bits.append(f"**${float(ask):,.2f}** " +
+                    ("asking - pay it and it is yours." if fixed else
+                     "current bid - this will move before it closes."))
+    # 🚨 THE HONEST HEADLINE, EVERY TIME. Without this line a card sitting
+    # beside priced alerts reads as though somebody checked the money.
+    bits.append(":no_entry: **No comp - nobody measured this.** There is no "
+                "ceiling on this card because a title cannot state condition, "
+                "and condition is most of a raw card's value. "
+                "**Check the sold prices before you bid anything.**")
+    if not row.get("image"):
+        bits.append(":warning: **No photo on this listing** - on a card that is "
+                    "disqualifying, not cosmetic.")
+    where = ", ".join(x for x in (row.get("city"), row.get("state")) if x)
+    if row.get("house"):
+        bits.append(f"_{row['house']}" + (f" - {where}_" if where else "_"))
+    return {
+        "title": (row.get("title") or "")[:240],
+        "url": row.get("url"),
+        "image": row.get("image"),
+        "verdict": "watch",
+        "source": row.get("source"),
+        "buy_url": row.get("url"),
+        "comps_url": comps,
+        # Carried so build_embed can print the bidding/buying banner. A scout
+        # card has no ceiling, which makes the question MORE pressing here, not
+        # less: there is no second number to reveal what kind of listing it is.
+        "listing_type": row.get("listing_type", "auction"),
+        "category": "sports-cards",     # routes to the cards channel
+        "reason": "\n".join(bits),
+    }
+
+
 def age_hours(listed: Optional[str], now: Optional[_dt.datetime] = None) -> Optional[float]:
     """Hours since the listing went up, or None when the source doesn't say."""
     if not listed:
@@ -491,6 +596,31 @@ def to_alert(c: dict) -> dict:
     if m.dead_also_present:
         bits.append(":warning: also contains: " + "; ".join(m.dead_also_present))
 
+    # The card-shop read, on the listings that are cards. Costs nothing on
+    # everything else - `cards.one_liner` returns "" unless the title proved it
+    # is a sports card, and hands TCG straight back to the measured pokemon
+    # tiers rather than second-guessing them.
+    #
+    # 🚨 IT NEVER TOUCHES THE CEILING. The numbers on this card come from a
+    # MEASURED comp; the read is a note about what the title said, and letting
+    # a triage score move a bid would put an unmeasured guess behind money.
+    cl = card_line(read_card(row.get("title") or ""))
+    if cl:
+        bits.append(f":card_index: {cl}")
+        # 🚨 A CARD ALERT WITH NO PHOTO IS NOT AN ALERT. On every other
+        # category the picture is a nice-to-have and the title carries the
+        # trade; on a raw card the title cannot state condition and condition
+        # IS most of the value - which is why the vintage-chase tier's own note
+        # says "buy the picture, not the words". 520 of the 521 listings on the
+        # board carry an image, so this is rare - and precisely because it is
+        # rare it would otherwise arrive as a silently worse alert that looks
+        # exactly like every other one.
+        if not row.get("image"):
+            bits.append(":warning: **No photo on this listing.** On a card that "
+                        "is disqualifying, not cosmetic - condition is most of "
+                        "the value and the title never states it. Open the "
+                        "listing and look before treating this as priced.")
+
     # WHO is selling it and WHERE. On the local auction sources this is the
     # difference between a 30-minute drive and an unknown, so say it plainly.
     where = ", ".join(x for x in (row.get("city"), row.get("state")) if x)
@@ -547,6 +677,10 @@ def to_alert(c: dict) -> dict:
         "open_bid": adv.open_bid,
         "listing_type": row.get("listing_type", "auction"),
         "source": row.get("source"),
+        # What the book PRICED it as. notify routes on this before falling back
+        # to reading the title, because the category is what the money was
+        # actually computed from.
+        "category": model.category,
         "buy_url": row.get("url"),        # where to buy it
         "comps_url": comps_link,          # the eBay solds backing the claim
         "reason": "\n".join(bits),
@@ -649,11 +783,56 @@ def estate_catalog_rows(config: dict, hunters=None, feed=None) -> list[dict]:
     return rows
 
 
+def _post_scout(rows: list, config: dict, seen: set, notifier) -> tuple:
+    """Post the card scout's finds. Returns (keys posted, channels used).
+
+    🚨 RUNS ON A QUIET DAY TOO. It is called on BOTH of run()'s exits, because
+    the day nothing clears the priced bar is exactly the day a card table is
+    worth walking - and a cards channel that only speaks when the tool
+    hardware is buying is a cards channel that never speaks.
+    """
+    try:
+        finds = scout_cards(rows, config, seen=seen)
+    except Exception as e:                    # never let the scout kill a run
+        print(f"[hunt] card scout failed (non-fatal): {e}")
+        return set(), []
+    if not finds:
+        return set(), []
+    alerts = [to_scout_alert(c) for c in finds]
+    chase = sum(1 for c in finds if c["read"].verdict == "CHASE")
+    header = (f":card_index: **Card scout** - {len(alerts)} worth opening"
+              + (f" ({chase} CHASE)" if chase else "") + "\n"
+              f"_No comps on these - nobody measured them. Each one links its "
+              f"own eBay SOLD search; check that before you bid anything._")
+    sent = notifier(alerts, content=header)
+    if sent:
+        print(f"[hunt] SCOUT: {len(alerts)} card find(s) via {', '.join(sent)}.")
+        return {c["key"] for c in finds}, sent
+    print(f"[hunt] SCOUT NOT DELIVERED - {len(alerts)} card find(s) went nowhere.")
+    return set(), []
+
+
 def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> dict:
     config = config or load_config()
     # Print the DESTINATION every run. Delivery success has repeatedly meant
     # "Discord accepted it" while the alerts landed in a channel nobody watches.
     print(f"[hunt] alert destination: {describe_webhook(os.environ.get('FLIPSCOUT_ALERT_WEBHOOK'))}")
+    # 🚨 SAY WHERE CARDS GO, TOO. The cards webhook falls back to the main
+    # channel when unset - deliberately, so a routing rule can never make an
+    # alert vanish - and the cost of that safety is that a MISSING secret looks
+    # exactly like a working setup: cards quietly pile into #flips and the
+    # cards channel reads as broken. Same failure this line already exists to
+    # prevent for the main webhook, one channel over.
+    _cards_hook = os.environ.get("FLIPSCOUT_CARDS_WEBHOOK")
+    if _cards_hook:
+        print(f"[hunt] card destination:  {describe_webhook(_cards_hook)}")
+        if not (os.environ.get("FLIPSCOUT_CARDS_CHANNEL_ID") or "").strip():
+            print("[hunt] card destination:  no FLIPSCOUT_CARDS_CHANNEL_ID - "
+                  "cards will post but arrive with no tap-to-arm chips.")
+    else:
+        print("[hunt] card destination:  NOT SET - card alerts will fall back "
+              "to the main channel. Set FLIPSCOUT_CARDS_WEBHOOK to split them "
+              "out.")
     # Say the local config out loud. These come from repo VARIABLES, which the
     # workflow has to map into env one by one - three of them were set and
     # silently inert for a full run, and the log looked perfectly healthy.
@@ -903,7 +1082,11 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
                 f"${config['target_profit']:.0f} bar.\n"
                 f"_Quiet is normal._")))
             _mark_heartbeat(config["heartbeat_file"])
-        return {"scanned": len(rows), "priced": len(cands), "new": 0, "sent": []}
+        scouted, scout_sent = _post_scout(rows, config, seen, notifier)
+        if scouted:
+            _save_seen(config["state_file"], seen | scouted)
+        return {"scanned": len(rows), "priced": len(cands), "new": 0,
+                "sent": scout_sent, "scouted": len(scouted)}
 
     alerts = [to_alert(c) for c in fresh]
     header = (f"**Flipscout** - {len(alerts)} new "
@@ -921,9 +1104,12 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
         print(f"[hunt] NOT DELIVERED - {len(alerts)} alert(s) went nowhere. "
               f"Check FLIPSCOUT_ALERT_WEBHOOK is set and still valid.")
 
-    _save_seen(config["state_file"],
-               seen | {f"{c['row']['source']}:{c['row']['id']}" for c in fresh})
-    return {"scanned": len(rows), "priced": len(cands), "new": len(fresh), "sent": sent}
+    fresh_keys = {f"{c['row']['source']}:{c['row']['id']}" for c in fresh}
+    scouted, scout_sent = _post_scout(rows, config, seen | fresh_keys, notifier)
+    _save_seen(config["state_file"], seen | fresh_keys | scouted)
+    return {"scanned": len(rows), "priced": len(cands), "new": len(fresh),
+            "sent": sent + [x for x in scout_sent if x not in sent],
+            "scouted": len(scouted)}
 
 
 def main(argv=None) -> int:

@@ -1,5 +1,6 @@
 """Tests for image+link (embed) alerts."""
 
+from flipscout import notify
 from flipscout.notify import VERDICT_COLORS, build_embed, notify_rich
 
 
@@ -219,3 +220,139 @@ def test_overlong_content_is_truncated_not_rejected():
                               session=Sess())
     assert sent == ["webhook"]
     assert len(posted["content"]) <= 2000
+
+# --- channel routing, added 2026-08-22 --------------------------------------
+# Leron made a Discord channel for cards specifically. Alerts route by subject
+# now; these pin the ways routing can go wrong, and every one of them is silent.
+
+class RoutingSession(FakeSession):
+    """FakeSession, but it remembers WHERE each post went."""
+
+    def __init__(self):
+        super().__init__()
+        self.urls = []
+
+    def post(self, url, json=None, timeout=None, params=None):
+        self.urls.append(url)
+        return super().post(url, json=json, timeout=timeout, params=params)
+
+
+CARDS_ENV = {"FLIPSCOUT_ALERT_WEBHOOK": "http://main",
+             "FLIPSCOUT_CARDS_WEBHOOK": "http://cards"}
+
+CARD_CAND = dict(CAND, title="2018 Panini Prizm Luka Doncic RC Auto /99")
+PKMN_CAND = dict(CAND, title="Charizard VMAX Rainbow Rare", category="pokemon-cards")
+
+
+def test_a_card_goes_to_the_cards_channel():
+    assert notify.channel_for(CARD_CAND) == "cards"
+    assert notify.destination(CARD_CAND, CARDS_ENV)[0] == "http://cards"
+
+
+def test_the_priced_category_routes_even_when_the_title_does_not():
+    """A Pokemon title carries no maker and no slab, so the title reader alone
+    would not call it a sports card. The category the book PRICED it as does,
+    which is why the category is checked first."""
+    assert notify.channel_for(PKMN_CAND) == "cards"
+
+
+def test_everything_else_still_goes_to_the_main_channel():
+    other = dict(CAND, category="cameras", title="Canon AE-1 35mm Film Camera")
+    assert notify.channel_for(other) == ""
+    assert notify.destination(other, CARDS_ENV)[0] == "http://main"
+
+
+def test_an_unset_cards_webhook_falls_back_and_never_drops_the_alert():
+    """🚨 THE FAILURE THAT LOOKS LIKE A DEAD WATCHER. A routed alert with
+    nowhere to go must land in the default channel, not vanish."""
+    url, _chan, label = notify.destination(
+        CARD_CAND, {"FLIPSCOUT_ALERT_WEBHOOK": "http://main"})
+    assert (url, label) == ("http://main", "webhook")
+
+
+def test_a_mixed_run_splits_between_the_two_channels():
+    s = RoutingSession()
+    sent = notify_rich([CAND, CARD_CAND], content="hdr", env=CARDS_ENV, session=s)
+    assert sent.count("webhook") == 2 and sent.count("webhook:cards") == 2
+    # each channel gets its own header, then its own card - never interleaved
+    assert s.urls == ["http://main", "http://main", "http://cards", "http://cards"]
+    assert s.calls[0] == {"content": "hdr"} and s.calls[2] == {"content": "hdr"}
+
+
+def test_routing_off_behaves_exactly_as_before():
+    """With no cards webhook set, delivery is byte-for-byte the old path - the
+    default group is posted first and alone."""
+    s = RoutingSession()
+    sent = notify_rich([CARD_CAND, CAND], content="hdr",
+                       env={"FLIPSCOUT_ALERT_WEBHOOK": "http://main"}, session=s)
+    assert sent == ["webhook", "webhook", "webhook"]
+    assert set(s.urls) == {"http://main"}
+
+
+def test_the_cards_channel_is_seeded_with_its_own_channel_id(monkeypatch):
+    """🚨 A REACTION IS ADDRESSED BY CHANNEL ID, NOT BY WEBHOOK. Seeding the
+    cards channel against the default id 404s, and the card arrives with no
+    tap-target and no error anyone would ever see."""
+    seeded = []
+    monkeypatch.setattr(notify, "seed_arm_reactions",
+                        lambda mid, env=None, session=None, channel=None:
+                        seeded.append(channel))
+    env = dict(CARDS_ENV, FLIPSCOUT_DISCORD_CHANNEL_ID="111",
+               FLIPSCOUT_CARDS_CHANNEL_ID="222")
+    notify_rich([CAND, CARD_CAND], env=env, session=RoutingSession())
+    assert seeded == ["111", "222"]
+
+
+# --- bidding or buying, added 2026-08-22 ------------------------------------
+# Leron: "I don't know if I'm bidding or buying." The only thing separating the
+# two was the field labels "Open at"/"Asking" and "MAX bid"/"Don't pay over" -
+# small grey type, invisible on a phone, below numbers whose MEANING depends on
+# the answer.
+
+def test_an_auction_says_you_are_bidding_first_and_loudly():
+    e = build_embed(dict(CAND, listing_type="auction"))
+    first = e["fields"][0]["value"]
+    assert notify.AUCTION_MARK in first and "BIDDING" in first
+
+
+def test_a_fixed_price_says_you_are_buying_first_and_loudly():
+    e = build_embed(dict(CAND, listing_type="fixed"))
+    first = e["fields"][0]["value"]
+    assert notify.BUY_NOW_MARK in first and "BUYING" in first
+
+
+def test_the_banner_sits_above_the_money():
+    """🚨 The numbers mean different things depending on the answer, so it
+    cannot sit below them."""
+    e = build_embed(dict(CAND, listing_type="auction"))
+    names = [f["name"] for f in e["fields"]]
+    money = next(i for i, f in enumerate(e["fields"])
+                 if f["name"] in ("Open at", "Asking", "Sells for", "Costs now"))
+    assert money > 0 and notify.AUCTION_MARK in e["fields"][0]["value"], names
+
+
+def test_an_unknown_listing_type_says_nothing_rather_than_guessing():
+    """🚨 A WRONG "AUCTION" IS WORSE THAN A MISSING ONE, and some senders (the
+    board digest) carry no listing type at all."""
+    e = build_embed({k: v for k, v in CAND.items() if k != "listing_type"})
+    assert notify.AUCTION_MARK not in str(e["fields"])
+    assert notify.BUY_NOW_MARK not in str(e["fields"])
+
+
+def test_the_source_alone_cannot_answer_it():
+    """Measured on the live board: ShopGoodwill posts BOTH (212 auction, 10
+    fixed), so "goodwill means auction" is right 95% of the time - the worst
+    kind of rule."""
+    import json, pathlib, collections
+    board = pathlib.Path(__file__).resolve().parent.parent / "docs" / "deals.json"
+    if not board.exists():
+        return
+    items = json.loads(board.read_text())["items"]
+    per = collections.defaultdict(set)
+    for i in items:
+        per[i.get("source")].add(i.get("listing_type"))
+    # Not an assertion on the CURRENT board - that file is regenerated hourly.
+    # The claim is that SOME source mixes, which is why the banner cannot be
+    # derived from the source name.
+    assert any(len(v) > 1 for v in per.values()), \
+        "no source mixes listing types any more; revisit the banner's rationale"

@@ -169,3 +169,154 @@ def test_zero_hours_means_the_lane_is_OFF_not_one_hour():
     assert cfg["urgent_hours"] == 0.0
     urgent_h = float(cfg["urgent_hours"] if cfg["urgent_hours"] is not None else 1)
     assert urgent_h == 0.0, "0 must survive to the lane, where it disables it"
+
+
+# --- a card with no photo, added 2026-08-22 ---------------------------------
+
+def _card_row(**over):
+    row = {"title": "2018 Panini Prizm Luka Doncic RC Auto /99",
+           "source": "hibid", "url": "http://x", "listing_type": "auction",
+           "image": "http://img"}
+    row.update(over)
+    return row
+
+
+def _body(row):
+    """The alert body for one row, priced against any real model."""
+    from flipscout import hunt
+    from flipscout.pricebook import BY_KEY
+    from flipscout.bidding import advise
+    model = BY_KEY["pkmn_card_graded_high"]
+    adv = advise(comp=model.comp, outbound_shipping=model.outbound_shipping,
+                 inbound_shipping=9.0, target_profit=20.0)
+    m = type("M", (), {"dead_also_present": [], "label": model.label})()
+    return hunt.to_alert({"row": row, "model": model, "advice": adv,
+                          "match": m})["reason"]
+
+
+def test_a_card_with_a_photo_says_nothing_extra():
+    assert "No photo on this listing" not in _body(_card_row())
+
+
+def test_a_card_with_no_photo_is_called_out():
+    """🚨 On a raw card the picture IS the condition, and condition is most of
+    the value. A photo-less card alert must not look like every other one."""
+    body = _body(_card_row(image=None))
+    assert "No photo on this listing" in body
+    assert "condition is most of the value" in body
+
+
+def test_a_non_card_with_no_photo_is_not_nagged():
+    """Every other category carries the trade in the title, so this would just
+    be one more warning nobody reads."""
+    body = _body(_card_row(title="Canon AE-1 35mm Film Camera", image=None))
+    assert "No photo on this listing" not in body
+
+
+# --- the card scout, added 2026-08-22 ---------------------------------------
+# The one place this repo alerts without a comp. See hunt.scout_cards for why
+# that is allowed here and nowhere else.
+
+def _rows():
+    return [
+        {"title": "2018 Panini Prizm Luka Doncic Silver Prizm RC Auto /99",
+         "id": "1", "source": "hibid", "url": "u1", "image": "i1", "price": 40},
+        {"title": "1991 Score Baseball Card Lot of 500", "id": "2",
+         "source": "hibid", "url": "u2", "image": "i2"},
+        {"title": "Canon AE-1 35mm Film Camera", "id": "3",
+         "source": "hibid", "url": "u3", "image": "i3"},
+        {"title": "2020 Topps Chrome Justin Herbert RC Refractor",
+         "id": "4", "source": "goodwill", "url": "u4", "image": "i4"},
+    ]
+
+
+def test_the_scout_takes_cards_and_leaves_everything_else():
+    from flipscout.hunt import scout_cards
+    got = {c["row"]["id"] for c in scout_cards(_rows(), {})}
+    assert got == {"1", "4"}          # the junk-wax lot and the camera stay out
+
+
+def test_the_scout_never_re_posts_something_already_seen():
+    from flipscout.hunt import scout_cards
+    got = {c["row"]["id"] for c in scout_cards(_rows(), {}, seen={"hibid:1"})}
+    assert got == {"4"}
+
+
+def test_the_scout_skips_anything_the_book_can_actually_price():
+    """🚨 A PRICED LISTING IS ALREADY ALERTING WITH REAL NUMBERS. Posting it
+    again with no ceiling would put a comped card and an uncomped one side by
+    side saying different things about the same lot."""
+    from flipscout.hunt import scout_cards
+    rows = [{"title": "Pokemon Charizard PSA 10 card", "id": "9",
+             "source": "hibid", "url": "u", "image": "i"}]
+    from flipscout.pricebook import match
+    assert match(rows[0]["title"]) is not None       # the book prices this one
+    assert scout_cards(rows, {}) == []
+
+
+def test_the_best_finds_survive_the_cap():
+    from flipscout.hunt import scout_cards
+    rows = [dict(r, id=str(i)) for i, r in enumerate(_rows() * 8)]
+    got = scout_cards(rows, {}, limit=3)
+    assert len(got) == 3
+    assert got == sorted(got, key=lambda c: c["read"].score, reverse=True)
+
+
+def test_a_scout_alert_states_that_nobody_measured_it():
+    """🚨 THE HONEST HEADLINE. Beside priced alerts, a card with no such line
+    reads as though somebody checked the money."""
+    from flipscout.hunt import scout_cards, to_scout_alert
+    a = to_scout_alert(scout_cards(_rows(), {})[0])
+    assert "No comp" in a["reason"] and "nobody measured this" in a["reason"]
+
+
+def test_a_scout_alert_carries_no_number_to_bid_on():
+    """It may say the ASK - that is the seller's number, not ours - but never a
+    comp, a ceiling or a max bid."""
+    from flipscout.hunt import scout_cards, to_scout_alert
+    a = to_scout_alert(scout_cards(_rows(), {})[0])
+    assert a.get("comp") is None and a.get("max_bid") is None
+    assert "ceiling" not in a["reason"].lower() or "no ceiling" in a["reason"].lower()
+
+
+def test_a_scout_alert_links_its_own_sold_search():
+    from flipscout.hunt import scout_cards, to_scout_alert
+    a = to_scout_alert(scout_cards(_rows(), {})[0])
+    assert "LH_Sold=1" in a["comps_url"] and "doncic" in a["comps_url"]
+
+
+def test_a_scout_alert_routes_to_the_cards_channel():
+    from flipscout.hunt import scout_cards, to_scout_alert
+    from flipscout import notify
+    a = to_scout_alert(scout_cards(_rows(), {})[0])
+    assert notify.channel_for(a) == "cards"
+
+
+def test_the_run_says_where_cards_go(monkeypatch, capsys):
+    """🚨 A MISSING CARDS WEBHOOK LOOKS EXACTLY LIKE A WORKING SETUP. The
+    fallback to the main channel is deliberate - a routing rule must never make
+    an alert vanish - so the only symptom of an unmapped secret is that cards
+    quietly pile into the main channel and the cards channel reads as broken.
+    That is precisely what happened: the code was written and the workflow was
+    never taught to pass the secret through."""
+    from flipscout import hunt
+    monkeypatch.delenv("FLIPSCOUT_CARDS_WEBHOOK", raising=False)
+    monkeypatch.setattr(hunt, "sweep", lambda *a, **k: [])
+    monkeypatch.setattr(hunt, "describe_webhook", lambda u: "none")
+    try:
+        hunt.run(notifier=lambda *a, **k: [])
+    except Exception:
+        pass
+    out = capsys.readouterr().out
+    assert "card destination" in out and "NOT SET" in out
+
+
+def test_the_workflow_passes_the_cards_secrets_through():
+    """The scar this file already carries, one channel over: "three of them
+    were set and silently inert for a full run, and the log looked perfectly
+    healthy". A secret not mapped in watch.yml does not reach the job."""
+    import pathlib
+    wf = (pathlib.Path(__file__).resolve().parent.parent
+          / ".github" / "workflows" / "watch.yml").read_text()
+    assert "FLIPSCOUT_CARDS_WEBHOOK" in wf
+    assert "FLIPSCOUT_CARDS_CHANNEL_ID" in wf

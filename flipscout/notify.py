@@ -7,6 +7,23 @@ watch run):
   * Email: set FLIPSCOUT_SMTP_HOST/PORT/USER/PASS + FLIPSCOUT_ALERT_TO/FROM.
 
 If neither is configured, alerts just print (they still show in the run's logs).
+
+CHANNEL ROUTING
+---------------
+One Discord channel per SUBJECT, not one channel for everything. Leron made a
+channel for cards specifically on 2026-08-22, so a card alert goes to
+FLIPSCOUT_CARDS_WEBHOOK and everything else goes to FLIPSCOUT_ALERT_WEBHOOK.
+
+🚨 A ROUTING RULE MUST NEVER MAKE AN ALERT VANISH. Every named channel falls
+back to the default one when its webhook is unset, because a routed alert that
+silently goes nowhere looks exactly like the watcher having died - which this
+file already has one hard-won guard against (see describe_webhook).
+
+🚨 A SECOND CHANNEL NEEDS A SECOND CHANNEL ID. The tap-to-arm chips are placed
+by the BOT, which addresses a channel by id (FLIPSCOUT_DISCORD_CHANNEL_ID) and
+not by webhook. Post cards to a new channel without setting
+FLIPSCOUT_CARDS_CHANNEL_ID and they arrive un-armable, with the seeding call
+404ing against the wrong channel - so routing carries the id alongside the URL.
 """
 
 from __future__ import annotations
@@ -17,6 +34,50 @@ from email.message import EmailMessage
 from typing import Optional
 
 import requests
+
+from .cards import read as read_card
+
+
+# --- channel routing --------------------------------------------------------
+# name -> (webhook env var, channel-id env var). Adding a channel is one line
+# here plus one entry in `channel_for`.
+CHANNELS = {
+    "cards": ("FLIPSCOUT_CARDS_WEBHOOK", "FLIPSCOUT_CARDS_CHANNEL_ID"),
+}
+
+# The price book's own category names for cards. Authoritative when present -
+# it is what the listing was actually PRICED as, versus what its title reads
+# like - so it is checked before the title reader.
+CARD_CATEGORIES = {"pokemon-cards", "cards", "sports-cards"}
+
+
+def channel_for(candidate: dict, env=None) -> str:
+    """Which named channel this listing belongs in. "" is the default channel."""
+    if (candidate.get("category") or "").lower() in CARD_CATEGORIES:
+        return "cards"
+    if read_card(candidate.get("title") or "").is_card:
+        return "cards"
+    return ""
+
+
+def destination(candidate: dict, env=None) -> tuple:
+    """(webhook url, channel id, label) for one listing.
+
+    Falls back to the default channel whenever the named one has no webhook -
+    see the module docstring on why a routing rule may never drop an alert.
+    """
+    env = env if env is not None else os.environ
+    default = (env.get("FLIPSCOUT_ALERT_WEBHOOK") or "",
+               (env.get("FLIPSCOUT_DISCORD_CHANNEL_ID") or "").strip(),
+               "webhook")
+    name = channel_for(candidate, env)
+    if not name:
+        return default
+    hook_var, chan_var = CHANNELS[name]
+    url = (env.get(hook_var) or "").strip()
+    if not url:
+        return default
+    return url, (env.get(chan_var) or "").strip(), f"webhook:{name}"
 
 
 def format_digest(hits, header: Optional[str] = None) -> str:
@@ -46,6 +107,40 @@ def _send_webhook(url: str, text: str, session=None) -> None:
 # Discord renders "embeds": a clickable title, a thumbnail, and labelled fields.
 # Slack ignores the key and still shows `content`, so this stays fail-soft.
 
+# --- am I bidding or buying? ------------------------------------------------
+# 🚨 THE ANSWER WAS TWO WORDS OF GREY LABEL TEXT. Leron, 2026-08-22: "I don't
+# know if I'm bidding or buying." He was right and it was not close: the ONLY
+# thing separating an auction card from a buy-it-now card was the field labels
+# "Open at" vs "Asking" and "MAX bid" vs "Don't pay over" - small grey type,
+# effectively invisible on a phone.
+#
+# It is not a cosmetic distinction. On an auction you place one bid and may
+# lose; on a fixed-price listing you pay and it is yours, the price is
+# negotiable in person, and there is nothing to snipe. Getting it backwards
+# means either chasing a price that was never an auction, or waiting out a
+# "close" on a listing that has none while somebody else buys it.
+#
+# 🚨 AND IT IS NOT INFERABLE FROM THE SOURCE. Measured on the live board:
+# ShopGoodwill posts BOTH (212 auction, 10 fixed), so "goodwill means auction"
+# is a rule that is right 95% of the time, which is the worst kind.
+#
+# Stated as the FIRST field on every card, full width, above the money. The
+# marker strings are matched by discordarm.seed_missing - a buy-it-now card
+# must not get snipe chips, because a 🎯 on something with no closing time is
+# the same confusion wearing a button.
+AUCTION_MARK = "\N{HAMMER} AUCTION"
+BUY_NOW_MARK = "\N{SHOPPING TROLLEY} BUY IT NOW"
+
+_ACTION_TEXT = {
+    "auction": (f"**{AUCTION_MARK} - you are BIDDING.** Place ONE bid at your "
+                f"max in the closing seconds, then walk away. Nothing is yours "
+                f"until it closes."),
+    "fixed": (f"**{BUY_NOW_MARK} - you are BUYING.** Pay the ask and it is "
+              f"yours right now. No bidding, no closing time - and the price "
+              f"is usually negotiable in person."),
+}
+
+
 VERDICT_COLORS = {
     "buy": 0x2ECC71,      # green  - clears your bar
     "watch": 0xF1C40F,    # yellow - close, needs a judgement call
@@ -60,6 +155,14 @@ def build_embed(c: dict) -> dict:
     and any of: all_in, comp, max_bid, bids, ends.
     """
     fields = []
+    # 🚨 FIRST, ABOVE THE MONEY. The numbers mean different things depending on
+    # this answer, so it cannot sit below them - see _ACTION_TEXT.
+    # Emitted only when the listing type is actually KNOWN: a wrong "AUCTION"
+    # is worse than a missing one, and some senders (the board digest) carry no
+    # listing type at all.
+    action = _ACTION_TEXT.get((c.get("listing_type") or "").lower())
+    if action:
+        fields.append({"name": "\u200b", "value": action, "inline": False})
     # The embed title is the ONLY clickable link Discord shows - which means
     # it's the only place the name lives, and Discord gives no way to copy
     # text out of a link (mobile long-press just opens it). Inline code
@@ -152,19 +255,43 @@ def notify_rich(candidates: list, content: str = "", env=None, session=None) -> 
     a dead webhook prints instead of raising.
     """
     env = env if env is not None else os.environ
-    url = env.get("FLIPSCOUT_ALERT_WEBHOOK")
     # Discord hard-rejects the WHOLE message when content exceeds 2000 chars -
     # a caller composing header + digest busted the cap on 2026-07-28 and the
     # delivery died with a 400. A truncated post beats a silently dropped one.
     content = (content or "")[:1990]
-    embeds = [build_embed(c) for c in candidates]
-    if not url:
+
+    # 🚨 GROUP BEFORE POSTING. Each channel gets its own header followed by its
+    # own cards; interleaving would put the cards header above camera alerts.
+    # Order is preserved within a group and the DEFAULT group goes first, so a
+    # run with no routing behaves exactly as it did before routing existed -
+    # which is what keeps the existing delivery tests honest.
+    groups: dict = {}
+    for c in candidates:
+        groups.setdefault(destination(c, env), []).append(c)
+
+    default = destination({}, env)
+    if not candidates:
+        groups = {default: []}          # header-only post (the daily check-in)
+
+    if not any(url for url, _c, _l in groups):
         print(content or "")
         for c in candidates:
             print(f"- [{c.get('verdict','?')}] {c.get('title','')} {c.get('url','')}")
         return []
 
     session = session or requests
+    sent: list[str] = []
+    for (url, channel_id, label), group in sorted(
+            groups.items(), key=lambda kv: kv[0][2] != "webhook"):
+        if not url:
+            continue
+        sent += _post_group(url, channel_id, label, content,
+                            [build_embed(c) for c in group], env, session)
+    return sent
+
+
+def _post_group(url, channel_id, label, content, embeds, env, session) -> list:
+    """Header then one message per embed, all to ONE channel."""
     sent: list[str] = []
 
     # 🚨 ONE CARD PER MESSAGE. This used to pack ten embeds into a single post,
@@ -179,7 +306,7 @@ def notify_rich(candidates: list, content: str = "", env=None, session=None) -> 
         try:
             r = session.post(url, json={"content": content}, timeout=15)
             r.raise_for_status()
-            sent.append("webhook")
+            sent.append(label)
         except Exception as e:
             print(f"[notify] header failed: {e}")
 
@@ -191,10 +318,10 @@ def notify_rich(candidates: list, content: str = "", env=None, session=None) -> 
             r = session.post(url, params={"wait": "true"},
                              json={"embeds": [emb]}, timeout=15)
             r.raise_for_status()
-            sent.append("webhook")
+            sent.append(label)
             try:
                 seed_arm_reactions((r.json() or {}).get("id"), env=env,
-                                   session=session)
+                                   session=session, channel=channel_id)
             except Exception:
                 pass                       # a missing tap-target never blocks the alert
         except Exception as e:
@@ -206,7 +333,7 @@ def notify_rich(candidates: list, content: str = "", env=None, session=None) -> 
     return sent
 
 
-def seed_arm_reactions(message_id, env=None, session=None) -> bool:
+def seed_arm_reactions(message_id, env=None, session=None, channel=None) -> bool:
     """Put 🎯 and ❌ on a card so arming is ONE TAP.
 
     🚨 THIS IS THE "BUTTON". Discord will not give a webhook real buttons -
@@ -223,7 +350,11 @@ def seed_arm_reactions(message_id, env=None, session=None) -> bool:
     """
     env = env if env is not None else os.environ
     token = (env.get("FLIPSCOUT_DISCORD_BOT_TOKEN") or "").strip()
-    channel = (env.get("FLIPSCOUT_DISCORD_CHANNEL_ID") or "").strip()
+    # 🚨 SEED IN THE CHANNEL THE CARD WAS POSTED TO. A reaction is addressed by
+    # CHANNEL ID, not by webhook, so once alerts route to more than one channel
+    # the default id is wrong for all but one of them - and the seeding 404s
+    # silently, leaving those cards un-armable with no error anyone would see.
+    channel = (channel or env.get("FLIPSCOUT_DISCORD_CHANNEL_ID") or "").strip()
     if not (token and channel and message_id):
         return False
     from urllib.parse import quote

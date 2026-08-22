@@ -445,11 +445,9 @@ ACCESSORY_EXCLUDE = (
     r"\bhousing\s*(only|kit|set)|replacement\s*(housing|buttons?|parts?|screen)|"
     r"\bbuttons?\s*(only|set|kit)\b|shell\s*(?:case|cover)\b|"
     r"extremerate|\bmod\s*kit\b|repair\s*kit|"
-    # `card` is bundle-aware: camera listings legitimately read "w/ SD Card" /
-    # "64GB Memory Card", and the cameras added 2026-07-28 were being silently
-    # rejected over their own bundled storage. A trading/promo card still trips.
-    r"trading card|(?<!sd )(?<!cf )(?<!xd )(?<!gb )(?<!memory )(?<!sim )"
-    r"(?<!& )(?<!, )(?<!and )(?<!w/ )(?<!with )(?<!\+ )(?<!\+)(?<!user )\bcards?\b|"
+    # 🚨 THE `card` RULE MOVED OUT OF HERE ON 2026-08-22 - see _CARD_MERCH
+    # below. It is applied to every category EXCEPT the card tiers now, because
+    # as a UNIVERSAL guard it was rejecting the card tiers themselves.
     r"keychain|plush|figure|pin\b|"
     # Accessories FOR a tool, which read almost identically to the tool. These
     # MUST live in the universal guard, not on one model: per-model excludes do
@@ -2818,6 +2816,39 @@ def count_units(title: str, model: Model) -> int:
 # by hand with `flipscout item`. Un-bench by emptying this set.
 BENCHED_CATEGORIES = {"outerwear", "womens-apparel"}
 
+# The categories where a card IS the product rather than merchandise borrowing
+# a product's name. See _CARD_MERCH.
+CARD_CATEGORIES = {"pokemon-cards", "sports-cards", "cards"}
+
+# 🚨 THE GUARD THAT WAS SILENTLY EATING THE CARD TIERS. Measured 2026-08-22:
+# five of seven realistic graded-Pokemon titles were rejected before any model
+# was consulted, and the only two that survived did so by NOT containing the
+# word "card" -
+#
+#     REJECT  Pokemon Charizard PSA 10 Card
+#     REJECT  1999 Pokemon Base Set Charizard Holo PSA 9 Trading Card
+#     REJECT  Pokemon Card PSA 10 Umbreon VMAX Alt Art
+#     MATCH   Pokemon Charizard PSA 10
+#
+# The rule is right and its reasons are real: a Pokemon PROMO CARD must never
+# price against a $145 cartridge comp (same family as the Pikachu crystal ball
+# that quoted a $100 max bid on a plastic toy), and cameras legitimately read
+# "w/ SD Card", which is why it is bundle-aware.
+#
+# What was wrong is that it lived in ACCESSORY_EXCLUDE, which `match()`
+# evaluates ONCE per listing before any model is consulted and which no model
+# can override. So the three card tiers - measured 2026-08-20 on n=111/256/142,
+# a browser session each - could only ever match a card listing that does not
+# say "card". They were built, comped, and then made unreachable.
+#
+# Applied by category instead, exactly as _CAMERA_JUNK and _CONSOLE_JUNK are
+# ("the rule belongs to the category, so state it once"). Every non-card model
+# keeps the identical guard; the card tiers are freed from it.
+_CARD_MERCH = (
+    r"trading card|(?<!sd )(?<!cf )(?<!xd )(?<!gb )(?<!memory )(?<!sim )"
+    r"(?<!& )(?<!, )(?<!and )(?<!w/ )(?<!with )(?<!\+ )(?<!\+)(?<!user )\bcards?\b"
+)
+
 MODELS = [replace(m, active=False) if m.category in BENCHED_CATEGORIES else m
           for m in MODELS]
 
@@ -2842,6 +2873,13 @@ MODELS = [replace(m, exclude=(m.exclude + "|" + _CONSOLE_JUNK) if m.exclude
 MODELS = [replace(m, exclude=(m.exclude + "|" + _PKMN_JUNK) if m.exclude
                              else _PKMN_JUNK)
           if m.category == "pokemon" else m
+          for m in MODELS]
+
+# ...and the card-merchandise guard everywhere a card is NOT the product. This
+# is the pass that used to live in ACCESSORY_EXCLUDE - see _CARD_MERCH.
+MODELS = [replace(m, exclude=(m.exclude + "|" + _CARD_MERCH) if m.exclude
+                             else _CARD_MERCH)
+          if m.category not in CARD_CATEGORIES else m
           for m in MODELS]
 
 # Rebuilt AFTER both passes - the dict above was keyed off the pre-replace
@@ -2963,4 +3001,31 @@ def search_terms() -> list[str]:
         # cannot recover from is never fetching the listing at all.
         "nintendo games", "video game lot", "retro video games",
         "handheld game console",
+        # === card pack (added 2026-08-22) ====================================
+        # 🚨 NOTHING HERE SEARCHED FOR CARDS. Measured on 2026-08-22: of 133
+        # terms, the only ones containing "card" or "pokemon" were VIDEO GAME
+        # searches ("pokemon gba", "gameboy advanced pokemon"). So the three
+        # MEASURED Pokemon card tiers - pkmn_card_graded_high, pkmn_card_graded,
+        # pkmn_card_vintage_chase, comped 2026-08-20 on n=111/256/142 - could
+        # only ever fire BY ACCIDENT, when a card happened to land in a Game Boy
+        # search. Pricing was built, measured and then never fed.
+        #
+        # The first three terms below fix exactly that and are the ones that pay
+        # today, because they are the only card terms with a comp behind them.
+        "pokemon cards", "pokemon card lot", "pokemon psa",
+        # The rest feed hunt.scout_cards(), which has NO comp and posts no
+        # ceiling - see that function for why an unpriced alert is allowed to
+        # exist in this repo at all. Deliberately lot- and grade-shaped: a
+        # junk-titled box of cards is where the one card that matters hides
+        # behind a $10 title, which is the same reason "calculator lot" and
+        # "watch lot" earn their place above.
+        "sports card lot", "baseball card lot", "basketball card lot",
+        "football card lot", "trading card lot", "graded card lot",
+        "psa 10", "psa graded card",
+        "topps chrome", "panini prizm", "bowman chrome",
+        # Sealed wax is the one card product a TITLE can fully identify - no
+        # condition variable at all - so it is the only card category that could
+        # ever carry a measured comp. Fetching it now so there is a population
+        # to measure when that happens.
+        "sealed hobby box", "factory sealed cards",
     ]

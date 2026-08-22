@@ -87,6 +87,20 @@ jobs:
         run: python -m flipscout.hunt
         env:
           FLIPSCOUT_ALERT_WEBHOOK: ${{ secrets.FLIPSCOUT_ALERT_WEBHOOK }}
+          # Card alerts route to their own channel. BOTH are needed and they are
+          # not the same thing: the webhook POSTS the card, the channel id is
+          # what lets the bot put the tap-to-arm chips on it.
+          #
+          # 🚨 A SECRET THAT IS NOT MAPPED HERE IS INERT, and this file already
+          # carries that scar three lines down ("three of them were set and
+          # silently inert for a full run, and the log looked perfectly
+          # healthy"). notify.destination() falls back to the main channel when
+          # the cards webhook is missing - by design, so a routing rule can
+          # never make an alert vanish - which means an unmapped secret shows up
+          # as "cards go to #flips", not as an error.
+          FLIPSCOUT_CARDS_WEBHOOK: ${{ secrets.FLIPSCOUT_CARDS_WEBHOOK }}
+          FLIPSCOUT_CARDS_CHANNEL_ID: ${{ vars.FLIPSCOUT_CARDS_CHANNEL_ID }}
+          FLIPSCOUT_DISCORD_CHANNEL_ID: ${{ vars.FLIPSCOUT_DISCORD_CHANNEL_ID }}
           FLIPSCOUT_SOURCES: ${{ vars.FLIPSCOUT_SOURCES || 'goodwill,hibid' }}
           FLIPSCOUT_TARGET_PROFIT: ${{ vars.FLIPSCOUT_TARGET_PROFIT || '20' }}
           FLIPSCOUT_INBOUND_SHIP: ${{ vars.FLIPSCOUT_INBOUND_SHIP || '9' }}
