@@ -67,9 +67,26 @@ _MAKERS = (
     r"ginter|goodwin|sage\b|press\s*pass|playoff\b|sp\s*authentic|fleer\s*ultra|"
     r"metal\s*universe|collector'?s?\s*choice|\bsportkings\b|futera|wild\s*card"
 )
+# 🚨 "MEMORY CARD" IS NOT A TRADING CARD, AND THIS FILE HAD TO LEARN IT THE
+# SAME WAY pricebook DID. Caught by CI on 2026-08-22 against a refreshed board:
+#
+#     Nintendo 64 Console w/ Cord, Cable, 2 Controllers Memory Card & 4 Games
+#
+# opened the gate on the bare word "card" and drew a Card read: line on a games
+# console - exactly the wallpaper the board test exists to prevent. pricebook's
+# own `card` guard has been bundle-aware since the cameras were added
+# 2026-07-28 ("w/ SD Card", "64GB Memory Card"); the lesson simply never
+# crossed over to this file.
+#
+# Graphics/video/sound cards are here for the same reason and are not
+# hypothetical: the liquidation and estate sources sell PC parts by the pallet.
+_STORAGE = (r"(?<!sd )(?<!cf )(?<!xd )(?<!gb )(?<!tb )(?<!mb )(?<!memory )"
+            r"(?<!sim )(?<!micro )(?<!microsd )(?<!smart )(?<!user )"
+            r"(?<!graphics )(?<!video )(?<!sound )(?<!network )(?<!capture )"
+            r"(?<!credit )(?<!gift )(?<!id )(?<!key )(?<!pc )(?<!pcmcia )")
 _CARD_WORDS = (
-    r"trading\s*cards?|\bcards?\b|\bslabb?e?d?\b|\bgraded\b|\brookie\s*cards?\b|"
-    r"\bnon-?sports?\b|\btcg\b"
+    rf"trading\s*cards?|{_STORAGE}\bcards?\b|\bslabb?e?d?\b|\bgraded\b|"
+    r"\brookie\s*cards?\b|\bnon-?sports?\b|\btcg\b"
 )
 _GRADER = r"\b(psa|bgs|sgc|cgc|hga|ace|csg|tag)\s*\.?\s*(10|9\.5|9|8\.5|8|7|6|5|4|3|2|1)\b"
 

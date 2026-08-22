@@ -351,4 +351,8 @@ def test_the_source_alone_cannot_answer_it():
     per = collections.defaultdict(set)
     for i in items:
         per[i.get("source")].add(i.get("listing_type"))
-    assert len(per["goodwill"]) > 1, "goodwill no longer mixes; revisit the banner"
+    # Not an assertion on the CURRENT board - that file is regenerated hourly.
+    # The claim is that SOME source mixes, which is why the banner cannot be
+    # derived from the source name.
+    assert any(len(v) > 1 for v in per.values()), \
+        "no source mixes listing types any more; revisit the banner's rationale"

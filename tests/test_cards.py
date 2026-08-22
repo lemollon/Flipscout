@@ -319,19 +319,57 @@ def test_chevy_prizm_is_a_car():
     assert read("2019 Prizm Zion Williamson RC #/25 Gold").is_card
 
 
-def test_the_reader_stays_silent_on_the_whole_live_board():
-    """🚨 THE CONTRACT FOR THE ALERT WIRING. `hunt` calls one_liner() on every
-    listing it alerts on, so a reader that speaks up on cameras and calculators
-    turns every alert into wallpaper. Measured 2026-08-22: 0 of the 521
-    listings on the board draw a card line."""
+def _board_titles():
     import json
     import pathlib
     board = pathlib.Path(__file__).resolve().parent.parent / "docs" / "deals.json"
     if not board.exists():                       # board is refreshed by CI
         pytest.skip("no board snapshot checked in")
-    titles = [i.get("title", "") for i in json.loads(board.read_text())["items"]]
-    spoke = [t for t in titles if cards.one_liner(read(t))]
-    assert not spoke, f"card line fired on non-cards: {spoke[:5]}"
+    return [i.get("title", "") for i in json.loads(board.read_text())["items"]]
+
+
+def test_the_reader_never_speaks_on_something_the_book_prices_as_hardware():
+    """🚨 THE CONTRACT FOR THE ALERT WIRING. `hunt` calls one_liner() on every
+    listing it alerts on, so a reader that pipes up on consoles and cameras
+    turns every alert into wallpaper.
+
+    🚨 AND THE ASSERTION IS AN INVARIANT, NOT A COUNT. The first cut of this
+    test pinned "0 of the 521 listings draw a card line" against docs/deals.json
+    - a file CI REGENERATES hourly. That is brittle in both directions: it broke
+    the moment the board refreshed (which is how the Memory Card bug below was
+    caught, so it earned its keep), and it would have broken again, wrongly, the
+    first time a REAL card landed on the board - which is the entire point of the
+    card search terms added the same day.
+
+    What is actually true forever: a listing the book prices as a hardware
+    category is definitively not a trading card, so the reader must be silent
+    on it however the board changes.
+    """
+    from flipscout.pricebook import CARD_CATEGORIES, match
+    noisy = []
+    for t in _board_titles():
+        m = match(t)
+        if m and m.model.category not in CARD_CATEGORIES and cards.one_liner(read(t)):
+            noisy.append(f"[{m.model.category}] {t}")
+    assert not noisy, f"card line fired on priced hardware: {noisy[:5]}"
+
+
+def test_a_memory_card_is_not_a_trading_card():
+    """The regression that broke CI, kept as a title rather than a board count.
+
+        Nintendo 64 Console w/ Cord, Cable, 2 Controllers Memory Card & 4 Games
+
+    opened the gate on the bare word "card". pricebook's own `card` guard has
+    been bundle-aware since the cameras were added 2026-07-28; the lesson had
+    simply never crossed into this file."""
+    for t in ["Nintendo 64 Console w/ Cord, Cable, 2 Controllers Memory Card & 4 Games",
+              "Canon PowerShot w/ 64GB SD Card",
+              "NVIDIA RTX 3080 Graphics Card",
+              "$50 Amazon Gift Card"]:
+        assert not read(t).is_card, t
+    # ...and the word still opens the gate when it IS a trading card
+    assert read("Pokemon Charizard PSA 10 Card").is_card
+    assert read("1986 Fleer Michael Jordan #57 Rookie Card").is_card
 
 
 # --- the value assessment, added 2026-08-22 ---------------------------------

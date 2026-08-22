@@ -181,9 +181,26 @@ the code does not pretend otherwise.
   a measured comp, and letting a triage score move a bid would put an
   unmeasured guess behind money.
 
-Measured 2026-08-22: **0 of the 521 listings** on the live board draw a card
-line, which is the contract — a reader that speaks up on cameras and
-calculators turns every alert into wallpaper. That is pinned as a test.
+The contract: a reader that pipes up on consoles and cameras turns every alert
+into wallpaper. Pinned as an **invariant** — a listing the book prices as a
+hardware category is definitively not a trading card, so the reader must be
+silent on it however the board changes.
+
+It was first written as a count ("0 of 521 listings"), which CI broke within
+the hour, correctly: `docs/deals.json` is regenerated hourly, and the refreshed
+board contained
+
+```
+Nintendo 64 Console w/ Cord, Cable, 2 Controllers Memory Card & 4 Games
+```
+
+which opened the gate on the bare word **"card"**. The price book's own `card`
+guard has been bundle-aware since the cameras were added (`w/ SD Card`,
+`64GB Memory Card`) — the lesson had simply never crossed into this file. Now
+`memory / sd / cf / sim / graphics / video / gift / credit` cards are all shut
+out, and the count-based assertion is gone: it would have failed again, wrongly,
+the first time a *real* card landed on the board — which is the whole point of
+the card search terms.
 
 ## The #cards channel
 
