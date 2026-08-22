@@ -263,3 +263,61 @@ def test_no_stray_control_characters_in_this_module():
     src = open(sc.__file__, "rb").read()
     for bad in (b"\x08", b"\x07", b"\x0b", b"\x0c"):
         assert bad not in src, f"control char {bad!r} in sportscards.py"
+
+
+# --- what it actually last sold for, at this card's grade -------------------
+
+_PAGE = '''
+<div class="completed-auctions-used" style="display: block;">
+ <table class="hoverable-rows sortable"><tbody>
+  <tr id="ebay-1"><td>2026-03-12</td><td>Some card</td><td>$6.17</td></tr>
+  <tr id="ebay-2"><td>2026-01-30</td><td>Some card</td><td>$3.59</td></tr>
+ </tbody></table></div>
+<div class="completed-auctions-graded">
+ <table class="hoverable-rows sortable"><tbody>
+  <tr id="ebay-3"><td>2023-03-19</td><td>PSA 9 card</td><td>$10.49</td></tr>
+ </tbody></table></div>
+<div class="completed-auctions-manual-only">
+ <table class="hoverable-rows sortable"><tbody>
+  <tr id="ebay-4"><td>2026-07-09</td><td>PSA 10 card</td><td>$20.00</td></tr>
+ </tbody></table></div>
+</section>'''
+
+
+class _PageSession:
+    def __init__(self, html=_PAGE, status=200):
+        self.html, self.status = html, status
+
+    def get(self, url, headers=None, timeout=None, params=None):
+        return type("R", (), {"status_code": self.status, "text": self.html})()
+
+
+def test_the_sold_rows_are_found_by_CLASS_not_id():
+    """🚨 THE TRAP THAT COST A BROWSER SESSION. The <select> that switches
+    tabs lists the slugs as option VALUES, which reads exactly like element
+    ids - `getElementById` finds nothing, and the obvious conclusion ("the
+    tables load over XHR") is wrong. They are `class` on a wrapper div, and
+    every grade's rows are in the initial HTML."""
+    got = sc.recent_sales("http://x", "PSA 10", session=_PageSession())
+    assert [(s.price, s.exact) for s in got] == [(20.0, True)]
+    assert got[0].grade == "PSA 10", "say it back the way the listing said it"
+
+
+def test_ungraded_is_the_default_condition():
+    got = sc.recent_sales("http://x", None, session=_PageSession())
+    assert [s.price for s in got] == [6.17, 3.59]
+
+
+def test_a_grade_with_no_sales_falls_back_to_the_NEAREST_and_says_so():
+    """🚨 Most cards have sales at one or two grades and none at the rest. A
+    PSA 8 with no Grade 8 sales is not unpriceable - the Grade 9 rows next to
+    it still say what the market is doing, as long as the card admits which
+    grade it is quoting."""
+    got = sc.recent_sales("http://x", "PSA 8", session=_PageSession())
+    assert got and got[0].price == 10.49
+    assert not got[0].exact and "9" in got[0].grade
+
+
+def test_a_dead_page_is_no_sales_not_a_crash():
+    assert sc.recent_sales("http://x", "PSA 10", session=_PageSession(status=500)) == []
+    assert sc.recent_sales("", "PSA 10") == []
