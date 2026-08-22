@@ -658,82 +658,153 @@ def _comp_source_url(c: dict) -> str:
     return ""
 
 
+def _money_line(c: dict, ask) -> str:
+    """The one line that decides the card: what it is, what it is worth."""
+    sv, pv = c.get("sports"), c.get("poke")
+    scomp = getattr(sv, "comp", None)
+    pcomp = getattr(pv, "comp", None)
+    bid = f" · bid ${float(ask):,.2f}" if ask is not None else ""
+
+    if scomp is not None and scomp.priced and scomp.low is not None:
+        if scomp.pinned:
+            c0 = scomp.candidates[0]
+            # 🚨 NAME THE SET TOO. "Hobby Box — $65.00" says nothing; the set
+            # is what tells you which hobby box it is.
+            who = f"{c0.name} · {c0.set_name}"
+            worth = f"${scomp.low:,.2f}"
+        else:
+            who = f"{scomp.player_and_set} · 1 of {scomp.n}"
+            worth = scomp.range_text
+        grade = f" {scomp.grade}" if scomp.grade else ""
+        return f"**{who}**{grade} — **{worth}**{bid}"
+
+    # 🚨 THE GRADED PRICE WINS OVER THE RAW ONE. It is the comp for the object
+    # actually being sold: a PSA 7 Alakazam is $84.13, not the $69.45 the loose
+    # card fetches. The first cut of this line showed the raw figure on a slab.
+    g = getattr(pv, "graded", None)
+    if g is not None and getattr(g, "price", None):
+        grade = f" {pv.ident.grade}" if getattr(pv, "ident", None) and pv.ident.grade else ""
+        return f"**{g.name} · {g.set_name}**{grade} — **${g.price:,.2f}**{bid}"
+
+    if pcomp is not None:
+        who = f"{pcomp.name} #{pcomp.number} · {pcomp.set_name} {pcomp.released[:4]}"
+        worth = (pcomp.range_text if pcomp.ambiguous
+                 else f"${pcomp.market:,.2f}")
+        return f"**{who}** — **{worth}**{bid}"
+
+    if scomp is not None and scomp.candidates:
+        return f"**{scomp.player_and_set}** · 1 of {scomp.n}{bid}"
+
+    # 🚨 LAST RESORT, AND LABELLED AS ASKS. Neither card source could price it,
+    # so all that is left is what eBay has LISTED - and asks skew high because
+    # everything unsold is still sitting there at its optimistic number. It is
+    # one line and it says which kind of number it is; reporting an ask as a
+    # sale is the one thing this line may never do.
+    m = c.get("market")
+    if m is not None:
+        if getattr(m, "sold_price", None):
+            n = f" ({m.sold_count} sold)" if getattr(m, "sold_count", None) else ""
+            return f"**SOLD median ${m.sold_price:,.2f}**{n}{bid}"
+        if getattr(m, "active_count", None):
+            rng = (f" ${m.low:,.0f}-${m.high:,.0f}"
+                   if getattr(m, "low", None) and getattr(m, "high", None) else "")
+            return f"_{m.active_count} listed on eBay{rng} — asks, not sales_{bid}"
+    return f"_no comp_{bid}" if bid else ""
+
+
+def _worth_of(c: dict):
+    """The single figure the card is quoting, for the ratio. None if it quotes
+    a range - a multiple off one end of a range is not a fact."""
+    sv, pv = c.get("sports"), c.get("poke")
+    sc = getattr(sv, "comp", None)
+    if sc is not None and sc.priced and sc.pinned and sc.low is not None:
+        return sc.low
+    g = getattr(pv, "graded", None)
+    if g is not None and getattr(g, "price", None):
+        return g.price
+    pc = getattr(pv, "comp", None)
+    if pc is not None and not pc.ambiguous:
+        return pc.market
+    return None
+
+
 def to_scout_alert(c: dict) -> dict:
-    """One scout find -> the Discord embed payload. No comp, no ceiling."""
+    """One scout find -> the Discord embed payload.
+
+    🚨 FOUR LINES, NOT TWELVE. Leron, 2026-08-22: "the cards need to be concise
+    i dont want to read all the on each card". He is right, and at twelve cards
+    a run it is not a style question: a card nobody finishes reading is a card
+    that does not get acted on, and the caveats were being skipped along with
+    everything else.
+
+    What survives is what changes a decision:
+        1. the verdict, and how much it clears by
+        2. WHICH card this is and what it is worth
+        3. anything that would stop the buy - no photo, pickup only, thin market
+        4. the links
+
+    What went: the card-shop signal bullets (they justify the verdict, they do
+    not change it), the "asking vs current bid" sentence (the AUCTION / BUY IT
+    NOW banner above already says it), and every caveat that printed on all
+    twelve cards.
+    """
     row, r = c["row"], c["read"]
     comps = cards_comp_url(r)
-    # 🚨 THE PRICED VERDICT REPLACES THE OFFLINE ONE, HEADER AND BULLETS BOTH.
-    # `cards.read()` runs network-free on every row in a 10,000-listing sweep,
-    # so for Pokemon it can only say "named Charmander, no price yet". Once the
-    # scout has actually asked TCGplayer, printing that sentence ABOVE the
-    # price contradicts it on the same card - which is how a working tool reads
-    # as a broken one.
     pv0 = c.get("poke") or c.get("sports")
     verdict = getattr(pv0, "verdict", None) or r.verdict
     if verdict == "UNKNOWN":
         verdict = r.verdict
-    # 🚨 "PASS - worth opening" IS A CONTRADICTION, and it shipped on every
-    # refused card. The verdict now comes from a source that can say no, so the
-    # sentence after it has to be able to say no too.
-    _tail = {"CHASE": "pull it out and photograph it",
-             "PASS": "the numbers say don't bother - here's why",
-             "UNKNOWN": "nothing could price it; a human has to look"}
-    bits = [f"**{verdict}** - "
-            + _tail.get(verdict, "one signal fired; worth opening") + "."]
-    if getattr(pv0, "comp", None) is None or c.get("sports") is not None:
-        for s in r.signals:
-            bits.append(f"• {s.detail}")
-    # 🚨 "ASKING" ON AN AUCTION IS A LIE, and this said it on every scout card
-    # regardless of type - the exact confusion Leron reported. An auction's
-    # current price is a number that will move; an ask is a number that will
-    # not.
+
     ask = row.get("price")
-    if ask is not None:
-        fixed = (row.get("listing_type") or "auction") == "fixed"
-        bits.append(f"**${float(ask):,.2f}** " +
-                    ("asking - pay it and it is yours." if fixed else
-                     "current bid - this will move before it closes."))
-    # 🚨 THE HONEST HEADLINE, EVERY TIME. Without this line a card sitting
-    # beside priced alerts reads as though somebody checked the money.
-    sv = c.get("sports")
-    if sv is not None:
-        bits.append(f"_{sv.why}_")
-    pv = c.get("poke")
-    cp = getattr(pv, "comp", None)
-    if cp is not None:
-        bits.append(f":dart: **{cp.name} #{cp.number}** - {cp.set_name} "
-                    f"{cp.released[:4]}" + (f", {cp.rarity}" if cp.rarity else ""))
-        if cp.ambiguous:
-            bits.append(f":moneybag: **{cp.range_text}** ungraded (TCGplayer "
-                        f"market). The title does not say which printing, so "
-                        f"the low end is the honest read.")
-        else:
-            bits.append(f":moneybag: **${cp.market:,.2f} ungraded** - TCGplayer "
-                        f"market for this exact card ({cp.printing}). Not an "
-                        f"eBay range: one card, one number.")
-        bits.append(f"_{pv.why}_")
-    elif pv is not None:
-        bits.append(f"_{pv.why}_")
-    else:
-        market = _market_line(c.get("market"))
-        if market:
-            bits.append(market)
-    # 🚨 THE DISCLAIMER FOOTER IS GONE, ON PURPOSE. Leron asked twice - "why
-    # am i still seeing no measured comps on the cards", then "im still see no
-    # comp wording in all the cards remove it".
-    #
-    # It was three sentences of boilerplate on every card saying what the
-    # number is NOT. The verdict line already says what it IS, and a caveat
-    # printed on all twelve cards is wallpaper - it stops being read, which
-    # makes it worse than absent. Anything genuinely specific to one card
-    # (a thin market, a 1st-edition claim the source cannot price) is said by
-    # the verdict itself, where it can be believed.
+    bits = []
+    money = _money_line(c, ask)
+    if money:
+        bits.append(money)
+
+    # The verdict, and the ONE clause that earns it. `why` is a full paragraph
+    # from the price source; the first sentence is the finding and the rest is
+    # its reasoning, which belongs in the source not on the card.
+    why = (getattr(pv0, "why", "") or "").strip()
+    head = {"CHASE": ":dart: **CHASE**", "PASS": ":no_entry: **PASS**",
+            "LOOK": ":eyes: **LOOK**"}.get(verdict, f"**{verdict}**")
+    clause = ""
+    for marker in ("Even the cheapest", "Even the dearest", "The grade is",
+                   "The grade decides", "A common", "Code card", "A lot or"):
+        if marker in why:
+            frag = why[why.index(marker):]
+            clause = frag.split(". ")[0].rstrip(".")
+            # 🚨 CUTTING A SENTENCE OUT OF MARKDOWN CAN TAKE HALF A **BOLD**
+            # WITH IT, and Discord then renders the stray asterisks literally.
+            # Seen on the very first concise card: "...the $12.00 bid**,".
+            if clause.count("**") % 2:
+                clause = clause.replace("**", "")
+            break
+    # 🚨 NO CLAUSE? SAY THE MULTIPLE. "That is a comp for the slab you are
+    # actually bidding on" is filler - the two numbers are already on the line
+    # above. What is NOT on that line is the ratio between them, which is the
+    # whole decision.
+    if not clause:
+        worth = _worth_of(c)
+        if worth and ask:
+            try:
+                mult = worth / float(ask)
+                clause = (f"{mult:.1f}x the bid" if mult >= 1
+                          else f"only {mult:.2f}x the bid")
+            except (TypeError, ZeroDivisionError):
+                pass
+    bits.append(head + (f" — {clause}." if clause else "."))
+
+    # Only what would stop the buy.
     if not row.get("image"):
-        bits.append(":warning: **No photo on this listing** - on a card that is "
-                    "disqualifying, not cosmetic.")
+        bits.append(":warning: **No photo.**")
+    if row.get("pickup_risk"):
+        bits.append(":warning: **Pickup only.**")
+    if "Thin" in why:
+        bits.append(":warning: **Thin market.**")
     where = ", ".join(x for x in (row.get("city"), row.get("state")) if x)
     if row.get("house"):
-        bits.append(f"_{row['house']}" + (f" - {where}_" if where else "_"))
+        bits.append(f"_{row['house']}" + (f" · {where}_" if where else "_"))
+
     return {
         "title": (row.get("title") or "")[:240],
         "url": row.get("url"),
