@@ -512,11 +512,41 @@ def price_scout_finds(finds: list, comps=None) -> None:
             c["market"] = comps.lookup(q)
             ok += 1
         except Exception as e:
-            # One dead lookup must never cost the whole card - it still has a
-            # verdict, a photo and a link, which is what it shipped with before.
+            # 🚨 A RATE LIMIT IS NOT A PER-CARD FAILURE, SO STOP ASKING.
+            # Observed 2026-08-22: with the Browse allowance already spent,
+            # all twelve lookups 429'd and printed twelve near-identical
+            # lines, which reads like twelve unlucky cards instead of one
+            # exhausted budget. Each retry also spends a call that the next
+            # run could have used. One line, then stop.
+            if _is_rate_limited(e):
+                print(f"[scout] eBay rate-limited ({_status_of(e)}) - the daily "
+                      f"Browse allowance is spent, so {len(finds) - ok} card(s) "
+                      f"ship with their sold-search link and no numbers. Not a "
+                      f"per-card failure; see hunters.EbayBrowse on the quota.")
+                break
+            # Anything else IS per-card - a weird title, a transient blip -
+            # and must not cost the other eleven their numbers.
             print(f"[scout] lookup failed for {q[:40]!r}: {type(e).__name__}")
     if ok:
         print(f"[scout] priced {ok}/{len(finds)} find(s) against live eBay data")
+
+
+def _status_of(exc) -> str:
+    """The HTTP status behind an exception, or its type name."""
+    resp = getattr(exc, "response", None)
+    code = getattr(resp, "status_code", None)
+    return f"HTTP {code}" if code else type(exc).__name__
+
+
+def _is_rate_limited(exc) -> bool:
+    """Is this the shared quota being exhausted rather than one bad query?
+
+    429 is the documented signal; 403 is included because eBay also returns it
+    once an application is over its allowance, and both mean the same thing to
+    a caller: stop asking, the answer will not change this run.
+    """
+    resp = getattr(exc, "response", None)
+    return getattr(resp, "status_code", None) in (429, 403)
 
 
 def _market_line(m) -> str:
