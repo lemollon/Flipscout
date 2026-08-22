@@ -946,8 +946,11 @@ def test_ebay_browse_does_not_spend_quota_on_card_terms():
     from flipscout.pricebook import CARD_SEARCH_TERMS, search_terms
     kept = EbayBrowse.__new__(EbayBrowse).relevant_terms(search_terms())
     assert not [t for t in kept if t.lower() in CARD_SEARCH_TERMS]
-    # back to the 133 it was measured clean on
-    assert len(kept) == len(search_terms()) - len(CARD_SEARCH_TERMS)
+    # 🚨 NOT AN EXACT COUNT ANY MORE. This asserted all 133 non-card terms
+    # until the rotation landed; a run now sweeps a stride of them, so the
+    # claim that survives is which terms are EXCLUDED, not how many are kept.
+    # See test_the_whole_pool_is_covered_across_one_rotation for coverage.
+    assert kept, "the rotation left a run with nothing to sweep"
 
 
 def test_every_other_source_still_gets_the_card_terms():
@@ -960,3 +963,66 @@ def test_every_other_source_still_gets_the_card_terms():
         h = cls.__new__(cls)
         got = h.relevant_terms(terms) if hasattr(h, "relevant_terms") else terms
         assert CARD_SEARCH_TERMS <= {t.lower() for t in got}, cls.__name__
+
+
+# --- the eBay rotation, 2026-08-22 ------------------------------------------
+# 🚨 THE DAILY ALLOWANCE WAS GONE BY 05:00 UTC EVERY DAY. Proven by three runs
+# of identical code and credentials: 00:00 clean with 9,011 listings, 04:50 and
+# 05:40 both 100% failure with `ebay=0` and `last: HTTP 429`.
+
+def test_the_whole_pool_is_covered_across_one_rotation():
+    """Rotating must not mean forgetting. Deleting terms permanently narrows
+    what the book can ever find; rotating only slows how often each is
+    revisited."""
+    import datetime as dt
+    from flipscout.hunters import EbayBrowse, _ROTATION_SLOTS
+    from flipscout.pricebook import CARD_SEARCH_TERMS, search_terms
+    terms = search_terms()
+    pool = {t for t in terms if t.lower() not in CARD_SEARCH_TERMS}
+    e = EbayBrowse.__new__(EbayBrowse)
+    base = dt.datetime(2026, 8, 22, 0, 17, tzinfo=dt.timezone.utc)
+
+    covered, slots = set(), set()
+    for i in range(_ROTATION_SLOTS):
+        now = base + dt.timedelta(minutes=30 * i)
+        slots.add(EbayBrowse.rotation_slot(now))
+        # relevant_terms reads the clock, so drive it through the slot instead
+        slot = EbayBrowse.rotation_slot(now)
+        covered |= set(sorted(pool)[slot::_ROTATION_SLOTS])
+    assert len(slots) == _ROTATION_SLOTS, "consecutive runs reused a slot"
+    assert covered == pool, "a term would never be swept"
+
+
+def test_consecutive_runs_land_on_different_slots():
+    """The cron fires at :17 and :47, so the bucket must be the half hour - a
+    coarser one would sweep the same slice twice and skip the next."""
+    import datetime as dt
+    from flipscout.hunters import EbayBrowse
+    d = dt.datetime(2026, 8, 22, 3, 17, tzinfo=dt.timezone.utc)
+    assert EbayBrowse.rotation_slot(d) != EbayBrowse.rotation_slot(
+        d + dt.timedelta(minutes=30))
+
+
+def test_a_run_costs_about_an_eighth_of_the_pool():
+    import datetime as dt
+    from flipscout.hunters import EbayBrowse, _ROTATION_SLOTS
+    from flipscout.pricebook import CARD_SEARCH_TERMS, search_terms
+    pool = [t for t in search_terms() if t.lower() not in CARD_SEARCH_TERMS]
+    e = EbayBrowse.__new__(EbayBrowse)
+    got = e.relevant_terms(search_terms())
+    assert 0 < len(got) <= -(-len(pool) // _ROTATION_SLOTS)
+    assert not [t for t in got if t.lower() in CARD_SEARCH_TERMS]
+
+
+def test_a_stride_not_a_block():
+    """🚨 A contiguous block spends one whole run on calculators and the next
+    on watches, so a listing that appears and sells inside four hours is only
+    ever seen by the run holding its category."""
+    import datetime as dt
+    from flipscout.hunters import EbayBrowse, _ROTATION_SLOTS
+    from flipscout.pricebook import CARD_SEARCH_TERMS, search_terms
+    pool = [t for t in search_terms() if t.lower() not in CARD_SEARCH_TERMS]
+    got = EbayBrowse.__new__(EbayBrowse).relevant_terms(search_terms())
+    idx = sorted(pool.index(t) for t in got)
+    # a stride spreads across the whole list; a block would be consecutive
+    assert max(idx) - min(idx) > len(pool) // 2

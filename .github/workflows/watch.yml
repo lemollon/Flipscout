@@ -101,6 +101,11 @@ jobs:
           FLIPSCOUT_CARDS_WEBHOOK: ${{ secrets.FLIPSCOUT_CARDS_WEBHOOK }}
           FLIPSCOUT_CARDS_CHANNEL_ID: ${{ vars.FLIPSCOUT_CARDS_CHANNEL_ID }}
           FLIPSCOUT_DISCORD_CHANNEL_ID: ${{ vars.FLIPSCOUT_DISCORD_CHANNEL_ID }}
+          # How many runs it takes to sweep the whole eBay term pool once.
+          # 8 = full coverage every ~4 hours for ~1/8 the calls; the daily
+          # allowance was otherwise gone by 05:00 UTC. Raise if the 429s come
+          # back, lower (1 = every-run) if eBay grants more quota.
+          FLIPSCOUT_EBAY_ROTATION: ${{ vars.FLIPSCOUT_EBAY_ROTATION || '8' }}
           FLIPSCOUT_SOURCES: ${{ vars.FLIPSCOUT_SOURCES || 'goodwill,hibid' }}
           FLIPSCOUT_TARGET_PROFIT: ${{ vars.FLIPSCOUT_TARGET_PROFIT || '20' }}
           FLIPSCOUT_INBOUND_SHIP: ${{ vars.FLIPSCOUT_INBOUND_SHIP || '9' }}

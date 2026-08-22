@@ -441,3 +441,54 @@ def test_no_scolding_once_the_channel_is_configured(monkeypatch):
     sent = []
     _post_scout(_rows(), {}, set(), lambda a, content="", **k: sent.append(content) or ["webhook:cards"])
     assert "belong in your cards channel" not in sent[0]
+
+
+def test_one_rate_limit_stops_the_rest_of_the_lookups(capsys):
+    """🚨 A RATE LIMIT IS NOT A PER-CARD FAILURE. Observed 2026-08-22: with the
+    Browse allowance spent, all twelve lookups 429'd and printed twelve
+    near-identical lines - reading like twelve unlucky cards instead of one
+    exhausted budget - and each retry spent a call the next run could have
+    used."""
+    import requests
+    from flipscout.hunt import price_scout_finds, scout_cards
+    rows = [{"title": f"2018 Panini Prizm Luka Doncic RC Auto /{n}", "id": str(n),
+             "source": "hibid", "url": "u", "image": "i", "price": 40,
+             "listing_type": "auction"} for n in (99, 25, 10, 50, 5)]
+    finds = scout_cards(rows, {})
+    assert len(finds) > 1
+
+    class RateLimited:
+        def __init__(self): self.calls = 0
+        def lookup(self, q, observed_price=None):
+            self.calls += 1
+            r = requests.Response(); r.status_code = 429
+            raise requests.HTTPError("429", response=r)
+
+    prov = RateLimited()
+    price_scout_finds(finds, comps=prov)
+    assert prov.calls == 1, "kept asking after the quota said no"
+    out = capsys.readouterr().out
+    assert "rate-limited" in out and "Not a per-card failure" in out
+
+
+def test_one_bad_query_does_not_stop_the_others(capsys):
+    """Anything that is NOT a rate limit is per-card and must not cost the
+    other cards their numbers."""
+    from flipscout.comps import Comp
+    from flipscout.hunt import price_scout_finds, scout_cards
+    rows = [{"title": f"2018 Panini Prizm Luka Doncic RC Auto /{n}", "id": str(n),
+             "source": "hibid", "url": "u", "image": "i", "price": 40,
+             "listing_type": "auction"} for n in (99, 25, 10)]
+    finds = scout_cards(rows, {})
+
+    class Flaky:
+        def __init__(self): self.calls = 0
+        def lookup(self, q, observed_price=None):
+            self.calls += 1
+            if self.calls == 1:
+                raise ValueError("weird title")
+            return Comp(query=q, sold_price=None, active_count=7)
+
+    prov = Flaky()
+    price_scout_finds(finds, comps=prov)
+    assert prov.calls == len(finds), "one bad query stopped the rest"

@@ -1107,6 +1107,13 @@ def _unclaimedbaggage():
 
 # --- eBay Browse: fixed-price BIN, the big pool ------------------------------
 
+# How many runs it takes to sweep the whole term pool once. 8 half-hour slots
+# = full coverage every ~4 hours at the :17/:47 cadence, for ~1/8 the calls.
+# Raise it if the 429s come back; lower it (or set 1) if eBay grants more
+# quota and the sweep can go back to every-run.
+_ROTATION_SLOTS = int(os.environ.get("FLIPSCOUT_EBAY_ROTATION") or 8)
+
+
 class EbayBrowse:
     """eBay Buy-It-Now listings via the official Browse API.
 
@@ -1124,6 +1131,41 @@ class EbayBrowse:
 
     name = "ebay"
 
+    # 🚨 THE DAILY ALLOWANCE WAS BEING SPENT BY 05:00 UTC EVERY DAY, and this
+    # source then returned NOTHING for the remaining nineteen hours. Proven
+    # 2026-08-22 by comparing three runs of identical code and credentials:
+    #
+    #     00:00 UTC  no error line at all, 9,011 listings, `auth OK`
+    #     04:50 UTC  149 search error(s), last HTTP 429, ebay=0
+    #     05:40 UTC  133 search error(s), last HTTP 429, ebay=0
+    #
+    # A clean run followed by a total-failure run on the same code is quota
+    # exhaustion against the UTC-midnight reset, not a bad query and not a
+    # marginal overage.
+    #
+    # 🚨 AND IT IS OLDER THAN THE CARD PACK. An earlier fix here cut the 16
+    # card terms on the theory that a 133 -> 149 term increase caused the
+    # 429s. It did not: the error count simply fell from 149 to 133, one per
+    # term, still a 100% failure rate. That hypothesis is disproven; the terms
+    # were never the cause and cutting them bought nothing.
+    #
+    # THE ARITHMETIC. The cron fires at :17 AND :47, so 48 runs/day, not 24 -
+    # the note below models 24 because it predates the second entry. At 133
+    # terms and 2-3 calls each that is ~9,600 calls/day, ~400/hour, and the
+    # observed ~5-hour runway puts the real allowance near 2,000/day.
+    #
+    # THE FIX IS TO SWEEP LESS OFTEN, NOT TO SEARCH FOR LESS. Deleting terms
+    # permanently narrows what the book can ever find; rotating keeps every
+    # term and only slows how often each is revisited. At 8 slots that is
+    # ~1,200 calls/day - full coverage of all 133 terms every ~4 hours, all
+    # day, with ~600 left for the card comp lookups.
+    #
+    # 🚨 A STRIDE, NOT A BLOCK. `pool[slot::8]` interleaves, so every run gets
+    # a spread across categories. A contiguous block would spend one whole run
+    # on calculators and the next on watches, and a listing that appears and
+    # sells inside four hours would only ever be seen by the run that happened
+    # to hold its category.
+    #
     # 🚨 THE TRIPWIRE FIRED, SO THE TERMS GET CUT - HERE, NOT EVERYWHERE.
     # Run 32552763979 (2026-08-22 04:50) printed `ebay: 149 search error(s)
     # this run (last: HTTP 429)` and returned ebay=0 listings, the first time
@@ -1141,9 +1183,27 @@ class EbayBrowse:
     # So Browse goes back to the 133 terms it was measured clean on, and every
     # other source keeps all 149. Same shape as the Poshmark and Nellis term
     # filters above.
+    @staticmethod
+    def rotation_slot(now: Optional[_dt.datetime] = None) -> int:
+        """Which slice of the term pool this run sweeps.
+
+        Derived from the CLOCK rather than from stored state, because the
+        runner keeps nothing between runs except the seen-cache and a rotation
+        that resets every run is not a rotation. Bucketed per half hour, which
+        is exactly the cron's cadence (:17 and :47), so consecutive runs always
+        land on different slots and the pool is covered in 8 runs.
+        """
+        now = now or _dt.datetime.now(_dt.timezone.utc)
+        return int(now.timestamp() // 1800) % _ROTATION_SLOTS
+
     def relevant_terms(self, terms: list) -> list:
         from .pricebook import CARD_SEARCH_TERMS
-        return [t for t in terms if t.lower() not in CARD_SEARCH_TERMS]
+        pool = [t for t in terms if t.lower() not in CARD_SEARCH_TERMS]
+        # 🚨 AND THE POOL IS SWEPT IN SLICES, NOT ALL AT ONCE - see
+        # _ROTATION_SLOTS. Without this the daily allowance is gone by 05:00
+        # UTC and this source returns nothing for the other nineteen hours.
+        slot = self.rotation_slot()
+        return pool[slot::_ROTATION_SLOTS]
 
     def __init__(self, session: Optional[requests.Session] = None):
         self.session = session or requests.Session()

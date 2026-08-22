@@ -2844,9 +2844,27 @@ CARD_CATEGORIES = {"pokemon-cards", "sports-cards", "cards"}
 # Applied by category instead, exactly as _CAMERA_JUNK and _CONSOLE_JUNK are
 # ("the rule belongs to the category, so state it once"). Every non-card model
 # keeps the identical guard; the card tiers are freed from it.
+# 🚨 AND IT CANNOT WAIT FOR THE WORD "CARD". Caught by the board invariant on
+# 2026-08-22, live on main:
+#
+#     Panini Select Zay Flowers Ravens Premier Level #162 B&G Shock Prizm
+#         -> priced as casio_gshock, category "watches", comp $55.00
+#
+# A FOOTBALL CARD quoted against a Casio G-Shock, because "B&G Shock" contains
+# the watch model and the title never once says "card" - so the guard below
+# had nothing to fire on. Same family as the Pikachu crystal ball that quoted
+# $100.63 on a plastic toy, and the same cost: a real ceiling on a $2 piece of
+# cardboard.
+#
+# The maker names close it. Panini, Topps, Bowman, Upper Deck, Fleer, Donruss
+# and O-Pee-Chee do not appear on calculators, cameras, watches, tools or
+# consoles - so in any NON-card category they are proof the listing is a card,
+# with or without the word.
 _CARD_MERCH = (
     r"trading card|(?<!sd )(?<!cf )(?<!xd )(?<!gb )(?<!memory )(?<!sim )"
-    r"(?<!& )(?<!, )(?<!and )(?<!w/ )(?<!with )(?<!\+ )(?<!\+)(?<!user )\bcards?\b"
+    r"(?<!& )(?<!, )(?<!and )(?<!w/ )(?<!with )(?<!\+ )(?<!\+)(?<!user )\bcards?\b|"
+    r"\bpanini\b|\btopps\b|\bbowman\b|\bupper\s*deck\b|\bfleer\b|\bdonruss\b|"
+    r"o-?pee-?chee\b|\bstadium\s*club\b|\brefractors?\b|\bprizms?\b"
 )
 
 MODELS = [replace(m, active=False) if m.category in BENCHED_CATEGORIES else m
