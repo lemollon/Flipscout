@@ -332,3 +332,63 @@ def test_the_reader_stays_silent_on_the_whole_live_board():
     titles = [i.get("title", "") for i in json.loads(board.read_text())["items"]]
     spoke = [t for t in titles if cards.one_liner(read(t))]
     assert not spoke, f"card line fired on non-cards: {spoke[:5]}"
+
+
+# --- the value assessment, added 2026-08-22 ---------------------------------
+# Leron: "There is no value assessment on the cards." He is right that a
+# verdict with no number attached is half an answer. This file still refuses to
+# INVENT a number - what it does instead is aim the lookup precisely, which is
+# the same promise every priced alert makes minus the claim we have not earned.
+
+def test_the_query_names_the_card_not_the_category():
+    """🚨 "pokemon card" returns the category and is worthless. The identity IS
+    the price in this category, so the query has to carry it."""
+    q = cards.comp_query(read("2018 Panini Prizm Luka Doncic Silver Prizm RC Auto /99"))
+    for token in ("2018", "panini", "prizm", "luka", "doncic", "rc", "auto", "/99"):
+        assert token in q, f"{token} missing from {q!r}"
+
+
+def test_seller_hype_is_stripped_from_the_query():
+    """The other silent failure: a query carrying words no other listing shares
+    returns zero results, and a link with no results looks exactly like a link
+    that works."""
+    q = cards.comp_query(read(
+        "🔥 WOW 2018 Panini Prizm Luka Doncic Silver Prizm RC Auto /99 GEM MINT INVEST L@@K"))
+    for junk in ("wow", "gem", "mint", "invest", "l@@k", "🔥"):
+        assert junk not in q, f"{junk!r} survived into {q!r}"
+    assert "luka" in q and "/99" in q
+
+
+def test_the_grade_survives_the_word_cap():
+    """🚨 THE GRADE IS THE BIGGEST PRICE VARIABLE A TITLE CARRIES, and it is
+    usually at the very end - past the cap. Truncating the tail drops exactly
+    the token that matters."""
+    q = cards.comp_query(read(
+        "1999 Pokemon Base Set Charizard Holo Unlimited Rare Card Number 4 of 102 PSA 9"))
+    assert q.endswith("psa 9")
+
+
+def test_the_query_is_short_enough_for_ebay_to_and_together():
+    long = read("2021 Panini National Treasures Trevor Lawrence Rookie Patch "
+                "Autograph RPA Jacksonville Jaguars Football Card /25 BGS 9.5")
+    assert len(cards.comp_query(long).split()) <= 12
+
+
+def test_comp_url_is_a_sold_search_and_is_not_condition_filtered():
+    """🚨 NOT used_only. The price-book links pin eBay's Used filter to match a
+    measured population; nothing here was measured, and a slab is listed under
+    half a dozen conditions - filtering would hide most of the sales."""
+    u = cards.comp_url(read("2020 Topps Chrome Justin Herbert RC Refractor"))
+    assert "LH_Sold=1" in u and "LH_Complete=1" in u
+    assert "LH_ItemCondition" not in u
+
+
+def test_a_non_card_gets_no_query_and_no_url():
+    r = read("Canon AE-1 35mm Film Camera")
+    assert cards.comp_query(r) == "" and cards.comp_url(r) == ""
+
+
+def test_explain_carries_the_lookup_but_still_never_a_price():
+    text = cards.explain(read("2018 Panini Prizm Luka Doncic RC Auto /99"))
+    assert "WHAT IT SELLS FOR" in text and "ebay.com" in text
+    assert "$" not in text

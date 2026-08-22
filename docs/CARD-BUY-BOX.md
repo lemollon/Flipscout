@@ -217,22 +217,60 @@ Routing rules:
 
 `discordarm` polls every configured channel, so arming works in both.
 
-## 🚨 What actually arrives there today
+## What actually arrives there
 
-**Only the graded and vintage-chase Pokémon tiers.** Nothing else can, and it
-is worth being precise about why.
+Three things now, where before there was one:
 
-`hunt.evaluate()` drops any listing that does not match a priced model — no
-comp, no ceiling, no alert. Sports cards have no measured comp (and per the top
-of this page, they should not get an invented one), so **no sports card can
-reach the channel through the normal alert path**. What ships today is the
-triage: `flipscout card` on demand, and a `Card read:` line on card alerts that
-do fire.
+1. **Priced Pokémon card alerts** — the graded and vintage-chase tiers, with real ceilings. These are *newly reachable*; see the bug below.
+2. **Card scout finds** — sports cards no model can price, posted with **no comp and no ceiling**, clearly labelled. `hunt.scout_cards()` runs on the listings `evaluate()` threw away, and on both of `run()`'s exits — the day nothing clears the priced bar is exactly the day a card table is worth walking.
+3. **A sold-price lookup on every card**, priced or not (below).
 
-Making the channel carry sports cards needs a **scout pass**: sweep card search
-terms, run the reader, post `CHASE` verdicts with no ceiling and a clear "no
-comp — this is a look-at-it, not a buy" label. That is a real build and a real
-decision, because it means posting listings the book cannot price. Not done.
+### 🚨 The bug that made all of this unreachable
+
+`ACCESSORY_EXCLUDE` — a **universal, non-overridable** guard that `match()` runs once per listing before any model — rejected the bare word **"card"**. Measured 2026-08-22, five of seven realistic graded-Pokémon titles were thrown out before any model was consulted:
+
+```
+REJECT  Pokemon Charizard PSA 10 Card
+REJECT  1999 Pokemon Base Set Charizard Holo PSA 9 Trading Card
+REJECT  Pokemon Card PSA 10 Umbreon VMAX Alt Art
+MATCH   Pokemon Charizard PSA 10          <- survived only by not saying "card"
+```
+
+The rule is right and its reasons are real — a Pokémon *promo card* must never price against a $145 cartridge comp, and cameras legitimately read "w/ SD Card", which is why it is bundle-aware. It was simply in the wrong place: the card tiers were added after it, and no model can override a universal guard. So they were built, comped over three browser sessions (n=111/256/142), and made unreachable in the same file.
+
+Now applied **by category**, exactly as `_CAMERA_JUNK` and `_CONSOLE_JUNK` are. Every non-card model keeps the identical guard; the card tiers are freed from it. Pinned by tests on both sides.
+
+### And nothing was searching for cards
+
+Of 133 search terms, the only ones containing "card" or "pokemon" were *video game* searches. The measured card tiers could only fire by accident, when a card happened to land in a Game Boy search. 16 card terms added (149 total, ~+12% eBay Browse calls — inside observed headroom, but watch the error counter).
+
+## Value assessment: the lookup, not a number
+
+Leron, 2026-08-22: *"There is no value assessment on the cards."*
+
+Fair — a verdict with no number attached is half an answer. This still refuses to **invent** a number. What it does instead is aim the lookup precisely: every card alert and every `flipscout card` run now links the eBay **SOLD** search for *that exact card*, built from the identity the title states.
+
+```
+2018 panini prizm luka doncic silver prizm rc auto /99
+```
+
+Not `pokemon card` (returns the category, worthless) and not the raw title (returns nothing, because sellers stuff it with hype no other listing shares). Both failure modes are silent — a link with zero results looks exactly like one that works — so hype is stripped, the query is capped at 12 words, and **the grade is preserved wherever it sat**, because it is the biggest price variable a title carries and it usually sits past the cap.
+
+That is the same promise every priced alert makes — *check the claim in one click* — minus the claim we have not earned.
+
+## 🚨 Still missing: measured sports-card comps
+
+
+
+No sports card carries a ceiling, because none has been measured. Comps here
+are pulled **by hand through a real browser** (see `ebay_ui` — eBay WAF-blocks
+scripts, and the sold-data API is closed to new users), so measuring is a
+session of Leron's time per tier, not something the tool can do for itself.
+
+**Sealed wax is the place to spend it.** A sealed box is the one card product a
+title fully identifies, with no condition variable at all — the only card
+category that could ever carry a stable measured comp. Search terms for it are
+already in, so there is a population to measure when that happens.
 
 ## Feeding it more
 

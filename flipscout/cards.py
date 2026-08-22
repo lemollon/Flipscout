@@ -47,6 +47,7 @@ import re
 from dataclasses import dataclass, field, replace
 from typing import Optional
 
+from .ebay_ui import sold_url
 from .pricebook import normalize
 
 
@@ -364,7 +365,14 @@ def read(title: str) -> CardRead:
         return CardRead(title=title or "")
 
     if _TCG.search(t):
+        # 🚨 PARSE THE GRADE EVEN THOUGH WE REFUSE TO JUDGE. The verdict is
+        # handed back to the measured Pokemon tiers, but `comp_query` still
+        # builds this card's sold search - and the grade is the single biggest
+        # price variable a card title carries. Skipping it here dropped "PSA 9"
+        # from the lookup for exactly the cards where the grade IS the comp.
+        gm = re.search(_GRADER, t)
         return CardRead(title=title, family="tcg", verdict="PRICED",
+                        grade=f"{gm.group(1).upper()} {gm.group(2)}" if gm else None,
                         signals=[Signal("stop", "TCG single or lot - `pricebook` "
                                         "carries measured comps for graded and "
                                         "vintage-chase Pokemon; use those, not this "
@@ -575,6 +583,69 @@ def _grade_words(g: str) -> str:
             "a 7 and a 10 of the same card differ tenfold.")
 
 
+# --- what it is worth: the one-click check ----------------------------------
+# 🚨 THIS FILE STILL DOES NOT PRICE ANYTHING, and it still must not. What it
+# CAN do is aim the question. Leron, 2026-08-22: "There is no value assessment
+# on the cards" - and he is right that a verdict with no number attached is
+# half an answer.
+#
+# The rest of the book answers this by linking the eBay SOLD search that
+# produced its comp, so the claim "this sells for more" is checkable in one
+# click instead of trusted (see hunt.to_alert). A card has no comp to link,
+# but it has something the other categories do not: the title states the exact
+# identity - year, player, set, parallel, serial, grade - and that identity is
+# a sold search that returns THIS card rather than its category.
+#
+# So the value assessment is the real sold prices, one tap away, aimed
+# precisely. Which is also what the shop does: it does not know the number, it
+# knows where to look it up.
+#
+# 🚨 THE QUERY IS THE WHOLE JOB. "pokemon card" returns the category and is
+# worthless; the full raw title returns nothing at all, because sellers stuff
+# it with hype no other listing shares. Both failure modes are silent - a
+# link that returns 0 results looks exactly like a link that works.
+_QUERY_NOISE = re.compile(
+    r"\b(?:l@@k|look|wow|hot|rare|scarce|invest(?:ment)?|grail|stunning|"
+    r"beautiful|gorgeous|sharp|clean|centered|nm|near\s*mint|mint|gem|pack\s*"
+    r"fresh|fresh|sweet|nice|great|excellent|vintage|htf|hard\s*to\s*find|"
+    r"free\s*ship(?:ping)?|ships?\s*fast|fast\s*ship(?:ping)?|see\s*pics?|"
+    r"see\s*photos?|read|nr|no\s*reserve|combined\s*shipping|must\s*see|"
+    r"low\s*pop|pop\s*\d+|for\s*sale|sale|deal|steal|wysiwyg|pictured|"
+    r"actual\s*card|you\s*get|mystery|repack)\b|[^\w\s/#.-]"
+)
+# Emoji and decoration sellers pad titles with. Stripped separately because the
+# class above would otherwise have to enumerate them.
+_QUERY_TRIM = re.compile(r"\s+")
+
+# eBay's own relevance falls apart past roughly a dozen words - the engine ANDs
+# them, so one stray token returns nothing. Short and identifying beats long
+# and faithful.
+_MAX_QUERY_WORDS = 12
+
+
+def comp_query(r: CardRead) -> str:
+    """The eBay SOLD search that prices THIS card, not its category.
+
+    Built from the listing title with seller hype removed, because the title is
+    where the card's identity actually lives - and the identity IS the price in
+    this category, which is the whole reason a category-level comp is useless
+    here.
+    """
+    if not r.is_card:
+        return ""
+    t = _QUERY_NOISE.sub(" ", normalize(r.title))
+    words = [w for w in _QUERY_TRIM.sub(" ", t).split() if w]
+    # 🚨 KEEP THE GRADE, WHEREVER IT SAT. It is the single biggest price
+    # variable a card title carries and it is often at the very end, past the
+    # word cap - "1999 Pokemon Base Charizard Holo 4/102 Unlimited PSA 9" loses
+    # exactly the token that matters if the tail is simply truncated.
+    grade = r.grade.lower().split() if r.grade else []
+    if grade:
+        words = [w for w in words if w not in grade]
+    kept = words[:max(1, _MAX_QUERY_WORDS - len(grade))] + grade
+    return " ".join(kept)
+
+
 def explain(r: CardRead) -> str:
     """The read as a card shop would say it out loud."""
     if not r.is_card:
@@ -592,7 +663,21 @@ def explain(r: CardRead) -> str:
     lines.append("  - No price here on purpose: a title cannot carry condition, "
                  "and condition is most of a raw card's value. This says whether "
                  "to look, not what to pay.")
+    lines.append(f"\n  WHAT IT SELLS FOR - real sold prices for THIS card:\n"
+                 f"  {comp_url(r)}")
     return "\n".join(lines)
+
+
+def comp_url(r: CardRead) -> str:
+    """The eBay SOLD listings for this exact card. "" when it is not a card.
+
+    🚨 NOT `used_only`. The price-book links pin eBay's Used filter so the
+    population matches the measured comp - but nothing here was measured, and a
+    graded slab is listed under half a dozen different conditions. Filtering
+    would quietly hide most of the very sales being looked up.
+    """
+    q = comp_query(r)
+    return sold_url(q) if q else ""
 
 
 def one_liner(r: CardRead) -> str:

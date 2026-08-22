@@ -33,6 +33,7 @@ import os
 from typing import Optional
 
 from .bidding import advise
+from .cards import comp_url as cards_comp_url
 from .cards import one_liner as card_line, read as read_card
 from .hunters import build_hunters
 from .auctionfees import REQUIRE_CARD
@@ -405,6 +406,98 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
     return out
 
 
+# --- the card scout ---------------------------------------------------------
+# 🚨 THE ONE PLACE THIS REPO ALERTS WITHOUT A COMP, AND WHY IT IS ALLOWED.
+#
+# Every other alert in Flipscout carries two numbers behind a MEASURED comp,
+# and `evaluate()` drops anything that matches no model precisely so an
+# unpriced guess can never reach a bid. That rule is not being relaxed here:
+# a scout card carries NO comp, NO ceiling and NO max bid, and it is posted to
+# a different channel from the priced alerts so the two can never be confused.
+#
+# What justifies it is that cards are the one category where the title CANNOT
+# be priced and yet CAN be triaged. The book measured this directly (see
+# DEAD_MODELS): an unsorted card lot ran p25 $10.72 / median $25.18 / max
+# $1,061 on n=65 - a hundred-fold spread no comp can straddle. But the shop's
+# five rules read straight off the same title and say, correctly, which of
+# those thousand listings is the $1,061 one.
+#
+# So the scout answers a different question from the rest of the file. Not
+# "what do I bid" - "which of these do I open". Leron, 2026-08-22: "I'm
+# expecting more cards to come out in the channel don't be shy."
+#
+# 🚨 IT MUST NEVER SAY A NUMBER. Not a comp, not a ceiling, not an estimate.
+# The value assessment it DOES carry is the eBay SOLD search for that exact
+# card (cards.comp_url) - the real prices, one tap away, aimed by the identity
+# the title states. That is the same promise the priced alerts make, minus the
+# claim we have not earned.
+SCOUT_VERDICTS = ("CHASE", "LOOK")
+
+
+def scout_cards(rows: list, config: dict, seen: Optional[set] = None,
+                limit: int = 12) -> list[dict]:
+    """Cards worth OPENING, from listings no model could price.
+
+    Deliberately runs on the rows `evaluate()` threw away. A listing that DID
+    price is already alerting with real numbers and must not be posted twice.
+    """
+    seen = seen or set()
+    out = []
+    for row in rows:
+        title = row.get("title") or ""
+        if match(title):                      # priced elsewhere, with numbers
+            continue
+        key = f"{row.get('source')}:{row.get('id')}"
+        if key in seen:
+            continue
+        r = read_card(title)
+        if r.verdict not in SCOUT_VERDICTS:
+            continue
+        out.append({"row": row, "read": r, "key": key})
+    # Best first, so a cap cuts the weakest rather than an arbitrary tail.
+    out.sort(key=lambda c: c["read"].score, reverse=True)
+    if len(out) > limit:
+        # 🚨 SAY WHAT WAS DROPPED. A silent cap reads as "that was everything",
+        # which is how a quiet channel gets mistaken for a quiet market.
+        print(f"[scout] {len(out)} card finds, posting top {limit}")
+    return out[:limit]
+
+
+def to_scout_alert(c: dict) -> dict:
+    """One scout find -> the Discord embed payload. No comp, no ceiling."""
+    row, r = c["row"], c["read"]
+    comps = cards_comp_url(r)
+    bits = [f"**{r.verdict}** - {'pull it out and photograph it' if r.verdict == 'CHASE' else 'one signal fired; worth opening'}."]
+    for s in r.signals:
+        bits.append(f"• {s.detail}")
+    ask = row.get("price")
+    if ask is not None:
+        bits.append(f"Asking **${float(ask):,.2f}**.")
+    # 🚨 THE HONEST HEADLINE, EVERY TIME. Without this line a card sitting
+    # beside priced alerts reads as though somebody checked the money.
+    bits.append(":no_entry: **No comp - nobody measured this.** There is no "
+                "ceiling on this card because a title cannot state condition, "
+                "and condition is most of a raw card's value. "
+                "**Check the sold prices before you bid anything.**")
+    if not row.get("image"):
+        bits.append(":warning: **No photo on this listing** - on a card that is "
+                    "disqualifying, not cosmetic.")
+    where = ", ".join(x for x in (row.get("city"), row.get("state")) if x)
+    if row.get("house"):
+        bits.append(f"_{row['house']}" + (f" - {where}_" if where else "_"))
+    return {
+        "title": (row.get("title") or "")[:240],
+        "url": row.get("url"),
+        "image": row.get("image"),
+        "verdict": "watch",
+        "source": row.get("source"),
+        "buy_url": row.get("url"),
+        "comps_url": comps,
+        "category": "sports-cards",     # routes to the cards channel
+        "reason": "\n".join(bits),
+    }
+
+
 def age_hours(listed: Optional[str], now: Optional[_dt.datetime] = None) -> Optional[float]:
     """Hours since the listing went up, or None when the source doesn't say."""
     if not listed:
@@ -679,6 +772,35 @@ def estate_catalog_rows(config: dict, hunters=None, feed=None) -> list[dict]:
     return rows
 
 
+def _post_scout(rows: list, config: dict, seen: set, notifier) -> tuple:
+    """Post the card scout's finds. Returns (keys posted, channels used).
+
+    🚨 RUNS ON A QUIET DAY TOO. It is called on BOTH of run()'s exits, because
+    the day nothing clears the priced bar is exactly the day a card table is
+    worth walking - and a cards channel that only speaks when the tool
+    hardware is buying is a cards channel that never speaks.
+    """
+    try:
+        finds = scout_cards(rows, config, seen=seen)
+    except Exception as e:                    # never let the scout kill a run
+        print(f"[hunt] card scout failed (non-fatal): {e}")
+        return set(), []
+    if not finds:
+        return set(), []
+    alerts = [to_scout_alert(c) for c in finds]
+    chase = sum(1 for c in finds if c["read"].verdict == "CHASE")
+    header = (f":card_index: **Card scout** - {len(alerts)} worth opening"
+              + (f" ({chase} CHASE)" if chase else "") + "\n"
+              f"_No comps on these - nobody measured them. Each one links its "
+              f"own eBay SOLD search; check that before you bid anything._")
+    sent = notifier(alerts, content=header)
+    if sent:
+        print(f"[hunt] SCOUT: {len(alerts)} card find(s) via {', '.join(sent)}.")
+        return {c["key"] for c in finds}, sent
+    print(f"[hunt] SCOUT NOT DELIVERED - {len(alerts)} card find(s) went nowhere.")
+    return set(), []
+
+
 def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> dict:
     config = config or load_config()
     # Print the DESTINATION every run. Delivery success has repeatedly meant
@@ -933,7 +1055,11 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
                 f"${config['target_profit']:.0f} bar.\n"
                 f"_Quiet is normal._")))
             _mark_heartbeat(config["heartbeat_file"])
-        return {"scanned": len(rows), "priced": len(cands), "new": 0, "sent": []}
+        scouted, scout_sent = _post_scout(rows, config, seen, notifier)
+        if scouted:
+            _save_seen(config["state_file"], seen | scouted)
+        return {"scanned": len(rows), "priced": len(cands), "new": 0,
+                "sent": scout_sent, "scouted": len(scouted)}
 
     alerts = [to_alert(c) for c in fresh]
     header = (f"**Flipscout** - {len(alerts)} new "
@@ -951,9 +1077,12 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
         print(f"[hunt] NOT DELIVERED - {len(alerts)} alert(s) went nowhere. "
               f"Check FLIPSCOUT_ALERT_WEBHOOK is set and still valid.")
 
-    _save_seen(config["state_file"],
-               seen | {f"{c['row']['source']}:{c['row']['id']}" for c in fresh})
-    return {"scanned": len(rows), "priced": len(cands), "new": len(fresh), "sent": sent}
+    fresh_keys = {f"{c['row']['source']}:{c['row']['id']}" for c in fresh}
+    scouted, scout_sent = _post_scout(rows, config, seen | fresh_keys, notifier)
+    _save_seen(config["state_file"], seen | fresh_keys | scouted)
+    return {"scanned": len(rows), "priced": len(cands), "new": len(fresh),
+            "sent": sent + [x for x in scout_sent if x not in sent],
+            "scouted": len(scouted)}
 
 
 def main(argv=None) -> int:

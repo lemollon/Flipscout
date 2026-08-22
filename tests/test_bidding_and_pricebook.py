@@ -1532,3 +1532,61 @@ def test_a_named_included_battery_still_prices():
     the phrase "battery pack FOR", not the part number - a camera that merely
     names the battery it ships with must keep pricing."""
     assert match("Canon PowerShot SD630 Digital ELPH 6MP Camera NB-4L Battery") is not None
+
+
+# --- the universal card guard, moved by category 2026-08-22 -----------------
+# 🚨 THE GUARD THAT WAS SILENTLY EATING THE CARD TIERS. `trading card` and a
+# bundle-aware `cards?` lived in ACCESSORY_EXCLUDE, which match() evaluates
+# ONCE per listing before any model and which no model can override. So the
+# three card tiers - measured 2026-08-20 on n=111/256/142 - could only ever
+# match a card listing that does not contain the word "card". They were built,
+# comped, and made unreachable in the same file.
+
+import pytest as _pytest
+
+from flipscout import pricebook as _pb
+
+
+@_pytest.mark.parametrize("title", [
+    "Pokemon Charizard PSA 10 Card",
+    "1999 Pokemon Base Set Charizard Holo PSA 9 Trading Card",
+    "Pokemon Card PSA 10 Umbreon VMAX Alt Art",
+    "PSA 10 Pokemon Lugia Neo Genesis Holo Card",
+    "Pokemon TCG Charizard BGS 9.5 Card 4/102",
+])
+def test_a_graded_card_that_says_card_actually_prices(title):
+    m = _pb.match(title)
+    assert m is not None, f"universally rejected: {title}"
+    assert m.model.category == "pokemon-cards"
+
+
+@_pytest.mark.parametrize("title,why", [
+    ("1pc Pokemon Crystal Ball Pikachu Gengar",
+     "merchandise borrowing the name - quoted $100.63 on a plastic ball once"),
+    ("Pokemon Emerald GBA Trading Card promo",
+     "a promo card must never price against a cartridge comp"),
+    ("Nintendo Switch OLED Console trading card",
+     "same, for consoles"),
+])
+def test_the_merchandise_guard_still_holds_where_a_card_is_not_the_product(title, why):
+    """The rule and its reasons are real - it was only ever in the wrong place."""
+    assert _pb.match(title) is None, why
+
+
+def test_the_camera_bundle_case_is_unchanged():
+    """`card` is bundle-aware because cameras legitimately read "w/ SD Card",
+    and the cameras added 2026-07-28 were being rejected over their own storage.
+    Moving the rule by category must not change that."""
+    m = _pb.match("Canon PowerShot ELPH 180 with SD card")
+    assert m is not None and m.model.category == "cameras"
+
+
+def test_every_non_card_model_still_carries_the_guard():
+    """Applied by category the way _CAMERA_JUNK and _CONSOLE_JUNK are - so the
+    ninety-odd non-card models keep the identical protection, and only the card
+    tiers are freed from it."""
+    for m in _pb.MODELS:
+        if m.category in _pb.CARD_CATEGORIES:
+            assert "trading card" not in m.exclude, m.key
+        else:
+            assert "trading card" in m.exclude, f"{m.key} lost the guard"

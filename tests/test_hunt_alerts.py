@@ -211,3 +211,82 @@ def test_a_non_card_with_no_photo_is_not_nagged():
     be one more warning nobody reads."""
     body = _body(_card_row(title="Canon AE-1 35mm Film Camera", image=None))
     assert "No photo on this listing" not in body
+
+
+# --- the card scout, added 2026-08-22 ---------------------------------------
+# The one place this repo alerts without a comp. See hunt.scout_cards for why
+# that is allowed here and nowhere else.
+
+def _rows():
+    return [
+        {"title": "2018 Panini Prizm Luka Doncic Silver Prizm RC Auto /99",
+         "id": "1", "source": "hibid", "url": "u1", "image": "i1", "price": 40},
+        {"title": "1991 Score Baseball Card Lot of 500", "id": "2",
+         "source": "hibid", "url": "u2", "image": "i2"},
+        {"title": "Canon AE-1 35mm Film Camera", "id": "3",
+         "source": "hibid", "url": "u3", "image": "i3"},
+        {"title": "2020 Topps Chrome Justin Herbert RC Refractor",
+         "id": "4", "source": "goodwill", "url": "u4", "image": "i4"},
+    ]
+
+
+def test_the_scout_takes_cards_and_leaves_everything_else():
+    from flipscout.hunt import scout_cards
+    got = {c["row"]["id"] for c in scout_cards(_rows(), {})}
+    assert got == {"1", "4"}          # the junk-wax lot and the camera stay out
+
+
+def test_the_scout_never_re_posts_something_already_seen():
+    from flipscout.hunt import scout_cards
+    got = {c["row"]["id"] for c in scout_cards(_rows(), {}, seen={"hibid:1"})}
+    assert got == {"4"}
+
+
+def test_the_scout_skips_anything_the_book_can_actually_price():
+    """🚨 A PRICED LISTING IS ALREADY ALERTING WITH REAL NUMBERS. Posting it
+    again with no ceiling would put a comped card and an uncomped one side by
+    side saying different things about the same lot."""
+    from flipscout.hunt import scout_cards
+    rows = [{"title": "Pokemon Charizard PSA 10 card", "id": "9",
+             "source": "hibid", "url": "u", "image": "i"}]
+    from flipscout.pricebook import match
+    assert match(rows[0]["title"]) is not None       # the book prices this one
+    assert scout_cards(rows, {}) == []
+
+
+def test_the_best_finds_survive_the_cap():
+    from flipscout.hunt import scout_cards
+    rows = [dict(r, id=str(i)) for i, r in enumerate(_rows() * 8)]
+    got = scout_cards(rows, {}, limit=3)
+    assert len(got) == 3
+    assert got == sorted(got, key=lambda c: c["read"].score, reverse=True)
+
+
+def test_a_scout_alert_states_that_nobody_measured_it():
+    """🚨 THE HONEST HEADLINE. Beside priced alerts, a card with no such line
+    reads as though somebody checked the money."""
+    from flipscout.hunt import scout_cards, to_scout_alert
+    a = to_scout_alert(scout_cards(_rows(), {})[0])
+    assert "No comp" in a["reason"] and "nobody measured this" in a["reason"]
+
+
+def test_a_scout_alert_carries_no_number_to_bid_on():
+    """It may say the ASK - that is the seller's number, not ours - but never a
+    comp, a ceiling or a max bid."""
+    from flipscout.hunt import scout_cards, to_scout_alert
+    a = to_scout_alert(scout_cards(_rows(), {})[0])
+    assert a.get("comp") is None and a.get("max_bid") is None
+    assert "ceiling" not in a["reason"].lower() or "no ceiling" in a["reason"].lower()
+
+
+def test_a_scout_alert_links_its_own_sold_search():
+    from flipscout.hunt import scout_cards, to_scout_alert
+    a = to_scout_alert(scout_cards(_rows(), {})[0])
+    assert "LH_Sold=1" in a["comps_url"] and "doncic" in a["comps_url"]
+
+
+def test_a_scout_alert_routes_to_the_cards_channel():
+    from flipscout.hunt import scout_cards, to_scout_alert
+    from flipscout import notify
+    a = to_scout_alert(scout_cards(_rows(), {})[0])
+    assert notify.channel_for(a) == "cards"
