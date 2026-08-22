@@ -1,7 +1,7 @@
 """2026-08-13: the breadth pack.
 
 The Discord digest was dominated by a handful of high-volume models
-(Starrett, Mitutoyo, film cameras, camcorders - sorted by profit_at_open and
+(Seiko Automatic, Mitutoyo, film cameras, camcorders - sorted by profit_at_open and
 released top-N) while whole categories with measured live supply went
 unpriced. Two fixes, tested here:
 
@@ -143,10 +143,10 @@ def _row(id_, title, price):
 
 def test_per_model_cap_backfills_and_leaves_overflow_unseen(monkeypatch):
     # 6 TI-84 Plus CE candidates (would normally sweep the whole digest) plus
-    # 2 Starrett candidates.
+    # 2 Seiko Automatic candidates.
     ce_rows = [_row(f"ce{i}", "TI-84 Plus CE Graphing Calculator", 5.0 + i)
                for i in range(6)]
-    other_rows = [_row(f"st{i}", "Starrett Combination Square", 10.0 + i)
+    other_rows = [_row(f"st{i}", "Seiko Automatic Combination Square", 10.0 + i)
                   for i in range(2)]
     rows = ce_rows + other_rows
 
@@ -173,7 +173,7 @@ def test_per_model_cap_backfills_and_leaves_overflow_unseen(monkeypatch):
     ce_ids_alerted = {i for i in ids_alerted if i.startswith("ce")}
     st_ids_alerted = {i for i in ids_alerted if i.startswith("st")}
 
-    # capped at 3 CE picks, backfilled with both Starrett candidates
+    # capped at 3 CE picks, backfilled with both Seiko Automatic candidates
     assert len(ce_ids_alerted) == 3
     assert len(st_ids_alerted) == 2
     assert len(alerts) == 5

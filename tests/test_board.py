@@ -7,7 +7,7 @@ from flipscout.bidding import advise
 from flipscout.pricebook import match
 
 
-def _cand(title="Fluke 87V True RMS Multimeter", price=5.0, source="hibid",
+def _cand(title="Canon AE-1 True RMS Multimeter", price=5.0, source="hibid",
           nearby=False, pickup=False, listing_type="auction", **row_extra):
     m = match(title)
     assert m is not None, f"fixture title no longer matches the book: {title}"
@@ -122,14 +122,14 @@ def test_digest_title_is_also_copyable_inline_code():
     """The title in the digest lives inside a [name](url) link - Discord gives
     no way to copy text out of a link, so it must also appear as plain,
     selectable inline code."""
-    b = board.build([_cand(title="Fluke 87V True RMS Multimeter")])
+    b = board.build([_cand(title="Canon AE-1 True RMS Multimeter")])
     body = board.digest(b)
-    assert "`Fluke 87V True RMS Multimeter`" in body
-    assert "[Fluke 87V True RMS Multimeter]" in body   # the link stays too
+    assert "`Canon AE-1 True RMS Multimeter`" in body
+    assert "[Canon AE-1 True RMS Multimeter]" in body   # the link stays too
 
 
 def test_digest_copy_paste_title_is_truncated():
-    long_title = "Fluke 87V True RMS Multimeter " + "Professional " * 20
+    long_title = "Canon AE-1 True RMS Multimeter " + "Professional " * 20
     b = board.build([_cand(title=long_title)])
     body = board.digest(b)
     assert f"`{long_title[:150]}`" in body
@@ -151,7 +151,7 @@ def test_checkin_posts_the_board_instead_of_nothing_new(tmp_path):
 
         def search(self, q, limit=40):
             return [{"source": "goodwill", "id": "1",
-                     "title": "Fluke 87V True RMS Multimeter", "url": "http://x/1",
+                     "title": "Canon AE-1 True RMS Multimeter", "url": "http://x/1",
                      "price": 5.0, "min_bid": 6.0, "increment": 1.0, "bids": 0,
                      "handling": 0.0, "image": "", "ends": ""}]
 
@@ -173,14 +173,14 @@ def test_write_also_produces_the_browsable_markdown_board(tmp_path):
     assert board.write([_cand()], str(p))
     md = (tmp_path / "docs" / "BOARD.md").read_text(encoding="utf-8")
     assert "Flipscout board - 1 buyable now" in md
-    assert "Fluke 87V" in md and "http://x/1" in md
+    assert "Canon AE-1" in md and "http://x/1" in md
     assert "| Open | Max bid |" in md
 
 
 def test_markdown_board_lists_every_item_not_a_digest(tmp_path):
     cands = [_cand(row_extra={}) for _ in range(12)]
     for n, c in enumerate(cands):
-        c["row"] = {**c["row"], "id": str(n), "title": f"Fluke 87V Multimeter #{n}"}
+        c["row"] = {**c["row"], "id": str(n), "title": f"Canon AE-1 Multimeter #{n}"}
     md = board.render_markdown(board.build(cands))
     for n in range(12):
         assert f"#{n}" in md, f"item {n} missing from the full list"
@@ -222,7 +222,7 @@ def test_checkin_sends_top_rows_as_embeds(tmp_path, monkeypatch):
         name = "hibid"
         def search(self, q, limit=40):
             return [{"source": "hibid", "id": "1",
-                     "title": "Fluke 87V True RMS Multimeter", "url": "u",
+                     "title": "Canon AE-1 True RMS Multimeter", "url": "u",
                      "price": 5.0, "min_bid": 6.0, "increment": 1.0, "bids": 0,
                      "handling": 0.0, "image": "http://img/1.jpg", "ends": ""}]
         def enrich(self, row):
