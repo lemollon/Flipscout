@@ -128,6 +128,8 @@ _TCG = re.compile(
     r"pok[eé]mon|\bpkmn\b|magic\s*the\s*gathering|\bmtg\b|yu-?gi-?oh|\bygo\b|"
     r"digimon|one\s*piece\s*card|lorcana|flesh\s*and\s*blood|weiss\s*schwarz"
 )
+# Pokemon specifically: the one TCG this repo has a real price source for.
+_POKEMON = re.compile(r"pok[eé]mon|\bpkmn\b")
 
 
 # --- the era rule -----------------------------------------------------------
@@ -399,17 +401,34 @@ def read(title: str) -> CardRead:
 
     if _TCG.search(t):
         # 🚨 PARSE THE GRADE EVEN THOUGH WE REFUSE TO JUDGE. The verdict is
-        # handed back to the measured Pokemon tiers, but `comp_query` still
-        # builds this card's sold search - and the grade is the single biggest
-        # price variable a card title carries. Skipping it here dropped "PSA 9"
-        # from the lookup for exactly the cards where the grade IS the comp.
+        # handed on, but `comp_query` still builds this card's sold search -
+        # and the grade is the single biggest price variable a card title
+        # carries. Skipping it here dropped "PSA 9" from the lookup for exactly
+        # the cards where the grade IS the comp.
         gm = re.search(_GRADER, t)
+        grade = f"{gm.group(1).upper()} {gm.group(2)}" if gm else None
+
+        # 🚨 "HAND IT BACK TO THE BOOK" STOPPED BEING TRUE ON 2026-08-22, and a
+        # stale handoff is worse than none: `pokemon-cards` is benched (its
+        # blanket $92/$112.50 comps were arming $49 bids on $0.14 cards), so a
+        # "PRICED" verdict here now means the card is dropped by the scout AND
+        # priced by nobody. Pokemon goes to `pokemontcg`, which prices the CARD
+        # rather than the category.
+        #
+        # Offline only - this runs on every listing in a 10,000-row sweep, and
+        # the price lookup belongs in the scout where it is capped at the dozen
+        # cards actually posted.
+        if _POKEMON.search(t):
+            from .pokemontcg import identify as _pid, verdict as _pv
+            v = _pv(_pid(title))
+            return CardRead(title=title, family="tcg", verdict=v.verdict,
+                            grade=grade, signals=[Signal("stop", v.why, 0)])
         return CardRead(title=title, family="tcg", verdict="PRICED",
-                        grade=f"{gm.group(1).upper()} {gm.group(2)}" if gm else None,
-                        signals=[Signal("stop", "TCG single or lot - `pricebook` "
-                                        "carries measured comps for graded and "
-                                        "vintage-chase Pokemon; use those, not this "
-                                        "triage.", 0)])
+                        grade=grade,
+                        signals=[Signal("stop", "Non-Pokemon TCG single - no "
+                                        "measured comp and no price source "
+                                        "wired; this triage is for sports "
+                                        "cards.", 0)])
     if not _is_card(t):
         return CardRead(title=title)
 

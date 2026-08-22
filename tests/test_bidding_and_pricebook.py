@@ -1554,10 +1554,41 @@ from flipscout import pricebook as _pb
     "PSA 10 Pokemon Lugia Neo Genesis Holo Card",
     "Pokemon TCG Charizard BGS 9.5 Card 4/102",
 ])
-def test_a_graded_card_that_says_card_actually_prices(title):
-    m = _pb.match(title)
-    assert m is not None, f"universally rejected: {title}"
-    assert m.model.category == "pokemon-cards"
+def test_a_graded_card_that_says_card_is_not_universally_rejected(title):
+    """🚨 ASSERTED ON THE GUARD ITSELF NOW, not on a price.
+
+    The bug this test was written for is real and unchanged: `card` in
+    ACCESSORY_EXCLUDE rejected every card listing before any model was
+    consulted. What changed on 2026-08-22 is the other end - the three
+    `pokemon-cards` tiers are BENCHED, because a blanket $92/$112.50 comp was
+    arming $49 bids on $0.14 cards (see BENCHED_CATEGORIES). So the guard can
+    no longer be observed through `match()`, and testing it through a price
+    would only re-assert the behaviour we deliberately removed.
+
+    The tier still MATCHES the title - proving the guard was the bug and the
+    tier was not - it is simply inactive.
+    """
+    t = _pb.normalize(title)
+    assert not _pb.universally_excluded(t), f"universally rejected: {title}"
+    tiers = [m for m in _pb.MODELS if m.category == "pokemon-cards"]
+    # `_body_matches` short-circuits on `active`, so ask the tier what it
+    # DESCRIBES by testing an activated copy - the point is that the guard was
+    # the bug, not the tier's include.
+    from dataclasses import replace as _replace
+    assert any(_replace(m, active=True)._body_matches(t) for m in tiers),         f"no tier describes {title!r}"
+    assert all(not m.active for m in tiers), "benched on purpose - see the note"
+
+
+def test_a_pokemon_card_reaches_the_per_card_price_source():
+    """Benching must not mean "unpriced". Every card the tiers used to swallow
+    now goes to `pokemontcg`, which reads the card's identity out of the title
+    instead of averaging a category."""
+    from flipscout.pokemontcg import identify
+    pid = identify("1999 Pokemon Base Set Charizard 4/102 Holo Unlimited")
+    assert pid.name == "charizard"
+    assert pid.number == "4"          # 4/102 is card 4, NOT card 102
+    assert pid.year == 1999
+    assert pid.priceable
 
 
 @_pytest.mark.parametrize("title,why", [

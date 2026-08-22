@@ -495,16 +495,85 @@ def price_scout_finds(finds: list, comps=None) -> None:
     """Attach live eBay market numbers to each scout find, in place. Fail-soft."""
     if not finds:
         return
+
+    # 🚨 POKEMON DOES NOT GO THROUGH eBAY, AND MUST NOT WAIT ON ITS KEYS.
+    # Browse returns ASKING prices for whatever words a title happens to share
+    # with other listings, which is where "the range is nice but its wide for
+    # every card" came from. `pokemontcg` returns TCGplayer's market price for
+    # THE card - one number per printing, or an explicit range when the title
+    # did not pin which card it is.
+    #
+    # 🚨 PRICED FIRST, BEFORE THE eBAY PROVIDER IS EVEN BUILT. The first cut of
+    # this put the Pokemon branch inside the loop below, which sits behind an
+    # early `return` when no eBay credentials are configured - so on a machine
+    # without eBay keys (every local run) every Pokemon card shipped saying
+    # "no market price came back" while the source it actually uses was fine.
+    tcg = [c for c in finds if (c["read"].family or "") == "tcg"]
+    rest = [c for c in finds if c not in tcg]
+    poke_ok = 0
+    for c in tcg:
+        try:
+            from .pokemontcg import read as read_poke
+            pv = read_poke(c["row"].get("title") or "")
+            c["poke"] = pv
+            poke_ok += bool(pv.comp is not None)
+        except Exception as e:
+            print(f"[scout] pokemon price lookup failed ({type(e).__name__}) "
+                  f"- card ships with its link only.")
+    if tcg:
+        print(f"[scout] priced {poke_ok}/{len(tcg)} pokemon card(s) against "
+              f"TCGplayer market")
+
+    if not rest:
+        return
+
+    # 🚨 SPORTS CARDS ARE PRICED BY THE CARD TOO, FOR THE SAME REASON.
+    # Leron: "we need a source outside of ebay for the sports cards too". eBay
+    # Browse answers a keyword with a population of ASKING prices;
+    # SportsCardsPro is addressed by player + set + parallel + grade. It cannot
+    # always pin the card - a HiBid title rarely states the year or the card
+    # number - but naming the candidate set and its price spread beats a keyword
+    # range, and when the spread is decisive it needs no identity at all
+    # (sportscards.verdict).
+    #
+    # 🚨 GATED ON THE TOKEN, AND DELIBERATELY SO. Without one the source can
+    # still NAME the card but not value it, and a line that says "this is one
+    # of 4 Josh Donaldson refractors, price unknown" changes no decision while
+    # costing a network call per card on every run. No token -> this whole
+    # branch is inert and the eBay fallback behaves exactly as it did before,
+    # which is also what keeps `price_scout_finds` offline under test.
+    from .sportscards import token as _sc_token
+    if _sc_token():
+        sports_ok = 0
+        for c in rest:
+            try:
+                from .sportscards import read as read_sports
+                row = c["row"]
+                sv = read_sports(row.get("title") or "", ask=row.get("price"))
+                if sv.comp is not None and sv.comp.candidates:
+                    c["sports"] = sv
+                    sports_ok += 1
+            except Exception as e:
+                print(f"[scout] sports lookup failed ({type(e).__name__}) - "
+                      f"cards ship with their link only.")
+                break                      # one outage, not one line per card
+        print(f"[scout] priced {sports_ok}/{len(rest)} sports card(s) against "
+              f"SportsCardsPro")
+        # eBay is now only the fallback for cards the card source could not
+        # name at all.
+        rest = [c for c in rest if "sports" not in c]
+    if not rest:
+        return
     if comps is None:
         try:
             from .ebay_api import EbayApiComps
             comps = EbayApiComps()
         except Exception as e:            # no keys configured - say so once
-            print(f"[scout] no eBay lookup ({type(e).__name__}); cards ship "
-                  f"with their sold-search link only.")
+            print(f"[scout] no eBay fallback ({type(e).__name__}); unnamed "
+                  f"cards ship with their sold-search link only.")
             return
     ok = 0
-    for c in finds:
+    for c in rest:
         q = cards_comp_query(c["read"])
         if not q:
             continue
@@ -575,9 +644,22 @@ def to_scout_alert(c: dict) -> dict:
     """One scout find -> the Discord embed payload. No comp, no ceiling."""
     row, r = c["row"], c["read"]
     comps = cards_comp_url(r)
-    bits = [f"**{r.verdict}** - {'pull it out and photograph it' if r.verdict == 'CHASE' else 'one signal fired; worth opening'}."]
-    for s in r.signals:
-        bits.append(f"• {s.detail}")
+    # 🚨 THE PRICED VERDICT REPLACES THE OFFLINE ONE, HEADER AND BULLETS BOTH.
+    # `cards.read()` runs network-free on every row in a 10,000-listing sweep,
+    # so for Pokemon it can only say "named Charmander, no price yet". Once the
+    # scout has actually asked TCGplayer, printing that sentence ABOVE the
+    # price contradicts it on the same card - which is how a working tool reads
+    # as a broken one.
+    pv0 = c.get("poke") or c.get("sports")
+    verdict = getattr(pv0, "verdict", None) or r.verdict
+    if verdict == "UNKNOWN":
+        verdict = r.verdict
+    bits = [f"**{verdict}** - "
+            + ("pull it out and photograph it" if verdict == "CHASE"
+               else "one signal fired; worth opening") + "."]
+    if getattr(pv0, "comp", None) is None or c.get("sports") is not None:
+        for s in r.signals:
+            bits.append(f"• {s.detail}")
     # 🚨 "ASKING" ON AN AUCTION IS A LIE, and this said it on every scout card
     # regardless of type - the exact confusion Leron reported. An auction's
     # current price is a number that will move; an ask is a number that will
@@ -590,13 +672,37 @@ def to_scout_alert(c: dict) -> dict:
                      "current bid - this will move before it closes."))
     # 🚨 THE HONEST HEADLINE, EVERY TIME. Without this line a card sitting
     # beside priced alerts reads as though somebody checked the money.
-    market = _market_line(c.get("market"))
-    if market:
-        bits.append(market)
-    bits.append(":no_entry: **No measured comp, so no ceiling.** A title cannot "
-                "state condition and condition is most of a raw card's value - "
-                "the numbers above are the market talking, not a price this "
-                "tool stands behind. **You decide the bid.**")
+    sv = c.get("sports")
+    if sv is not None:
+        bits.append(f"_{sv.why}_")
+    pv = c.get("poke")
+    cp = getattr(pv, "comp", None)
+    if cp is not None:
+        bits.append(f":dart: **{cp.name} #{cp.number}** - {cp.set_name} "
+                    f"{cp.released[:4]}" + (f", {cp.rarity}" if cp.rarity else ""))
+        if cp.ambiguous:
+            bits.append(f":moneybag: **{cp.range_text}** ungraded (TCGplayer "
+                        f"market). The title does not say which printing, so "
+                        f"the low end is the honest read.")
+        else:
+            bits.append(f":moneybag: **${cp.market:,.2f} ungraded** - TCGplayer "
+                        f"market for this exact card ({cp.printing}). Not an "
+                        f"eBay range: one card, one number.")
+        bits.append(f"_{pv.why}_")
+    elif pv is not None:
+        bits.append(f"_{pv.why}_")
+    else:
+        market = _market_line(c.get("market"))
+        if market:
+            bits.append(market)
+    if sv is not None and sv.verdict == "PASS":
+        pass                               # the refusal above already said why
+    elif pv is None or getattr(pv, "verdict", "") != "PRICED":
+        bits.append(":no_entry: **No measured comp, so no ceiling.** A title "
+                    "cannot state condition and condition is most of a raw "
+                    "card's value - the numbers above are the market talking, "
+                    "not a price this tool stands behind. **You decide the "
+                    "bid.**")
     if not row.get("image"):
         bits.append(":warning: **No photo on this listing** - on a card that is "
                     "disqualifying, not cosmetic.")
@@ -615,7 +721,11 @@ def to_scout_alert(c: dict) -> dict:
         # card has no ceiling, which makes the question MORE pressing here, not
         # less: there is no second number to reveal what kind of listing it is.
         "listing_type": row.get("listing_type", "auction"),
-        "category": "sports-cards",     # routes to the cards channel
+        # Routes to the cards channel either way (notify.CARD_CATEGORIES holds
+        # both); named honestly so the log's category mix does not report every
+        # Pokemon card as a sports card.
+        "category": ("pokemon-cards" if (c.get("read").family or "") == "tcg"
+                     else "sports-cards"),
         "reason": "\n".join(bits),
     }
 

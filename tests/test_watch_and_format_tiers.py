@@ -452,12 +452,37 @@ def test_the_ipod_block_was_floored_on_tiny_samples():
     ("2000 Pokemon Team Rocket Dark Charizard Holo 4/82 Unlimited",
      "pkmn_card_vintage_chase"),
 ])
-def test_a_card_whose_title_states_the_price_driver_prices(title, key):
-    """A GRADE or a named vintage chase card - the two things a title actually
-    says that move the number."""
-    m = match(title)
-    assert m is not None, f"{title!r} should price"
-    assert m.model.key == key
+def test_the_blanket_card_tiers_no_longer_set_a_ceiling(title, key):
+    """🚨 THIS TEST USED TO ASSERT THE BUG.
+
+    A grade IS the price driver a title states - that part was right. What was
+    wrong is that ONE number was then applied to every card carrying that
+    grade. Measured against TCGplayer on 2026-08-22, the same $112.50 comp was
+    covering a $0.14 Litten and an $86 Gardevoir-GX, and the $92 one was
+    capping a $69 Alakazam at the same max bid as a $1.54 Abra.
+
+    The tier still describes the title (`key` is still the one that would have
+    matched); it may no longer price it.
+    """
+    assert match(title) is None, f"{title!r} must not carry a blanket ceiling"
+    assert not BY_KEY[key].active, f"{key} is benched - see BENCHED_CATEGORIES"
+
+
+def test_two_cards_that_shared_one_comp_are_now_told_apart():
+    """The whole point, in one assertion: identity, not category.
+
+    Both of these are PSA-graded 1999 Base Set commons/holos that the benched
+    tier priced identically. Read as CARDS they are a different set number, a
+    different rarity and a different price - and nothing here touches the
+    network to know it.
+    """
+    from flipscout.pokemontcg import identify
+    abra = identify("1999 Pokemon Abra #43 PSA 8")
+    alakazam = identify("1999 Pokemon Alakazam Holo #1 PSA 7")
+    assert abra.name == "abra" and abra.number == "43"
+    assert alakazam.name == "alakazam" and alakazam.number == "1"
+    assert alakazam.holo and not abra.holo
+    assert abra.grade == "PSA 8" and alakazam.grade == "PSA 7"
 
 
 @pytest.mark.parametrize("title", [

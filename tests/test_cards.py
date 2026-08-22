@@ -260,13 +260,33 @@ def test_a_pile_is_not_a_card():
 
 # --- the boundary with the priced book --------------------------------------
 
-def test_tcg_is_handed_back_to_the_measured_tiers():
-    """🚨 Pokemon already has three MEASURED comps in pricebook. A triage
-    verdict beside a real number is noise at best and a contradiction at
-    worst, so this refuses to judge them."""
+def test_pokemon_is_handed_to_the_per_card_price_source():
+    """🚨 THE HANDOFF CHANGED DESTINATION ON 2026-08-22, AND A STALE HANDOFF IS
+    WORSE THAN NONE.
+
+    This used to return "PRICED" on the grounds that pricebook carried three
+    measured Pokemon comps. Those comps are now benched - they were blanket
+    numbers arming $49 bids on $0.14 cards - so "PRICED" would mean the scout
+    drops the card AND nobody prices it. Pokemon now gets a real verdict from
+    `pokemontcg`, which reads the card's identity rather than its category.
+    """
     r = read("Pokemon Charizard PSA 10 1999 Base Set Holo")
     assert r.family == "tcg"
-    assert r.verdict == "PRICED"
+    assert r.verdict in ("CHASE", "LOOK", "PASS", "PRICED")
+    assert r.verdict != "PRICED", "a PRICED verdict makes the scout drop it"
+
+
+def test_a_pokemon_code_card_is_refused_by_name():
+    """🚨 The cheapest mistake in the category: a TCG Online code card is a
+    printed password worth nothing, and its title reads exactly like a card."""
+    r = read("Pokemon TCG Online Code Card Charizard VMAX")
+    assert r.verdict == "PASS"
+
+
+def test_non_pokemon_tcg_is_still_handed_back():
+    """Magic and Yu-Gi-Oh have no price source here. Unchanged."""
+    r = read("Magic the Gathering Black Lotus Alpha")
+    assert r.family == "tcg" and r.verdict == "PRICED"
     assert cards.one_liner(r) == ""
 
 
