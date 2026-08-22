@@ -432,6 +432,29 @@ def evaluate(rows: list, config: dict, hunters=None) -> list[dict]:
 # card (cards.comp_url) - the real prices, one tap away, aimed by the identity
 # the title states. That is the same promise the priced alerts make, minus the
 # claim we have not earned.
+# Categories he does not want alerted, however well they price. Leron,
+# 2026-08-22: "let's remove tools i dont want to snipe those".
+#
+# 🚨 MUTED, NOT BENCHED. Benching them in `pricebook` (active=False) was the
+# first attempt and it took 51 tests down with it - `match()` returning None
+# means every measured include/exclude for those models stops being exercised.
+# The comps are real and cost a browser session each; the preference is a
+# preference. So the book still prices them and `flipscout item` still works -
+# they simply never become an alert, a board row or a scout card.
+#
+# Chosen as all three categories rather than the one literally called "tools":
+# metrology (Mitutoyo, Starrett, dial indicators) was 96 of 526 board items to
+# tools' 18, and is what his armed HiBid lots were actually full of.
+MUTED_CATEGORIES = {c.strip().lower() for c in
+                    (os.environ.get("FLIPSCOUT_MUTE_CATEGORIES")
+                     or "tools,metrology,test-gear").split(",") if c.strip()}
+
+
+def _muted(c: dict) -> bool:
+    """Is this candidate in a category he asked not to see?"""
+    return (getattr(c.get("model"), "category", "") or "").lower() in MUTED_CATEGORIES
+
+
 SCOUT_VERDICTS = ("CHASE", "LOOK")
 
 
@@ -1267,6 +1290,21 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
         print(f"[hunt] estate catalog sweep failed (non-fatal): {e}")
 
     cands = evaluate(rows, config, hunters=hunters)
+    # 🚨 FILTERED ONCE, HERE, SO EVERYTHING DOWNSTREAM INHERITS IT. `cands`
+    # feeds the alerts, the board, the ending-soon re-alert and the heartbeat
+    # digest - muting at any one of them would have left the category showing
+    # up in the other three.
+    if MUTED_CATEGORIES:
+        keep = [c for c in cands if not _muted(c)]
+        if len(keep) != len(cands):
+            import collections as _co
+            gone = _co.Counter((getattr(c.get("model"), "category", "") or "?")
+                               for c in cands if _muted(c))
+            print("[hunt] muted " + ", ".join(f"{k} {v}" for k, v in
+                                              sorted(gone.items()))
+                  + f" ({len(cands) - len(keep)} of {len(cands)}) - "
+                  + "FLIPSCOUT_MUTE_CATEGORIES")
+        cands = keep
 
     seen = _load_seen(config["state_file"])
     all_keys = {f"{c['row']['source']}:{c['row']['id']}" for c in cands}

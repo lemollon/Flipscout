@@ -2838,6 +2838,20 @@ def count_units(title: str, model: Model) -> int:
 # set, number and printing - instead of the category. Do NOT un-bench these
 # without a grade-keyed comp source; the flaw is not that the numbers were
 # stale, it is that a single number cannot exist for this category.
+# 🚨 THE HARDWARE CLUSTER IS MUTED, NOT BENCHED - see hunt.MUTED_CATEGORIES.
+# Leron: "let's remove tools i dont want to snipe those". The obvious move was
+# to add tools/metrology/test-gear here, and it was wrong twice over:
+#
+#   * it broke 51 tests, because `active=False` makes `match()` return None and
+#     four test files assert those models PRICE. That is not test friction, it
+#     is the tests correctly reporting that a lot of measured include/exclude
+#     logic just went dark.
+#   * it throws away comps that cost a browser session each, for a preference
+#     that may change next week.
+#
+# "Do not show me these" is an ALERTING decision, so it belongs at the alert,
+# where one env var reverses it. The book still prices a Mitutoyo if he asks
+# for one by hand with `flipscout item`.
 BENCHED_CATEGORIES = {"outerwear", "womens-apparel", "pokemon-cards"}
 
 # The categories where a card IS the product rather than merchandise borrowing
@@ -2976,9 +2990,15 @@ def search_terms() -> list[str]:
         "pokemon game",
         # test gear / metrology / medical - these live in estate, industrial and
         # government surplus, which is exactly what HiBid aggregates
-        "fluke multimeter", "fluke meter", "fluke", "multimeter",
-        "mitutoyo", "starrett", "micrometer", "dial indicator", "machinist tools",
-        "machinist tool lot", "precision tools lot",
+        # 🚨 REMOVED WITH THE CATEGORIES, NOT LEFT BEHIND. A benched category
+        # whose search terms stay live keeps fetching listings that can now
+        # never alert - which is exactly what the apparel bench found in
+        # 2026-08-15 (11 dead terms eating ~15% of the daily Browse quota).
+        #   was: "fluke multimeter", "fluke meter", "fluke", "multimeter",
+        #        "mitutoyo", "starrett", "micrometer", "dial indicator",
+        #        "machinist tools", "machinist tool lot", "precision tools lot",
+        #        "mitatoyo", "mititoyo", "starret"   (the deliberate typos)
+        # `littmann`/`stethoscope` stay - category "medical", not benched.
         "littmann", "stethoscope",
         # APPAREL BENCHED 2026-08-15 (Leron: "i dont want to flip clothes").
         # Removed here, not just deactivated in the book: these 11 terms were
@@ -2996,8 +3016,9 @@ def search_terms() -> list[str]:
         "35mm film camera", "point and shoot camera",
         "sony handycam", "camcorder",
         # cordless tools + vintage sewing - estate/surplus staples
-        "milwaukee m18", "m18 fuel", "milwaukee combo kit",
-        "dewalt 20v", "dewalt drill", "cordless drill", "power tool lot",
+        #   was: "milwaukee m18", "m18 fuel", "milwaukee combo kit",
+        #        "dewalt 20v", "dewalt drill", "cordless drill",
+        #        "power tool lot"     (benched with category "tools")
         "singer featherweight", "vintage sewing machine",
         # game consoles (added 2026-07-30 - "add video games", budget past $100)
         "nintendo switch oled", "gameboy advance sp", "game boy advance sp",
@@ -3012,8 +3033,8 @@ def search_terms() -> list[str]:
         # term here has a book include that still matches the typo'd title
         # (brand-agnostic patterns like "sx-70"/"stylus"/"coolpix", `can+on`,
         # `mit[aiu]t[ou]yo`, `starr?ett?`, `(pok[eé]mon|pokeman)`).
-        "cannon ae-1", "cannon camera", "olympis stylus", "olimpus stylus",
-        "mitatoyo", "mititoyo", "starret", "polariod sx-70", "polariod camera",
+            "cannon ae-1", "cannon camera", "olympis stylus", "olimpus stylus",
+        "polariod sx-70", "polariod camera",
         "nikkon coolpix", "pokeman", "gameboy advanced pokemon",
         "cybershot camera", "handy cam sony",
         # breadth pack (added 2026-08-13): watches, headphones, lenses, walkman -

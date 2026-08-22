@@ -30,7 +30,10 @@ def test_correct_spellings_still_match_after_the_folds():
 
 def test_misspelled_search_terms_are_swept():
     terms = search_terms()
-    for t in ("cannon ae-1", "mitatoyo", "starret", "polariod sx-70", "pokeman"):
+    # 🚨 "mitatoyo"/"starret" dropped 2026-08-22 with the metrology mute - a
+    # muted category whose typo terms stay live keeps spending the daily
+    # Browse quota on listings that can never alert.
+    for t in ("cannon ae-1", "polariod sx-70", "pokeman"):
         assert t in terms
 
 

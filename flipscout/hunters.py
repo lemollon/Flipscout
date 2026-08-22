@@ -797,8 +797,10 @@ class PropertyRoom:
         # consoles - seized electronics is full of them
         "nintendo switch", "xbox one", "playstation 4", "playstation 5",
         "xbox series x",
-        # test gear, which it carries occasionally
-        "fluke multimeter",
+        # 🚨 "fluke multimeter" REMOVED 2026-08-22 with the metrology/test-gear
+        # mute. A per-source allowlist term is intersected against
+        # search_terms(), so leaving it here would fail the invariant that
+        # every allowlisted term still exists in the book's sweep.
     )
 
     def relevant_terms(self, terms: list) -> list:

@@ -514,3 +514,41 @@ def test_one_bad_query_does_not_stop_the_others(capsys):
     prov = Flaky()
     price_scout_finds(finds, comps=prov)
     assert prov.calls == len(finds), "one bad query stopped the rest"
+
+
+def test_muted_categories_never_reach_an_alert_a_board_or_a_scout():
+    """🚨 MUTED, NOT BENCHED. Leron: "let's remove tools i dont want to snipe
+    those". Benching them in `pricebook` (active=False) was the first attempt
+    and took 51 tests with it - `match()` returning None means every measured
+    include/exclude for those models stops being exercised, and the comps cost
+    a browser session each.
+
+    So the book still prices them and `flipscout item` still works; they simply
+    never become an alert. Filtered once at `cands`, which is what feeds the
+    alerts, the board, the ending-soon re-alert AND the heartbeat digest -
+    muting at any one of those would leave the category in the other three.
+    """
+    from flipscout import hunt
+    from flipscout.pricebook import match
+    assert {"tools", "metrology", "test-gear"} <= hunt.MUTED_CATEGORIES
+
+    # the book has NOT forgotten how to price them
+    m = match("Mitutoyo 0-1 Digital Micrometer")
+    assert m is not None and m.model.category == "metrology"
+
+    # but such a candidate is dropped before anything can show it
+    assert hunt._muted({"model": m.model})
+    assert not hunt._muted({"model": match("Canon AE-1 Program").model})
+
+
+def test_the_mute_list_is_one_env_var():
+    """A preference must be reversible without a deploy."""
+    import importlib, os
+    from flipscout import hunt
+    os.environ["FLIPSCOUT_MUTE_CATEGORIES"] = "watches"
+    try:
+        importlib.reload(hunt)
+        assert hunt.MUTED_CATEGORIES == {"watches"}
+    finally:
+        del os.environ["FLIPSCOUT_MUTE_CATEGORIES"]
+        importlib.reload(hunt)

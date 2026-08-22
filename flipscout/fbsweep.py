@@ -124,9 +124,9 @@ def _terms() -> list:
         "canon powershot", "nikon coolpix", "sony cybershot", "sony handycam",
         # calculators + ipods
         "ti-84 plus ce", "ti-nspire", "ipod classic", "ipod nano",
-        # test gear / tools
-        "fluke multimeter", "mitutoyo", "starrett", "dial indicator",
-        "littmann", "milwaukee m18", "dewalt 20v",
+        # 🚨 test gear / tools REMOVED 2026-08-22 (muted categories) - a
+        # Facebook sweep for a category he will not buy is pure cost.
+        "littmann",
         # sewing
         "singer featherweight",
         # watches
