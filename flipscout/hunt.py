@@ -524,7 +524,11 @@ def price_scout_finds(finds: list, comps=None) -> None:
         print(f"[scout] priced {poke_ok}/{len(tcg)} pokemon card(s) against "
               f"TCGplayer market")
 
+    # 🚨 BEFORE ANY EARLY RETURN. A Pokemon-only batch leaves `rest` empty, and
+    # the first cut called this after that check - so the sold history never
+    # ran for exactly the cards whose grade it validates best.
     if not rest:
+        _attach_recent_sales(finds)
         return
 
     # 🚨 SPORTS CARDS ARE PRICED BY THE CARD TOO, FOR THE SAME REASON.
@@ -562,6 +566,7 @@ def price_scout_finds(finds: list, comps=None) -> None:
         # eBay is now only the fallback for cards the card source could not
         # name at all.
         rest = [c for c in rest if "sports" not in c]
+    _attach_recent_sales(finds)
     if not rest:
         return
     if comps is None:
@@ -638,6 +643,43 @@ def _market_line(m) -> str:
     return (":grey_question: Nothing comparable listed on eBay right now - "
             "either it is genuinely scarce or the title does not match how "
             "sellers write it. Check the sold search.")
+
+
+
+def _attach_recent_sales(finds: list) -> None:
+    """What each card ACTUALLY last sold for, at its own grade.
+
+    🚨 ONLY FOR CARDS PINNED TO ONE PRODUCT, and only for the dozen actually
+    posted - it is one page fetch each. An ambiguous match has no single
+    product page, so there is nothing honest to fetch.
+    """
+    from .sportscards import recent_sales, token as _tok
+    if not _tok():
+        return
+    got = 0
+    for c in finds:
+        # 🚨 POKEMON HAS A PRICECHARTING PRODUCT TOO, and the first cut skipped
+        # every one of them: `_comp_source_url` hands back a TCGplayer SEARCH
+        # for Pokemon (that is the right link to show), which is not a page
+        # with sold history on it. The graded lookup already resolved the
+        # actual product - use that.
+        pv = c.get("poke")
+        g = getattr(pv, "graded", None)
+        url = getattr(g, "url", None) or _comp_source_url(c)
+        if not url or ("sportscardspro" not in url and "pricecharting" not in url):
+            continue
+        grade = (getattr(c.get("sports"), "comp", None) or
+                 getattr(pv, "ident", None))
+        grade = getattr(grade, "grade", None)
+        try:
+            sales = recent_sales(url, grade, limit=3)
+        except Exception:
+            sales = []
+        if sales:
+            c["sales"] = sales
+            got += 1
+    if got:
+        print(f"[scout] pulled real sold history for {got} card(s)")
 
 
 def _comp_source_url(c: dict) -> str:
@@ -793,6 +835,17 @@ def to_scout_alert(c: dict) -> dict:
             except (TypeError, ZeroDivisionError):
                 pass
     bits.append(head + (f" — {clause}." if clause else "."))
+
+    # 🚨 WHAT IT ACTUALLY SOLD FOR BEATS WHAT IT IS "WORTH". A guide price is
+    # a model; a completed sale is a fact, and it carries a date - which is the
+    # only thing that shows a thin market for what it is.
+    sales = c.get("sales") or []
+    if sales:
+        s0 = sales[0]
+        others = (" · " + ", ".join(f"${x.price:,.2f}" for x in sales[1:])
+                  if len(sales) > 1 else "")
+        tag = f" ({s0.grade})" if s0.exact else f" ({s0.grade} — nearest grade)"
+        bits.append(f"last sold **${s0.price:,.2f}** {s0.date}{tag}{others}")
 
     # Only what would stop the buy.
     if not row.get("image"):

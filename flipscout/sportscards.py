@@ -579,3 +579,118 @@ def pokemon_price(name: str, set_name: str, number: str,
                      set_name=p0.get("console-name") or set_name,
                      price=price, ungraded=_pennies(full.get(UNGRADED)),
                      volume=vol)
+
+
+# --- what it ACTUALLY last sold for, at this card's grade --------------------
+# Leron, 2026-08-22: "make sure you have last sold on ebay's closest to the
+# grade of the actual card then we gotta get better pricing".
+#
+# The API cannot do this - their docs say plainly "historic prices and historic
+# sales are not supported". But the PRODUCT PAGE carries every completed eBay
+# sale, already split by grade, and it is in the initial HTML: no login, no
+# XHR, no browser. 73 rows on one card = Ungraded 30 + PSA 10 30 + Grade 9 12
+# + SGC 10 1, each inside `<div class="completed-auctions-<slug>">`.
+#
+# 🚨 IT IS A CLASS, NOT AN ID. The <select> that switches tabs lists the same
+# slugs as option VALUES, which reads exactly like element ids and is not -
+# `getElementById` finds nothing and the obvious conclusion ("the tables load
+# over XHR") is wrong. Two probes and a browser session went into learning
+# that; it is a `class` on a wrapper div.
+#
+# 🚨 AND THE GRADE MUST DEGRADE, NOT VANISH. Most cards have sales at one or
+# two grades and none at the rest. A PSA 8 with no Grade 8 sales is not
+# unpriceable - the Grade 9 and Ungraded rows either side of it still say what
+# the market is doing, as long as the card SAYS which grade it is quoting.
+
+_SALES_CLASS = {
+    None: "used", "1": "loose-and-manual", "2": "box-and-manual",
+    "3": "grade-three", "4": "grade-four", "5": "grade-five",
+    "6": "grade-six", "7": "cib", "7.5": "cib", "8": "new", "8.5": "new",
+    "9": "graded", "9.5": "box-only", "10": "manual-only",
+}
+_SALES_CLASS_10 = {"BGS": "loose-and-box", "CGC": "grade-seventeen",
+                   "SGC": "grade-eighteen", "TAG": "grade-twenty-one",
+                   "ACE": "grade-twenty-two"}
+# The order to fall back through when a grade has no sales of its own: nearest
+# grade first, ungraded last.
+_NEAR = ["10", "9.5", "9", "8", "7", "6", "5", "4", "3", "2", "1", None]
+
+_SALE_ROW = re.compile(
+    r'<tr id="ebay-\d+".*?</tr>', re.S)
+_SALE_DATE = re.compile(r"(\d{4}-\d{2}-\d{2})")
+_SALE_PRICE = re.compile(r"\$([\d,]+\.\d{2})")
+
+
+@dataclass(frozen=True)
+class Sale:
+    date: str
+    price: float
+    grade: str          # the grade these rows are FOR, which may not be asked-for
+    exact: bool         # False when we fell back to a neighbouring grade
+
+
+def _class_for(grade: Optional[str]) -> str:
+    if not grade:
+        return "used"
+    grader, _, num = grade.partition(" ")
+    if num == "10" and grader in _SALES_CLASS_10:
+        return _SALES_CLASS_10[grader]
+    return _SALES_CLASS.get(num, "used")
+
+
+def _label_for(num) -> str:
+    return "Ungraded" if num is None else f"Grade {num}"
+
+
+def _rows_in(html: str, cls: str) -> list:
+    """The sold rows inside one condition's wrapper div."""
+    m = re.search(r'<div class="completed-auctions-' + re.escape(cls) +
+                  r'"[^>]*>(.*?)(?=<div class="completed-auctions-|</section)',
+                  html, re.S)
+    if not m:
+        return []
+    out = []
+    for row in _SALE_ROW.findall(m.group(1)):
+        d = _SALE_DATE.search(row)
+        pr = _SALE_PRICE.search(row)
+        if d and pr:
+            out.append((d.group(1), float(pr.group(1).replace(",", ""))))
+    return out
+
+
+def recent_sales(product_url: str, grade: Optional[str] = None,
+                 limit: int = 3, session=None) -> list:
+    """The most recent completed eBay sales for this card at (or nearest) `grade`."""
+    if not product_url:
+        return []
+    try:
+        r = (session or requests).get(
+            product_url,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                                   "AppleWebKit/537.36 Chrome/126.0 Safari/537.36"},
+            timeout=_TIMEOUT)
+        if r.status_code != 200:
+            return []
+        html = r.text
+    except Exception:
+        return []
+
+    asked = None
+    if grade:
+        asked = grade.partition(" ")[2] or None
+    rows = _rows_in(html, _class_for(grade))
+    if rows:
+        # Say it back the way the listing said it: "PSA 10", not "Grade 10".
+        lbl = grade if grade else "Ungraded"
+        return [Sale(d, p, lbl, True) for d, p in rows[:limit]]
+
+    # 🚨 NEAREST GRADE, NOT NO ANSWER - and it says which grade it fell to.
+    order = sorted(_NEAR, key=lambda g: (
+        99 if g is None else abs(float(g) - float(asked))) if asked else 0)
+    for g in order:
+        if g == asked:
+            continue
+        rows = _rows_in(html, _SALES_CLASS[g])
+        if rows:
+            return [Sale(d, p, _label_for(g), False) for d, p in rows[:limit]]
+    return []
