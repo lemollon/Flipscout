@@ -248,8 +248,16 @@ def describe_webhook(url: str, session=None) -> str:
         return f"could not resolve webhook: {e}"
 
 
-def notify_rich(candidates: list, content: str = "", env=None, session=None) -> list[str]:
+def notify_rich(candidates: list, content: str = "", env=None, session=None,
+                seed: bool = True) -> list[str]:
     """Post candidates to the webhook as embeds (image + clickable link).
+
+    🚨 `seed=False` FOR ANY CARD discordarm CANNOT ARM. The chips below are
+    the only "buttons" this design has, and `discordarm.parse_card` only
+    recognises shopgoodwill.com/item and hibid.com/lot links - so a 🎯 on an
+    eBay card is a control that silently does nothing while reading exactly
+    like one that worked. Senders that post un-armable cards (ebayclose)
+    turn it off; everything else keeps the one-tap default.
 
     Discord caps a message at 10 embeds, so this chunks. Fail-soft like notify():
     a dead webhook prints instead of raising.
@@ -286,11 +294,12 @@ def notify_rich(candidates: list, content: str = "", env=None, session=None) -> 
         if not url:
             continue
         sent += _post_group(url, channel_id, label, content,
-                            [build_embed(c) for c in group], env, session)
+                            [build_embed(c) for c in group], env, session, seed=seed)
     return sent
 
 
-def _post_group(url, channel_id, label, content, embeds, env, session) -> list:
+def _post_group(url, channel_id, label, content, embeds, env, session,
+                seed: bool = True) -> list:
     """Header then one message per embed, all to ONE channel."""
     sent: list[str] = []
 
@@ -319,11 +328,20 @@ def _post_group(url, channel_id, label, content, embeds, env, session) -> list:
                              json={"embeds": [emb]}, timeout=15)
             r.raise_for_status()
             sent.append(label)
-            try:
-                seed_arm_reactions((r.json() or {}).get("id"), env=env,
-                                   session=session, channel=channel_id)
-            except Exception:
-                pass                       # a missing tap-target never blocks the alert
+            # 🚨 TWO INDEPENDENT REASONS A CHIP WOULD BE A LIE, AND BOTH APPLY.
+            # `seed=False` is the SENDER saying this card is un-armable at all
+            # (ebayclose - discordarm only parses shopgoodwill/hibid links);
+            # `channel_id` is WHERE to put the chips once it is armable, which
+            # stopped being the default channel when alerts began routing by
+            # subject. Merging PR #53 onto the routing work put both on the
+            # same six lines; keeping only one would either scatter chips into
+            # the wrong channel or paint them on cards that cannot act.
+            if seed:
+                try:
+                    seed_arm_reactions((r.json() or {}).get("id"), env=env,
+                                       session=session, channel=channel_id)
+                except Exception:
+                    pass                   # a missing tap-target never blocks the alert
         except Exception as e:
             body = ""
             resp = getattr(e, "response", None)

@@ -356,3 +356,36 @@ def test_the_source_alone_cannot_answer_it():
     # derived from the source name.
     assert any(len(v) > 1 for v in per.values()), \
         "no source mixes listing types any more; revisit the banner's rationale"
+
+
+# --- the PR #53 merge: seed and routing are independent, 2026-08-22 ---------
+# 🚨 THE ONE CONFLICT IN THE MERGE, AND WHY BOTH SIDES SURVIVE. PR #53 added
+# `seed=False` so a sender can say "this card is un-armable at all" (ebayclose:
+# discordarm only parses shopgoodwill/hibid links, so a 🎯 on an eBay card is a
+# control that silently does nothing). The routing work added `channel_id` for
+# WHERE the chips go once a card IS armable. They landed on the same six lines;
+# keeping only one would either scatter chips into the wrong channel or paint
+# them on cards that cannot act.
+
+def test_seed_false_suppresses_chips_but_still_routes(monkeypatch):
+    seeded = []
+    monkeypatch.setattr(notify, "seed_arm_reactions",
+                        lambda mid, env=None, session=None, channel=None:
+                        seeded.append(channel))
+    env = dict(CARDS_ENV, FLIPSCOUT_DISCORD_CHANNEL_ID="111",
+               FLIPSCOUT_CARDS_CHANNEL_ID="222")
+    s = RoutingSession()
+    notify_rich([CARD_CAND], env=env, session=s, seed=False)
+    assert s.urls and all(u == "http://cards" for u in s.urls), "routing was lost"
+    assert seeded == [], "chips painted on an un-armable card"
+
+
+def test_seed_default_still_seeds_in_the_routed_channel(monkeypatch):
+    seeded = []
+    monkeypatch.setattr(notify, "seed_arm_reactions",
+                        lambda mid, env=None, session=None, channel=None:
+                        seeded.append(channel))
+    env = dict(CARDS_ENV, FLIPSCOUT_DISCORD_CHANNEL_ID="111",
+               FLIPSCOUT_CARDS_CHANNEL_ID="222")
+    notify_rich([CARD_CAND], env=env, session=RoutingSession())
+    assert seeded == ["222"], "chips went to the default channel, not the card's"
