@@ -529,9 +529,8 @@ def verdict(pid: PokeId, comp: Optional[PokeComp] = None,
         return PokeVerdict(
             LOOK,
             f"Could be any of {comp.candidates} printings of {comp.name} - "
-            f"{comp.range_text}. 🚨 The title does not say which, so there is "
-            f"no comp and no ceiling; the low end is what it is worth if it is "
-            f"the common one.", comp, pid)
+            f"{comp.range_text}. The title does not say which, so the low end "
+            f"is what it is worth if it is the common one.", comp, pid)
 
     # 🚨 A 1ST-EDITION CLAIM WITH NO 1ST-EDITION COLUMN IS AN UNDERSTATEMENT,
     # and saying so matters more than the number: 1st ed Base Charizard is a
@@ -570,14 +569,12 @@ def verdict(pid: PokeId, comp: Optional[PokeComp] = None,
                 CHASE,
                 f"{ident} - **${comp.market:,.2f} raw**, and this one is in a "
                 f"{pid.grade} slab. The grade is sitting on a genuinely "
-                f"valuable card.{tail} No ceiling: a graded comp needs a "
-                f"grade-keyed source, so you set the number.", comp, pid)
+                f"valuable card.{tail}", comp, pid)
         return PokeVerdict(
             LOOK,
             f"{ident} - ${comp.market:,.2f} raw, in a {pid.grade} slab. The "
             f"grade decides this one: a high grade on a mid card can be worth "
-            f"several times raw, a low grade barely more.{tail} You set the "
-            f"number.", comp, pid)
+            f"several times raw, a low grade barely more.{tail}", comp, pid)
 
     if comp.market >= _RAW_WORTH_PRICING:
         return PokeVerdict(

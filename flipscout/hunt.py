@@ -718,34 +718,16 @@ def to_scout_alert(c: dict) -> dict:
         market = _market_line(c.get("market"))
         if market:
             bits.append(market)
-    # 🚨 DO NOT SAY "NO MEASURED COMP" ON A CARD THAT JUST PRINTED ONE.
-    # Leron, 2026-08-22: "why am i still seeing no measured comps on the
-    # cards". He was reading a card that said "$65.00 ungraded
-    # (SportsCardsPro)" and then, one line down, "No measured comp". Both
-    # sentences shipped because this footer only checked the Pokemon verdict
-    # and a PASS - so every priced SPORTS card contradicted itself.
+    # 🚨 THE DISCLAIMER FOOTER IS GONE, ON PURPOSE. Leron asked twice - "why
+    # am i still seeing no measured comps on the cards", then "im still see no
+    # comp wording in all the cards remove it".
     #
-    # The substance behind the footer is still true and still worth saying:
-    # there is a COMP but there is no CEILING, because condition and (for a
-    # sports card) which parallel it is are not in the title. So the two cases
-    # get different sentences instead of one wrong one.
-    priced = (getattr(sv, "comp", None) is not None and sv.comp.priced
-              and sv.comp.low is not None) or cp is not None
-    if sv is not None and sv.verdict == "PASS":
-        pass                               # the refusal above already said why
-    elif priced:
-        bits.append(":triangular_flag_on_post: **A comp, not a ceiling.** That "
-                    "figure is what the card is worth - it is not a max bid. "
-                    "Condition is not in the title" +
-                    (", and neither is which parallel this is"
-                     if sv is not None and getattr(sv.comp, "n", 1) > 1 else "") +
-                    ". **You decide the bid.**")
-    elif pv is None or getattr(pv, "verdict", "") != "PRICED":
-        bits.append(":no_entry: **No measured comp, so no ceiling.** A title "
-                    "cannot state condition and condition is most of a raw "
-                    "card's value - the numbers above are the market talking, "
-                    "not a price this tool stands behind. **You decide the "
-                    "bid.**")
+    # It was three sentences of boilerplate on every card saying what the
+    # number is NOT. The verdict line already says what it IS, and a caveat
+    # printed on all twelve cards is wallpaper - it stops being read, which
+    # makes it worse than absent. Anything genuinely specific to one card
+    # (a thin market, a 1st-edition claim the source cannot price) is said by
+    # the verdict itself, where it can be believed.
     if not row.get("image"):
         bits.append(":warning: **No photo on this listing** - on a card that is "
                     "disqualifying, not cosmetic.")
@@ -1075,12 +1057,8 @@ def _post_scout(rows: list, config: dict, seen: set, notifier) -> tuple:
                  and c["sports"].comp.priced and c["sports"].comp.low is not None
                  or getattr(c.get("poke"), "comp", None) is not None)
     header = (f":card_index: **Card scout** - {len(alerts)} worth opening"
-              + (f" ({chase} CHASE)" if chase else "") + "\n"
-              + (f"_{priced} of {len(alerts)} carry a real comp - what the card "
-                 f"is worth, not a max bid. Condition is still yours to judge._"
-                 if priced else
-                 "_No measured comps on these. Each links its own eBay SOLD "
-                 "search; check that before you bid anything._"))
+              + (f" ({chase} CHASE)" if chase else "")
+              + (f", {priced} priced" if priced else ""))
 
     # 🚨 SAY IT WHERE HE IS ACTUALLY LOOKING. When FLIPSCOUT_CARDS_WEBHOOK is
     # unset these cards fall back to the MAIN channel - deliberately, so a

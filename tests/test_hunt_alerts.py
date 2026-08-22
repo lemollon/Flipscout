@@ -276,16 +276,18 @@ def test_the_best_finds_survive_the_cap():
     assert got == sorted(got, key=lambda c: c["read"].score, reverse=True)
 
 
-def test_a_scout_alert_states_that_nobody_measured_it():
-    """🚨 THE HONEST HEADLINE. Beside priced alerts, a card with no such line
-    reads as though somebody checked the money."""
-    from flipscout.hunt import scout_cards, to_scout_alert
-    a = to_scout_alert(scout_cards(_rows(), {})[0])
-    assert "No measured comp, so no ceiling" in a["reason"]
-    # 🚨 The live market numbers added later must not soften this: they say what
-    # the market is doing, never what this tool stands behind.
-    assert "not a price this tool stands behind" in a["reason"]
+def test_a_scout_alert_carries_no_bid_fields_at_all():
+    """A scout find is a "worth opening", never a "pay up to this".
 
+    🚨 Re-aimed from the copy to the payload. The card used to carry a
+    disclaimer saying it had no comp; that boilerplate was removed because it
+    printed on every card and stopped being read. What must not change is that
+    there is nothing here for a bid to be built from.
+    """
+    from flipscout.hunt import to_scout_alert
+    a = to_scout_alert(_find()[0])
+    for field in ("comp", "max_bid", "open_bid", "all_in", "buyer_premium_rate"):
+        assert a.get(field) is None, field
 
 def test_a_scout_alert_carries_no_number_to_bid_on():
     """It may say the ASK - that is the seller's number, not ours - but never a
@@ -393,8 +395,14 @@ def test_a_market_number_never_becomes_a_ceiling():
     price_scout_finds(finds, comps=_Provider(Comp(
         query="q", sold_price=310.0, sold_count=24, source="ebay_insights")))
     a = to_scout_alert(finds[0])
+    # 🚨 ASSERTED ON THE PAYLOAD, NOT ON THE PROSE. This used to require the
+    # words "No measured comp, so no ceiling" in the card body - which made it
+    # a copy test, and it broke the moment that boilerplate was removed
+    # (Leron: "im still see no comp wording in all the cards remove it"). The
+    # rule is structural: a scout card carries no ceiling fields, so
+    # `build_embed` cannot render a max bid however the copy is worded.
     assert a.get("comp") is None and a.get("max_bid") is None
-    assert "No measured comp, so no ceiling" in a["reason"]
+    assert a.get("open_bid") is None and a.get("all_in") is None
 
 
 def test_the_lookup_uses_the_cards_precise_query():

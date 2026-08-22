@@ -112,9 +112,11 @@ def test_a_graded_card_NEVER_gets_a_ceiling():
         v = pk.verdict(pk.identify("Pokemon Charizard PSA 10"), _comp(market))
         # PRICED is the only verdict meaning "there is a comp to bid against".
         # A slab must never earn it off a raw price.
+        # PRICED is the only verdict meaning "there is a comp to bid against",
+        # and a slab must never earn it off a raw price. Asserted on the
+        # verdict rather than on the sentence - the "you set the number" copy
+        # was removed as boilerplate.
         assert v.verdict != pk.PRICED, market
-        if v.verdict in (pk.LOOK, pk.CHASE):
-            assert "you set the number" in v.why.lower(), market
 
 
 def test_an_ambiguous_match_refuses_to_price():
@@ -123,7 +125,9 @@ def test_an_ambiguous_match_refuses_to_price():
     v = pk.verdict(pk.identify("Pokemon PSA 10 Litten"),
                    _comp(0.14, candidates=14, low=0.14, high=40.66))
     assert v.verdict == pk.LOOK
-    assert "no comp and no ceiling" in v.why
+    # The range is the point: it must name both ends rather than pick one.
+    assert "$0.14" in v.why and "$40.66" in v.why
+    assert "14 printings" in v.why
 
 
 def test_a_raw_card_worth_real_money_is_PRICED():
