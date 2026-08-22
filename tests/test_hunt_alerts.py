@@ -368,7 +368,7 @@ def test_sold_data_is_reported_as_a_sale():
         query="q", sold_price=310.0, sold_count=24, active_count=61,
         source="ebay_insights", low=180.0, high=650.0)))
     body = to_scout_alert(finds[0])["reason"]
-    assert "SOLD median $310.00" in body and "24 sale(s)" in body
+    assert "SOLD median $310.00" in body and "24 sold" in body
 
 
 def test_asks_are_never_reported_as_a_sale():
@@ -382,8 +382,8 @@ def test_asks_are_never_reported_as_a_sale():
         query="q", sold_price=None, active_count=61, source="ebay_browse",
         low=180.0, high=650.0)))
     body = to_scout_alert(finds[0])["reason"]
-    assert "61 listed on eBay right now" in body
-    assert "ASKING prices, not sales" in body
+    assert "61 listed on eBay" in body
+    assert "asks, not sales" in body, "an ask may never be reported as a sale"
     assert "SOLD median" not in body
 
 

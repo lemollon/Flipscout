@@ -482,6 +482,11 @@ class PokeVerdict:
     why: str
     comp: Optional[PokeComp] = None
     ident: Optional[PokeId] = None
+    # The grade-keyed price, when one was found. Carried STRUCTURED and not
+    # only inside `why`, because the concise card needs the number itself -
+    # digging it back out of the prose is how a $84.13 PSA 7 comp silently
+    # became the $69.45 raw one on the card.
+    graded: object = None
 
     @property
     def is_find(self) -> bool:
@@ -556,7 +561,7 @@ def verdict(pid: PokeId, comp: Optional[PokeComp] = None,
                 f"**{graded.name}** - {graded.set_name} - **${gp:,.2f} in "
                 f"{pid.grade}** (PriceCharting), against ${graded.ungraded:,.2f} "
                 f"raw. That is a comp for the slab you are actually bidding "
-                f"on.{tail}{thin}", comp, pid)
+                f"on.{tail}{thin}", comp, pid, graded=graded)
         if comp.market < _SLAB_FLOOR and not understated:
             return PokeVerdict(
                 PASS,
