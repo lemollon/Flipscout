@@ -99,6 +99,12 @@ jobs:
           # never make an alert vanish - which means an unmapped secret shows up
           # as "cards go to #flips", not as an error.
           FLIPSCOUT_CARDS_WEBHOOK: ${{ secrets.FLIPSCOUT_CARDS_WEBHOOK }}
+          # Pokemon card comps (TCGplayer market via api.pokemontcg.io). The
+          # API works with NO key; a free key raises the daily allowance,
+          # which matters because GitHub runners share IPs with everyone
+          # else's quota. Mapped NOW per this file's own env-trap rule, so
+          # adding one later is `gh secret set` and nothing else.
+          POKEMONTCG_API_KEY: ${{ secrets.POKEMONTCG_API_KEY }}
           FLIPSCOUT_CARDS_CHANNEL_ID: ${{ vars.FLIPSCOUT_CARDS_CHANNEL_ID }}
           FLIPSCOUT_DISCORD_CHANNEL_ID: ${{ vars.FLIPSCOUT_DISCORD_CHANNEL_ID }}
           # How many runs it takes to sweep the whole eBay term pool once.

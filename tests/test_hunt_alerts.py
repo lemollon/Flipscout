@@ -247,11 +247,25 @@ def test_the_scout_skips_anything_the_book_can_actually_price():
     again with no ceiling would put a comped card and an uncomped one side by
     side saying different things about the same lot."""
     from flipscout.hunt import scout_cards
-    rows = [{"title": "Pokemon Charizard PSA 10 card", "id": "9",
+    rows = [{"title": "TI-84 Plus CE graphing calculator", "id": "9",
              "source": "hibid", "url": "u", "image": "i"}]
     from flipscout.pricebook import match
     assert match(rows[0]["title"]) is not None       # the book prices this one
     assert scout_cards(rows, {}) == []
+
+
+def test_the_scout_now_picks_up_the_pokemon_the_book_stopped_pricing():
+    """🚨 THE HOLE BENCHING WOULD HAVE LEFT. `pokemon-cards` is benched, so
+    `match()` returns nothing for a graded card - and the scout used to skip
+    Pokemon outright on the grounds that the book had it covered. Both halves
+    were changed together, or every Pokemon card would silently vanish."""
+    from flipscout.hunt import scout_cards
+    from flipscout.pricebook import match
+    title = "1999 Pokemon Jungle Clefable Holo #1 PSA 7"
+    assert match(title) is None                      # benched, so unpriced
+    got = scout_cards([{"title": title, "id": "9", "source": "hibid",
+                        "url": "u", "image": "i"}], {})
+    assert len(got) == 1, "a benched Pokemon card must not fall through both"
 
 
 def test_the_best_finds_survive_the_cap():

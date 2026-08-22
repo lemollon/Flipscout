@@ -2814,7 +2814,31 @@ def count_units(title: str, model: Model) -> int:
 # $250.52, Veronica Beard $150, Gunne Sax $122) and remeasuring costs a browser
 # session each. `active=False` means: never swept, never alerted, still priceable
 # by hand with `flipscout item`. Un-bench by emptying this set.
-BENCHED_CATEGORIES = {"outerwear", "womens-apparel"}
+# 🚨 "pokemon-cards" BENCHED 2026-08-22 - IT WAS A LIVE MONEY BUG, not a
+# preference. The three tiers here are BLANKET comps ($112.50 for any PSA 9/10,
+# $92.00 for any PSA 7-9, $51 for any vintage chase) applied to a population
+# that spans four orders of magnitude, and 29 of the 30 graded Pokemon lots on
+# the board that afternoon were HiBid - the armable path. Measured against
+# TCGplayer market prices for the exact cards:
+#
+#     Pokemon PSA 10 Litten          max bid $49.41   the card is worth $0.14
+#     Pokemon 2023 Lycanroc PSA 10   max bid $51.36   the card is worth $0.18
+#     Oricorio #024 PSA 9            max bid $48.63   the card is worth $0.06
+#     Charizard 2020 Vivid Voltage   max bid $60.20   the card is worth $3.77
+#
+# and at the same time it CAPPED the cards that were actually worth having,
+# because one blanket number cuts both ways:
+#
+#     1999 Alakazam Holo #1 PSA 7    max bid $35.50   the card is worth $69.45
+#     1999 Chansey Holo #3 PSA 7     max bid $35.50   the card is worth $61.57
+#     1999 Gyarados Holo #6 PSA 7    max bid $35.50   the card is worth $50.19
+#     2019 Gardevoir-GX PSA 10       max bid $47.79   the card is worth $86.46
+#
+# Benching hands every Pokemon card to `pokemontcg`, which prices the CARD -
+# set, number and printing - instead of the category. Do NOT un-bench these
+# without a grade-keyed comp source; the flaw is not that the numbers were
+# stale, it is that a single number cannot exist for this category.
+BENCHED_CATEGORIES = {"outerwear", "womens-apparel", "pokemon-cards"}
 
 # The categories where a card IS the product rather than merchandise borrowing
 # a product's name. See _CARD_MERCH.
