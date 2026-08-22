@@ -1590,3 +1590,43 @@ def test_every_non_card_model_still_carries_the_guard():
             assert "trading card" not in m.exclude, m.key
         else:
             assert "trading card" in m.exclude, f"{m.key} lost the guard"
+
+
+def test_a_football_card_never_prices_as_a_watch():
+    """🚨 CAUGHT LIVE ON MAIN by the board invariant, 2026-08-22:
+
+        Panini Select Zay Flowers Ravens Premier Level #162 B&G Shock Prizm
+            -> casio_gshock, category "watches", comp $55.00
+
+    A football card quoted against a Casio G-Shock, because "B&G Shock"
+    contains the watch model and the title never once says "card" - so the
+    merchandise guard had nothing to fire on. Same family as the Pikachu
+    crystal ball that quoted $100.63 on a plastic toy.
+    """
+    assert _pb.match(
+        "Panini Select Zay Flowers Ravens Premier Level #162 B&G Shock Prizm") is None
+
+
+@_pytest.mark.parametrize("title", [
+    "2021 Topps Chrome Refractor Shohei Ohtani",
+    "Bowman Chrome 1st Elly De La Cruz auto",
+    "1986 Fleer Michael Jordan #57",
+    "Upper Deck Young Guns Connor Bedard",
+])
+def test_a_maker_name_is_proof_of_a_card_in_any_other_category(title):
+    """Panini, Topps, Bowman, Upper Deck, Fleer, Donruss and O-Pee-Chee do not
+    appear on calculators, cameras, watches, tools or consoles."""
+    m = _pb.match(title)
+    assert m is None or m.model.category in _pb.CARD_CATEGORIES, title
+
+
+@_pytest.mark.parametrize("title", [
+    "Casio G-Shock DW5600 Watch",
+    "Casio G Shock GA-2100 mens watch",
+    "Canon AE-1 35mm Film Camera",
+    "TI-84 Plus CE graphing calculator",
+])
+def test_the_real_products_still_price(title):
+    """The guard must cost the categories it protects exactly nothing."""
+    m = _pb.match(title)
+    assert m is not None and m.model.category not in _pb.CARD_CATEGORIES, title
