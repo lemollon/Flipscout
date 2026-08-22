@@ -444,11 +444,53 @@ def test_one_stripped_response_does_not_retire_a_live_lot(monkeypatch):
     assert not calls
 
 
-def test_three_stripped_responses_do_retire_it(monkeypatch):
+def test_three_stripped_responses_retire_it_ONLY_NEAR_THE_CLOSE(monkeypatch):
+    """A missing lot means "it ended" only when it was about to.
+
+    The lot has to have been SEEN inside the trust window first, which is what
+    makes a missing response believable.
+    """
     _armed()
+    _patch(monkeypatch, _detail(left=H.GONE_TRUST_S - 60))
+    H.run()                                    # now it has a recent countdown
     _patch(monkeypatch, _detail(gone=True))
     H.run(); H.run(); H.run()
     assert H.load_armed()["317852714"]["status"] == "ENDED_UNBID"
+
+
+def test_a_lot_DAYS_OUT_is_never_retired_for_going_quiet(monkeypatch):
+    """🚨 THE BUG LERON HIT: "i click the sniper on items i like and i never
+    see it bid".
+
+    The poll runs every couple of minutes, so three strikes is a SIX MINUTE
+    outage - and it was retiring lots with six DAYS left. Measured in
+    snipe_run.log, five armed lots died this way, every one at 8,700+ minutes
+    to go:
+
+        318305867: 8792.5 min left - waiting
+        318305867: no lot data (strike 1/3)
+        318305867: no lot data three polls running - retiring
+
+    A lot with days left has not ended, whatever the API says. The cost of
+    waiting is one more poll; the cost of retiring is the entire snipe.
+    """
+    _armed()
+    _patch(monkeypatch, _detail(left=6 * 24 * 3600))
+    H.run()
+    _patch(monkeypatch, _detail(gone=True))
+    for _ in range(12):
+        H.run()
+    a = H.load_armed()["317852714"]
+    assert a["status"] == "ARMED", "a lot six days out must stay armed"
+    assert a["gone_strikes"] >= 12
+
+
+def test_a_lot_never_seen_at_all_is_never_retired_for_going_quiet(monkeypatch):
+    """No countdown ever observed is not evidence the lot is over."""
+    _armed()
+    _patch(monkeypatch, _detail(gone=True))
+    H.run(); H.run(); H.run(); H.run()
+    assert H.load_armed()["317852714"]["status"] == "ARMED"
 
 
 def test_strikes_reset_when_the_lot_comes_back(monkeypatch):
