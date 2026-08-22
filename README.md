@@ -387,6 +387,7 @@ other cell blank for "unknown". See `sample_items.csv`. Blank `observed_price`
 | `remember`  | save a comp to your personal price book |
 | `goldmines` | print the margin-ranked buy-box cheat-sheet |
 | `card`      | triage a sports-card title — chase/hit/rookie read, no price |
+| `cardcomp`  | measure a sports-card tier in the browser → a real priced model |
 
 ## Layout
 

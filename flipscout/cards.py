@@ -353,6 +353,22 @@ _CHASE_AT = 45
 _LOOK_AT = 18
 
 
+@dataclass(frozen=True)
+class CardTier:
+    """A sports-card tier that is READY to be priced but is not priced yet.
+
+    Everything a pricebook.Model needs except the one thing that matters: a
+    measured comp. See CARD_TIERS.
+    """
+
+    key: str
+    label: str
+    query: str          # the eBay SOLD search that measures this tier
+    include: str        # regex: this listing is one of these
+    specificity: int
+    why: str
+
+
 def read(title: str) -> CardRead:
     """Triage one card title against the shop's five rules.
 
@@ -689,3 +705,85 @@ def one_liner(r: CardRead) -> str:
     if r.verdict == "PASS" and not top:
         return "Card read: PASS - base card, no auto/serial/parallel/rookie."
     return f"Card read: {r.verdict}" + (" - " + "; ".join(top) if top else "")
+
+
+# --- CANDIDATE SPORTS-CARD TIERS -------------------------------------------
+# 🚨 THESE ARE NOT MODELS AND MUST NOT BECOME ONE UNTIL THEY ARE MEASURED.
+# The book's one law is that a model ships with a measured comp; these carry
+# the matching half of a tier - the include/exclude that says "this listing is
+# one of these" - and no number at all. `flipscout cardcomp` turns one into a
+# real Model once Leron has pasted a browser measurement for it.
+#
+# Leron, 2026-08-22: "I'm looking for deals. I want value." Fair, and the
+# triage alone does not give him either. What stands between the scout and a
+# real ceiling is exactly four browser pastes, so this exists to make those
+# four pastes the only work left.
+#
+# WHY THESE FIVE. Each is a tier the shop's rules say carries price, chosen so
+# a TITLE can identify it - the same test the Pokemon tiers had to pass. And
+# each needs a comp near $40 before any bid clears the standing $20-over-$9
+# gate, which rules out everything softer: a bare "rookie card" or a bare
+# parallel sits in single digits and would measure to a $0.00 ceiling, exactly
+# as the raw-vintage-single tier did in DEAD_MODELS.
+CARD_TIERS = [
+    CardTier(
+        key="sports_rpa",
+        label="Modern rookie PATCH AUTO (RPA)",
+        query="rookie patch auto rpa card",
+        include=(r"(?=.*\b(?:rpa|rookie\s*patch\s*auto)\b|"
+                 r"(?=.*\brookie\b|.*\brc\b)(?=.*\bpatch\b)(?=.*\bauto"
+                 r"(?:graph(?:ed)?)?\b)).*"),
+        specificity=60,
+        why="The top of the hobby and the one the shop names first: a rookie, "
+            "a patch and an autograph on one card. All three are stated in the "
+            "title or they are not there.",
+    ),
+    CardTier(
+        key="sports_rookie_auto",
+        label="Modern rookie AUTOGRAPH",
+        query="rookie auto card 2020 2021 2022 2023",
+        include=(r"(?=.*\b(?:rookie|rc|1st\s*bowman)\b)"
+                 r"(?=.*\bauto(?:graph(?:ed)?)?\b)"
+                 r"(?=.*\b20[0-2]\d\b).*"),
+        specificity=54,
+        why="An autograph cannot be in every pack, so it is the one signal "
+            "that needs no other evidence. Paired with a rookie year, which is "
+            "the year the hobby actually pays for.",
+    ),
+    CardTier(
+        key="sports_low_numbered",
+        label="Serial numbered /25 or lower",
+        query="card numbered 25 or less auto refractor prizm",
+        include=(r"(?=.*\b20[0-2]\d\b)"
+                 r"(?=.*(?:/\s*(?:[1-9]|1\d|2[0-5])\b|\b1\s*of\s*1\b)).*"),
+        specificity=52,
+        why="The shop's second named signal. Under /25 the print run itself "
+            "carries the price, and the run is always stated in the title "
+            "because it is the reason to buy the card.",
+    ),
+    CardTier(
+        key="sports_graded_rookie",
+        label="Graded 9 or 10 modern rookie",
+        query="psa 10 rookie card 2018 2019 2020 2021 2022",
+        include=(r"(?=.*\b(?:psa|bgs|sgc|cgc)\s*(?:10|9\.5|9)\b)"
+                 r"(?=.*\b(?:rookie|rc)\b)(?=.*\b20[0-2]\d\b).*"),
+        specificity=50,
+        why="The shape that already works for Pokemon: the grade IS the comp, "
+            "because it is the one time a card's condition is in the words. "
+            "Mirrors pkmn_card_graded_high deliberately.",
+    ),
+    CardTier(
+        key="sports_sealed_box",
+        label="Factory sealed hobby box",
+        query="factory sealed hobby box basketball football baseball",
+        include=(r"(?=.*\b(?:hobby|blaster|mega|jumbo)\s*box\b|"
+                 r".*\bfactory\s*sealed\b)"
+                 r"(?=.*\b(?:topps|panini|bowman|upper\s*deck|prizm|optic|"
+                 r"select|mosaic|chrome)\b).*"),
+        specificity=56,
+        why="🚨 THE ONE CARD PRODUCT WITH NO CONDITION VARIABLE. A sealed box "
+            "is fully identified by its title - year, brand, product, format - "
+            "so it is the only card category that can carry a stable comp at "
+            "all. If exactly one of these gets measured, make it this one.",
+    ),
+]

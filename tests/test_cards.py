@@ -392,3 +392,54 @@ def test_explain_carries_the_lookup_but_still_never_a_price():
     text = cards.explain(read("2018 Panini Prizm Luka Doncic RC Auto /99"))
     assert "WHAT IT SELLS FOR" in text and "ebay.com" in text
     assert "$" not in text
+
+
+# --- the candidate tiers, added 2026-08-22 ----------------------------------
+# Leron: "I'm looking for deals. I want value." The triage gives neither on its
+# own. What stands between the scout and a real ceiling is one browser
+# measurement per tier, so CARD_TIERS carries the matching half of a Model and
+# `flipscout cardcomp` supplies the other half from a paste.
+
+_TIER_HITS = {
+    "sports_rpa": "2021 Panini National Treasures Trevor Lawrence RPA Patch Auto /25",
+    "sports_rookie_auto": "2022 Topps Chrome Julio Rodriguez Rookie Auto",
+    "sports_low_numbered": "2019 Panini Prizm Zion Williamson Gold Prizm /10",
+    "sports_graded_rookie": "2018 Panini Prizm Luka Doncic RC PSA 10",
+    "sports_sealed_box": "2021 Panini Prizm Basketball Factory Sealed Hobby Box",
+}
+
+
+def test_every_candidate_tier_matches_its_own_shape():
+    import re
+    for t in cards.CARD_TIERS:
+        title = _TIER_HITS[t.key]
+        assert re.search(t.include, title.lower()), f"{t.key} missed {title!r}"
+
+
+@pytest.mark.parametrize("title", [
+    "2023 Topps Series 1 Aaron Judge #99 Baseball Card",   # base card
+    "1991 Score Baseball Card Lot of 500",                 # junk wax pile
+    "Canon AE-1 35mm Film Camera",                         # not a card at all
+])
+def test_no_candidate_tier_matches_something_worthless(title):
+    """🚨 A tier that eats base cards would price a $0.30 common at a rookie-auto
+    comp - the single most expensive way to be wrong in this category."""
+    import re
+    for t in cards.CARD_TIERS:
+        assert not re.search(t.include, title.lower()), f"{t.key} ate {title!r}"
+
+
+def test_the_tiers_carry_no_comp_at_all():
+    """🚨 THE BOOK'S ONE LAW. These are ready to be priced, not priced. An
+    unmeasured number here becomes a confident wrong ceiling downstream."""
+    for t in cards.CARD_TIERS:
+        assert not hasattr(t, "comp")
+        assert not hasattr(t, "measured")
+
+
+def test_the_tiers_land_in_a_category_the_merch_guard_skips():
+    """They will be pasted into MODELS as category "sports-cards", which must
+    be one of the card categories - otherwise _CARD_MERCH rejects them on the
+    word "card" exactly as it did the Pokemon tiers."""
+    from flipscout.pricebook import CARD_CATEGORIES
+    assert "sports-cards" in CARD_CATEGORIES

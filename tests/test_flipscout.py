@@ -279,3 +279,70 @@ def test_analyze_csv_sorted_buys_first():
 
 def order_nondecreasing(xs):
     return all(a <= b for a, b in zip(xs, xs[1:]))
+
+
+# --- flipscout cardcomp, added 2026-08-22 -----------------------------------
+
+def _cardcomp(argv):
+    import io, contextlib
+    from flipscout.cli import main
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc = main(argv)
+    return rc, buf.getvalue()
+
+
+def test_cardcomp_lists_the_tiers_waiting_on_a_measurement():
+    rc, out = _cardcomp(["cardcomp"])
+    assert rc == 0
+    assert "sports_sealed_box" in out and "sports_rpa" in out
+
+
+def test_cardcomp_prints_a_sold_search_and_the_paste_script():
+    rc, out = _cardcomp(["cardcomp", "sports_rpa"])
+    assert rc == 0
+    assert "LH_Sold=1" in out and "DevTools" in out
+
+
+def test_cardcomp_turns_a_paste_into_a_priced_model(tmp_path):
+    """The last mile: one paste -> a real Model with a real ceiling."""
+    import json
+    f = tmp_path / "c.json"
+    f.write_text(json.dumps([
+        {"title": f"2021 Panini Prizm Basketball Factory Sealed Hobby Box {i}",
+         "price": 200.0 + i * 10, "shipping": 0.0, "sold": "Aug 1, 2026"}
+        for i in range(40)]))
+    rc, out = _cardcomp(["cardcomp", "sports_sealed_box", "--from", str(f),
+                         "--today", "2026-08-22"])
+    assert rc == 0
+    assert 'key="sports_sealed_box"' in out
+    assert 'category="sports-cards"' in out
+    assert 'measured="2026-08-22"' in out
+
+
+def test_cardcomp_quotes_the_p25_floor_not_the_median(tmp_path):
+    """🚨 Every card population carries a cheaper cohort the title cannot
+    separate out - which is why every card tier in the book is pinned at p25.
+    A median-based comp is a guess with money behind it."""
+    import json, re
+    f = tmp_path / "c.json"
+    f.write_text(json.dumps([
+        {"title": f"2021 Panini Prizm Basketball Factory Sealed Hobby Box {i}",
+         "price": p, "shipping": 0.0, "sold": "Aug 1, 2026"}
+        for i, p in enumerate([100] * 10 + [500] * 30)]))
+    rc, out = _cardcomp(["cardcomp", "sports_sealed_box", "--from", str(f)])
+    comp = float(re.search(r"comp=([\d.]+)", out).group(1))
+    assert comp == 100.0, "took the median (500) instead of the p25 floor"
+
+
+def test_cardcomp_refuses_to_ship_a_tier_that_cannot_clear_the_gate(tmp_path):
+    """The honest outcome for most of this category - see DEAD_MODELS."""
+    import json
+    f = tmp_path / "c.json"
+    f.write_text(json.dumps([
+        {"title": f"2021 Panini Prizm Basketball Factory Sealed Hobby Box {i}",
+         "price": 12.0, "shipping": 0.0, "sold": "Aug 1, 2026"} for i in range(30)]))
+    rc, out = _cardcomp(["cardcomp", "sports_sealed_box", "--from", str(f)])
+    assert rc == 0
+    assert "CANNOT clear the gate" in out and "DEAD_MODELS" in out
+    assert "Model(" not in out

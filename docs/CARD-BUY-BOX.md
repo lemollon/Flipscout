@@ -258,7 +258,48 @@ Not `pokemon card` (returns the category, worthless) and not the raw title (retu
 
 That is the same promise every priced alert makes — *check the claim in one click* — minus the claim we have not earned.
 
-## 🚨 Still missing: measured sports-card comps
+## Getting real ceilings on sports cards
+
+Leron, 2026-08-22: *"I'm looking for deals. I want value."*
+
+Graded **Pokémon** cards produce that today — real comp, real ceiling, real
+profit — and they only started to as of the guard fix above. Worked example:
+
+```
+1999 Pokemon Base Set Charizard Holo PSA 9 Trading Card   (currently $18)
+  comp $112.50 (n=111, measured 2026-08-20)
+  at $18.00 -> clears $64.19        MAX BID $63.19
+```
+
+**Sports cards need one browser paste per tier.** Comps here are measured by
+hand on purpose (`ebay_ui`), so five tiers are defined and waiting:
+
+```
+flipscout cardcomp                       # the list
+flipscout cardcomp sports_sealed_box     # prints the search + the paste script
+flipscout cardcomp sports_sealed_box --from comps.json --today 2026-08-22
+```
+
+The last step prints a finished `Model(...)` to drop into `pricebook.MODELS`.
+The tiers carry the *matching* half of a model — the regex that says "this
+listing is one of these" — and **no number at all**, because the book's one law
+is that a model ships with a measured comp.
+
+| tier | why |
+|---|---|
+| `sports_sealed_box` | 🚨 **do this one first** — the only card product with no condition variable |
+| `sports_rpa` | rookie + patch + auto: the top of the hobby, all three stated in the title |
+| `sports_rookie_auto` | an auto can't be in every pack; paired with the year the hobby pays for |
+| `sports_low_numbered` | under /25 the print run itself carries the price |
+| `sports_graded_rookie` | the shape that already works for Pokémon — the grade *is* the comp |
+
+It quotes the **p25 floor**, never the median: every card population carries a
+cheaper cohort the title cannot separate out, which is why all three Pokémon
+tiers are pinned at p25 too. And it **refuses to emit a model** whose ceiling
+comes out at $0.00, telling you to record it in `DEAD_MODELS` instead — the
+honest outcome for most of this category.
+
+## 🚨 Why this can't be automated
 
 
 
