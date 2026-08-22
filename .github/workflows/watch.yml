@@ -105,6 +105,12 @@ jobs:
           # else's quota. Mapped NOW per this file's own env-trap rule, so
           # adding one later is `gh secret set` and nothing else.
           POKEMONTCG_API_KEY: ${{ secrets.POKEMONTCG_API_KEY }}
+          # Sports-card comps, keyed by player+set+parallel+GRADE
+          # (SportsCardsPro). The scout's sports lookup is INERT without
+          # this - no token, no calls, eBay fallback exactly as before - so
+          # adding the secret is the whole switch. API is their $49/mo
+          # Legendary tier; the $6 tier does not include it.
+          SPORTSCARDSPRO_TOKEN: ${{ secrets.SPORTSCARDSPRO_TOKEN }}
           FLIPSCOUT_CARDS_CHANNEL_ID: ${{ vars.FLIPSCOUT_CARDS_CHANNEL_ID }}
           FLIPSCOUT_DISCORD_CHANNEL_ID: ${{ vars.FLIPSCOUT_DISCORD_CHANNEL_ID }}
           # How many runs it takes to sweep the whole eBay term pool once.
