@@ -925,3 +925,38 @@ def test_one_poisoned_hibid_lot_does_not_kill_the_search():
 def test_a_nonfinite_countdown_yields_no_end_time_instead_of_raising(bad):
     from flipscout.hunters import _hibid_ends
     assert _hibid_ends(bad) == ""
+
+
+# --- the eBay quota tripwire, 2026-08-22 ------------------------------------
+
+def test_ebay_browse_does_not_spend_quota_on_card_terms():
+    """🚨 THE TRIPWIRE FIRED AND THE TERMS GET CUT - on ONE source, not all.
+
+    Run 32552763979 printed `ebay: 149 search error(s) this run (last: HTTP
+    429)` and returned ebay=0 listings, the first time that counter has ever
+    printed. It follows the card pack taking search_terms() from 133 to 149,
+    which is the condition hunters.EbayBrowse's own note says to act on.
+
+    Cutting them everywhere would undo the fix that made cards work. The quota
+    problem is not shared: goodwill and hibid returned 4,601 and 4,453 listings
+    in the same run with no errors, and they are where a buyable card actually
+    turns up. A card on eBay Browse is already at retail.
+    """
+    from flipscout.hunters import EbayBrowse
+    from flipscout.pricebook import CARD_SEARCH_TERMS, search_terms
+    kept = EbayBrowse.__new__(EbayBrowse).relevant_terms(search_terms())
+    assert not [t for t in kept if t.lower() in CARD_SEARCH_TERMS]
+    # back to the 133 it was measured clean on
+    assert len(kept) == len(search_terms()) - len(CARD_SEARCH_TERMS)
+
+
+def test_every_other_source_still_gets_the_card_terms():
+    """The card terms are what make the scout and the Pokemon tiers work; only
+    the quota-metered source opts out."""
+    from flipscout.hunters import HiBid, ShopGoodwill
+    from flipscout.pricebook import CARD_SEARCH_TERMS, search_terms
+    terms = search_terms()
+    for cls in (HiBid, ShopGoodwill):
+        h = cls.__new__(cls)
+        got = h.relevant_terms(terms) if hasattr(h, "relevant_terms") else terms
+        assert CARD_SEARCH_TERMS <= {t.lower() for t in got}, cls.__name__

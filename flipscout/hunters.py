@@ -1124,6 +1124,27 @@ class EbayBrowse:
 
     name = "ebay"
 
+    # 🚨 THE TRIPWIRE FIRED, SO THE TERMS GET CUT - HERE, NOT EVERYWHERE.
+    # Run 32552763979 (2026-08-22 04:50) printed `ebay: 149 search error(s)
+    # this run (last: HTTP 429)` and returned ebay=0 listings, the first time
+    # that counter has printed. It follows the card pack taking search_terms()
+    # from 133 to 149 (+12%), which is exactly the condition the note above
+    # says to act on: "if it starts printing, cut terms before anything else."
+    #
+    # But cutting them everywhere would undo the fix that made cards work at
+    # all, and the quota problem is not shared: goodwill and hibid returned
+    # 4,601 and 4,453 listings in that same run with no errors, and THEY are
+    # where a card worth buying actually turns up. A card on eBay Browse is
+    # already at retail - it is the one source where these terms buy the least
+    # and cost the most.
+    #
+    # So Browse goes back to the 133 terms it was measured clean on, and every
+    # other source keeps all 149. Same shape as the Poshmark and Nellis term
+    # filters above.
+    def relevant_terms(self, terms: list) -> list:
+        from .pricebook import CARD_SEARCH_TERMS
+        return [t for t in terms if t.lower() not in CARD_SEARCH_TERMS]
+
     def __init__(self, session: Optional[requests.Session] = None):
         self.session = session or requests.Session()
         self._api = None
