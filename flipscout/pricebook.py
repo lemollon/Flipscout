@@ -3029,3 +3029,18 @@ def search_terms() -> list[str]:
         # to measure when that happens.
         "sealed hobby box", "factory sealed cards",
     ]
+
+
+# The card block above, named so a source can opt OUT of it. eBay Browse is the
+# one quota-metered hunter (see hunters.EbayBrowse) and it is also the source
+# where cards are least worth fetching - a card on eBay is already at retail,
+# while the ones worth buying turn up on the auction and thrift sources. So the
+# terms that pay everywhere else are exactly the ones to drop there.
+CARD_SEARCH_TERMS = frozenset({
+    "pokemon cards", "pokemon card lot", "pokemon psa",
+    "sports card lot", "baseball card lot", "basketball card lot",
+    "football card lot", "trading card lot", "graded card lot",
+    "psa 10", "psa graded card",
+    "topps chrome", "panini prizm", "bowman chrome",
+    "sealed hobby box", "factory sealed cards",
+})
