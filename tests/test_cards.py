@@ -1,0 +1,298 @@
+"""The card-shop buy box, pinned.
+
+Every test here traces to one of the five rules Leron's friend gave on
+2026-08-22 (see flipscout/cards.py for the transcript). The point of pinning
+them is that the rules are cheap to state and easy to break with a regex tweak:
+`\bRC\b`, `auto`, `1/1` and `/99` are all tokens that mean something else
+outside this category, and the guards that keep them honest are invisible until
+one of them regresses.
+"""
+
+from __future__ import annotations
+
+import pytest
+
+from flipscout import cards
+from flipscout.cards import read
+
+
+def v(title: str) -> str:
+    return read(title).verdict
+
+
+# --- the gate: nothing is read until it proves it is a card -----------------
+
+@pytest.mark.parametrize("title", [
+    "Michael Jordan Autographed Basketball",
+    "1998 Chevy Prizm 4 door sedan",
+    "RC helicopter parts lot rookie pilot",
+    "New Jersey patch iron on",
+    "Vintage 1975 gold refractor telescope mirror",
+])
+def test_non_cards_get_no_verdict(title):
+    """🚨 THE LOAD-BEARING GUARD. Every signal in the file is a false positive
+    somewhere else; they are safe only because the maker/slab/card-word gate
+    runs first."""
+    r = read(title)
+    assert not r.is_card
+    assert r.verdict == "UNKNOWN"
+
+
+@pytest.mark.parametrize("title", [
+    "2020 Topps Chrome Justin Herbert RC",
+    "1986 Fleer Michael Jordan #57 Rookie Card",
+    "Trading card PSA 10 Tom Brady",
+])
+def test_card_evidence_opens_the_read(title):
+    assert read(title).is_card
+
+
+# --- rule 1: "avoid 80s and 90s" --------------------------------------------
+
+def test_junk_wax_base_card_is_a_pass():
+    r = read("1991 Score Ken Griffey Jr #1 Baseball Card")
+    assert r.verdict == "PASS"
+    assert r.era == "junk wax"
+    assert any("JUNK WAX" in why for why in r.reasons)
+
+
+def test_junk_wax_veto_applies_to_the_stars_too():
+    """The friend's rule is about the PRINT RUN, not the player - a 1990 Nolan
+    Ryan common is as printed as everything else that year."""
+    assert v("1990 Topps Nolan Ryan #1 Baseball Card") == "PASS"
+
+
+def test_a_high_grade_beats_the_era_veto():
+    """🚨 THE ONE DOCUMENTED EXCEPTION. Condition is the only scarcity junk wax
+    has left, and a 9/10 slab is exactly the card that certifies it."""
+    raw = read("1989 Upper Deck Ken Griffey Jr RC #1")
+    slabbed = read("1989 Upper Deck Ken Griffey Jr RC #1 PSA 10 GEM MINT")
+    assert raw.verdict == "PASS"
+    assert slabbed.verdict == "CHASE"
+    assert slabbed.score > raw.score
+
+
+def test_1986_is_not_junk_wax():
+    """The refinement flagged in cards.py: the print-run explosion starts in
+    1987, and a literal 'avoid the 80s' bins the Fleer Jordan."""
+    r = read("1986 Fleer Michael Jordan #57 Rookie Card")
+    assert r.era == "pre-junk-wax"
+    assert r.verdict != "PASS"
+
+
+def test_pre_1980_vintage_is_its_own_game():
+    r = read("1968 Topps Nolan Ryan Rookie Card #177")
+    assert r.era == "vintage"
+    assert r.verdict in ("LOOK", "CHASE")
+
+
+def test_modern_is_the_hunting_ground_but_not_a_free_pass():
+    """"Anything in the 2000s" opens the door; it does not walk you through it.
+    A modern BASE card is still a base card."""
+    r = read("2023 Topps Series 1 Aaron Judge #99 Baseball Card")
+    assert r.era == "modern"
+    assert r.verdict == "PASS"
+    assert any("BASE CARD" in why for why in r.reasons)
+
+
+# --- rule 2 + 3: hits and chase cards ---------------------------------------
+
+def test_autograph_is_a_hit():
+    r = read("2022 Topps Chrome Julio Rodriguez Rookie Auto")
+    assert r.verdict == "CHASE"
+    assert any("AUTOGRAPH" in why for why in r.reasons)
+
+
+def test_patch_auto_rookie_is_the_top_of_the_hobby():
+    r = read("2021 Panini National Treasures Trevor Lawrence RPA Patch Auto /25")
+    assert r.verdict == "CHASE"
+    kinds = {s.kind for s in r.signals}
+    assert {"hit", "numbered", "rookie", "brand"} <= kinds
+
+
+def test_relic_is_a_hit_but_a_smaller_one_than_a_patch():
+    patch = read("2020 Panini Prizm Patch Card Joe Burrow")
+    relic = read("2020 Panini Prizm Game Used Jersey Relic Joe Burrow")
+    assert patch.score > relic.score
+
+
+def test_a_parallel_is_a_chase_card():
+    r = read("2021 Panini Prizm Josh Allen Silver Prizm")
+    assert any("PARALLEL" in why for why in r.reasons)
+
+
+def test_a_bare_colour_is_not_a_chase_card():
+    """🚨 Every parallel has a colour name and so does every team. 'Gold' alone
+    matched 'Golden State Warriors' and 'Blue Jays' on the first cut."""
+    r = read("2023 Topps Golden State Warriors Blue Jays team card")
+    assert not any(s.kind == "chase" for s in r.signals)
+
+
+def test_redemption_that_never_arrived_is_not_an_auto():
+    r = read("2019 Topps Chrome Auto Redemption Expired Wander Franco")
+    assert not any(s.kind == "hit" for s in r.signals)
+
+
+# --- rule 2: numbered cards -------------------------------------------------
+
+def test_bare_print_run_is_read():
+    """Sellers drop the copy number and write only the run - '/99', '#/25',
+    'numbered to 150' - which is the commonest way the signal appears."""
+    assert read("2020 Topps Chrome Refractor Auto/99 Justin Herbert RC").print_run == 99
+    assert read("2019 Prizm Zion Williamson RC #/25 Gold").print_run == 25
+    assert read("2022 Bowman Chrome 1st Bowman Auto numbered to 150").print_run == 150
+
+
+def test_one_of_one_outranks_every_other_serial():
+    one = read("2022 Panini Select Ja Morant 1/1 Black Prizm")
+    ten = read("2022 Panini Select Ja Morant /10 Gold Prizm")
+    assert one.print_run == 1
+    assert one.score > ten.score
+
+
+def test_scarcer_runs_score_higher():
+    runs = [read(f"2021 Topps Chrome Refractor Wander Franco /{n}").score
+            for n in (10, 25, 99, 250, 999)]
+    assert runs == sorted(runs, reverse=True)
+
+
+def test_set_position_is_not_a_print_run():
+    """🚨 THE TRAP THIS CATEGORY SETS. '124/165' is printed on the front of
+    nearly every junk-wax base card and means WHERE IT SITS IN THE SET.
+    Serial numbering did not exist before ~1996, so reading it as a run of 165
+    would turn the whole junk-wax bin into false CHASEs."""
+    r = read("1990 Topps Baseball Card 124/165 Nolan Ryan")
+    assert r.print_run is None
+    assert r.verdict == "PASS"
+
+
+def test_with_abbreviation_is_not_a_print_run():
+    """'w/' is a letter and a slash, which is the exact shape being matched."""
+    assert read("Baseball card lot w/ 50 cards 1990 Topps").print_run is None
+
+
+def test_a_run_too_big_to_mean_anything_is_not_numbered():
+    assert read("2021 Topps Chrome Refractor /5000 Wander Franco").print_run is None
+
+
+# --- rule 4: rookies --------------------------------------------------------
+
+def test_rookie_scores_and_names_itself():
+    r = read("2018 Panini Donruss Optic Luka Doncic Rated Rookie RC")
+    assert any("ROOKIE" in why for why in r.reasons)
+
+
+def test_first_bowman_counts_as_a_rookie():
+    r = read("2022 Bowman Chrome 1st Bowman Elly De La Cruz")
+    assert any(s.kind == "rookie" for s in r.signals)
+
+
+# --- rule 5: brands ---------------------------------------------------------
+
+def test_brand_is_a_bump_not_a_verdict():
+    """🚨 A National Treasures BASE card is still a base card. The brand tier
+    must never be able to carry a card on its own."""
+    assert v("2021 Panini National Treasures base card Mac Jones") == "PASS"
+
+
+def test_premium_brand_lifts_an_otherwise_equal_card():
+    prem = read("2021 Topps Chrome Refractor Shohei Ohtani")
+    plain = read("2021 Topps Refractor Shohei Ohtani")
+    assert prem.score > plain.score
+
+
+def test_bulk_era_brand_is_scored_against():
+    r = read("1991 Fleer Baseball Card #100")
+    assert any(s.kind == "brand" and s.points < 0 for s in r.signals)
+
+
+# --- the stoppers -----------------------------------------------------------
+
+def test_reprint_ends_the_conversation_whoever_is_on_it():
+    r = read("1952 Topps Mickey Mantle #311 REPRINT Rookie Card")
+    assert r.verdict == "PASS"
+    assert any("REPRINT" in why for why in r.reasons)
+
+
+def test_a_pile_is_not_a_card():
+    """The same finding pricebook's DEAD_MODELS recorded for Pokemon lots: a
+    hundred-fold spread the title cannot resolve."""
+    r = read("Lot of 500 Baseball Cards 1988-1992 Topps Fleer Donruss")
+    assert r.verdict == "PASS"
+    assert any("PILE" in why for why in r.reasons)
+
+
+# --- the boundary with the priced book --------------------------------------
+
+def test_tcg_is_handed_back_to_the_measured_tiers():
+    """🚨 Pokemon already has three MEASURED comps in pricebook. A triage
+    verdict beside a real number is noise at best and a contradiction at
+    worst, so this refuses to judge them."""
+    r = read("Pokemon Charizard PSA 10 1999 Base Set Holo")
+    assert r.family == "tcg"
+    assert r.verdict == "PRICED"
+    assert cards.one_liner(r) == ""
+
+
+def test_the_read_never_produces_a_price():
+    """The law this module lives under: pricebook prices, cards triages."""
+    r = read("2021 Panini National Treasures Trevor Lawrence RPA Patch Auto /25")
+    text = cards.explain(r)
+    assert "$" not in text
+    assert not hasattr(r, "comp")
+    assert not hasattr(r, "max_bid")
+
+
+# --- the alert line ---------------------------------------------------------
+
+def test_one_liner_is_empty_for_everything_that_is_not_a_card():
+    """It runs on every alerted listing, so silence on non-cards is the
+    contract - otherwise every camera alert grows a card note."""
+    assert cards.one_liner(read("Canon AE-1 35mm Film Camera")) == ""
+
+
+def test_one_liner_leads_with_the_verdict_and_the_signals():
+    line = cards.one_liner(read("2022 Topps Chrome Julio Rodriguez Rookie Auto"))
+    assert line.startswith("Card read: CHASE")
+    assert "AUTOGRAPH" in line
+
+
+def test_one_liner_says_base_card_out_loud():
+    line = cards.one_liner(read("2023 Topps Series 1 Aaron Judge #99 Baseball Card"))
+    assert "PASS" in line and "base card" in line.lower()
+
+
+# --- the false positives that were actually found ---------------------------
+# Both were caught by running the reader over the 521 listings on the live
+# board (docs/deals.json) rather than over invented titles, which is the only
+# way this class of bug shows up: the words are perfectly good card vocabulary
+# and perfectly good English.
+
+def test_ultra_compact_camera_is_not_a_fleer_ultra_card():
+    """`ultra\\b` was in the maker gate for Fleer Ultra and matched
+    "Vintage Canon ELPH LT260 Ultra-Compact Camera" on the live board. `fleer`
+    already opens the gate for that brand, so the bare word bought nothing."""
+    assert not read("Vintage Canon ELPH LT260 Ultra-Compact Camera w/ Accessories").is_card
+    assert read("1991 Fleer Ultra Baseball #100").is_card
+
+
+def test_chevy_prizm_is_a_car():
+    """Parallel vocabulary is weak evidence - it needs a card-shaped second
+    signal, and a sedan has none."""
+    assert not read("1998 Chevy Prizm 4 door sedan").is_card
+    assert read("2019 Prizm Zion Williamson RC #/25 Gold").is_card
+
+
+def test_the_reader_stays_silent_on_the_whole_live_board():
+    """🚨 THE CONTRACT FOR THE ALERT WIRING. `hunt` calls one_liner() on every
+    listing it alerts on, so a reader that speaks up on cameras and calculators
+    turns every alert into wallpaper. Measured 2026-08-22: 0 of the 521
+    listings on the board draw a card line."""
+    import json
+    import pathlib
+    board = pathlib.Path(__file__).resolve().parent.parent / "docs" / "deals.json"
+    if not board.exists():                       # board is refreshed by CI
+        pytest.skip("no board snapshot checked in")
+    titles = [i.get("title", "") for i in json.loads(board.read_text())["items"]]
+    spoke = [t for t in titles if cards.one_liner(read(t))]
+    assert not spoke, f"card line fired on non-cards: {spoke[:5]}"

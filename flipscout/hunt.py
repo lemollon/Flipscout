@@ -33,6 +33,7 @@ import os
 from typing import Optional
 
 from .bidding import advise
+from .cards import one_liner as card_line, read as read_card
 from .hunters import build_hunters
 from .auctionfees import REQUIRE_CARD
 from .notify import describe_webhook, notify_rich
@@ -490,6 +491,18 @@ def to_alert(c: dict) -> dict:
         bits.append(f"_Listed {age:.0f}h ago._" if age >= 1 else "_Just listed._")
     if m.dead_also_present:
         bits.append(":warning: also contains: " + "; ".join(m.dead_also_present))
+
+    # The card-shop read, on the listings that are cards. Costs nothing on
+    # everything else - `cards.one_liner` returns "" unless the title proved it
+    # is a sports card, and hands TCG straight back to the measured pokemon
+    # tiers rather than second-guessing them.
+    #
+    # 🚨 IT NEVER TOUCHES THE CEILING. The numbers on this card come from a
+    # MEASURED comp; the read is a note about what the title said, and letting
+    # a triage score move a bid would put an unmeasured guess behind money.
+    cl = card_line(read_card(row.get("title") or ""))
+    if cl:
+        bits.append(f":card_index: {cl}")
 
     # WHO is selling it and WHERE. On the local auction sources this is the
     # difference between a 30-minute drive and an unknown, so say it plainly.

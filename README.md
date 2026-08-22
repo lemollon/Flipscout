@@ -262,6 +262,35 @@ seller mispricing. Best flips overlap two (a branded tool at an estate sale).
 > decides a purchase is the **sold data on that specific item** — check eBay's
 > Sold filter (or run `item`) every time.
 
+## Sports cards (the card-shop buy box)
+
+Cards are the one category where a title tells you almost everything *except*
+the price. A card shop sorts a box in seconds on five rules — era, hits, chase
+cards, rookies, brand — and `flipscout card` is those five rules:
+
+```bash
+flipscout card "2018 Panini Prizm Luka Doncic Silver Prizm RC Auto /99"
+```
+
+```
+CHASE - pull it out and photograph it.  (score 117)
+  - AUTOGRAPH - a hit card. Cannot be in every pack, so it is never base.
+  - SERIAL NUMBERED /99 - the range where the serial starts carrying the price.
+  - PARALLEL / INSERT - a chase card: in packs, but not every pack.
+  - ROOKIE / first-year card - the year the hobby actually pays for.
+  ...
+```
+
+> **It gives a verdict, never a price.** A title cannot carry condition, and
+> condition is most of a raw card's value — so this tells you what to *look at*,
+> not what to pay. The rules, where they came from, and the one place the code
+> departs from the shop's advice: **[docs/CARD-BUY-BOX.md](docs/CARD-BUY-BOX.md)**.
+
+The short version: **avoid 1987–1999** (junk wax — printed without limit),
+ignore **base cards** (they're in every pack), and hunt **autos, serial-numbered
+cards, parallels and rookies**. A grade is the one thing that beats the era
+rule, because condition is the only scarcity junk wax has left.
+
 ## Make the most of your driving time
 
 There's infinite inventory on Marketplace — the skill is spending minutes only on
@@ -356,6 +385,7 @@ other cell blank for "unknown". See `sample_items.csv`. Blank `observed_price`
 | `watch`     | run your watchlist once and alert on new deals (the always-on job) |
 | `remember`  | save a comp to your personal price book |
 | `goldmines` | print the margin-ranked buy-box cheat-sheet |
+| `card`      | triage a sports-card title — chase/hit/rookie read, no price |
 
 ## Layout
 
@@ -366,7 +396,8 @@ flipscout/
   ebay_api.py   live eBay provider: OAuth + Browse + Marketplace Insights
   analyzer.py   combine cost + comps + fees -> scored verdict; maxpay; CSV
   categories.py goldmine-category cheat-sheet
-  cli.py        the `flipscout` command (item|csv|maxpay|remember|goldmines)
+  cards.py      sports-card triage: the card-shop buy box, as regexes
+  cli.py        the `flipscout` command (item|csv|maxpay|remember|goldmines|card)
   sample_items.csv
 tests/test_flipscout.py     26 tests
 pyproject.toml  ·  .github/workflows/ci.yml  ·  LICENSE

@@ -17,6 +17,7 @@ import argparse
 import sys
 
 from .analyzer import Candidate, Thresholds, analyze, analyze_csv, max_pay
+from .cards import explain as explain_card, read as read_card
 from .categories import format_goldmines
 from .comps import Comp, load_memory, save_comp
 from .fees import CONSERVATIVE, FeeModel
@@ -105,6 +106,20 @@ def cmd_watch(args) -> int:
     res = run_watch(cfg, notifier=dry if args.dry else notify)
     print(f"\n{res['new']} new / {res['scanned']} scanned"
           + (f", sent via {res['sent']}" if res["sent"] else ""))
+    return 0
+
+
+def cmd_card(args) -> int:
+    """Triage a sports-card title against the card-shop buy box.
+
+    🚨 PRINTS A VERDICT, NEVER A PRICE - see flipscout.cards for why. This is
+    the "should I even pick this one up" pass, which is the question a table of
+    a thousand cards actually poses.
+    """
+    for title in args.titles:
+        if len(args.titles) > 1:
+            print(f"\n{title}")
+        print(explain_card(read_card(title)))
     return 0
 
 
@@ -333,6 +348,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("goldmines", help="print the goldmine-category buy-box cheat-sheet") \
        .set_defaults(func=cmd_goldmines)
+
+    pcard = sub.add_parser(
+        "card", help="triage a sports-card title (chase/hit/rookie read, no price)")
+    pcard.add_argument("titles", nargs="+", help="one or more card titles")
+    pcard.set_defaults(func=cmd_card)
 
     pw = sub.add_parser("watch", help="run your watchlist once and alert on new deals")
     pw.add_argument("queries", nargs="*", help="override the FLIPSCOUT_WATCHLIST searches")
