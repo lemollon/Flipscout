@@ -338,3 +338,63 @@ def test_a_tight_budget_starves_no_channel_more_than_any_other(monkeypatch):
     served = [v for v in mix.values() if v]
     assert mix.get("watches", 0) >= 1, f"#watches starved by a tight budget: {mix}"
     assert max(served) - min(served) <= 1, f"budget shared unevenly: {mix}"
+
+
+# --- backfill, added 2026-08-23 ----------------------------------------------
+# 🚨 A NEW CHANNEL INHERITS NO HISTORY. The seen-cache is keyed on source:id
+# with no notion of WHERE a listing went, so every listing that would have
+# filled the new subject channels had already been alerted into #deals over the
+# preceding weeks. `run` was correct and the channels still arrived empty:
+# Leron, 8/23, "watches are not thin and I only have one in the channel" - 45
+# watches were live and qualifying and 44 of them were already seen.
+
+def test_backfill_posts_the_full_live_inventory_not_a_ranked_digest(monkeypatch):
+    """No `top`, no per-model cap - the point is the standing inventory."""
+    rows = [_row(f"w{i}", "Seiko Automatic watch mens", 10.0 + i) for i in range(8)]
+    sent = []
+    cfg = {"sources": ["goodwill"], "target_profit": 5.0, "inbound_shipping": 0.0,
+           "top": 3, "max_per_model": 3, "state_file": "nonexistent.json"}
+    monkeypatch.setattr(hunt, "sweep", lambda c, **kw: rows)
+    out = hunt.backfill(config=cfg, notifier=lambda a, **kw: sent.extend(a) or ["webhook"])
+    assert out.get("watches") == 8, f"backfill was capped: {out}"
+    assert len(sent) == 8
+
+
+def test_backfill_ignores_the_seen_cache_but_never_edits_it(monkeypatch):
+    """🚨 BOTH HALVES MATTER. It must ignore `seen` (those listings are seen -
+    that is why they need backfilling), and it must not REMOVE them either, or
+    the next `run` re-alerts the whole standing pool."""
+    rows = [_row(f"w{i}", "Seiko Automatic watch mens", 10.0 + i) for i in range(4)]
+    saved = {}
+    monkeypatch.setattr(hunt, "sweep", lambda c, **kw: rows)
+    monkeypatch.setattr(hunt, "_save_seen", lambda p, s: saved.setdefault("wrote", s))
+    monkeypatch.setattr(hunt, "_load_seen",
+                        lambda p, **kw: {f"goodwill:w{i}" for i in range(4)})
+    sent = []
+    cfg = {"sources": ["goodwill"], "target_profit": 5.0, "inbound_shipping": 0.0,
+           "top": 20, "max_per_model": 3, "state_file": "nonexistent.json"}
+    hunt.backfill(config=cfg, notifier=lambda a, **kw: sent.extend(a) or ["webhook"])
+    assert len(sent) == 4, "backfill must ignore the seen-cache"
+    assert "wrote" not in saved, "backfill must not touch the seen-cache"
+
+
+def test_backfill_can_target_one_channel(monkeypatch):
+    rows = ([_row(f"w{i}", "Seiko Automatic watch mens", 10.0 + i) for i in range(3)]
+            + [_row(f"c{i}", "Canon PowerShot G7X Mark II", 60.0 + i) for i in range(3)])
+    monkeypatch.setattr(hunt, "sweep", lambda c, **kw: rows)
+    cfg = {"sources": ["goodwill"], "target_profit": 5.0, "inbound_shipping": 0.0,
+           "top": 20, "max_per_model": 3, "state_file": "nonexistent.json"}
+    out = hunt.backfill(channels=["watches"], config=cfg,
+                        notifier=lambda a, **kw: ["webhook"])
+    assert set(out) == {"watches"}, f"targeting leaked other channels: {out}"
+
+
+def test_backfill_dry_run_sends_nothing(monkeypatch):
+    rows = [_row(f"w{i}", "Seiko Automatic watch mens", 10.0 + i) for i in range(3)]
+    monkeypatch.setattr(hunt, "sweep", lambda c, **kw: rows)
+    sent = []
+    cfg = {"sources": ["goodwill"], "target_profit": 5.0, "inbound_shipping": 0.0,
+           "top": 20, "max_per_model": 3, "state_file": "nonexistent.json"}
+    out = hunt.backfill(config=cfg, dry_run=True,
+                        notifier=lambda a, **kw: sent.extend(a) or ["webhook"])
+    assert out.get("watches") == 3 and sent == []
