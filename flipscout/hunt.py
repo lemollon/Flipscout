@@ -77,6 +77,21 @@ def load_config(env=None) -> dict:
         # surfaced. Cap how many picks any one model label gets per run;
         # the rest stay unseen and queue for the next run.
         "max_per_model": int(env.get("FLIPSCOUT_MAX_PER_MODEL", "3")),
+        # 🚨 A PURE PROFIT RANKING STARVES THE CHEAP CHANNELS BY CONSTRUCTION.
+        # The per-category cap came out on 2026-08-19, deliberately, back when
+        # every alert landed in ONE channel: you want the best deals, not a
+        # balanced feed. Subject channels (2026-08-23) invert that. Measured on
+        # a live 7,434-listing sweep: 364 candidates price out, 43 of them
+        # watches - and the BEST watch on the whole board ranks #42 overall,
+        # because a $84 Citizen loses to a $152 Nintendo and a $495 Contax
+        # every single time. #watches and #ipods were arriving empty while
+        # their supply sat there qualifying.
+        #
+        # So each channel is guaranteed its best N per run BEFORE the general
+        # profit fill. This is a floor, not a cap: a channel with the richest
+        # lots still wins the remaining slots on profit as it always did.
+        # 0 restores the pure-profit behaviour exactly.
+        "reserve_per_channel": int(env.get("FLIPSCOUT_RESERVE_PER_CHANNEL", "3")),
         # 🚨 RANKING ON profit_at_open IS BIASED TOWARDS LOTS NOBODY HAS BID ON.
         # Measured on 505 live lots (2026-08-19): median profit at open is
         # $30.57 for lots closing inside 6h and $69.79 for lots more than 3 days
@@ -990,6 +1005,21 @@ def age_hours(listed: Optional[str], now: Optional[_dt.datetime] = None) -> Opti
     return max(0.0, (now - t).total_seconds() / 3600.0)
 
 
+def _alert_route_key(c: dict) -> dict:
+    """The two fields `notify.channel_for` routes on, for a raw candidate.
+
+    🚨 THIS MUST AGREE WITH `to_alert` OR THE FLOOR RESERVES THE WRONG SLOT.
+    The per-channel floor decides a candidate's channel BEFORE the alert dict
+    is built, and delivery decides it AGAIN from that dict. If the two ever
+    disagree, a slot reserved for #watches is spent on a card that posts to
+    #deals - the channel still arrives empty and the log claims it was filled,
+    which is the least debuggable shape this bug could take. One test walks
+    every live candidate through both paths and fails on any mismatch.
+    """
+    return {"category": getattr(c.get("model"), "category", "") or "",
+            "title": (c.get("row") or {}).get("title") or ""}
+
+
 def to_alert(c: dict) -> dict:
     """One evaluated candidate -> the Discord embed payload."""
     row, model, adv, m = c["row"], c["model"], c["advice"], c["match"]
@@ -1499,8 +1529,58 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     closing.sort(key=lambda c: _left(c))
     took_c = _take(closing, reserved)
 
+    # 🚨 A FLOOR PER CHANNEL, AND IT RUNS AFTER THE CLOCK LANES ON PURPOSE.
+    # A lot closing inside the hour cannot wait for the next run; a channel's
+    # quota can, so urgency still outranks balance. What this lane fixes is
+    # the opposite failure: #watches and #ipods arriving EMPTY while 43 watches
+    # sat qualifying, because the best watch on the board ranks #42 on profit
+    # and the top-N slice never reached it (see reserve_per_channel).
+    #
+    # Each channel takes its own best `reserve` here - `eligible` is already
+    # sorted best-profit-first, so "its best" needs no re-sort. Then the
+    # general fill below still ranks purely on profit, which is why this is a
+    # FLOOR and not a cap: the rich channels keep winning what is left over.
+    reserve_n = max(0, int(config.get("reserve_per_channel") or 0))
+    reserved_mix: dict = {}
+    if reserve_n:
+        # Sorted for determinism - two runs over the same board must allocate
+        # identically, or a re-run reports a different mix and neither is
+        # reproducible. "" is the default channel and is reserved for too:
+        # calculators and medical have no channel of their own and would
+        # otherwise be the ONLY subjects still starved by the ranking.
+        names = sorted(set(notify.CHANNELS) | {""})
+        pools = {n: [c for c in eligible
+                     if notify.channel_for(_alert_route_key(c)) == n]
+                 for n in names}
+        # 🚨 ROUND-ROBIN, NOT CHANNEL-BY-CHANNEL. Draining each channel's full
+        # quota in turn looks equivalent and is not: `_take` also stops at
+        # `top`, so when the budget cannot cover reserve x channels the LAST
+        # names alphabetically get nothing at all - silently, and the same ones
+        # every run. Caught by a test at top=6 with 7 groups: cameras and games
+        # and ipods took 2 each and #watches got zero, which is the exact
+        # symptom this whole lane exists to fix, reintroduced one layer down.
+        # One pass per rank gives every channel its first pick before any
+        # channel gets its second, so a tight `top` degrades evenly.
+        for rank in range(reserve_n):
+            for n in names:
+                if len(fresh) >= top:
+                    break
+                if _take(pools[n], 1):
+                    reserved_mix[n or "deals"] = reserved_mix.get(n or "deals", 0) + 1
+        want = reserve_n * sum(1 for n in names if pools[n])
+        if want > top:
+            print(f"[hunt] per-channel floor wants {want} slots but "
+                  f"FLIPSCOUT_TOP is {top} - channels are sharing the budget "
+                  f"evenly. Raise FLIPSCOUT_TOP to {want} to give every "
+                  f"channel its full {reserve_n}.")
+
     # Everything else on the usual profit ranking.
     _take(eligible, top - len(fresh))
+    if reserve_n:
+        print(f"[hunt] per-channel floor ({reserve_n}/channel): "
+              + (", ".join(f"{k} {v}" for k, v in sorted(reserved_mix.items()))
+                 or "nothing to reserve")
+              + f" | {len(fresh)} of {top} slots used")
     if binned or urgent or closing:
         print(f"[hunt] buy-it-now lane: {len(binned)} candidate(s), {took_b} "
               f"alerted | urgent (<={urgent_h:g}h): {len(urgent)}, {took_u} "
