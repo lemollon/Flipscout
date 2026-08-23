@@ -38,6 +38,7 @@ from .cards import comp_url as cards_comp_url
 from .cards import one_liner as card_line, read as read_card
 from .hunters import build_hunters
 from .auctionfees import REQUIRE_CARD
+from . import notify
 from .notify import describe_webhook, destination, notify_rich
 from .ebay_ui import sold_url
 from .pricebook import comp_search, match, search_terms
@@ -133,6 +134,16 @@ def load_config(env=None) -> dict:
         "state_file": env.get("FLIPSCOUT_STATE_FILE", "flipscout_seen.json"),
         # Every qualifying item, published for the web app's deals board.
         "board_file": env.get("FLIPSCOUT_BOARD_FILE", "docs/deals.json"),
+        # Whole collections listed for sale on PriceCharting. On by default:
+        # it costs one page fetch per run when nothing is new, and the feed is
+        # public - no key to forget to set. FLIPSCOUT_COLLECTIONS=0 turns it off.
+        # 🚨 UNSET MUST MEAN ON, AND UNSET LOOKS LIKE "". Actions renders an
+        # undefined `vars.X` as the empty string, so a first cut that read ""
+        # as falsy would have shipped the feature switched OFF the moment the
+        # workflow mapped it - the same shape as the FLIPSCOUT_* vars that were
+        # set correctly and inert for a full run. Only an explicit word is off.
+        "collections": ((env.get("FLIPSCOUT_COLLECTIONS") or "1").strip().lower()
+                        not in ("0", "false", "no", "off")),
     }
 
 
@@ -208,6 +219,68 @@ def post_estate_digest(config: dict, notifier, feed=None) -> bool:
     _mark_heartbeat(config["heartbeat_file"], key="estates")
     print(f"[hunt] estate digest: {len(sales)} sale(s) near {area}.")
     return True
+
+
+def _collections_pass(config: dict, notifier, seen: set) -> set:
+    """post_collections, wrapped so a dead PriceCharting never kills a run."""
+    if not config.get("collections"):
+        return set()
+    try:
+        return post_collections(config, notifier, seen)
+    except Exception as e:
+        print(f"[hunt] collections pass failed (non-fatal): {e}")
+        return set()
+
+
+def post_collections(config: dict, notifier, seen: set, feed=None,
+                     today=None) -> set:
+    """Whole collections listed for sale on PriceCharting -> the collections
+    channel. Returns the seen-keys to persist.
+
+    Not a digest and not a deal alert. A collection has no lot, no clock and no
+    ceiling - the action is an email to the seller - so it gets its own channel
+    and its own seen-namespace, and it NEVER carries an arming number.
+    See collections_feed.py for why this reads the page and not the mail.
+    """
+    from . import collections_feed as _cf
+    cols = feed if feed is not None else _cf.feed()
+    if not cols:
+        return set()
+    fresh = [c for c in cols
+             if _cf.key(c) not in seen
+             and c.total_value >= _cf.MIN_VALUE
+             and _cf.age_days(c.age) <= _cf.MAX_AGE_DAYS]
+    if not fresh:
+        return set()
+    fresh.sort(key=lambda c: -c.total_value)
+    queued = max(0, len(fresh) - _cf.POST_PER_RUN)
+    batch = fresh[:_cf.POST_PER_RUN]
+
+    alerts, posted = [], set()
+    for col in batch:
+        try:
+            items = _cf.items_of(col)
+            unmeasured = _cf.measure(items)
+            summary = _cf.summarize(col, items, unmeasured, today=today)
+            alerts.append(_cf.to_alert(col, items, summary, today=today))
+            posted.add(_cf.key(col))
+        except Exception as e:                # one bad page never kills the run
+            print(f"[hunt] collection {col.seller} failed (non-fatal): {e}")
+    if not alerts:
+        return set()
+
+    header = (f":package: **Collections for sale** - {len(alerts)} new"
+              # 🚨 SAY WHAT IS STILL QUEUED. Three a run drains a backlog over
+              # a few hours; without this line the other thirteen look like
+              # they were never found.
+              + (f", {queued} more queued" if queued else "")
+              + "\n_No bidding here - you email the seller an offer._")
+    sent = notifier(alerts, content=header)
+    if not sent:
+        print(f"[hunt] COLLECTIONS NOT DELIVERED - {len(alerts)} went nowhere.")
+        return set()
+    print(f"[hunt] COLLECTIONS: {len(alerts)} posted via {', '.join(sent)}.")
+    return posted
 
 
 def post_garage_digest(config: dict, notifier, feed=None) -> bool:
@@ -1235,22 +1308,28 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     # Print the DESTINATION every run. Delivery success has repeatedly meant
     # "Discord accepted it" while the alerts landed in a channel nobody watches.
     print(f"[hunt] alert destination: {describe_webhook(os.environ.get('FLIPSCOUT_ALERT_WEBHOOK'))}")
-    # 🚨 SAY WHERE CARDS GO, TOO. The cards webhook falls back to the main
-    # channel when unset - deliberately, so a routing rule can never make an
-    # alert vanish - and the cost of that safety is that a MISSING secret looks
-    # exactly like a working setup: cards quietly pile into #flips and the
-    # cards channel reads as broken. Same failure this line already exists to
-    # prevent for the main webhook, one channel over.
-    _cards_hook = os.environ.get("FLIPSCOUT_CARDS_WEBHOOK")
-    if _cards_hook:
-        print(f"[hunt] card destination:  {describe_webhook(_cards_hook)}")
-        if not (os.environ.get("FLIPSCOUT_CARDS_CHANNEL_ID") or "").strip():
-            print("[hunt] card destination:  no FLIPSCOUT_CARDS_CHANNEL_ID - "
-                  "cards will post but arrive with no tap-to-arm chips.")
-    else:
-        print("[hunt] card destination:  NOT SET - card alerts will fall back "
-              "to the main channel. Set FLIPSCOUT_CARDS_WEBHOOK to split them "
-              "out.")
+    # 🚨 SAY WHERE EVERY SUBJECT GOES, TOO. A subject webhook falls back to the
+    # main channel when unset - deliberately, so a routing rule can never make
+    # an alert vanish - and the cost of that safety is that a MISSING secret
+    # looks exactly like a working setup: those alerts quietly pile into #flips
+    # and the subject channel reads as broken. Same failure the line above
+    # exists to prevent for the main webhook, one channel over. Printed for
+    # ALL of them since 2026-08-23, because it was card-only while five more
+    # channels were added and each one repeats the identical trap.
+    for _name, (_hook_var, _chan_var) in sorted(notify.CHANNELS.items()):
+        _tag = f"[hunt] {_name} destination:"
+        _hook = os.environ.get(_hook_var)
+        if _hook:
+            print(f"{_tag} {describe_webhook(_hook)}")
+            if not (os.environ.get(_chan_var) or "").strip():
+                print(f"{_tag} no {_chan_var} - these post but arrive with no "
+                      f"tap-to-arm chips.")
+        else:
+            _falls_to = notify.PARENT.get(_name)
+            print(f"{_tag} NOT SET - {notify.CHANNEL_LABEL.get(_name, _name)} "
+                  f"alerts fall back to "
+                  f"{'#' + _falls_to if _falls_to else 'the main channel'}. "
+                  f"Set {_hook_var} to split them out.")
     # Say the local config out loud. These come from repo VARIABLES, which the
     # workflow has to map into env one by one - three of them were set and
     # silently inert for a full run, and the log looked perfectly healthy.
@@ -1516,10 +1595,15 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
                 f"_Quiet is normal._")))
             _mark_heartbeat(config["heartbeat_file"])
         scouted, scout_sent = _post_scout(rows, config, seen, notifier)
-        if scouted:
-            _save_seen(config["state_file"], seen | scouted)
+        # 🚨 RUNS ON THE QUIET PATH TOO, same reason as the card scout: a
+        # collection is listed by a stranger on their schedule, not ours, and
+        # the day nothing clears the priced bar is not the day nobody listed.
+        cols = _collections_pass(config, notifier, seen | scouted)
+        if scouted or cols:
+            _save_seen(config["state_file"], seen | scouted | cols)
         return {"scanned": len(rows), "priced": len(cands), "new": 0,
-                "sent": scout_sent, "scouted": len(scouted)}
+                "sent": scout_sent, "scouted": len(scouted),
+                "collections": len(cols)}
 
     alerts = [to_alert(c) for c in fresh]
     header = (f"**Flipscout** - {len(alerts)} new "
@@ -1539,10 +1623,11 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
 
     fresh_keys = {f"{c['row']['source']}:{c['row']['id']}" for c in fresh}
     scouted, scout_sent = _post_scout(rows, config, seen | fresh_keys, notifier)
-    _save_seen(config["state_file"], seen | fresh_keys | scouted)
+    cols = _collections_pass(config, notifier, seen | fresh_keys | scouted)
+    _save_seen(config["state_file"], seen | fresh_keys | scouted | cols)
     return {"scanned": len(rows), "priced": len(cands), "new": len(fresh),
             "sent": sent + [x for x in scout_sent if x not in sent],
-            "scouted": len(scouted)}
+            "scouted": len(scouted), "collections": len(cols)}
 
 
 def main(argv=None) -> int:

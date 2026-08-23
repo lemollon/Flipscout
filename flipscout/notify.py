@@ -10,25 +10,36 @@ If neither is configured, alerts just print (they still show in the run's logs).
 
 CHANNEL ROUTING
 ---------------
-One Discord channel per SUBJECT, not one channel for everything. Leron made a
-channel for cards specifically on 2026-08-22, so a card alert goes to
-FLIPSCOUT_CARDS_WEBHOOK and everything else goes to FLIPSCOUT_ALERT_WEBHOOK.
+One Discord channel per SUBJECT, not one channel for everything. Cards split
+out on 2026-08-22; watches, camcorders, iPods and games split out on
+2026-08-23 (Leron: "we need more channels - one for watches, camcorders,
+iPods and the other items we resell").
 
 🚨 A ROUTING RULE MUST NEVER MAKE AN ALERT VANISH. Every named channel falls
-back to the default one when its webhook is unset, because a routed alert that
-silently goes nowhere looks exactly like the watcher having died - which this
-file already has one hard-won guard against (see describe_webhook).
+back - to its parent channel if it has one, then to the default - when its
+webhook is unset, because a routed alert that silently goes nowhere looks
+exactly like the watcher having died, which this file already has one hard-won
+guard against (see describe_webhook). That safety has a cost, and it is the
+reason for the second rule:
+
+🚨 AN UNSET CHANNEL IS INVISIBLE, NOT LOUD. A missing webhook reads as "those
+alerts are in the wrong channel", never as an error - it has already cost three
+rounds of "my cards are in the wrong place". So `hunt.run` prints EVERY
+channel's resolved destination on every run, and nothing here is allowed to be
+configured silently.
 
 🚨 A SECOND CHANNEL NEEDS A SECOND CHANNEL ID. The tap-to-arm chips are placed
 by the BOT, which addresses a channel by id (FLIPSCOUT_DISCORD_CHANNEL_ID) and
-not by webhook. Post cards to a new channel without setting
-FLIPSCOUT_CARDS_CHANNEL_ID and they arrive un-armable, with the seeding call
-404ing against the wrong channel - so routing carries the id alongside the URL.
+not by webhook. Post to a new channel without setting its *_CHANNEL_ID and the
+cards arrive un-armable, with the seeding call 404ing against the wrong
+channel - so routing carries the id alongside the URL, and discordarm._cfg
+polls every id in CHANNELS.
 """
 
 from __future__ import annotations
 
 import os
+import re
 import smtplib
 from email.message import EmailMessage
 from typing import Optional
@@ -40,21 +51,98 @@ from .cards import read as read_card
 
 # --- channel routing --------------------------------------------------------
 # name -> (webhook env var, channel-id env var). Adding a channel is one line
-# here plus one entry in `channel_for`.
+# here plus one line in CATEGORY_CHANNEL, and one mapping in watch.yml - which
+# is the step that is actually easy to forget (an unmapped secret is inert and
+# silent; see the env-trap comments in that file).
 CHANNELS = {
-    "cards": ("FLIPSCOUT_CARDS_WEBHOOK", "FLIPSCOUT_CARDS_CHANNEL_ID"),
+    "cards":      ("FLIPSCOUT_CARDS_WEBHOOK",      "FLIPSCOUT_CARDS_CHANNEL_ID"),
+    "watches":    ("FLIPSCOUT_WATCHES_WEBHOOK",    "FLIPSCOUT_WATCHES_CHANNEL_ID"),
+    "cameras":    ("FLIPSCOUT_CAMERAS_WEBHOOK",    "FLIPSCOUT_CAMERAS_CHANNEL_ID"),
+    "camcorders": ("FLIPSCOUT_CAMCORDERS_WEBHOOK", "FLIPSCOUT_CAMCORDERS_CHANNEL_ID"),
+    "ipods":      ("FLIPSCOUT_IPODS_WEBHOOK",      "FLIPSCOUT_IPODS_CHANNEL_ID"),
+    "games":      ("FLIPSCOUT_GAMES_WEBHOOK",      "FLIPSCOUT_GAMES_CHANNEL_ID"),
 }
 
+# A channel that is a SUBSET of another falls back to its parent before the
+# default. A camcorder is priced as a camera (category "cameras" - there is one
+# camcorder model in the book, sony_handycam), so with #camcorders unset the
+# right home is #cameras, not the general deals channel. Only then the default.
+PARENT = {"camcorders": "cameras"}
+
+# Human names, for the "where does this go" log line and the setup docs.
+CHANNEL_LABEL = {
+    "cards":      "trading cards (Pokemon + sports)",
+    "watches":    "watches (Citizen / Seiko / G-Shock)",
+    "cameras":    "cameras + lenses",
+    "camcorders": "camcorders (Handycam / MiniDV / Hi8)",
+    "ipods":      "iPods + portable audio (Walkman, headphones)",
+    "games":      "video games + consoles + Pokemon carts",
+}
+
+# 🚨 ONE SUBJECT PER CHANNEL, AND THE BOOK'S OWN CATEGORY DECIDES IT. This is
+# what the listing was actually PRICED as, versus what its title reads like, so
+# it is checked before any title reader. Categories absent from this map (
+# calculators, medical, sewing, tools, test-gear, metrology, collections, and
+# anything added to the book later) go to the default deals channel - a new
+# category is never silently swallowed by an existing channel.
+CATEGORY_CHANNEL = {
+    "pokemon-cards": "cards",
+    "sports-cards":  "cards",
+    "cards":         "cards",
+    "watches":       "watches",
+    "cameras":       "cameras",
+    "lenses":        "cameras",
+    "ipods":         "ipods",
+    "walkman":       "ipods",
+    "headphones":    "ipods",
+    # 🚨 "pokemon" IS CARTRIDGES, NOT CARDS. The book prices Pokemon GAME
+    # cartridges under "pokemon"; the TCG lives under "pokemon-cards". Five
+    # cartridges once sat in #cards because the title reader saw the word - the
+    # category map is what keeps them in #games.
+    "videogames":    "games",
+    "pokemon":       "games",
+}
+
+# Categories that must NOT be judged by the card reader, routed to the default
+# channel explicitly. A collection of Pokemon cards has "pokemon" and a grader
+# name all over its item list; letting `read_card` see it would file a
+# whole-collection offer in the cards channel.
+NEVER_CARDS = {"collections"}
+
 # The price book's own category names for cards. Authoritative when present -
-# it is what the listing was actually PRICED as, versus what its title reads
-# like - so it is checked before the title reader.
+# it is what the listing was actually PRICED as - so it is checked before the
+# title reader. Kept as its own name because `hunt` and the tests read it.
 CARD_CATEGORIES = {"pokemon-cards", "cards", "sports-cards"}
+
+# 🚨 A CAMCORDER IS PRICED AS A CAMERA, so category alone cannot separate them
+# and this is the one place a title read is load-bearing for routing. The
+# patterns are the book's own `sony_handycam.include` plus the tape formats
+# that ARE the value (buyers want to digitise Video8/Hi8/MiniDV) - deliberately
+# narrow, because a false positive here only misfiles between two camera
+# channels, while a broad "video" or "cam" would drag whole film SLRs across.
+CAMCORDER_RE = re.compile(
+    r"handycam|camcorder|\bdcr\s*-|\bhdr\s*-\s*(?:cx|xr|pj|sr)|"
+    r"\bccd\s*-\s*tr|mini\s*-?\s*dv|\bhi-?\s?8\b|\bvideo\s?8\b|\bdigital\s?8\b",
+    re.I)
 
 
 def channel_for(candidate: dict, env=None) -> str:
     """Which named channel this listing belongs in. "" is the default channel."""
-    if (candidate.get("category") or "").lower() in CARD_CATEGORIES:
-        return "cards"
+    # 🚨 BEFORE THE TITLE READER, NOT AFTER. The category is what it was BUILT
+    # as - it wins over what the text reads like.
+    # .strip() because a category is not always the book's own literal - a
+    # hand-built candidate or a future env-driven one can carry whitespace, and
+    # " watches " missing the map is a silent fall-through to #deals.
+    cat = (candidate.get("category") or "").strip().lower()
+    if cat in NEVER_CARDS:
+        return ""
+    name = CATEGORY_CHANNEL.get(cat, "")
+    if name == "cameras" and CAMCORDER_RE.search(candidate.get("title") or ""):
+        return "camcorders"
+    if name:
+        return name
+    # No category (the scout path, the board digest, anything hand-built): fall
+    # back to reading the title, which only ever answers the card question.
     if read_card(candidate.get("title") or "").is_card:
         return "cards"
     return ""
@@ -71,13 +159,18 @@ def destination(candidate: dict, env=None) -> tuple:
                (env.get("FLIPSCOUT_DISCORD_CHANNEL_ID") or "").strip(),
                "webhook")
     name = channel_for(candidate, env)
-    if not name:
-        return default
-    hook_var, chan_var = CHANNELS[name]
-    url = (env.get(hook_var) or "").strip()
-    if not url:
-        return default
-    return url, (env.get(chan_var) or "").strip(), f"webhook:{name}"
+    # Walk the chain: the named channel, then its parent (a camcorder lands in
+    # #cameras before it lands in #deals), then the default. `seen` because a
+    # typo in PARENT must not spin here forever.
+    seen = set()
+    while name and name not in seen:
+        seen.add(name)
+        hook_var, chan_var = CHANNELS[name]
+        url = (env.get(hook_var) or "").strip()
+        if url:
+            return url, (env.get(chan_var) or "").strip(), f"webhook:{name}"
+        name = PARENT.get(name, "")
+    return default
 
 
 def format_digest(hits, header: Optional[str] = None) -> str:

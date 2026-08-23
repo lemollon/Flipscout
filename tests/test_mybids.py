@@ -416,3 +416,20 @@ def test_raise_max_alert_names_the_ceiling():
     assert "Harden your max" in a["reason"]
     assert f"${adv.max_bid:,.2f}" in a["reason"]
     assert "Room to raise" not in a["reason"]        # no duplicate tail
+
+
+def test_an_endgame_alert_carries_its_category_so_it_routes(monkeypatch):
+    """🚨 EVERY ENDGAME ALERT LANDED IN #deals. notify routes on the price
+    book's category and this dict carried none, so a Citizen about to be lost
+    posted to the general channel while the same watch from `hunt` posted to
+    #watches. `model` was already in hand - it was simply never passed on."""
+    from flipscout import notify, pricebook as pb
+    import inspect
+    from flipscout import mybids
+    src = inspect.getsource(mybids)
+    assert '"category": getattr(model, "category", "")' in src, \
+        "the endgame alert dict must carry the book category"
+    # and the value it carries actually routes
+    watch = next(m for m in pb.MODELS if m.category == "watches")
+    assert notify.channel_for({"category": watch.category,
+                               "title": watch.label}) == "watches"
