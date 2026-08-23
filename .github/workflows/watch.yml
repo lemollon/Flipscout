@@ -99,6 +99,11 @@ jobs:
           # never make an alert vanish - which means an unmapped secret shows up
           # as "cards go to #flips", not as an error.
           FLIPSCOUT_CARDS_WEBHOOK: ${{ secrets.FLIPSCOUT_CARDS_WEBHOOK }}
+          # PriceCharting collections-for-sale. ON by default and needs no key
+          # (the feed is public), so this maps ONLY the off switch - mapped NOW
+          # per this file's own env-trap rule, because a variable that is not
+          # in this block does nothing at all and does it silently.
+          FLIPSCOUT_COLLECTIONS: ${{ vars.FLIPSCOUT_COLLECTIONS }}
           # Pokemon card comps (TCGplayer market via api.pokemontcg.io). The
           # API works with NO key; a free key raises the daily allowance,
           # which matters because GitHub runners share IPs with everyone

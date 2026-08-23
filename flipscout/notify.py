@@ -45,6 +45,16 @@ CHANNELS = {
     "cards": ("FLIPSCOUT_CARDS_WEBHOOK", "FLIPSCOUT_CARDS_CHANNEL_ID"),
 }
 
+# 🚨 CARDS ARE THE ONLY SPLIT. Leron, 2026-08-23: "push anything not a card to
+# the deals channel". A third channel was built for the PriceCharting
+# collections and reverted before it shipped - the rule is one exception, not
+# one channel per subject, because every extra channel is another webhook and
+# channel-id pair that can be left unset and silently fall back (which is the
+# symptom that has already cost three rounds of "my cards are in the wrong
+# place"). Categories that must NOT be judged by the card reader are listed
+# here and route to the default channel explicitly.
+NEVER_CARDS = {"collections"}
+
 # The price book's own category names for cards. Authoritative when present -
 # it is what the listing was actually PRICED as, versus what its title reads
 # like - so it is checked before the title reader.
@@ -53,6 +63,14 @@ CARD_CATEGORIES = {"pokemon-cards", "cards", "sports-cards"}
 
 def channel_for(candidate: dict, env=None) -> str:
     """Which named channel this listing belongs in. "" is the default channel."""
+    # 🚨 BEFORE THE TITLE READER, NOT AFTER. A collection of Pokemon cards has
+    # "pokemon" and a grader name all over its item list; letting `read_card`
+    # see it would file a whole-collection offer in the cards channel, which is
+    # the same mistake in reverse as the five Pokemon CARTRIDGES that sat in
+    # #cards. The category is what it was BUILT as - it wins over what the text
+    # reads like.
+    if (candidate.get("category") or "").lower() in NEVER_CARDS:
+        return ""
     if (candidate.get("category") or "").lower() in CARD_CATEGORIES:
         return "cards"
     if read_card(candidate.get("title") or "").is_card:
