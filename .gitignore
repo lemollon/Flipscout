@@ -41,3 +41,6 @@ SNIPE_DISABLED
 snipe_run.log
 flipscout_poke_cache.json
 flipscout_sports_cache.json
+
+# eBay last-call sentry state (local runtime, like its siblings above)
+ebay_closing_state.json

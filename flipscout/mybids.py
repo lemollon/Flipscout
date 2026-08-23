@@ -530,6 +530,14 @@ def to_alert(kind: str, bid: Bid, live: dict, model=None, adv=None) -> dict:
         "bids": live.get("bids"),
         "ends": live.get("ends"),
         "source": "goodwill",
+        # 🚨 WITHOUT THIS EVERY ENDGAME ALERT LANDS IN #deals. notify routes on
+        # the price book's category, and this dict carried none - so a Citizen
+        # about to be lost posted to the general channel while the same watch
+        # from `hunt` posted to #watches. Found 2026-08-23 auditing the subject
+        # channels; `model` was already in hand, it was simply never passed on.
+        # "" when the lot is not in the book, which routes to the default -
+        # correct, because there is no subject to route it by.
+        "category": getattr(model, "category", "") or "",
         "reason": "\n".join(bits),
     }
     if adv is not None:

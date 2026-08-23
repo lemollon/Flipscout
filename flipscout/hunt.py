@@ -38,6 +38,7 @@ from .cards import comp_url as cards_comp_url
 from .cards import one_liner as card_line, read as read_card
 from .hunters import build_hunters
 from .auctionfees import REQUIRE_CARD
+from . import notify
 from .notify import describe_webhook, destination, notify_rich
 from .ebay_ui import sold_url
 from .pricebook import comp_search, match, search_terms
@@ -1307,22 +1308,28 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     # Print the DESTINATION every run. Delivery success has repeatedly meant
     # "Discord accepted it" while the alerts landed in a channel nobody watches.
     print(f"[hunt] alert destination: {describe_webhook(os.environ.get('FLIPSCOUT_ALERT_WEBHOOK'))}")
-    # 🚨 SAY WHERE CARDS GO, TOO. The cards webhook falls back to the main
-    # channel when unset - deliberately, so a routing rule can never make an
-    # alert vanish - and the cost of that safety is that a MISSING secret looks
-    # exactly like a working setup: cards quietly pile into #flips and the
-    # cards channel reads as broken. Same failure this line already exists to
-    # prevent for the main webhook, one channel over.
-    _cards_hook = os.environ.get("FLIPSCOUT_CARDS_WEBHOOK")
-    if _cards_hook:
-        print(f"[hunt] card destination:  {describe_webhook(_cards_hook)}")
-        if not (os.environ.get("FLIPSCOUT_CARDS_CHANNEL_ID") or "").strip():
-            print("[hunt] card destination:  no FLIPSCOUT_CARDS_CHANNEL_ID - "
-                  "cards will post but arrive with no tap-to-arm chips.")
-    else:
-        print("[hunt] card destination:  NOT SET - card alerts will fall back "
-              "to the main channel. Set FLIPSCOUT_CARDS_WEBHOOK to split them "
-              "out.")
+    # 🚨 SAY WHERE EVERY SUBJECT GOES, TOO. A subject webhook falls back to the
+    # main channel when unset - deliberately, so a routing rule can never make
+    # an alert vanish - and the cost of that safety is that a MISSING secret
+    # looks exactly like a working setup: those alerts quietly pile into #flips
+    # and the subject channel reads as broken. Same failure the line above
+    # exists to prevent for the main webhook, one channel over. Printed for
+    # ALL of them since 2026-08-23, because it was card-only while five more
+    # channels were added and each one repeats the identical trap.
+    for _name, (_hook_var, _chan_var) in sorted(notify.CHANNELS.items()):
+        _tag = f"[hunt] {_name} destination:"
+        _hook = os.environ.get(_hook_var)
+        if _hook:
+            print(f"{_tag} {describe_webhook(_hook)}")
+            if not (os.environ.get(_chan_var) or "").strip():
+                print(f"{_tag} no {_chan_var} - these post but arrive with no "
+                      f"tap-to-arm chips.")
+        else:
+            _falls_to = notify.PARENT.get(_name)
+            print(f"{_tag} NOT SET - {notify.CHANNEL_LABEL.get(_name, _name)} "
+                  f"alerts fall back to "
+                  f"{'#' + _falls_to if _falls_to else 'the main channel'}. "
+                  f"Set {_hook_var} to split them out.")
     # Say the local config out loud. These come from repo VARIABLES, which the
     # workflow has to map into env one by one - three of them were set and
     # silently inert for a full run, and the log looked perfectly healthy.

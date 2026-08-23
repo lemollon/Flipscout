@@ -99,6 +99,18 @@ jobs:
           # never make an alert vanish - which means an unmapped secret shows up
           # as "cards go to #flips", not as an error.
           FLIPSCOUT_CARDS_WEBHOOK: ${{ secrets.FLIPSCOUT_CARDS_WEBHOOK }}
+          # SUBJECT CHANNELS, added 2026-08-23. Each is OPTIONAL and each is
+          # a PAIR: the *_WEBHOOK secret posts the card, the *_CHANNEL_ID
+          # variable is what lets the bot put the tap-to-arm chips on it.
+          # Unset ones fall back (camcorders -> cameras -> the main channel),
+          # so create only the channels you actually want - but map them ALL
+          # here, because a secret this block does not name is inert and
+          # silent. `[hunt] <name> destination:` prints the truth every run.
+          FLIPSCOUT_WATCHES_WEBHOOK: ${{ secrets.FLIPSCOUT_WATCHES_WEBHOOK }}
+          FLIPSCOUT_CAMERAS_WEBHOOK: ${{ secrets.FLIPSCOUT_CAMERAS_WEBHOOK }}
+          FLIPSCOUT_CAMCORDERS_WEBHOOK: ${{ secrets.FLIPSCOUT_CAMCORDERS_WEBHOOK }}
+          FLIPSCOUT_IPODS_WEBHOOK: ${{ secrets.FLIPSCOUT_IPODS_WEBHOOK }}
+          FLIPSCOUT_GAMES_WEBHOOK: ${{ secrets.FLIPSCOUT_GAMES_WEBHOOK }}
           # PriceCharting collections-for-sale. ON by default and needs no key
           # (the feed is public), so this maps ONLY the off switch - mapped NOW
           # per this file's own env-trap rule, because a variable that is not
@@ -117,6 +129,11 @@ jobs:
           # Legendary tier; the $6 tier does not include it.
           SPORTSCARDSPRO_TOKEN: ${{ secrets.SPORTSCARDSPRO_TOKEN }}
           FLIPSCOUT_CARDS_CHANNEL_ID: ${{ vars.FLIPSCOUT_CARDS_CHANNEL_ID }}
+          FLIPSCOUT_WATCHES_CHANNEL_ID: ${{ vars.FLIPSCOUT_WATCHES_CHANNEL_ID }}
+          FLIPSCOUT_CAMERAS_CHANNEL_ID: ${{ vars.FLIPSCOUT_CAMERAS_CHANNEL_ID }}
+          FLIPSCOUT_CAMCORDERS_CHANNEL_ID: ${{ vars.FLIPSCOUT_CAMCORDERS_CHANNEL_ID }}
+          FLIPSCOUT_IPODS_CHANNEL_ID: ${{ vars.FLIPSCOUT_IPODS_CHANNEL_ID }}
+          FLIPSCOUT_GAMES_CHANNEL_ID: ${{ vars.FLIPSCOUT_GAMES_CHANNEL_ID }}
           FLIPSCOUT_DISCORD_CHANNEL_ID: ${{ vars.FLIPSCOUT_DISCORD_CHANNEL_ID }}
           # How many runs it takes to sweep the whole eBay term pool once.
           # 8 = full coverage every ~4 hours for ~1/8 the calls; the daily

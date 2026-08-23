@@ -756,6 +756,38 @@ def test_every_configured_channel_is_polled(monkeypatch):
     assert polled == ["/channels/111/messages", "/channels/222/messages"]
 
 
+def test_every_subject_channel_is_polled(monkeypatch):
+    """Six channels since 2026-08-23 (watches / cameras / camcorders / ipods /
+    games, on top of cards). Each one that is created and NOT polled is a
+    channel where the tap-to-arm chips never appear."""
+    from flipscout import discordarm as DA
+    from flipscout.notify import CHANNELS
+    monkeypatch.setenv("FLIPSCOUT_DISCORD_BOT_TOKEN", "tok")
+    monkeypatch.setenv("FLIPSCOUT_DISCORD_CHANNEL_ID", "100")
+    for i, (_hook, chan_var) in enumerate(CHANNELS.values()):
+        monkeypatch.setenv(chan_var, str(200 + i))
+    _tok, ids = DA._cfg()
+    assert ids[0] == "100", "the default channel is still polled first"
+    assert len(ids) == 1 + len(CHANNELS), "a configured channel is not polled"
+
+
+def test_cleanup_sweeps_one_channel_not_the_whole_list(monkeypatch, capsys):
+    """🚨 `_cfg` RETURNS A LIST. `cleanup` unpacked it as a scalar, so the URL
+    became `/channels/['111', '222']/messages` - a 404 on every run since
+    routing shipped, reported only as "read failed". Junk comes from the
+    default webhook, so the default channel is the one to sweep."""
+    from flipscout import discordarm as DA
+    monkeypatch.setenv("FLIPSCOUT_DISCORD_BOT_TOKEN", "tok")
+    monkeypatch.setenv("FLIPSCOUT_DISCORD_CHANNEL_ID", "111")
+    monkeypatch.setenv("FLIPSCOUT_CARDS_CHANNEL_ID", "222")
+    paths = []
+    monkeypatch.setattr(DA, "_get",
+                        lambda path, *a, **k: paths.append(path) or [])
+    DA.cleanup(dry_run=True)
+    assert paths == ["/channels/111/messages"]
+    assert not any("[" in p for p in paths), "the list leaked into the URL"
+
+
 def test_the_same_channel_twice_is_polled_once(monkeypatch):
     """Pointing the cards webhook at the default channel is a legitimate setup
     (one channel, routing off) and must not double every reaction."""

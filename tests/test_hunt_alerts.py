@@ -327,7 +327,28 @@ def test_the_run_says_where_cards_go(monkeypatch, capsys):
     except Exception:
         pass
     out = capsys.readouterr().out
-    assert "card destination" in out and "NOT SET" in out
+    assert "cards destination" in out and "NOT SET" in out
+
+
+def test_the_run_says_where_every_subject_channel_goes(monkeypatch, capsys):
+    """The card-only version of this line was written while five more
+    channels were added on 2026-08-23, and each one repeats the identical
+    trap: a missing webhook is invisible, it just moves the alerts."""
+    from flipscout import hunt, notify
+    for hook_var, chan_var in notify.CHANNELS.values():
+        monkeypatch.delenv(hook_var, raising=False)
+        monkeypatch.delenv(chan_var, raising=False)
+    monkeypatch.setattr(hunt, "sweep", lambda *a, **k: [])
+    monkeypatch.setattr(hunt, "describe_webhook", lambda u: "none")
+    try:
+        hunt.run(notifier=lambda *a, **k: [])
+    except Exception:
+        pass
+    out = capsys.readouterr().out
+    for name in notify.CHANNELS:
+        assert f"{name} destination:" in out, f"{name} is not reported"
+    # camcorders say they land in #cameras, not in the general feed
+    assert "#cameras" in out
 
 
 def test_the_workflow_passes_the_cards_secrets_through():
