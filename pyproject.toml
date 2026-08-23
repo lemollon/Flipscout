@@ -16,7 +16,12 @@ dependencies = [
 [project.optional-dependencies]
 server = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "python-multipart>=0.0.9"]
 scan = ["anthropic>=0.40", "pillow>=10", "pytesseract>=0.3.10"]  # screenshot -> fields
-dev = ["pytest>=7", "fastapi>=0.110", "httpx>=0.27", "python-multipart>=0.0.9"]
+# pyyaml is a TEST dependency: a FLIPSCOUT_* var missing from watch.yml's env
+# block does nothing at all and does it silently, so the mapping is pinned by
+# PARSING the workflow rather than eyeballing it - the rule that file already
+# carries. Without this the guard test cannot run in CI, which is the one
+# place it matters.
+dev = ["pytest>=7", "fastapi>=0.110", "httpx>=0.27", "python-multipart>=0.0.9", "pyyaml>=6"]
 
 [project.scripts]
 flipscout = "flipscout.cli:main"
