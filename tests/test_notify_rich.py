@@ -1,5 +1,7 @@
 """Tests for image+link (embed) alerts."""
 
+import pytest
+
 from flipscout import notify
 from flipscout.notify import VERDICT_COLORS, build_embed, notify_rich
 
@@ -257,9 +259,115 @@ def test_the_priced_category_routes_even_when_the_title_does_not():
 
 
 def test_everything_else_still_goes_to_the_main_channel():
-    other = dict(CAND, category="cameras", title="Canon AE-1 35mm Film Camera")
+    """A category with no channel of its own is never swallowed by an existing
+    one - it lands in the default deals channel. Was `cameras` until cameras
+    got a channel of its own on 2026-08-23; a calculator has none."""
+    other = dict(CAND, category="calculators", title="TI-84 Plus CE")
     assert notify.channel_for(other) == ""
     assert notify.destination(other, CARDS_ENV)[0] == "http://main"
+
+
+# --- the 2026-08-23 subject channels ----------------------------------------
+# Leron: "we need more channels - one for watches, camcorders, iPods and the
+# other items we resell." Every one of these can only fail silently.
+
+SUBJECT_ENV = dict(CARDS_ENV,
+                   FLIPSCOUT_WATCHES_WEBHOOK="http://watches",
+                   FLIPSCOUT_CAMERAS_WEBHOOK="http://cameras",
+                   FLIPSCOUT_CAMCORDERS_WEBHOOK="http://camcorders",
+                   FLIPSCOUT_IPODS_WEBHOOK="http://ipods",
+                   FLIPSCOUT_GAMES_WEBHOOK="http://games")
+
+
+@pytest.mark.parametrize("category,title,channel", [
+    ("watches",    "Citizen Eco-Drive Perpetual Calendar BL5250", "watches"),
+    ("cameras",    "Canon AE-1 35mm Film Camera",                 "cameras"),
+    ("lenses",     "Canon FD 50mm f/1.4 lens",                    "cameras"),
+    ("ipods",      "Apple iPod Classic 160GB",                    "ipods"),
+    ("walkman",    "Sony Walkman WM-EX",                          "ipods"),
+    ("headphones", "Bose QuietComfort 35 II",                     "ipods"),
+    ("videogames", "Nintendo 64 console bundle",                  "games"),
+    # 🚨 A POKEMON CARTRIDGE IS NOT A CARD. The book prices game carts under
+    # "pokemon" and the TCG under "pokemon-cards"; five cartridges once sat in
+    # #cards because the title reader saw the word.
+    ("pokemon",    "Pokemon Emerald Game Boy Advance",            "games"),
+    ("calculators", "TI-84 Plus CE",                              ""),
+    ("medical",    "Littmann Cardiology IV stethoscope",          ""),
+])
+def test_each_subject_routes_to_its_own_channel(category, title, channel):
+    c = dict(CAND, category=category, title=title)
+    assert notify.channel_for(c) == channel
+    want = f"http://{channel}" if channel else "http://main"
+    assert notify.destination(c, SUBJECT_ENV)[0] == want
+
+
+@pytest.mark.parametrize("title", [
+    "Sony Handycam DCR-TRV19 MiniDV camcorder",
+    "Sony CCD-TR818 Hi8 Video8 Camcorder",
+    "Sony HDR-CX405 Handycam",
+])
+def test_a_camcorder_splits_out_of_the_cameras_channel(title):
+    """🚨 A CAMCORDER IS PRICED AS A CAMERA, so the category alone cannot
+    separate them - the title read is load-bearing here and only here."""
+    c = dict(CAND, category="cameras", title=title)
+    assert notify.channel_for(c) == "camcorders"
+    assert notify.destination(c, SUBJECT_ENV)[0] == "http://camcorders"
+
+
+@pytest.mark.parametrize("title", [
+    "Canon AE-1 Program 35mm SLR",
+    "Olympus Stylus Epic mju-II",
+    "Nikon Coolpix S6000 digital camera",
+    "Contax T2 point and shoot",
+])
+def test_a_still_camera_is_not_read_as_a_camcorder(title):
+    """The camcorder pattern is deliberately narrow. A broad "video"/"cam"
+    would drag whole film SLRs into the wrong channel."""
+    assert notify.channel_for(dict(CAND, category="cameras", title=title)) == "cameras"
+
+
+def test_a_camcorder_falls_back_to_cameras_before_the_main_channel():
+    """🚨 THE FALLBACK CHAIN. With #camcorders not created, a Handycam belongs
+    in #cameras - it is a camera - not dumped in the general deals feed."""
+    c = dict(CAND, category="cameras", title="Sony Handycam DCR-TRV19")
+    env = {"FLIPSCOUT_ALERT_WEBHOOK": "http://main",
+           "FLIPSCOUT_CAMERAS_WEBHOOK": "http://cameras"}
+    assert notify.destination(c, env)[:1] == ("http://cameras",)
+    # ...and with neither set it still lands somewhere, never nowhere.
+    assert notify.destination(c, {"FLIPSCOUT_ALERT_WEBHOOK": "http://main"})[0]         == "http://main"
+
+
+@pytest.mark.parametrize("name", sorted(notify.CHANNELS))
+def test_no_subject_channel_can_ever_drop_an_alert(name):
+    """🚨 THE RULE THAT OUTRANKS ROUTING. Every named channel with no webhook
+    configured resolves to a real URL - the failure mode of a routed alert
+    going nowhere is indistinguishable from the watcher being dead."""
+    hook_var, _chan = notify.CHANNELS[name]
+    probe = {"FLIPSCOUT_ALERT_WEBHOOK": "http://main"}
+    assert notify.destination({"category": "__none__"}, probe)[0] == "http://main"
+    assert hook_var.startswith("FLIPSCOUT_") and hook_var.endswith("_WEBHOOK")
+
+
+def test_every_channel_has_a_label_and_a_workflow_mapping():
+    """🚨 A SECRET NOT MAPPED IN watch.yml IS INERT AND SILENT - this repo's
+    own scar ("three of them were set and silently inert for a full run, and
+    the log looked perfectly healthy"). Adding a channel to CHANNELS without
+    teaching the workflow to pass it through is that failure exactly."""
+    import pathlib
+    wf = (pathlib.Path(__file__).resolve().parent.parent
+          / ".github" / "workflows" / "watch.yml").read_text(encoding="utf-8")
+    for name, (hook_var, chan_var) in notify.CHANNELS.items():
+        assert name in notify.CHANNEL_LABEL, f"{name} has no human label"
+        assert hook_var in wf, f"{hook_var} is not mapped in watch.yml"
+        assert chan_var in wf, f"{chan_var} is not mapped in watch.yml"
+
+
+def test_a_parent_channel_is_itself_a_real_channel():
+    """A fallback pointing at a channel that does not exist would raise a
+    KeyError mid-delivery, which is the one way routing could still lose an
+    alert."""
+    for child, parent in notify.PARENT.items():
+        assert child in notify.CHANNELS and parent in notify.CHANNELS
 
 
 def test_an_unset_cards_webhook_falls_back_and_never_drops_the_alert():
@@ -356,3 +464,99 @@ def test_the_source_alone_cannot_answer_it():
     # derived from the source name.
     assert any(len(v) > 1 for v in per.values()), \
         "no source mixes listing types any more; revisit the banner's rationale"
+
+
+# --- edge cases swept 2026-08-23 --------------------------------------------
+# Leron: "make sure the right items are going to the right folders and the auto
+# bid options are still available." Everything below was run against the 582
+# real listings on the live board first; these pin what that sweep found.
+
+def test_a_category_with_whitespace_still_routes():
+    """🚨 A SILENT FALL-THROUGH. `" watches "` missed the map and landed in
+    #deals looking exactly like a category with no channel."""
+    assert notify.channel_for({"category": "  watches  ", "title": "Citizen"}) \
+        == "watches"
+    assert notify.channel_for({"category": "CAMERAS",
+                               "title": "Sony Handycam DCR-TRV19"}) == "camcorders"
+
+
+@pytest.mark.parametrize("cand", [
+    {}, {"category": None, "title": None}, {"title": ""}, {"category": 0},
+    {"category": "unknown-new-category", "title": "whatever"},
+])
+def test_malformed_candidates_never_raise_and_never_vanish(cand):
+    """Routing runs inside delivery. An exception here does not misfile an
+    alert, it kills the whole post."""
+    assert notify.channel_for(cand) == ""
+    assert notify.destination(cand, {"FLIPSCOUT_ALERT_WEBHOOK": "http://main"})[0] \
+        == "http://main"
+
+
+def test_the_camcorder_pattern_is_a_superset_of_the_books_own_matcher():
+    """🚨 THE INVARIANT THAT KEEPS THE TWO CAMERA CHANNELS HONEST. Every title
+    the price book matches as `sony_handycam` MUST also match CAMCORDER_RE - or
+    that camcorder posts to #cameras with nothing to explain why. Verified
+    against the live board (73 of 73 correct, 0 leaks either way); pinned here
+    against the book's own include pattern so a book edit cannot break it."""
+    import re
+    from flipscout import pricebook as pb
+    hc = next(m for m in pb.MODELS if m.key == "sony_handycam")
+    for probe in ["Sony DCR-TRV350", "handycam", "CCD-TR818", "HDR-CX405",
+                  "HDR-XR160", "HDR-PJ340", "HDR-SR11", "DCR - SX41", "dcr-hc40"]:
+        if re.search(hc.include, probe, re.I):
+            assert notify.CAMCORDER_RE.search(probe), \
+                f"the book calls {probe!r} a Handycam; routing does not"
+
+
+def test_every_price_book_category_routes_somewhere_deliberate():
+    """A category is either mapped to a channel or it is in the default - it is
+    never mapped to a channel that does not exist."""
+    from flipscout import pricebook as pb
+    for m in pb.MODELS:
+        ch = notify.channel_for({"category": m.category, "title": m.label})
+        assert ch == "" or ch in notify.CHANNELS, \
+            f"{m.category} routes to unknown channel {ch!r}"
+
+
+def test_the_arm_chips_are_seeded_in_the_channel_the_card_landed_in(monkeypatch):
+    """🚨 AUTO-BID MUST SURVIVE ROUTING. A reaction is addressed by CHANNEL ID.
+    Seeding a #watches card against the default id 404s silently and the card
+    arrives with no 🎯 - the alert looks fine and arming is simply gone."""
+    seeded = []
+    monkeypatch.setattr(notify, "seed_arm_reactions",
+                        lambda mid, env=None, session=None, channel=None:
+                        seeded.append(channel))
+    env = {"FLIPSCOUT_ALERT_WEBHOOK": "http://main",
+           "FLIPSCOUT_DISCORD_CHANNEL_ID": "100"}
+    for i, (hook, chan) in enumerate(notify.CHANNELS.values()):
+        env[hook], env[chan] = f"http://h{i}", str(200 + i)
+    for cand, want in [
+            ({"category": "watches", "title": "Citizen Promaster"}, "watches"),
+            ({"category": "cameras", "title": "Sony Handycam CCD-TR818"}, "camcorders"),
+            ({"category": "cameras", "title": "Canon AE-1"}, "cameras"),
+            ({"category": "ipods", "title": "iPod Classic 160GB"}, "ipods"),
+            ({"category": "videogames", "title": "Nintendo 64"}, "games"),
+            ({"category": "calculators", "title": "TI-84"}, None)]:
+        seeded.clear()
+        notify_rich([cand], env=env, session=RoutingSession())
+        expected = env[notify.CHANNELS[want][1]] if want else "100"
+        assert seeded == [expected], f"{cand['title']} seeded in {seeded}"
+
+
+def test_every_channel_that_is_posted_to_is_also_polled_for_taps():
+    """🚨 A CHANNEL POSTED TO BUT NOT POLLED IS A CHANNEL WHERE 🎯 DOES
+    NOTHING. The two lists come from different modules; this is the seam."""
+    import os
+    from flipscout import discordarm as DA
+    env = {"FLIPSCOUT_DISCORD_BOT_TOKEN": "tok",
+           "FLIPSCOUT_DISCORD_CHANNEL_ID": "100"}
+    for i, (_hook, chan) in enumerate(notify.CHANNELS.values()):
+        env[chan] = str(200 + i)
+    old = dict(os.environ)
+    try:
+        os.environ.update(env)
+        _tok, polled = DA._cfg()
+    finally:
+        os.environ.clear(); os.environ.update(old)
+    for name, (_hook, chan) in notify.CHANNELS.items():
+        assert env[chan] in polled, f"#{name} is posted to but never polled"

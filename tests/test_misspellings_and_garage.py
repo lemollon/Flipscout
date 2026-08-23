@@ -252,3 +252,15 @@ def test_garage_digest_posts_once_a_day_and_needs_a_zip(tmp_path):
     assert len(posted) == 1
     assert hunt.post_garage_digest({"zip": "", "heartbeat_file": str(hb)},
                                    notifier, feed=Feed()) is False
+
+
+def test_a_facebook_find_carries_its_category_so_it_routes():
+    """🚨 EVERY FACEBOOK FIND LANDED IN #deals - the sweep's alert dict carried
+    no category, so a local Citizen or Handycam posted to the general channel
+    while the same model from `hunt` posted to #watches / #camcorders."""
+    import inspect
+    from flipscout import fbsweep, notify
+    assert '"category": model.category' in inspect.getsource(fbsweep), \
+        "the facebook alert dict must carry the book category"
+    assert notify.channel_for(
+        {"category": "cameras", "title": "Sony Handycam CCD-TR818"}) == "camcorders"

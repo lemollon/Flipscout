@@ -210,6 +210,12 @@ def evaluate(title: str, price: float, location: str = "") -> Optional[dict]:
         return None
     return {
         "title": title, "price": price, "model": model.label,
+        # 🚨 WITHOUT THIS EVERY FACEBOOK FIND LANDS IN #deals. notify routes on
+        # the price book's category and this dict carried none, so a local
+        # Citizen or a Handycam posted to the general channel while the same
+        # model from `hunt` posted to #watches / #camcorders. Found 2026-08-23
+        # auditing the subject channels - `model` was already here.
+        "category": model.category,
         "model_key": model.key, "comp": model.comp,
         "comp_sample": model.sample, "comp_measured": model.measured,
         "max_bid": a.max_bid, "net_resale": a.net_resale,

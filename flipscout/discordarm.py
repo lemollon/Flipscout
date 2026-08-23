@@ -656,10 +656,17 @@ def cleanup(limit: int = 500, dry_run: bool = True) -> int:
     always has an embed, so the thing you would actually miss is structurally
     excluded rather than merely unlikely.
     """
-    token, channel = _cfg()
-    if not token or not channel:
+    # 🚨 `_cfg` RETURNS A LIST OF CHANNELS, NOT ONE. This unpacked it as a
+    # scalar and interpolated the whole list into the URL - every cleanup run
+    # since routing shipped was GETting `/channels/['111', '222']/messages`,
+    # which 404s, prints "read failed", and returns 1. Nothing was ever
+    # deleted and nothing said why. Junk posts come from the default webhook,
+    # so the default channel (first, order-preserving) is the one to sweep.
+    token, channels = _cfg()
+    if not token or not channels:
         print("no FLIPSCOUT_DISCORD_BOT_TOKEN / FLIPSCOUT_DISCORD_CHANNEL_ID")
         return 2
+    channel = channels[0]
     hook = _HOOK_RE.search(os.environ.get("FLIPSCOUT_ALERT_WEBHOOK") or "")
     seen_newest, targets, scanned, before = False, [], 0, None
     while scanned < limit:
