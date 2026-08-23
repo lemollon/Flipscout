@@ -144,26 +144,117 @@ def age_days(age: str) -> float:
 # right for a slab and nonsense for a cartridge - it would print "Grade 7" over
 # rows that mean "complete in box". Games get their own map and their own
 # labels, so the card never says something false about what it is quoting.
-_CONDITION = (
-    (re.compile(r"item\s*only|loose|cart(ridge)?\s*only|disc\s*only", re.I),
-     "used", "Loose"),
+# 🚨 THIS MAP WAS FIRST WRITTEN BY GUESSING AT THE WORDING, AND FOUR OF ITS
+# SEVEN ROWS WERE WRONG. Surveyed 2026-08-23 across 14 live collections - this
+# is the ENTIRE vocabulary the column actually uses, with counts:
+#
+#     170  Ungraded                    <- a CARD, raw. Was labelled "Loose".
+#     167  Item only
+#      32  Item, Box, and Manual       <- CIB. Was read as loose (undervalues).
+#       5  Item and Box only           <- was read as BOX ONLY (wrong tab).
+#       3  Ungraded Qty: 2             <- quantity was ignored entirely.
+#       2  Graded 9                    <- 🚨 was priced against RAW sales.
+#       2  Graded 9.5
+#       1  Graded 7
+#       1  New Item, Box, and Manual
+#
+# ⛔ "Item, Box, and Manual" is the comma bug for the FOURTH time (Singer
+# "includes case, pedal and manual", the _BUNDLED constant). `box\s*and\s*
+# manual` cannot reach "and" through ", ". Any pattern joining two words must
+# allow a comma between them.
+#
+# 🚨 AND THE GRADED ROWS WERE THE MONEY BUG. "Graded 9" fell through to the
+# raw-card tab, quoting a slab against ungraded sales - the same shape as the
+# blanket $92 any-PSA-7-9 comp, arrived at from the opposite direction.
+_QTY = re.compile(r"\bqty:\s*(\d+)", re.I)
+_GRADED = re.compile(r"\bgraded\s*(\d+(?:\.\d)?)", re.I)
+_UNGRADED = re.compile(r"\bungraded\b", re.I)
+
+# Games, most specific wording first - the compound forms have to be tested
+# before the bare ones, because "Item and Box only" CONTAINS "Box only".
+_GAME_CONDITION = (
     (re.compile(r"\bnew\b|sealed|\bnib\b", re.I), "new", "New"),
+    (re.compile(r"item\s*(,|and|&)\s*box\s*only", re.I),
+     "loose-and-box", "Item + box"),
+    (re.compile(r"item\s*(,|and|&)\s*manual\s*only", re.I),
+     "loose-and-manual", "Item + manual"),
+    (re.compile(r"\bcib\b|complete|box\s*(,\s*)?(and|&|\+)\s*manual", re.I),
+     "cib", "Complete"),
     (re.compile(r"box\s*only", re.I), "box-only", "Box only"),
     (re.compile(r"manual\s*only", re.I), "manual-only", "Manual only"),
-    (re.compile(r"\bcib\b|complete|box\s*(and|&|\+)\s*manual", re.I),
-     "cib", "Complete"),
+    (re.compile(r"item\s*only|loose|cart(ridge)?\s*only|disc\s*only", re.I),
+     "used", "Loose"),
 )
 
+# 🚨 THE SITE REUSES THE GAME SLUGS FOR CARD GRADES, AND ONLY THE PAGE KNOWS
+# THE MAPPING. On a card page `completed-auctions-cib` is labelled "Grade 7"
+# and `manual-only` is "PSA 10" - nothing in the slug says so. `_tabs()` reads
+# the mapping off the page's own <option> list so it CANNOT drift; this table
+# is only the fallback for a page whose tab list we failed to parse.
+_GRADE_SLUG = {"1": "loose-and-manual", "2": "box-and-manual",
+               "3": "grade-three", "4": "grade-four", "5": "grade-five",
+               "6": "grade-six", "7": "cib", "8": "new", "9": "graded",
+               "9.5": "box-only", "10": "manual-only"}
 
-def condition_of(includes: str) -> tuple:
-    """(sales-table class, human label) for what a collection row says it has.
+_TAB = re.compile(r'<option[^>]*value="completed-auctions-?([a-z0-9-]*)"[^>]*>'
+                  r'(.*?)</option>', re.S | re.I)
 
-    Unknown wording falls back to loose, which is the honest default: it is the
-    cheapest reading, so an unrecognised phrase under-values rather than over.
+
+def tabs(page: str) -> dict:
+    """{human label -> sales-table slug}, read off the page's own tab list.
+
+    "Ungraded" -> used · "Grade 9" -> graded · "PSA 10" -> manual-only. Empty
+    when the list is missing, which is the caller's cue to fall back.
     """
-    for rx, cls, label in _CONDITION:
-        if rx.search(includes or ""):
-            return cls, label
+    out = {}
+    for slug, label in _TAB.findall(page):
+        name = _html.unescape(re.sub(r"<[^>]+>", "", label))
+        name = re.sub(r"\s*\(\d+\)\s*$", "", name).strip()   # drop the count
+        if name:
+            out[name.lower()] = slug or "used"
+    return out
+
+
+def quantity(includes: str) -> int:
+    """🚨 THE VALUE COLUMN IS GUIDE x QTY, NOT A UNIT PRICE. Measured: a
+    "Qty: 5" Gamecube controller carries $149.95 against a $29.99 sold median -
+    exactly 5x. Ignoring it makes one row look like a $150 item and makes its
+    sell-through look five times better than it is."""
+    m = _QTY.search(includes or "")
+    return max(1, int(m.group(1))) if m else 1
+
+
+def condition_of(includes: str, page_tabs: Optional[dict] = None) -> tuple:
+    """(sales-table slug, human label) for what a collection row says it has.
+
+    `page_tabs` is the product page's own label->slug map when we have it, so a
+    graded card is quoted against ITS grade rather than a slug we guessed.
+    Unknown wording falls back to loose/raw - the cheapest reading, so a phrase
+    we have never seen under-values rather than over.
+    """
+    text = _QTY.sub(" ", includes or "")
+    tabs_ = page_tabs or {}
+
+    g = _GRADED.search(text)
+    if g:
+        num = g.group(1).rstrip("0").rstrip(".") if "." in g.group(1) \
+            else g.group(1)
+        # 10 has a grader-specific tab per company; PSA is the deepest market
+        # and the only one with rows on most cards, so it is the 10 we quote.
+        wanted = "psa 10" if num == "10" else f"grade {num}"
+        if wanted in tabs_:
+            return tabs_[wanted], wanted.upper() if num == "10" \
+                else f"Grade {num}"
+        return _GRADE_SLUG.get(num, "used"), f"Grade {num}"
+
+    if _UNGRADED.search(text):
+        # 🚨 A RAW CARD IS NOT "LOOSE". Same tab, different word, and printing
+        # a cartridge word over a card is how a card ends up read as a game.
+        return tabs_.get("ungraded", "used"), "Ungraded"
+
+    for rx, slug, label in _GAME_CONDITION:
+        if rx.search(text):
+            return slug, label
     return "used", "Loose"
 
 
@@ -266,6 +357,10 @@ class Item:
     def high(self) -> Optional[float]:
         return max(p for _, p in self.sales) if self.sales else None
 
+    @property
+    def qty(self) -> int:
+        return quantity(self.includes)
+
     def per_90(self, today: _dt.date) -> Optional[int]:
         """How many of these actually sold in the last 90 days.
 
@@ -337,13 +432,18 @@ def measure(items: list, session=None, cap: int = ITEM_FETCH_CAP) -> int:
     for item in ranked[:cap]:
         if not item.product_url:
             continue
-        cls, _label = condition_of(item.includes)
         try:
             r = (session or requests).get(item.product_url, headers=_UA,
                                           timeout=_TIMEOUT)
             if r.status_code != 200:
                 item.unreachable = True
                 continue
+            # 🚨 RESOLVE THE TAB AGAINST THE PAGE, NOT AGAINST A GUESS. The
+            # slug for "Grade 9" is `graded` on a card and means something else
+            # entirely on a game; only the page says which.
+            page_tabs = tabs(r.text)
+            cls, label = condition_of(item.includes, page_tabs)
+            item.label = label
             rows = _sale_rows(r.text, cls)
             # 🚨 THE CONDITION DEGRADES, IT DOES NOT VANISH - the same rule the
             # card scraper learned about grades. A box-only listing with no
@@ -352,7 +452,10 @@ def measure(items: list, session=None, cap: int = ITEM_FETCH_CAP) -> int:
             if not rows and cls != "used":
                 rows = _sale_rows(r.text, "used")
                 if rows:
-                    item.label = f"{item.label} (loose sales)"
+                    # Name the tab we actually READ, never the one we wanted.
+                    fell_to = "ungraded" if _UNGRADED.search(item.includes or "") \
+                        or _GRADED.search(item.includes or "") else "loose"
+                    item.label = f"{label} ({fell_to} sales)"
             item.sales = rows
         except Exception:
             item.unreachable = True
@@ -403,10 +506,13 @@ def summarize(collection: Collection, items: list, unmeasured: int,
         if n is None:
             continue
         measured += it.value
-        if n >= LIQUID_PER_90:
+        # 🚨 QTY SCALES THE BAR, NOT THE RATE. Five copies of a thing
+        # that sells eight times a quarter is not five times as liquid - you
+        # need five sales to clear the position, so the threshold multiplies.
+        if n >= LIQUID_PER_90 * it.qty:
             liquid += it.value
             nl += 1
-        elif n <= DEAD_PER_90:
+        elif n <= DEAD_PER_90 * it.qty:
             dead += it.value
             nd += 1
     return Summary(
@@ -427,8 +533,12 @@ def _line(item: Item, today: _dt.date) -> str:
     rate = f"{'>=' if item.saturated(today) else ''}{n}/90d"
     rng = (f" · ${item.low:,.0f}-${item.high:,.0f}"
            if item.low is not None and item.high != item.low else "")
-    return (f"`${item.value:>7,.2f}`  {item.name} — {rate}, "
-            f"last {item.last_sold}{rng}")
+    # 🚨 SAY THE QUANTITY AND THE CONDITION. Without qty the value column
+    # lies (it is guide x qty); without the condition a Grade 9 slab and a raw
+    # card print the same line against very different sales.
+    qty = f" x{item.qty}" if item.qty > 1 else ""
+    return (f"`${item.value:>7,.2f}`{qty}  {item.name} [{item.label}] "
+            f"— {rate}, last {item.last_sold}{rng}")
 
 
 def to_alert(collection: Collection, items: list, summary: Summary,

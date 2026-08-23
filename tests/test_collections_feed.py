@@ -514,3 +514,147 @@ def test_the_workflow_maps_the_switch():
     envs = [s["env"] for j in wf["jobs"].values() for s in j["steps"]
             if isinstance(s, dict) and s.get("env")]
     assert any("FLIPSCOUT_COLLECTIONS" in e for e in envs)
+
+
+# --- the condition column, surveyed rather than guessed ---------------------
+# 🚨 The first version of this map was written by guessing at the wording and
+# four of its seven rows were wrong. This is the ENTIRE vocabulary the column
+# uses, surveyed 2026-08-23 across 14 live collections, with its real counts.
+REAL_VOCABULARY = [
+    ("Ungraded", 170, "used", "Ungraded"),
+    ("Item only", 167, "used", "Loose"),
+    ("Item, Box, and Manual", 32, "cib", "Complete"),
+    ("Item and Box only", 5, "loose-and-box", "Item + box"),
+    ("Ungraded Qty: 2", 3, "used", "Ungraded"),
+    ("Item only Qty: 2", 3, "used", "Loose"),
+    ("Graded 9", 2, "graded", "Grade 9"),
+    ("Graded 9.5", 2, "box-only", "Grade 9.5"),
+    ("New Item, Box, and Manual", 1, "new", "New"),
+    ("Graded 7", 1, "cib", "Grade 7"),
+    ("Item only Qty: 5", 1, "used", "Loose"),
+]
+
+
+@pytest.mark.parametrize("includes,_n,slug,label", REAL_VOCABULARY)
+def test_every_wording_the_column_actually_uses(includes, _n, slug, label):
+    assert cf.condition_of(includes) == (slug, label)
+
+
+def test_a_graded_card_is_never_quoted_against_raw_sales():
+    """🚨 THE MONEY BUG. "Graded 9" fell through to the ungraded tab, pricing a
+    slab against raw sales - the same shape as the blanket $92 any-PSA-7-9
+    comp, reached from the opposite direction. Measured on one real card:
+    raw $3.53 · Grade 9 $17.49 · PSA 10 $74.00. A 21x spread, collapsed to the
+    cheapest number."""
+    for graded in ("Graded 7", "Graded 9", "Graded 9.5", "Graded 10"):
+        slug, label = cf.condition_of(graded)
+        assert slug != "used", f"{graded} priced against raw sales"
+        assert label.startswith("Grade") or label == "PSA 10"
+
+
+def test_a_comma_cannot_hide_the_manual():
+    r"""⛔ THE COMMA BUG, FOURTH APPEARANCE (Singer "case, pedal and manual").
+    `box\s*and\s*manual` cannot reach "and" through ", ". Read as loose, a
+    complete-in-box game is quoted against cartridge-only sales."""
+    assert cf.condition_of("Item, Box, and Manual")[0] == "cib"
+    assert cf.condition_of("Box and Manual")[0] == "cib"
+
+
+def test_a_compound_wording_beats_the_bare_one_it_contains():
+    """"Item and Box only" CONTAINS "Box only", and box-only sales are for a
+    box with NO GAME IN IT."""
+    assert cf.condition_of("Item and Box only")[0] == "loose-and-box"
+    assert cf.condition_of("Box only")[0] == "box-only"
+
+
+def test_sealed_beats_complete():
+    """"New Item, Box, and Manual" is both; the sealed tab is the right one."""
+    assert cf.condition_of("New Item, Box, and Manual")[0] == "new"
+
+
+def test_quantity_is_read_because_value_is_guide_times_qty():
+    """🚨 Measured: a "Qty: 5" Gamecube controller carries $149.95 against a
+    $29.99 sold median - exactly 5x."""
+    assert cf.quantity("Item only Qty: 5") == 5
+    assert cf.quantity("Ungraded Qty: 2") == 2
+    assert cf.quantity("Item only") == 1
+
+
+def test_quantity_scales_the_liquidity_bar_not_the_rate():
+    """Five copies of a thing that sells eight times a quarter is not five
+    times as liquid - you need five sales to clear the position."""
+    one = cf.Item(name="x", includes="Item only", value=50.0, game_id="1")
+    five = cf.Item(name="x", includes="Item only Qty: 5", value=250.0,
+                   game_id="1")
+    one.sales = five.sales = _dates(10, "2026-08-20")   # 10 sales in 90 days
+    col = cf.parse_feed(FEED_HTML)[0]
+    assert cf.summarize(col, [one], 0, today=TODAY).liquid_items == 1
+    assert cf.summarize(col, [five], 0, today=TODAY).liquid_items == 0
+
+
+def test_the_card_line_names_the_condition_and_the_quantity():
+    it = cf.Item(name="Black Controller Gamecube", includes="Item only Qty: 5",
+                 value=149.95, game_id="1", label="Loose")
+    it.sales = _dates(30, "2026-08-20")
+    line = cf._line(it, TODAY)
+    assert "x5" in line and "[Loose]" in line
+
+
+# --- the page names its own tabs --------------------------------------------
+CARD_TABS = """
+<select>
+<option value="completed-auctions-used">Ungraded (60)</option>
+<option value="completed-auctions-cib">Grade 7 (1)</option>
+<option value="completed-auctions-new">Grade 8 (3)</option>
+<option value="completed-auctions-graded">Grade 9 (29)</option>
+<option value="completed-auctions-box-only">Grade 9.5 (1)</option>
+<option value="completed-auctions-manual-only">PSA 10 (19)</option>
+</select>
+"""
+
+
+def test_tabs_are_read_off_the_page_so_they_cannot_drift():
+    """🚨 THE SITE REUSES THE GAME SLUGS FOR CARD GRADES and nothing in the
+    slug says so: `completed-auctions-cib` is labelled "Grade 7" on a card and
+    `manual-only` is "PSA 10". Only the page knows."""
+    t = cf.tabs(CARD_TABS)
+    assert t["ungraded"] == "used"
+    assert t["grade 9"] == "graded"
+    assert t["grade 9.5"] == "box-only"
+    assert t["psa 10"] == "manual-only"
+    # The row count in the label is not part of the name.
+    assert not any("(" in k for k in t)
+
+
+def test_condition_prefers_the_pages_own_mapping():
+    t = cf.tabs(CARD_TABS)
+    assert cf.condition_of("Graded 9", t) == ("graded", "Grade 9")
+    assert cf.condition_of("Graded 10", t) == ("manual-only", "PSA 10")
+    assert cf.condition_of("Ungraded", t) == ("used", "Ungraded")
+
+
+def test_a_page_with_no_tab_list_still_resolves():
+    """Fallback table, so a parse failure degrades instead of breaking."""
+    assert cf.condition_of("Graded 9", {}) == ("graded", "Grade 9")
+    assert cf.condition_of("Graded 9", None) == ("graded", "Grade 9")
+
+
+def test_measure_labels_a_graded_card_by_its_grade():
+    page = CARD_TABS + _sales_page({"graded": _dates(28, "2026-08-18"),
+                                    "used": _dates(30, "2026-08-20")})
+    it = cf.Item(name="Mewtwo #59", includes="Graded 9", value=17.49,
+                 game_id="4637172")
+    cf.measure([it], _Session({it.product_url: page}), cap=1)
+    assert it.label == "Grade 9"
+    assert len(it.sales) == 28          # the GRADE 9 rows, not the 30 raw ones
+
+
+def test_a_grade_with_no_sales_falls_back_and_says_ungraded_not_loose():
+    """🚨 A RAW CARD IS NOT "LOOSE". Printing a cartridge word over a card is
+    how a card ends up read as a game."""
+    page = CARD_TABS + _sales_page({"used": _dates(30, "2026-08-20")})
+    it = cf.Item(name="Mewtwo #59", includes="Graded 9", value=17.49,
+                 game_id="4637172")
+    cf.measure([it], _Session({it.product_url: page}), cap=1)
+    assert it.label == "Grade 9 (ungraded sales)"
+    assert "loose" not in it.label
