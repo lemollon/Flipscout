@@ -1,6 +1,6 @@
 # Discord channels — one per subject
 
-Alerts route by SUBJECT. Six named channels plus the default deals channel.
+Alerts route by SUBJECT. Seven named channels plus the default deals channel.
 
 🚨 **Every channel is optional, and an unset one is INVISIBLE — not an error.**
 A routing rule may never make an alert vanish, so an unset channel falls back
@@ -29,6 +29,7 @@ before believing anything about where alerts go:
 | `#camcorders` | camcorders (Handycam / MiniDV / Hi8) | `FLIPSCOUT_CAMCORDERS_WEBHOOK` | `FLIPSCOUT_CAMCORDERS_CHANNEL_ID` | `cameras + a camcorder title` |
 | `#ipods` | iPods + portable audio (Walkman, headphones) | `FLIPSCOUT_IPODS_WEBHOOK` | `FLIPSCOUT_IPODS_CHANNEL_ID` | `headphones, ipods, walkman` |
 | `#games` | video games + consoles + Pokemon carts | `FLIPSCOUT_GAMES_WEBHOOK` | `FLIPSCOUT_GAMES_CHANNEL_ID` | `pokemon, videogames` |
+| `#sales` | garage + estate sale digests (go-look lists, no prices) | `FLIPSCOUT_SALES_WEBHOOK` | `FLIPSCOUT_SALES_CHANNEL_ID` | *none — named by the caller* |
 
 Everything else — calculators, medical, sewing, collections, and any category
 added to the price book later — goes to the default channel
@@ -61,13 +62,36 @@ gh secret   set FLIPSCOUT_WATCHES_WEBHOOK    -R lemollon/Flipscout   # paste the
 gh variable set FLIPSCOUT_WATCHES_CHANNEL_ID --body <channel id> -R lemollon/Flipscout
 ```
 
-Repeat for `CAMERAS`, `CAMCORDERS`, `IPODS`, `GAMES`, `CARDS`.
+Repeat for `CAMERAS`, `CAMCORDERS`, `IPODS`, `GAMES`, `CARDS`, `SALES`.
 
 🚨 **A secret not mapped in `.github/workflows/watch.yml` is inert and
 silent** — this repo's own scar: "three of them were set and silently inert for
-a full run, and the log looked perfectly healthy." All twelve names above are
+a full run, and the log looked perfectly healthy." All fourteen names above are
 already mapped, and `test_every_channel_has_a_label_and_a_workflow_mapping`
 fails the build if a new channel is added without mapping it.
+
+## `#sales` is the one caller-named channel
+
+Every other channel is chosen by the price book's category, and `#camcorders`
+by a title read. Neither can reach the garage/estate digests, because a digest
+**has no listings behind it** — those sales carry no item prices at all
+(`estates.py`, `garagesales.py`), so they never become priced candidates and
+there is no `category` to route on. `hunt.post_estate_digest` and
+`hunt.post_garage_digest` therefore pass `channel="sales"` to the notifier and
+name the channel outright.
+
+Both digests share the one channel on purpose: they are the same errand — drive
+there Saturday, cash in hand, nothing ships — and neither ever carries a max
+bid, so splitting them would be two half-empty channels.
+
+🚨 **An online estate auction that resolves to a HiBid catalog does NOT come
+here.** Those lots are swept and priced like everything else
+(`hunt.estate_catalog_rows`), so an estate camera lot lands in `#cameras` with
+its max bid. `#sales` is only the no-price "go look at these" calendars — if a
+post has a 🎯 chip on it, it is in the wrong channel.
+
+With `FLIPSCOUT_SALES_WEBHOOK` unset the digests keep landing in the default
+deals channel, exactly where they went before this channel existed.
 
 ## Camcorders are the one title-based rule
 
@@ -83,12 +107,14 @@ channels; a broad `video` or `cam` would drag whole film SLRs across.
 With `#camcorders` unset, a Handycam lands in `#cameras` — it is a camera —
 not in the general deals feed.
 
-## Adding a seventh channel
+## Adding an eighth channel
 
 Three edits, all in one commit:
 
 1. `flipscout/notify.py` — one line in `CHANNELS`, one in `CHANNEL_LABEL`, and
-   the categories in `CATEGORY_CHANNEL`.
+   the categories in `CATEGORY_CHANNEL`. If no price-book category can name the
+   channel (as with `#sales`), skip `CATEGORY_CHANNEL` and pass
+   `channel="<name>"` from the call site instead.
 2. `.github/workflows/watch.yml` — map the webhook secret AND the channel-id
    variable.
 3. This file's table.

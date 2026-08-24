@@ -243,7 +243,7 @@ def test_garage_digest_posts_once_a_day_and_needs_a_zip(tmp_path):
             return [{"title": "Sale", "url": "u", "street": "s", "city": "c",
                      "start": "2026-08-01", "end": "2026-08-02"}]
 
-    def notifier(alerts, content=""):
+    def notifier(alerts, content="", channel=""):
         posted.append(content)
         return ["webhook"]
 
@@ -264,3 +264,59 @@ def test_a_facebook_find_carries_its_category_so_it_routes():
         "the facebook alert dict must carry the book category"
     assert notify.channel_for(
         {"category": "cameras", "title": "Sony Handycam CCD-TR818"}) == "camcorders"
+
+
+# --- the garage/estate digests reach #sales ----------------------------------
+# 🚨 THE SEAM. hunt names a channel by STRING and notify looks it up in a dict;
+# nothing in the type system connects the two, so a rename on either side would
+# leave the digests routing to a channel that does not exist - which
+# notify.destination handles by quietly posting to the deals feed. That is the
+# exact failure this channel was added to fix, wearing a different hat.
+
+def test_the_channel_hunt_names_is_a_real_channel():
+    from flipscout import notify
+    assert hunt.SALES_CHANNEL in notify.CHANNELS
+
+
+def test_the_garage_digest_names_the_sales_channel(tmp_path):
+    hb = tmp_path / "hb.json"
+    routed = []
+
+    class Feed:
+        def sales(self):
+            return [{"title": "Estate moving sale", "url": "u", "street": "s",
+                     "city": "Fulshear", "start": "2026-08-01",
+                     "end": "2026-08-02"}]
+
+    def notifier(alerts, content="", channel=""):
+        routed.append(channel)
+        return ["webhook:sales"]
+
+    assert hunt.post_garage_digest({"zip": "77441", "heartbeat_file": str(hb)},
+                                   notifier, feed=Feed()) is True
+    # split_for_discord can emit several parts; EVERY one has to land together.
+    assert routed and set(routed) == {"sales"}
+
+
+def test_the_estate_digest_names_the_sales_channel(tmp_path):
+    from flipscout import estates
+    hb = tmp_path / "hb.json"
+    routed = []
+
+    class Feed:
+        def sales(self, limit=12):
+            return [{"title": "Fulshear estate sale", "url": "https://x/y",
+                     "city": "Fulshear", "kind": "estate sale", "ends": "Sun",
+                     "online": False, "company": "Acme"}]
+
+    def notifier(alerts, content="", channel=""):
+        routed.append((channel, alerts, content))
+
+    assert hunt.post_estate_digest(
+        {"estate_area": "TX/Fulshear/77441", "heartbeat_file": str(hb)},
+        notifier, feed=Feed()) is True
+    (channel, alerts, content), = routed
+    assert channel == "sales"
+    # 🚨 AND STILL NO CANDIDATES. The routing is the ONLY thing that changed -
+    # a digest that started carrying alerts would start carrying max bids.
+    assert alerts == [] and "Fulshear estate sale" in content

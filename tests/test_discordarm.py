@@ -838,3 +838,30 @@ def test_snipe_chips_still_go_on_an_auction(monkeypatch):
            "embeds": [{"fields": [{"name": "​", "value": f"**{AUCTION_MARK} - you are BIDDING.**"}]}]}
     assert DA.seed_missing([auc], "chan", "tok") == 1
     assert len(reacted) == 3          # 🎯 🔥 ❌
+
+
+def test_a_sale_digest_is_never_armable():
+    """🚨 #sales IS POLLED FOR TAPS LIKE EVERY OTHER CHANNEL, so the arm-seeder
+    now reads the garage/estate digests too. A digest is a weekend calendar -
+    there is no lot, no clock and no ceiling behind it - so it must parse as
+    unarmable and stay bare. Real digest shapes: garagesales.digest links
+    yardsalesearch/gsalr, estates.digest links estatesales.net, and neither is
+    a sniper site.
+    """
+    from flipscout import discordarm as DA
+    from flipscout.estates import digest as estate_digest
+    from flipscout.garagesales import digest as garage_digest
+
+    estate = estate_digest([{"title": "Fulshear estate sale",
+                             "url": "https://www.estatesales.net/TX/Fulshear/77441/1234",
+                             "city": "Fulshear", "kind": "estate sale",
+                             "ends": "Sun", "online": True, "company": "Acme"}],
+                           area_label="Fulshear")
+    garage = garage_digest([{"title": "Multi-family garage sale",
+                             "url": "https://www.yardsalesearch.com/g/9876",
+                             "street": "1 Main", "city": "Katy",
+                             "start": "2026-08-01", "end": "2026-08-02"}],
+                           "77441")
+    for body in (estate, garage):
+        assert body, "the digest under test rendered empty"
+        assert DA.parse_card({"content": body}) == (None, None, None)

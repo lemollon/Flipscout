@@ -51,9 +51,11 @@ from .cards import read as read_card
 
 # --- channel routing --------------------------------------------------------
 # name -> (webhook env var, channel-id env var). Adding a channel is one line
-# here plus one line in CATEGORY_CHANNEL, and one mapping in watch.yml - which
-# is the step that is actually easy to forget (an unmapped secret is inert and
-# silent; see the env-trap comments in that file).
+# here, one in CHANNEL_LABEL, one in CATEGORY_CHANNEL (or, for a channel no
+# price-book category can name, an explicit `channel=` at the call site - see
+# "sales" below), and one mapping in watch.yml - which is the step that is
+# actually easy to forget (an unmapped secret is inert and silent; see the
+# env-trap comments in that file).
 CHANNELS = {
     "cards":      ("FLIPSCOUT_CARDS_WEBHOOK",      "FLIPSCOUT_CARDS_CHANNEL_ID"),
     "watches":    ("FLIPSCOUT_WATCHES_WEBHOOK",    "FLIPSCOUT_WATCHES_CHANNEL_ID"),
@@ -61,6 +63,11 @@ CHANNELS = {
     "camcorders": ("FLIPSCOUT_CAMCORDERS_WEBHOOK", "FLIPSCOUT_CAMCORDERS_CHANNEL_ID"),
     "ipods":      ("FLIPSCOUT_IPODS_WEBHOOK",      "FLIPSCOUT_IPODS_CHANNEL_ID"),
     "games":      ("FLIPSCOUT_GAMES_WEBHOOK",      "FLIPSCOUT_GAMES_CHANNEL_ID"),
+    # 🚨 THE ONE CHANNEL NO CATEGORY POINTS AT. Garage and estate sales are a
+    # SOURCE, not a subject: they carry no item prices, so they never become
+    # priced candidates and CATEGORY_CHANNEL can never route them. Their caller
+    # names this channel outright - see the `channel=` argument on destination.
+    "sales":      ("FLIPSCOUT_SALES_WEBHOOK",      "FLIPSCOUT_SALES_CHANNEL_ID"),
 }
 
 # A channel that is a SUBSET of another falls back to its parent before the
@@ -77,6 +84,7 @@ CHANNEL_LABEL = {
     "camcorders": "camcorders (Handycam / MiniDV / Hi8)",
     "ipods":      "iPods + portable audio (Walkman, headphones)",
     "games":      "video games + consoles + Pokemon carts",
+    "sales":      "garage + estate sale digests (go-look lists, no prices)",
 }
 
 # 🚨 ONE SUBJECT PER CHANNEL, AND THE BOOK'S OWN CATEGORY DECIDES IT. This is
@@ -148,17 +156,28 @@ def channel_for(candidate: dict, env=None) -> str:
     return ""
 
 
-def destination(candidate: dict, env=None) -> tuple:
+def destination(candidate: dict, env=None, channel: str = "") -> tuple:
     """(webhook url, channel id, label) for one listing.
 
     Falls back to the default channel whenever the named one has no webhook -
     see the module docstring on why a routing rule may never drop an alert.
+
+    `channel` names a CHANNELS key outright and outranks the candidate. It is
+    for posts that HAVE no candidate to read: the garage and estate digests are
+    body text with no listings behind them (they carry no item prices, so they
+    never become priced candidates), and without this they would route as `{}`
+    and pile into the default deals feed. An unknown name is not trusted into
+    a KeyError mid-delivery - it warns and routes as if it were unset.
     """
     env = env if env is not None else os.environ
     default = (env.get("FLIPSCOUT_ALERT_WEBHOOK") or "",
                (env.get("FLIPSCOUT_DISCORD_CHANNEL_ID") or "").strip(),
                "webhook")
-    name = channel_for(candidate, env)
+    if channel and channel not in CHANNELS:
+        print(f"[notify] unknown channel {channel!r} - posting to the default "
+              f"channel. Known: {', '.join(sorted(CHANNELS))}.")
+        channel = ""
+    name = channel or channel_for(candidate, env)
     # Walk the chain: the named channel, then its parent (a camcorder lands in
     # #cameras before it lands in #deals), then the default. `seen` because a
     # typo in PARENT must not spin here forever.
@@ -346,11 +365,15 @@ def describe_webhook(url: str, session=None) -> str:
         return f"could not resolve webhook: {e}"
 
 
-def notify_rich(candidates: list, content: str = "", env=None, session=None) -> list[str]:
+def notify_rich(candidates: list, content: str = "", env=None, session=None,
+                channel: str = "") -> list[str]:
     """Post candidates to the webhook as embeds (image + clickable link).
 
     Discord caps a message at 10 embeds, so this chunks. Fail-soft like notify():
     a dead webhook prints instead of raising.
+
+    `channel` forces a named channel for the whole post - the header-only
+    digests use it, because a post with no candidates has nothing to route on.
     """
     env = env if env is not None else os.environ
     # Discord hard-rejects the WHOLE message when content exceeds 2000 chars -
@@ -365,9 +388,9 @@ def notify_rich(candidates: list, content: str = "", env=None, session=None) -> 
     # which is what keeps the existing delivery tests honest.
     groups: dict = {}
     for c in candidates:
-        groups.setdefault(destination(c, env), []).append(c)
+        groups.setdefault(destination(c, env, channel), []).append(c)
 
-    default = destination({}, env)
+    default = destination({}, env, channel)
     if not candidates:
         groups = {default: []}          # header-only post (the daily check-in)
 
