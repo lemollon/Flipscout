@@ -560,3 +560,72 @@ def test_every_channel_that_is_posted_to_is_also_polled_for_taps():
         os.environ.clear(); os.environ.update(old)
     for name, (_hook, chan) in notify.CHANNELS.items():
         assert env[chan] in polled, f"#{name} is posted to but never polled"
+
+
+# --- #sales: the caller-named channel ---------------------------------------
+# 🚨 A DIGEST HAS NOTHING TO ROUTE ON. The garage and estate digests are body
+# text with NO candidates behind them (those sales publish no item prices, so
+# they never become priced candidates), and notify_rich forces the DEFAULT
+# destination for a header-only post. Before `channel=` existed that made the
+# weekend go-look calendar unroutable by construction: it landed in the deals
+# feed interleaved with live max bids, and no CATEGORY_CHANNEL entry could
+# have moved it. These pin the escape hatch and the two rules it must not
+# break - never drop a post, never raise inside delivery.
+
+SALES_ENV = {"FLIPSCOUT_ALERT_WEBHOOK": "http://main",
+             "FLIPSCOUT_SALES_WEBHOOK": "http://sales"}
+
+
+def test_a_header_only_post_can_name_its_channel():
+    """The whole point: a digest with no candidates still reaches #sales."""
+    s = RoutingSession()
+    assert notify_rich([], content="**Garage sales near 77441**",
+                       channel="sales", env=SALES_ENV,
+                       session=s) == ["webhook:sales"]
+    assert s.urls == ["http://sales"]
+
+
+def test_the_named_channel_outranks_the_candidates_own_category():
+    """`channel=` is an override, not a hint - a caller that names a channel
+    has context routing does not."""
+    s = RoutingSession()
+    notify_rich([CARD_CAND], content="", channel="sales",
+                env={**SALES_ENV, "FLIPSCOUT_CARDS_WEBHOOK": "http://cards"},
+                session=s)
+    assert s.urls == ["http://sales"], "the category beat the explicit channel"
+
+
+def test_an_unset_sales_webhook_still_delivers_the_digest():
+    """🚨 THE RULE THAT OUTRANKS ROUTING, for the named channel too. Without
+    #sales created, the digests keep landing in the deals feed - exactly where
+    they went before this channel existed - never nowhere."""
+    s = RoutingSession()
+    assert notify_rich([], content="digest", channel="sales",
+                       env={"FLIPSCOUT_ALERT_WEBHOOK": "http://main"},
+                       session=s) == ["webhook"]
+    assert s.urls == ["http://main"]
+
+
+def test_an_unknown_channel_name_never_drops_the_post():
+    """A typo'd name must not KeyError inside delivery (which kills the whole
+    post) and must not vanish - it warns and falls back to the default."""
+    for bad in ["saels", "#sales", "", None]:
+        assert notify.destination({}, {"FLIPSCOUT_ALERT_WEBHOOK": "http://main"},
+                                  channel=bad or "")[0] == "http://main"
+
+
+def test_the_sales_channel_carries_its_own_channel_id():
+    """Same pair rule as every other channel - the id is what discordarm polls,
+    so #sales taps are seen even though digests never carry arm chips."""
+    env = {**SALES_ENV, "FLIPSCOUT_SALES_CHANNEL_ID": "9001",
+           "FLIPSCOUT_DISCORD_CHANNEL_ID": "100"}
+    assert notify.destination({}, env, channel="sales") == \
+        ("http://sales", "9001", "webhook:sales")
+
+
+def test_no_price_book_category_claims_the_sales_channel():
+    """🚨 #sales IS REACHED ONLY BY NAME. If a category ever routes here, a
+    priced deal with a max bid lands in the no-prices calendar - the one thing
+    this channel promises it never shows."""
+    assert "sales" not in notify.CATEGORY_CHANNEL.values()
+    assert notify.channel_for({"category": "sales", "title": "estate sale"}) == ""

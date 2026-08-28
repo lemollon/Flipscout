@@ -208,10 +208,12 @@ def test_digest_posts_once_a_day(tmp_path):
             return estates.EstateSalesNet.parse(ESN_HTML)
 
     cfg = {"estate_area": "TX/Fulshear/77441", "heartbeat_file": str(hb)}
-    assert hunt.post_estate_digest(cfg, lambda a, content="": posted.append(content),
-                                   feed=Feed()) is True
-    assert hunt.post_estate_digest(cfg, lambda a, content="": posted.append(content),
-                                   feed=Feed()) is False
+
+    def notifier(alerts, content="", channel=""):
+        posted.append((content, channel))
+
+    assert hunt.post_estate_digest(cfg, notifier, feed=Feed()) is True
+    assert hunt.post_estate_digest(cfg, notifier, feed=Feed()) is False
     assert len(posted) == 1
 
 

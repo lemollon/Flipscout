@@ -215,6 +215,13 @@ def _mark_heartbeat(path: str, today: Optional[str] = None,
         print(f"[hunt] couldn't save heartbeat: {e}")
 
 
+# Both no-price digests share one channel: garage and estate sales are the same
+# errand (drive there Saturday, cash in hand, nothing ships) and neither ever
+# carries a max bid, so splitting them would be two half-empty channels. Named
+# here rather than inline so the two callers below cannot drift apart.
+SALES_CHANNEL = "sales"
+
+
 def post_estate_digest(config: dict, notifier, feed=None) -> bool:
     """Once a day, list the estate sales and online estate auctions near you.
 
@@ -230,7 +237,10 @@ def post_estate_digest(config: dict, notifier, feed=None) -> bool:
     if not sales:
         return False
     body = digest(sales, area_label=area.split("/")[1] if "/" in area else area)
-    notifier([], content=body)
+    # 🚨 NAMED, NOT ROUTED. This post carries no candidates, so there is nothing
+    # for channel_for to read and it would land in the general deals feed -
+    # a weekend calendar interleaved with live max bids. See notify.destination.
+    notifier([], content=body, channel=SALES_CHANNEL)
     _mark_heartbeat(config["heartbeat_file"], key="estates")
     print(f"[hunt] estate digest: {len(sales)} sale(s) near {area}.")
     return True
@@ -323,7 +333,7 @@ def post_garage_digest(config: dict, notifier, feed=None) -> bool:
     # WHAT each sale has. Descriptions push past Discord's 2000-char cap, so
     # the digest goes out in sale-boundary parts instead of being truncated.
     for part in split_for_discord(digest(sales, zip_code, expand=expand)):
-        notifier([], content=part)
+        notifier([], content=part, channel=SALES_CHANNEL)
     _mark_heartbeat(config["heartbeat_file"], key="garage")
     print(f"[hunt] garage digest: {len(sales)} sale(s) near {zip_code} "
           f"from {len(feeds)} feed(s).")

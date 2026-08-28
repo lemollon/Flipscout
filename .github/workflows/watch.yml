@@ -111,6 +111,12 @@ jobs:
           FLIPSCOUT_CAMCORDERS_WEBHOOK: ${{ secrets.FLIPSCOUT_CAMCORDERS_WEBHOOK }}
           FLIPSCOUT_IPODS_WEBHOOK: ${{ secrets.FLIPSCOUT_IPODS_WEBHOOK }}
           FLIPSCOUT_GAMES_WEBHOOK: ${{ secrets.FLIPSCOUT_GAMES_WEBHOOK }}
+          # #sales is the odd one out: it takes the garage + estate DIGESTS,
+          # which are body text with no listings behind them, so hunt names the
+          # channel outright instead of routing by category. Unset, the weekend
+          # calendar keeps landing in the main deals feed exactly as it did
+          # before this channel existed.
+          FLIPSCOUT_SALES_WEBHOOK: ${{ secrets.FLIPSCOUT_SALES_WEBHOOK }}
           # PriceCharting collections-for-sale. ON by default and needs no key
           # (the feed is public), so this maps ONLY the off switch - mapped NOW
           # per this file's own env-trap rule, because a variable that is not
@@ -134,6 +140,7 @@ jobs:
           FLIPSCOUT_CAMCORDERS_CHANNEL_ID: ${{ vars.FLIPSCOUT_CAMCORDERS_CHANNEL_ID }}
           FLIPSCOUT_IPODS_CHANNEL_ID: ${{ vars.FLIPSCOUT_IPODS_CHANNEL_ID }}
           FLIPSCOUT_GAMES_CHANNEL_ID: ${{ vars.FLIPSCOUT_GAMES_CHANNEL_ID }}
+          FLIPSCOUT_SALES_CHANNEL_ID: ${{ vars.FLIPSCOUT_SALES_CHANNEL_ID }}
           FLIPSCOUT_DISCORD_CHANNEL_ID: ${{ vars.FLIPSCOUT_DISCORD_CHANNEL_ID }}
           # How many runs it takes to sweep the whole eBay term pool once.
           # 8 = full coverage every ~4 hours for ~1/8 the calls; the daily

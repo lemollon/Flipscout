@@ -233,9 +233,10 @@ host. One-time setup, repo **Settings → Secrets and variables → Actions**:
 | `FLIPSCOUT_ALERT_WEBHOOK` | a **Discord or Slack** incoming-webhook URL (easiest) |
 
 Alerts route **one Discord channel per subject** — cards, watches, cameras,
-camcorders, iPods, games — each an optional pair of a `*_WEBHOOK` secret and a
-`*_CHANNEL_ID` variable, falling back to the main channel when unset. Full
-table and setup: **[docs/DISCORD-CHANNELS.md](docs/DISCORD-CHANNELS.md)**.
+camcorders, iPods, games, and `#sales` for the garage/estate-sale digests —
+each an optional pair of a `*_WEBHOOK` secret and a `*_CHANNEL_ID` variable,
+falling back to the main channel when unset. Full table and setup:
+**[docs/DISCORD-CHANNELS.md](docs/DISCORD-CHANNELS.md)**.
 
 Tune with optional repo **Variables** (`FLIPSCOUT_MIN_PROFIT`, `FLIPSCOUT_MIN_ROI`,
 `FLIPSCOUT_SOURCES`, `FLIPSCOUT_TOP`, `FLIPSCOUT_LOCAL`, `FLIPSCOUT_ZIP`). The
