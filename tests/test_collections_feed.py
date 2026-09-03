@@ -311,23 +311,60 @@ def test_no_listing_type_banner_for_an_offer():
 
 
 # --- routing ----------------------------------------------------------------
-def test_collections_go_to_the_deals_channel():
-    """Leron, 2026-08-23: "push anything not a card to the deals channel"."""
-    assert channel_for({"category": "collections", "title": "Collection"}) == ""
+def test_collections_have_their_own_channel():
+    """Leron, 2026-09-03: "Should we give it its own channel?" Yes: webhook
+    set -> #collections."""
+    assert channel_for({"category": "collections",
+                        "title": "Collection"}) == "collections"
+    env = {"FLIPSCOUT_ALERT_WEBHOOK": "https://main",
+           "FLIPSCOUT_CARDS_WEBHOOK": "https://cards",
+           "FLIPSCOUT_COLLECTIONS_WEBHOOK": "https://collections"}
+    url, _chan, label = destination({"category": "collections"}, env)
+    assert url == "https://collections" and label == "webhook:collections"
+
+
+def test_collections_fall_back_to_deals_when_unset():
+    """The 2026-08-23 rule still holds underneath: with no webhook they go
+    to deals, never to #cards and never nowhere."""
     env = {"FLIPSCOUT_ALERT_WEBHOOK": "https://main",
            "FLIPSCOUT_CARDS_WEBHOOK": "https://cards"}
     url, _chan, label = destination({"category": "collections"}, env)
     assert url == "https://main" and label == "webhook"
 
 
-def test_a_card_heavy_collection_still_goes_to_deals():
+def test_a_card_heavy_collection_never_goes_to_cards():
     """🚨 THE CATEGORY WINS OVER THE TEXT. A collection of graded Pokemon has
     every card word in its item list; routing on the title would file a
     whole-collection offer under #cards - the same mistake in reverse as the
     five Pokemon cartridges that sat there."""
     card_ish = {"category": "collections",
                 "title": "Collection - PSA 10 Charizard Base Set holo rookie"}
-    assert channel_for(card_ish) == ""
+    assert channel_for(card_ish) == "collections"
+    env = {"FLIPSCOUT_ALERT_WEBHOOK": "https://main",
+           "FLIPSCOUT_CARDS_WEBHOOK": "https://cards"}
+    assert destination(card_ish, env)[0] == "https://main"
+
+
+def test_collections_channel_needs_no_channel_id(monkeypatch, capsys):
+    """A collection card has no chips to seed, so the run log must not warn
+    that FLIPSCOUT_COLLECTIONS_CHANNEL_ID is missing - a false alarm there
+    teaches the reader to skip the real one on #cards."""
+    from flipscout import hunt, notify
+    for hook_var, chan_var in notify.CHANNELS.values():
+        monkeypatch.delenv(hook_var, raising=False)
+        monkeypatch.delenv(chan_var, raising=False)
+    monkeypatch.setenv("FLIPSCOUT_COLLECTIONS_WEBHOOK", "https://collections")
+    monkeypatch.setenv("FLIPSCOUT_CARDS_WEBHOOK", "https://cards")
+    monkeypatch.setattr(hunt, "sweep", lambda *a, **k: [])
+    monkeypatch.setattr(hunt, "describe_webhook", lambda u: "set")
+    try:
+        hunt.run(notifier=lambda *a, **k: [])
+    except Exception:
+        pass
+    out = capsys.readouterr().out
+    assert "[hunt] collections destination: set" in out
+    assert "FLIPSCOUT_COLLECTIONS_CHANNEL_ID" not in out
+    assert "no FLIPSCOUT_CARDS_CHANNEL_ID" in out      # the real one still fires
 
 
 # --- the run pass -----------------------------------------------------------

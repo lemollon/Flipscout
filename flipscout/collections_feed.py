@@ -52,12 +52,15 @@ Same guide-price machinery behind both; one is money next week and the other
 is a shelf ornament with a price tag. **Liquidity is the finding here, and it
 is only visible because a completed sale carries a DATE.**
 
-🚨 IT GOES TO THE DEALS CHANNEL. Leron, 2026-08-23: "push anything not a
-card to the deals channel". A dedicated #collections channel was built and
-reverted before shipping - cards are the ONE exception, because every extra
-channel is another webhook/id pair that can be left unset and fall back
-silently. `notify.NEVER_CARDS` carries "collections" so the card reader never
-sees a Pokemon-heavy item list and files the whole offer under cards.
+🚨 IT HAS ITS OWN CHANNEL, AND FALLS BACK TO DEALS. Leron, 2026-08-23:
+"push anything not a card to the deals channel"; 2026-09-03: "Should we give
+it its own channel?". A #collections channel was built and reverted once
+because every extra webhook/id pair can be left unset and fall back silently;
+it came back once `hunt` printed every channel's destination each run, so an
+unset webhook is a log line, not a mystery. Webhook only - the card carries
+no arming number, so no channel id. `notify.NEVER_CARDS` still carries
+"collections" so the card reader never sees a Pokemon-heavy item list and
+files the whole offer under cards.
 
 🚨 NO CEILING WORDS ON THE CARD. A collection has no lot id and no clock - the
 action is "contact the seller with an offer", not a bid. `discordarm._CEILING`

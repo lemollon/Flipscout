@@ -1364,7 +1364,8 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
         _hook = os.environ.get(_hook_var)
         if _hook:
             print(f"{_tag} {describe_webhook(_hook)}")
-            if not (os.environ.get(_chan_var) or "").strip():
+            if (_name not in notify.NO_CHIPS
+                    and not (os.environ.get(_chan_var) or "").strip()):
                 print(f"{_tag} no {_chan_var} - these post but arrive with no "
                       f"tap-to-arm chips.")
         else:

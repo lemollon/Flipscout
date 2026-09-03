@@ -61,7 +61,21 @@ CHANNELS = {
     "camcorders": ("FLIPSCOUT_CAMCORDERS_WEBHOOK", "FLIPSCOUT_CAMCORDERS_CHANNEL_ID"),
     "ipods":      ("FLIPSCOUT_IPODS_WEBHOOK",      "FLIPSCOUT_IPODS_CHANNEL_ID"),
     "games":      ("FLIPSCOUT_GAMES_WEBHOOK",      "FLIPSCOUT_GAMES_CHANNEL_ID"),
+    # Added 2026-09-03 (Leron: "Should we give it its own channel?"). Built
+    # and reverted once before because every channel is another pair that
+    # can be left unset and fall back silently; what changed is that
+    # `hunt` now prints every channel's destination each run, so a missing
+    # webhook is a log line and not a mystery. Webhook-only in practice: a
+    # collection carries no arming number, so the channel id buys nothing.
+    "collections": ("FLIPSCOUT_COLLECTIONS_WEBHOOK",
+                    "FLIPSCOUT_COLLECTIONS_CHANNEL_ID"),
 }
+
+# Channels whose cards carry NO tap-to-arm chips, so the channel-id half of
+# the pair is genuinely optional. A collection has no lot and no clock - the
+# action is an email - and a "no CHANNEL_ID, chips missing" warning about it
+# would be a false alarm that trains the reader to ignore the real one.
+NO_CHIPS = {"collections"}
 
 # A channel that is a SUBSET of another falls back to its parent before the
 # default. A camcorder is priced as a camera (category "cameras" - there is one
@@ -77,14 +91,15 @@ CHANNEL_LABEL = {
     "camcorders": "camcorders (Handycam / MiniDV / Hi8)",
     "ipods":      "iPods + portable audio (Walkman, headphones)",
     "games":      "video games + consoles + Pokemon carts",
+    "collections": "whole collections for sale (PriceCharting)",
 }
 
 # 🚨 ONE SUBJECT PER CHANNEL, AND THE BOOK'S OWN CATEGORY DECIDES IT. This is
 # what the listing was actually PRICED as, versus what its title reads like, so
 # it is checked before any title reader. Categories absent from this map (
-# calculators, medical, sewing, tools, test-gear, metrology, collections, and
-# anything added to the book later) go to the default deals channel - a new
-# category is never silently swallowed by an existing channel.
+# calculators, medical, sewing, tools, test-gear, metrology, and anything
+# added to the book later) go to the default deals channel - a new category
+# is never silently swallowed by an existing channel.
 CATEGORY_CHANNEL = {
     "pokemon-cards": "cards",
     "sports-cards":  "cards",
@@ -101,12 +116,16 @@ CATEGORY_CHANNEL = {
     # category map is what keeps them in #games.
     "videogames":    "games",
     "pokemon":       "games",
+    # Whole collections for sale. Not a book category - collections_feed sets
+    # it on the card - and the ONE category the card reader may never judge
+    # (NEVER_CARDS), because its item list is full of card words.
+    "collections":   "collections",
 }
 
-# Categories that must NOT be judged by the card reader, routed to the default
-# channel explicitly. A collection of Pokemon cards has "pokemon" and a grader
-# name all over its item list; letting `read_card` see it would file a
-# whole-collection offer in the cards channel.
+# Categories that must NOT be judged by the card reader: routed by the
+# category map alone, never by the title. A collection of Pokemon cards has
+# "pokemon" and a grader name all over its item list; letting `read_card` see
+# it would file a whole-collection offer in the cards channel.
 NEVER_CARDS = {"collections"}
 
 # The price book's own category names for cards. Authoritative when present -
@@ -135,7 +154,8 @@ def channel_for(candidate: dict, env=None) -> str:
     # " watches " missing the map is a silent fall-through to #deals.
     cat = (candidate.get("category") or "").strip().lower()
     if cat in NEVER_CARDS:
-        return ""
+        # The map or the default - the title reader below never sees it.
+        return CATEGORY_CHANNEL.get(cat, "")
     name = CATEGORY_CHANNEL.get(cat, "")
     if name == "cameras" and CAMCORDER_RE.search(candidate.get("title") or ""):
         return "camcorders"
