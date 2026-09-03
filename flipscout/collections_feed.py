@@ -52,11 +52,14 @@ Same guide-price machinery behind both; one is money next week and the other
 is a shelf ornament with a price tag. **Liquidity is the finding here, and it
 is only visible because a completed sale carries a DATE.**
 
-🚨 IT GOES TO THE DEALS CHANNEL. Leron, 2026-08-23: "push anything not a
-card to the deals channel". A dedicated #collections channel was built and
-reverted before shipping - cards are the ONE exception, because every extra
-channel is another webhook/id pair that can be left unset and fall back
-silently. `notify.NEVER_CARDS` carries "collections" so the card reader never
+🚨 IT GOES TO #collections (since 2026-09-03), THE DEALS CHANNEL IF UNSET.
+On 2026-08-23 Leron said "push anything not a card to the deals channel" and
+the dedicated channel was reverted before shipping. On 2026-09-03 he created
+a #collections webhook and asked for it as FLIPSCOUT_COLLECTIONS_WEBHOOK, so
+the channel is back: `notify.CHANNELS["collections"]`, mapped in watch.yml.
+It is one more webhook/id pair that can be left unset and fall back silently -
+`[hunt] collections destination:` prints where it actually went every run.
+`notify.NEVER_CARDS` still carries "collections" so the card reader never
 sees a Pokemon-heavy item list and files the whole offer under cards.
 
 🚨 NO CEILING WORDS ON THE CARD. A collection has no lot id and no clock - the

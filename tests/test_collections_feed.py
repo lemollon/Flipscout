@@ -311,23 +311,33 @@ def test_no_listing_type_banner_for_an_offer():
 
 
 # --- routing ----------------------------------------------------------------
-def test_collections_go_to_the_deals_channel():
-    """Leron, 2026-08-23: "push anything not a card to the deals channel"."""
-    assert channel_for({"category": "collections", "title": "Collection"}) == ""
+def test_collections_go_to_their_own_channel_or_else_deals():
+    """2026-09-03: Leron created a #collections webhook, so the channel is
+    back (it reverses his 2026-08-23 "push anything not a card to the deals
+    channel" for this one subject). With the webhook UNSET it falls back to
+    the deals channel exactly as before - never to #cards."""
+    assert channel_for({"category": "collections", "title": "Collection"}) == "collections"
     env = {"FLIPSCOUT_ALERT_WEBHOOK": "https://main",
            "FLIPSCOUT_CARDS_WEBHOOK": "https://cards"}
     url, _chan, label = destination({"category": "collections"}, env)
     assert url == "https://main" and label == "webhook"
+    env["FLIPSCOUT_COLLECTIONS_WEBHOOK"] = "https://collections"
+    env["FLIPSCOUT_COLLECTIONS_CHANNEL_ID"] = "123"
+    url, chan, label = destination({"category": "collections"}, env)
+    assert (url, chan, label) == ("https://collections", "123", "webhook:collections")
 
 
-def test_a_card_heavy_collection_still_goes_to_deals():
+def test_a_card_heavy_collection_never_goes_to_cards():
     """🚨 THE CATEGORY WINS OVER THE TEXT. A collection of graded Pokemon has
     every card word in its item list; routing on the title would file a
     whole-collection offer under #cards - the same mistake in reverse as the
     five Pokemon cartridges that sat there."""
     card_ish = {"category": "collections",
                 "title": "Collection - PSA 10 Charizard Base Set holo rookie"}
-    assert channel_for(card_ish) == ""
+    assert channel_for(card_ish) == "collections"
+    env = {"FLIPSCOUT_ALERT_WEBHOOK": "https://main",
+           "FLIPSCOUT_CARDS_WEBHOOK": "https://cards"}
+    assert destination(card_ish, env)[0] == "https://main"
 
 
 # --- the run pass -----------------------------------------------------------

@@ -61,6 +61,10 @@ CHANNELS = {
     "camcorders": ("FLIPSCOUT_CAMCORDERS_WEBHOOK", "FLIPSCOUT_CAMCORDERS_CHANNEL_ID"),
     "ipods":      ("FLIPSCOUT_IPODS_WEBHOOK",      "FLIPSCOUT_IPODS_CHANNEL_ID"),
     "games":      ("FLIPSCOUT_GAMES_WEBHOOK",      "FLIPSCOUT_GAMES_CHANNEL_ID"),
+    # Added 2026-09-03. Reverses the 2026-08-23 "anything not a card goes to
+    # deals" call for this ONE subject: Leron created a #collections webhook
+    # and asked for it as a repo secret. Unset -> the deals channel, as before.
+    "collections": ("FLIPSCOUT_COLLECTIONS_WEBHOOK", "FLIPSCOUT_COLLECTIONS_CHANNEL_ID"),
 }
 
 # A channel that is a SUBSET of another falls back to its parent before the
@@ -77,14 +81,15 @@ CHANNEL_LABEL = {
     "camcorders": "camcorders (Handycam / MiniDV / Hi8)",
     "ipods":      "iPods + portable audio (Walkman, headphones)",
     "games":      "video games + consoles + Pokemon carts",
+    "collections": "whole collections for sale (PriceCharting feed)",
 }
 
 # 🚨 ONE SUBJECT PER CHANNEL, AND THE BOOK'S OWN CATEGORY DECIDES IT. This is
 # what the listing was actually PRICED as, versus what its title reads like, so
 # it is checked before any title reader. Categories absent from this map (
-# calculators, medical, sewing, tools, test-gear, metrology, collections, and
-# anything added to the book later) go to the default deals channel - a new
-# category is never silently swallowed by an existing channel.
+# calculators, medical, sewing, tools, test-gear, metrology, and anything
+# added to the book later) go to the default deals channel - a new category
+# is never silently swallowed by an existing channel.
 CATEGORY_CHANNEL = {
     "pokemon-cards": "cards",
     "sports-cards":  "cards",
@@ -101,12 +106,15 @@ CATEGORY_CHANNEL = {
     # category map is what keeps them in #games.
     "videogames":    "games",
     "pokemon":       "games",
+    # Whole collections (the PriceCharting feed). Own channel since
+    # 2026-09-03; also in NEVER_CARDS so the card reader never sees them.
+    "collections":   "collections",
 }
 
-# Categories that must NOT be judged by the card reader, routed to the default
-# channel explicitly. A collection of Pokemon cards has "pokemon" and a grader
-# name all over its item list; letting `read_card` see it would file a
-# whole-collection offer in the cards channel.
+# Categories that must NOT be judged by the card reader - they route by this
+# map alone and never fall through to the title read. A collection of Pokemon
+# cards has "pokemon" and a grader name all over its item list; letting
+# `read_card` see it would file a whole-collection offer in the cards channel.
 NEVER_CARDS = {"collections"}
 
 # The price book's own category names for cards. Authoritative when present -
@@ -135,7 +143,8 @@ def channel_for(candidate: dict, env=None) -> str:
     # " watches " missing the map is a silent fall-through to #deals.
     cat = (candidate.get("category") or "").strip().lower()
     if cat in NEVER_CARDS:
-        return ""
+        # Category map or nothing - the title reader must never see these.
+        return CATEGORY_CHANNEL.get(cat, "")
     name = CATEGORY_CHANNEL.get(cat, "")
     if name == "cameras" and CAMCORDER_RE.search(candidate.get("title") or ""):
         return "camcorders"
