@@ -1710,7 +1710,64 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
             "scouted": len(scouted), "collections": len(cols)}
 
 
+def backfill(channels=None, limit_per_channel=0, config=None,
+             notifier=notify_rich, dry_run=False) -> dict:
+    """Post a channel's LIVE qualifying inventory, ignoring the seen-cache.
+
+    🚨 WHY THIS EXISTS, AND WHY IT IS NOT A BUG IN `run`. The seen-cache is
+    keyed on source:id with no notion of WHERE a listing was sent. Cards split
+    out on 2026-08-22 and five more channels on 2026-08-23, and every listing
+    that would have filled them had already been alerted into #deals over the
+    preceding weeks. So `run` was correct and the channels still arrived empty:
+    Leron, 8/23, "watches are not thin and I only have one in the channel" -
+    45 watches were live and qualifying, and 44 of them were already seen.
+
+    A new channel therefore needs ONE backfill to inherit its own history.
+    After that `run` keeps it current on genuinely new listings.
+
+    🚨 IT DOES NOT TOUCH THE SEEN-CACHE, in either direction. These listings
+    are already marked seen - that is the whole reason they need backfilling -
+    so there is nothing to add, and removing them would make the next `run`
+    alert them all over again into whichever channel they route to now.
+
+    Deliberately skips nothing else: no per-model cap and no `top`. The point
+    is the full standing inventory, not a ranked digest.
+    """
+    config = config or load_config()
+    rows = sweep(config)
+    cands = [c for c in evaluate(rows, config) if not c.get("scam_shaped")]
+    want = set(channels) if channels else None
+    groups: dict = {}
+    for c in cands:
+        name = notify.channel_for(_alert_route_key(c)) or "deals"
+        if want and name not in want:
+            continue
+        groups.setdefault(name, []).append(c)
+    out: dict = {}
+    for name, lst in sorted(groups.items()):
+        lst.sort(key=lambda c: -(c["advice"].profit_at_open or 0))
+        if limit_per_channel > 0:
+            lst = lst[:limit_per_channel]
+        out[name] = len(lst)
+        print(f"[backfill] {name}: {len(lst)} live listing(s)"
+              + (" (dry run, nothing sent)" if dry_run else ""))
+        if not dry_run:
+            # One at a time: notify_rich already posts one card per message so
+            # each stays individually armable, and a per-channel call keeps a
+            # failure on one channel from taking the rest of the run with it.
+            notifier([to_alert(c) for c in lst])
+    return out
+
+
 def main(argv=None) -> int:
+    import sys
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "backfill":
+        rest = argv[1:]
+        dry = "--dry-run" in rest
+        names = [a for a in rest if not a.startswith("-")]
+        backfill(channels=names or None, dry_run=dry)
+        return 0
     run()
     return 0
 
