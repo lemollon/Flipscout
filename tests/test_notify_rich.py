@@ -276,10 +276,14 @@ SUBJECT_ENV = dict(CARDS_ENV,
                    FLIPSCOUT_CAMERAS_WEBHOOK="http://cameras",
                    FLIPSCOUT_CAMCORDERS_WEBHOOK="http://camcorders",
                    FLIPSCOUT_IPODS_WEBHOOK="http://ipods",
-                   FLIPSCOUT_GAMES_WEBHOOK="http://games")
+                   FLIPSCOUT_GAMES_WEBHOOK="http://games",
+                   FLIPSCOUT_COLLECTIONS_WEBHOOK="http://collections")
 
 
 @pytest.mark.parametrize("category,title,channel", [
+    # 2026-09-03: whole collections got their own channel. The title is
+    # card-heavy on purpose - the category map must win, never the card reader.
+    ("collections", "Pokemon card collection, 40 PSA 10s, Charizard", "collections"),
     ("watches",    "Citizen Eco-Drive Perpetual Calendar BL5250", "watches"),
     ("cameras",    "Canon AE-1 35mm Film Camera",                 "cameras"),
     ("lenses",     "Canon FD 50mm f/1.4 lens",                    "cameras"),
@@ -299,6 +303,19 @@ def test_each_subject_routes_to_its_own_channel(category, title, channel):
     assert notify.channel_for(c) == channel
     want = f"http://{channel}" if channel else "http://main"
     assert notify.destination(c, SUBJECT_ENV)[0] == want
+
+
+def test_collections_without_a_webhook_fall_to_deals_never_cards():
+    """The collections webhook unset (SUBJECT_ENV minus it, i.e. the 8/23
+    world): a Pokemon-heavy collection lands in the deals channel, and NOT in
+    #cards even though the cards webhook IS set and the title screams card."""
+    env = {k: v for k, v in SUBJECT_ENV.items() if k != "FLIPSCOUT_COLLECTIONS_WEBHOOK"}
+    c = dict(CAND, category="collections",
+             title="Pokemon card collection, 40 PSA 10s, Charizard")
+    assert notify.channel_for(c) == "collections"
+    url, _, label = notify.destination(c, env)
+    assert url == "http://main"
+    assert label == "webhook"
 
 
 @pytest.mark.parametrize("title", [
