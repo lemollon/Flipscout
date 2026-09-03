@@ -61,14 +61,10 @@ CHANNELS = {
     "camcorders": ("FLIPSCOUT_CAMCORDERS_WEBHOOK", "FLIPSCOUT_CAMCORDERS_CHANNEL_ID"),
     "ipods":      ("FLIPSCOUT_IPODS_WEBHOOK",      "FLIPSCOUT_IPODS_CHANNEL_ID"),
     "games":      ("FLIPSCOUT_GAMES_WEBHOOK",      "FLIPSCOUT_GAMES_CHANNEL_ID"),
-    # Added 2026-09-03 (Leron: "Should we give it its own channel?"). Built
-    # and reverted once before because every channel is another pair that
-    # can be left unset and fall back silently; what changed is that
-    # `hunt` now prints every channel's destination each run, so a missing
-    # webhook is a log line and not a mystery. Webhook-only in practice: a
-    # collection carries no arming number, so the channel id buys nothing.
-    "collections": ("FLIPSCOUT_COLLECTIONS_WEBHOOK",
-                    "FLIPSCOUT_COLLECTIONS_CHANNEL_ID"),
+    # Added 2026-09-03. Reverses the 2026-08-23 "anything not a card goes to
+    # deals" call for this ONE subject: Leron created a #collections webhook
+    # and asked for it as a repo secret. Unset -> the deals channel, as before.
+    "collections": ("FLIPSCOUT_COLLECTIONS_WEBHOOK", "FLIPSCOUT_COLLECTIONS_CHANNEL_ID"),
 }
 
 # Channels whose cards carry NO tap-to-arm chips, so the channel-id half of
@@ -91,7 +87,7 @@ CHANNEL_LABEL = {
     "camcorders": "camcorders (Handycam / MiniDV / Hi8)",
     "ipods":      "iPods + portable audio (Walkman, headphones)",
     "games":      "video games + consoles + Pokemon carts",
-    "collections": "whole collections for sale (PriceCharting)",
+    "collections": "whole collections for sale (PriceCharting feed)",
 }
 
 # 🚨 ONE SUBJECT PER CHANNEL, AND THE BOOK'S OWN CATEGORY DECIDES IT. This is
@@ -116,16 +112,15 @@ CATEGORY_CHANNEL = {
     # category map is what keeps them in #games.
     "videogames":    "games",
     "pokemon":       "games",
-    # Whole collections for sale. Not a book category - collections_feed sets
-    # it on the card - and the ONE category the card reader may never judge
-    # (NEVER_CARDS), because its item list is full of card words.
+    # Whole collections (the PriceCharting feed). Own channel since
+    # 2026-09-03; also in NEVER_CARDS so the card reader never sees them.
     "collections":   "collections",
 }
 
-# Categories that must NOT be judged by the card reader: routed by the
-# category map alone, never by the title. A collection of Pokemon cards has
-# "pokemon" and a grader name all over its item list; letting `read_card` see
-# it would file a whole-collection offer in the cards channel.
+# Categories that must NOT be judged by the card reader - they route by this
+# map alone and never fall through to the title read. A collection of Pokemon
+# cards has "pokemon" and a grader name all over its item list; letting
+# `read_card` see it would file a whole-collection offer in the cards channel.
 NEVER_CARDS = {"collections"}
 
 # The price book's own category names for cards. Authoritative when present -
@@ -154,7 +149,7 @@ def channel_for(candidate: dict, env=None) -> str:
     # " watches " missing the map is a silent fall-through to #deals.
     cat = (candidate.get("category") or "").strip().lower()
     if cat in NEVER_CARDS:
-        # The map or the default - the title reader below never sees it.
+        # Category map or nothing - the title reader must never see these.
         return CATEGORY_CHANNEL.get(cat, "")
     name = CATEGORY_CHANNEL.get(cat, "")
     if name == "cameras" and CAMCORDER_RE.search(candidate.get("title") or ""):

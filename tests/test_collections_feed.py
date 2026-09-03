@@ -311,25 +311,20 @@ def test_no_listing_type_banner_for_an_offer():
 
 
 # --- routing ----------------------------------------------------------------
-def test_collections_have_their_own_channel():
-    """Leron, 2026-09-03: "Should we give it its own channel?" Yes: webhook
-    set -> #collections."""
-    assert channel_for({"category": "collections",
-                        "title": "Collection"}) == "collections"
-    env = {"FLIPSCOUT_ALERT_WEBHOOK": "https://main",
-           "FLIPSCOUT_CARDS_WEBHOOK": "https://cards",
-           "FLIPSCOUT_COLLECTIONS_WEBHOOK": "https://collections"}
-    url, _chan, label = destination({"category": "collections"}, env)
-    assert url == "https://collections" and label == "webhook:collections"
-
-
-def test_collections_fall_back_to_deals_when_unset():
-    """The 2026-08-23 rule still holds underneath: with no webhook they go
-    to deals, never to #cards and never nowhere."""
+def test_collections_go_to_their_own_channel_or_else_deals():
+    """2026-09-03: Leron created a #collections webhook, so the channel is
+    back (it reverses his 2026-08-23 "push anything not a card to the deals
+    channel" for this one subject). With the webhook UNSET it falls back to
+    the deals channel exactly as before - never to #cards."""
+    assert channel_for({"category": "collections", "title": "Collection"}) == "collections"
     env = {"FLIPSCOUT_ALERT_WEBHOOK": "https://main",
            "FLIPSCOUT_CARDS_WEBHOOK": "https://cards"}
     url, _chan, label = destination({"category": "collections"}, env)
     assert url == "https://main" and label == "webhook"
+    env["FLIPSCOUT_COLLECTIONS_WEBHOOK"] = "https://collections"
+    env["FLIPSCOUT_COLLECTIONS_CHANNEL_ID"] = "123"
+    url, chan, label = destination({"category": "collections"}, env)
+    assert (url, chan, label) == ("https://collections", "123", "webhook:collections")
 
 
 def test_a_card_heavy_collection_never_goes_to_cards():

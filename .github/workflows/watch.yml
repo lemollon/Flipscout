@@ -111,8 +111,9 @@ jobs:
           FLIPSCOUT_CAMCORDERS_WEBHOOK: ${{ secrets.FLIPSCOUT_CAMCORDERS_WEBHOOK }}
           FLIPSCOUT_IPODS_WEBHOOK: ${{ secrets.FLIPSCOUT_IPODS_WEBHOOK }}
           FLIPSCOUT_GAMES_WEBHOOK: ${{ secrets.FLIPSCOUT_GAMES_WEBHOOK }}
-          # #collections (2026-09-03): whole collections for sale. Webhook
-          # is enough - these cards carry no tap-to-arm chips, so the
+          # #collections, added 2026-09-03 (secret set the same day). Whole
+          # collections from the PriceCharting feed; unset -> deals channel.
+          # Webhook is enough: these cards carry no tap-to-arm chips, so the
           # channel id below is mapped for uniformity and does nothing yet.
           FLIPSCOUT_COLLECTIONS_WEBHOOK: ${{ secrets.FLIPSCOUT_COLLECTIONS_WEBHOOK }}
           # PriceCharting collections-for-sale. ON by default and needs no key
