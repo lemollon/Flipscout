@@ -271,20 +271,33 @@ def post_collections(config: dict, notifier, seen: set, feed=None,
     queued = max(0, len(fresh) - _cf.POST_PER_RUN)
     batch = fresh[:_cf.POST_PER_RUN]
 
-    alerts, posted = [], set()
+    scored, posted = [], set()
     for col in batch:
         try:
             items = _cf.items_of(col)
             unmeasured = _cf.measure(items)
             summary = _cf.summarize(col, items, unmeasured, today=today)
-            alerts.append(_cf.to_alert(col, items, summary, today=today))
+            scored.append((summary, _cf.to_alert(col, items, summary,
+                                                 today=today)))
             posted.add(_cf.key(col))
         except Exception as e:                # one bad page never kills the run
             print(f"[hunt] collection {col.seller} failed (non-fatal): {e}")
-    if not alerts:
+    if not scored:
         return set()
+    # 🚨 FLIPS FIRST, BIGGEST OFFER FIRST. The batch was picked by guide
+    # value because that is all the feed page knows; now that each lot has
+    # been measured, the one worth an email goes on top and a PASS never
+    # sits above it. Leron, 2026-09-03: "hard to see what I can truly make
+    # money off".
+    rank = {"flip": 0, "unproven": 1, "pass": 2}
+    scored.sort(key=lambda sa: (rank[sa[0].verdict], -sa[0].offer,
+                                -sa[0].total_value))
+    alerts = [a for _s, a in scored]
+    flips = sum(1 for s, _a in scored if s.verdict == "flip")
 
     header = (f":package: **Collections for sale** - {len(alerts)} new"
+              + (f" ({flips} worth an offer)" if flips else
+                 " (none worth an offer)")
               # 🚨 SAY WHAT IS STILL QUEUED. Three a run drains a backlog over
               # a few hours; without this line the other thirteen look like
               # they were never found.

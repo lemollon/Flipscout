@@ -65,6 +65,32 @@ pulls an arm figure out of a card's RENDERED TEXT across every field, so any
 card saying "max bid" or "don't pay over" invites the bot to arm something it
 cannot arm. See `flipscout-hibid-watchlist-feed` on that bug class.
 
+WHAT THE CARD LEADS WITH, AND WHY IT IS NOT THE GUIDE VALUE
+-----------------------------------------------------------
+Leron, 2026-09-03: *"there is so much data and offer I find it hard to see
+what I can truly make money off flipping in eBay"*. The first cut led with
+the guide total and listed the dearest items - the GROSS, twice. Nobody buys
+a collection for its guide value; you buy it for what the pieces that will
+actually sell put in your pocket after eBay's cut and the postage. So:
+
+  * Every money number on the item lines is the eBay NET - guide price run
+    through the same `fees.net_proceeds` the CLI and the web app use, minus
+    a flat postage estimate per unit, floored at zero (a $3.61 common after a
+    $5 label is not a negative flip, it is a thing you bundle or bin).
+  * The card leads with ONE number: the most to offer the seller so that the
+    FAST MOVERS ALONE pay it back at the analyzer's default goal. Slow stock
+    is upside you did not pay for, never something the offer counts on.
+  * The verdict is a word - FLIP / PASS / unproven - and the batch is
+    posted flips first, so the one worth an email is the one on top.
+
+This is NOT PriceCharting's "Est. Buy Value" by another route. Theirs is a
+flat 40-60% of the guide total applied blind to every product in the lot
+(the blanket-comp shape, see the top of this file). Ours is summed from
+items that were each measured to sell, at what each nets. The 40-60% band is
+quoted on the card for one reason only: it is what THEIR sellers expect, so
+an offer far under it is going to be turned down, and the card says so
+rather than letting you write the email.
+
 SHIPPING
 --------
 Their seller flow ends at "6 - Ship Items & Receive Payment", and the FAQ says
@@ -87,6 +113,8 @@ from typing import Optional
 
 import requests
 
+from .analyzer import Thresholds
+from .fees import FeeModel, net_proceeds
 from .sportscards import _rows_in as _sale_rows
 
 FEED_URL = "https://www.pricecharting.com/collections-for-sale"
@@ -108,6 +136,17 @@ ITEM_FETCH_CAP = 25
 # under a month, HardBall III managed one in ninety days.
 LIQUID_PER_90 = 8
 DEAD_PER_90 = 2
+
+# Postage per UNIT, a flat estimate the card states out loud: a loose cart or
+# a slab in a bubble mailer is ~$5 USPS Ground Advantage. A console is three
+# times that and a card in a plain envelope a fifth of it, so this is a knob
+# (`summarize(ship=...)`), not a fact - and every net on the card is "after
+# fees and ~$5 postage each" so the reader can re-do the sum for a console.
+SHIP_PER_UNIT = 5.0
+# Below this there is no email worth writing. The feed will not list a lot
+# under $100, and a seller who put 20+ items up is not taking a $20 offer -
+# so an offer under this floor is rendered as PASS, not as a number to send.
+MIN_OFFER = 50.0
 
 # What is worth a card at all. Measured against the live feed 2026-08-23: of 50
 # open collections, 17 are under a fortnight old and 16 of those clear $300.
@@ -361,6 +400,25 @@ class Item:
     def qty(self) -> int:
         return quantity(self.includes)
 
+    @property
+    def unit_value(self) -> float:
+        """The guide price of ONE, because `value` is guide x qty."""
+        return self.value / self.qty
+
+    def net(self, fees: FeeModel = FeeModel(),
+            ship: float = SHIP_PER_UNIT) -> float:
+        """What the whole row puts in your pocket sold on eBay one unit at a
+        time: qty x (unit guide price - eBay fees - postage), floored at zero.
+
+        🚨 GUIDE IS WHAT THE BUYER PAYS, NOT WHAT YOU KEEP. A $114.50 SNES is
+        $93.93 after 13.25% + $0.40 and a $5 label; a $3.61 common is $0.00,
+        not -$1.87 - you would never ship it alone, so it counts for nothing
+        rather than for less than nothing.
+        """
+        per_unit = net_proceeds(self.unit_value, fees=fees,
+                                shipping_cost=ship).net
+        return round(max(0.0, per_unit) * self.qty, 2)
+
     def per_90(self, today: _dt.date) -> Optional[int]:
         """How many of these actually sold in the last 90 days.
 
@@ -463,6 +521,41 @@ def measure(items: list, session=None, cap: int = ITEM_FETCH_CAP) -> int:
     return max(0, len(ranked) - cap)
 
 
+def bucket(item: Item, today: _dt.date) -> Optional[str]:
+    """"fast" | "slow" | "mid" | None (no history). One rule, used by the
+    summary AND the card, so the lines and the totals can never disagree.
+
+    🚨 QTY SCALES THE BAR, NOT THE RATE. Five copies of a thing that sells
+    eight times a quarter is not five times as liquid - you need five sales
+    to clear the position, so the threshold multiplies.
+    """
+    n = item.per_90(today)
+    if n is None:
+        return None
+    if n >= LIQUID_PER_90 * item.qty:
+        return "fast"
+    if n <= DEAD_PER_90 * item.qty:
+        return "slow"
+    return "mid"
+
+
+def offer_for(liquid_net: float,
+              thresholds: Thresholds = Thresholds()) -> float:
+    """The most to pay the seller so the fast movers ALONE return the goal.
+
+    With N = what the fast movers net on eBay and the offer the cash tied up:
+        N - offer >= min_profit          ->  offer <= N - min_profit
+        (N - offer) / offer >= min_roi   ->  offer <= N / (1 + min_roi)
+    Tighter one wins; never below zero. Same shape as `analyzer.max_pay`,
+    summed over a lot instead of solved for one item.
+    """
+    if liquid_net <= 0:
+        return 0.0
+    cap = min(liquid_net - thresholds.min_profit,
+              liquid_net / (1 + thresholds.min_roi))
+    return round(max(0.0, cap), 2)
+
+
 @dataclass(frozen=True)
 class Summary:
     total_value: float          # what the collection is worth, per the guide
@@ -474,6 +567,20 @@ class Summary:
     unmeasured: int             # items we did not fetch (the cap)
     unlisted: int               # items the page never showed us (the 30 cap)
     unreachable: int            # items whose product page would not load
+    liquid_net: float = 0.0     # what the fast movers NET on eBay, all in
+    offer: float = 0.0          # most to offer so the fast movers pay it back
+
+    @property
+    def verdict(self) -> str:
+        """"flip" | "pass" | "unproven" - the one word that decides the email.
+
+        Unproven beats everything: a lot whose priced share is thin, or that
+        we could not price at all, gets no offer from us however good the
+        slice we saw looked (see `coverage`).
+        """
+        if not self.measured_value or self.thin:
+            return "unproven"
+        return "flip" if self.offer >= MIN_OFFER else "pass"
 
     @property
     def coverage(self) -> float:
@@ -497,22 +604,22 @@ class Summary:
 
 
 def summarize(collection: Collection, items: list, unmeasured: int,
-              today: Optional[_dt.date] = None) -> Summary:
+              today: Optional[_dt.date] = None,
+              fees: FeeModel = FeeModel(), ship: float = SHIP_PER_UNIT,
+              thresholds: Thresholds = Thresholds()) -> Summary:
     today = today or _dt.date.today()
-    liquid = dead = measured = 0.0
+    liquid = dead = measured = liquid_net = 0.0
     nl = nd = 0
     for it in items:
-        n = it.per_90(today)
-        if n is None:
+        b = bucket(it, today)
+        if b is None:
             continue
         measured += it.value
-        # 🚨 QTY SCALES THE BAR, NOT THE RATE. Five copies of a thing
-        # that sells eight times a quarter is not five times as liquid - you
-        # need five sales to clear the position, so the threshold multiplies.
-        if n >= LIQUID_PER_90 * it.qty:
+        if b == "fast":
             liquid += it.value
+            liquid_net += it.net(fees, ship)
             nl += 1
-        elif n <= DEAD_PER_90 * it.qty:
+        elif b == "slow":
             dead += it.value
             nd += 1
     return Summary(
@@ -522,40 +629,107 @@ def summarize(collection: Collection, items: list, unmeasured: int,
         liquid_items=nl, dead_items=nd, unmeasured=unmeasured,
         unlisted=max(0, collection.item_count - len(items)),
         unreachable=sum(1 for i in items if i.unreachable),
+        liquid_net=round(liquid_net, 2),
+        offer=offer_for(liquid_net, thresholds),
     )
 
 
 # --- the card ----------------------------------------------------------------
-def _line(item: Item, today: _dt.date) -> str:
+_VERDICT_WORD = {"flip": "FLIP", "pass": "PASS", "unproven": "Collection"}
+# 🚨 notify.build_embed CUTS `reason` AT 1000 CHARACTERS, SILENTLY. Measured
+# on the first draft of this card: two fast movers and two slow ones ran to
+# 1,056, and what fell off the end was the ownership warning. So the card
+# fits itself: the fast-mover lines give way, one at a time, and say how
+# many they dropped. Nothing else on the card is optional.
+FIELD_CAP = 1000
+# Discord embed colour, via notify.VERDICT_COLORS: green for the one worth an
+# email, red for the one that is not, grey for the one we could not price.
+_VERDICT_COLOUR = {"flip": "buy", "pass": "pass", "unproven": "watch"}
+# What PriceCharting's own FAQ says their sellers "generally get". Quoted so
+# an offer far under it is called out as a long shot - NOT used to price
+# anything (see the module docstring).
+SELLER_BAND = (0.40, 0.60)
+
+
+def _line(item: Item, today: _dt.date, fees: FeeModel = FeeModel(),
+          ship: float = SHIP_PER_UNIT) -> str:
     n = item.per_90(today)
     if n is None:
         return f"`${item.value:>7,.2f}`  {item.name}"
     rate = f"{'>=' if item.saturated(today) else ''}{n}/90d"
-    rng = (f" · ${item.low:,.0f}-${item.high:,.0f}"
+    rng = (f" ${item.low:,.0f}-{item.high:,.0f}"
            if item.low is not None and item.high != item.low else "")
     # 🚨 SAY THE QUANTITY AND THE CONDITION. Without qty the value column
     # lies (it is guide x qty); without the condition a Grade 9 slab and a raw
     # card print the same line against very different sales.
     qty = f" x{item.qty}" if item.qty > 1 else ""
-    return (f"`${item.value:>7,.2f}`{qty}  {item.name} [{item.label}] "
-            f"— {rate}, last {item.last_sold}{rng}")
+    # The NET leads: it is the number you would actually bank. The guide
+    # price rides behind it so the fee bite is visible, not hidden. Every
+    # character here is paid for out of Discord's 1000-char field (see
+    # FIELD_CAP), so the date drops its year and the name is capped.
+    return (f"`${item.net(fees, ship):>7,.2f}` net{qty}  {item.name[:40]} "
+            f"[{item.label}] — {rate}, last {item.last_sold[5:]} · guide "
+            f"${item.value:,.2f}{rng}")
+
+
+def _slow_line(slow: list, shown: int = 3) -> str:
+    """One line for everything that does not move, so it cannot be mistaken
+    for money. Named, because "3 slow items" invites "which three?"."""
+    names = [f"{i.name} ${i.value:,.0f}" for i in slow[:shown]]
+    more = f" +{len(slow) - shown} more" if len(slow) > shown else ""
+    return (f":hourglass: **Slow, pay nothing for these:** "
+            f"{', '.join(names)}{more}")
 
 
 def to_alert(collection: Collection, items: list, summary: Summary,
-             today: Optional[_dt.date] = None, top: int = 8) -> dict:
+             today: Optional[_dt.date] = None, top: int = 8,
+             fees: FeeModel = FeeModel(), ship: float = SHIP_PER_UNIT,
+             thresholds: Thresholds = Thresholds()) -> dict:
     """One collection -> the Discord embed payload.
 
-    Four things, in the order they change the decision: what it is worth, how
-    much of that is actually sellable, the items carrying the money, and what
-    would stop you.
+    In the order they change the decision: what to offer (or why not), what
+    the lot is worth and how much of that moves, the items carrying the
+    money at what they NET, the slow stock named so it is never counted,
+    and what would stop you.
     """
     today = today or _dt.date.today()
-    ranked = sorted([i for i in items if i.sales], key=lambda i: -i.value)
+    verdict = summary.verdict
+    fast = sorted([i for i in items if bucket(i, today) == "fast"],
+                  key=lambda i: -i.net(fees, ship))
+    mid = [i for i in items if bucket(i, today) == "mid"]
+    slow = sorted([i for i in items if bucket(i, today) == "slow"],
+                  key=lambda i: -i.value)
+
     bits = [f"**${collection.total_value:,.2f}** across "
             f"**{collection.item_count}** items · _{collection.location}_ · "
             f"listed {collection.age}"]
 
     if summary.measured_value:
+        nf = summary.liquid_items
+        movers = f"{nf} fast mover{'s' if nf != 1 else ''}"
+        if verdict == "flip":
+            share = summary.offer / summary.total_value
+            bits.append(
+                f":moneybag: **Offer up to ${summary.offer:,.2f}** "
+                f"({share:.0%} of guide) — {movers} net "
+                f"**${summary.liquid_net:,.2f}** after eBay fees + ~${ship:.0f} "
+                f"postage each; that pays the offer back at "
+                f"{thresholds.min_roi:.0%}+ ROI. Slow stock is free upside.")
+            if share < SELLER_BAND[0]:
+                bits.append(
+                    f"_Under the {SELLER_BAND[0]:.0%}-{SELLER_BAND[1]:.0%} of "
+                    f"guide sellers here usually take - expect a no or a "
+                    f"counter._")
+        elif verdict == "pass":
+            why = (f"{movers} net only ${summary.liquid_net:,.2f} after eBay "
+                   f"fees" if nf else
+                   "nothing we priced sells fast enough to pay an offer back")
+            bits.append(f":no_entry_sign: **Pass** — {why}. No offer worth "
+                        f"emailing; the guide total is mostly slow stock.")
+        else:   # unproven, i.e. thin: the coverage warning below carries it
+            bits.append(f":grey_question: **Unproven** — only "
+                        f"{summary.coverage:.0%} of the value is priced, so "
+                        f"no offer from this card.")
         # 🚨 THE DENOMINATOR IS THE COLLECTION, NOT OUR SAMPLE. The first cut
         # said "71% of what we measured", which sounds like coverage and is
         # not. Caught on the live sweep: a $4,533.18 collection whose thirty
@@ -565,7 +739,7 @@ def to_alert(collection: Collection, items: list, summary: Summary,
         # dearest thirty items, so a sample is never a summary here.
         item = "item" if summary.liquid_items == 1 else "items"
         bits.append(
-            f":dart: **${summary.liquid_value:,.2f} moves quarterly** "
+            f":dart: **${summary.liquid_value:,.2f} guide moves quarterly** "
             f"({summary.liquid_items} {item})"
             + (f" · :hourglass: **${summary.dead_value:,.2f} is slow** "
                f"({summary.dead_items} items)" if summary.dead_items else ""))
@@ -581,9 +755,19 @@ def to_alert(collection: Collection, items: list, summary: Summary,
     else:
         bits.append("_No sale history found - treat every number as unproven._")
 
-    if ranked:
-        bits.append("")
-        bits += [_line(i, today) for i in ranked[:top]]
+    # 🚨 ONLY THE FAST MOVERS GET A LINE. The old card listed the dearest
+    # eight by guide price, which put a $65 HardBall III (one sale in 90
+    # days) above a $30 controller that sells weekly - the noise Leron was
+    # reading past. Money first, slow stock in one line, the middle counted.
+    lines = [_line(i, today, fees, ship) for i in fast[:top]]
+    tail = []
+    if slow:
+        tail.append("")
+        tail.append(_slow_line(slow))
+    if mid:
+        tail.append(f"_{len(mid)} more sell at a middling pace "
+                    f"(${sum(i.value for i in mid):,.2f} guide) - not counted "
+                    f"in the offer._")
 
     # Only what would stop the buy.
     warn = []
@@ -607,24 +791,43 @@ def to_alert(collection: Collection, items: list, summary: Summary,
     # 🚨 STANDING LINE, EVERY CARD. PriceCharting's own page says to verify
     # ownership before paying, and their flow has the SELLER ship first - which
     # is the half of the risk that lands on them, not on you.
-    bits.append("_Ask for a photo with the seller's username written on paper "
+    tail.append("_Ask for a photo with the seller's username written on paper "
                 "before sending money._")
 
+    # Fit the field: drop fast-mover lines from the bottom until it does,
+    # and say how many went. The head and the tail are never cut.
+    def _body(k: int) -> str:
+        shown = lines[:k]
+        if shown:
+            shown = [""] + shown
+            if len(fast) > k:
+                shown.append(f"_+{len(fast) - k} more fast movers_")
+        return "\n".join(bits + shown + tail)
+    k = len(lines)
+    while k > 0 and len(_body(k)) > FIELD_CAP:
+        k -= 1
+
+    title = (f"{_VERDICT_WORD[verdict]} · {collection.item_count} items · "
+             f"${collection.total_value:,.2f}")
+    if verdict == "flip":
+        # The offer in the title too: on a phone the title is what you see
+        # in the channel list, and it is the only number that matters.
+        title += f" · offer up to ${summary.offer:,.0f}"
     return {
-        "title": f"Collection · {collection.item_count} items · "
-                 f"${collection.total_value:,.2f}",
+        "title": title,
         "url": collection.url,
         "image": collection.photo,
-        "verdict": "watch",
+        "verdict": _VERDICT_COLOUR[verdict],
         "source": "pricecharting",
         "buy_url": collection.url,
         "category": "collections",
         # 🚨 DELIBERATELY NO max_bid / open_bid / ends. There is no lot and no
         # clock, and `build_embed` would render an arming grid for a listing
         # that cannot be armed. The prose avoids the trigger words for the same
-        # reason - see the module docstring.
+        # reason - see the module docstring. "Offer up to" is not one of them
+        # and the guard test runs the real parser over the rendered embed.
         "listing_type": "offer",
-        "reason": "\n".join(bits),
+        "reason": _body(k),
     }
 
 

@@ -658,3 +658,284 @@ def test_a_grade_with_no_sales_falls_back_and_says_ungraded_not_loose():
     cf.measure([it], _Session({it.product_url: page}), cap=1)
     assert it.label == "Grade 9 (ungraded sales)"
     assert "loose" not in it.label
+
+
+# --- money, not gross: what the card leads with ------------------------------
+# Leron, 2026-09-03: "so much data and offer I find it hard to see what I can
+# truly make money off flipping in eBay". Every number the card leads with is
+# the eBay NET and the one that matters is the offer.
+
+def _fast(name, value, includes="Item only", n=30, start="2026-08-16"):
+    it = cf.Item(name=name, includes=includes, value=value, game_id="1")
+    it.sales = _dates(n, start)
+    return it
+
+
+def _slow(name, value):
+    it = cf.Item(name=name, includes="Item only", value=value, game_id="2")
+    it.sales = _dates(1, "2026-07-25")
+    return it
+
+
+def _flip_card(extra=()):
+    """A lot that actually flips: one $400 fast mover is 32% of the $1,252.03
+    guide, so coverage is not thin. Nets $341.60; offer = 341.60/1.5 =
+    $227.73 (the ROI cap binds). `_card()` on its own is THIN - its $114.50
+    SNES is 9% of the value - and so renders as unproven, by design."""
+    col = cf.parse_feed(FEED_HTML)[0]
+    items = [_fast("N64 console bundle", 400.0)] + list(extra)
+    s = cf.summarize(col, items, 0, today=TODAY)
+    return col, items, s, cf.to_alert(col, items, s, today=TODAY)
+
+
+def test_net_is_guide_minus_ebay_fees_and_postage():
+    """A $114.50 SNES: 13.25% + $0.40 + a $5 label leaves $93.93."""
+    assert _fast("SNES", 114.50).net() == 93.93
+
+
+def test_net_never_goes_negative():
+    """A $3.61 common after a $5 label is $0.00, not -$1.87: you would never
+    ship it alone, so it counts for nothing rather than less than nothing."""
+    assert _fast("common", 3.61).net() == 0.0
+
+
+def test_net_is_per_unit_times_quantity():
+    """Value is guide x qty, so the fee bite lands on each unit, not once."""
+    five = _fast("controller", 149.95, includes="Item only Qty: 5")
+    one = _fast("controller", 29.99)
+    assert five.unit_value == pytest.approx(29.99)
+    assert five.net() == pytest.approx(one.net() * 5, abs=0.05)
+
+
+def test_postage_is_a_knob_the_card_states():
+    it = _fast("console", 200.0)
+    assert it.net(ship=15.0) < it.net(ship=5.0)
+    _c, _i, _s, a = _flip_card()
+    assert "~$5 postage each" in a["reason"]
+
+
+def test_offer_is_what_the_fast_movers_pay_back_at_the_goal():
+    """N = $93.93 net: profit cap $83.93, ROI cap $62.62 -> the tighter one."""
+    assert cf.offer_for(93.93) == 62.62
+    assert cf.offer_for(0.0) == 0.0
+    assert cf.offer_for(5.0) == 0.0          # under min_profit -> nothing
+
+
+def test_summary_carries_liquid_net_and_offer():
+    _c, _i, s, _a = _flip_card()
+    assert s.liquid_net == 341.60
+    assert s.offer == 227.73
+    assert s.verdict == "flip"
+
+
+def test_the_default_fixture_is_thin_and_therefore_unproven():
+    """Pinned so nobody 'fixes' _card() into a flip: a $114.50 SNES is 9% of
+    a $1,252.03 lot, and 9% priced is not a lot you write an offer on."""
+    _c, _i, s, a = _card()
+    assert s.thin and s.verdict == "unproven"
+    assert "Offer up to" not in a["reason"]
+
+
+def test_slow_stock_never_feeds_the_offer():
+    """The offer is paid back by the fast movers ALONE; a $500 shelf ornament
+    adds to the guide total and to nothing else."""
+    col = cf.parse_feed(FEED_HTML)[0]
+    fast_only = cf.summarize(col, [_fast("SNES", 114.50)], 0, today=TODAY)
+    with_slow = cf.summarize(col, [_fast("SNES", 114.50),
+                                   _slow("HardBall III", 500.0)], 0,
+                             today=TODAY)
+    assert with_slow.offer == fast_only.offer
+    assert with_slow.dead_value == 500.0
+
+
+def test_a_lot_with_only_slow_stock_is_a_pass():
+    col = cf.parse_feed(FEED_HTML)[0]
+    items = [_slow("HardBall III", 800.0)]
+    s = cf.summarize(col, items, 0, today=TODAY)
+    assert s.verdict == "pass" and s.offer == 0.0
+    a = cf.to_alert(col, items, s, today=TODAY)
+    assert a["title"].startswith("PASS")
+    assert "**Pass**" in a["reason"]
+    assert "nothing we priced sells fast enough" in a["reason"]
+    assert a["verdict"] == "pass"
+
+
+def test_a_tiny_offer_is_a_pass_not_a_number_to_send():
+    """$30 net on the fast movers -> a $20 offer. Nobody with a $300+ lot is
+    taking that; rendering it as a number invites the email."""
+    col = cf.parse_feed(FEED_HTML)[0]
+    items = [_fast("cheap cart", 900.0, includes="Item only"),
+             _fast("game", 40.0)]
+    # 900 guide fast mover ... make the fast money small instead:
+    items = [_fast("game", 40.0), _slow("HardBall III", 900.0)]
+    s = cf.summarize(col, items, 0, today=TODAY)
+    assert 0 < s.offer < cf.MIN_OFFER
+    assert s.verdict == "pass"
+    body = cf.to_alert(col, items, s, today=TODAY)["reason"]
+    assert "net only $" in body and "Offer up to" not in body
+
+
+def test_thin_coverage_is_unproven_however_good_the_slice_looked():
+    """A $4,533 lot whose thirty public rows are commons gets no offer."""
+    col = cf.parse_feed(FEED_HTML)[0]              # $1,252.03
+    items = [_fast("Gamecube controller", 29.99)]   # 2.4% of the value
+    s = cf.summarize(col, items, 0, today=TODAY)
+    assert s.thin and s.verdict == "unproven"
+    a = cf.to_alert(col, items, s, today=TODAY)
+    assert "**Unproven**" in a["reason"]
+    assert "Offer up to" not in a["reason"]
+    assert a["verdict"] == "watch"
+    assert a["title"].startswith("Collection")
+
+
+def test_flip_card_leads_with_the_offer():
+    _c, _i, s, a = _flip_card()
+    body = a["reason"]
+    assert "**Offer up to $227.73**" in body
+    assert "net **$341.60** after eBay fees" in body
+    assert "50%+ ROI" in body
+    assert a["title"] == "FLIP · 64 items · $1,252.03 · offer up to $228"
+    assert a["verdict"] == "buy"
+    # The offer sits above the liquidity line, not under it.
+    assert body.index("Offer up to") < body.index("moves quarterly")
+
+
+def test_an_offer_far_under_the_sellers_band_says_so():
+    """$227.73 on a $1,252.03 lot is 18% of guide. PriceCharting's own FAQ
+    says sellers get 40-60%; the card says expect a no, rather than let you
+    write the email and find out."""
+    _c, _i, _s, a = _flip_card()
+    assert "(18% of guide)" in a["reason"]
+    assert "Under the 40%-60% of guide" in a["reason"]
+
+
+def test_an_offer_inside_the_band_carries_no_long_shot_note():
+    col = cf.parse_feed(FEED_HTML)[0]              # $1,252.03
+    items = [_fast("PS2 lot", 1200.0)]              # nets ~$1,035 -> offer ~$690
+    s = cf.summarize(col, items, 0, today=TODAY)
+    body = cf.to_alert(col, items, s, today=TODAY)["reason"]
+    assert s.offer / s.total_value > 0.40
+    assert "expect a no" not in body
+
+
+def test_item_lines_show_the_net_and_only_the_fast_movers():
+    """The old card listed the dearest eight by GUIDE, which put a $65
+    one-sale-a-quarter game above a controller that sells weekly."""
+    col = cf.parse_feed(FEED_HTML)[0]
+    items = [_slow("HardBall III", 65.0),
+             _fast("Black Controller Gamecube", 29.99),
+             _fast("SNES", 114.50)]
+    s = cf.summarize(col, items, 0, today=TODAY)
+    body = cf.to_alert(col, items, s, today=TODAY)["reason"]
+    lines = [l for l in body.split("\n") if "` net" in l]
+    assert len(lines) == 2
+    assert "SNES" in lines[0] and "Gamecube" in lines[1]      # by net, desc
+    assert lines[0].startswith("`$  93.93` net")
+    assert "guide $114.50" in lines[0] and "last 08-16" in lines[0]
+    assert not any("HardBall" in l for l in lines)
+
+
+def test_slow_stock_is_named_in_one_line():
+    col = cf.parse_feed(FEED_HTML)[0]
+    items = [_fast("SNES", 114.50)] + [_slow(f"dud {i}", 10.0 + i)
+                                        for i in range(5)]
+    s = cf.summarize(col, items, 0, today=TODAY)
+    body = cf.to_alert(col, items, s, today=TODAY)["reason"]
+    line = next(l for l in body.split("\n") if "Slow, pay nothing" in l)
+    assert "dud 4 $14" in line and "+2 more" in line
+
+
+def test_middling_sellers_are_counted_not_listed():
+    col = cf.parse_feed(FEED_HTML)[0]
+    mid = cf.Item(name="Mario Paint", includes="Item only", value=25.0,
+                  game_id="3")
+    mid.sales = _dates(5, "2026-08-20")            # 5/90d: neither fast nor slow
+    items = [_fast("SNES", 114.50), mid]
+    s = cf.summarize(col, items, 0, today=TODAY)
+    body = cf.to_alert(col, items, s, today=TODAY)["reason"]
+    assert "1 more sell at a middling pace ($25.00 guide)" in body
+    assert "Mario Paint" not in body
+
+
+def test_bucket_is_one_rule_for_summary_and_card():
+    assert cf.bucket(_fast("x", 10.0), TODAY) == "fast"
+    assert cf.bucket(_slow("x", 10.0), TODAY) == "slow"
+    assert cf.bucket(cf.Item(name="x", includes="", value=1.0), TODAY) is None
+
+
+def test_the_offer_never_reads_as_an_arming_number():
+    """Same guard as before, on the card that now carries a dollar figure in
+    its first line AND its title: the real parser must still arm nothing."""
+    from flipscout.discordarm import parse_card
+    _c, _i, _s, a = _flip_card()
+    assert "Offer up to" in a["reason"]
+    embed = build_embed(a)
+    _src, _lot, ceiling = parse_card({"embeds": [embed], "content": ""})
+    assert ceiling is None, f"collection card would arm ${ceiling}"
+
+
+def test_the_card_fits_discords_field_cap():
+    """build_embed cuts `reason` at 1000 chars; a card that overflows loses
+    the ownership warning at the bottom. Eight fast movers plus slow stock
+    plus warnings has to fit."""
+    col = cf.parse_feed(FEED_HTML)[0]
+    items = ([_fast(f"Some Long Nintendo Title {i}", 100.0 + i)
+              for i in range(8)]
+             + [_slow(f"Dead Title {i}", 40.0) for i in range(6)])
+    s = cf.summarize(col, items, unmeasured=12, today=TODAY)
+    body = cf.to_alert(col, items, s, today=TODAY)["reason"]
+    assert len(body) <= cf.FIELD_CAP, len(body)
+    # It fitted by dropping fast-mover lines - and said so - not by losing
+    # the slow line or the standing warning at the bottom.
+    assert "more fast movers_" in body
+    assert "Slow, pay nothing" in body
+    assert body.endswith("before sending money._")
+    assert "Some Long Nintendo Title 7" in body       # the best one stays
+
+
+def test_a_short_card_is_not_trimmed():
+    _c, _i, _s, a = _flip_card(extra=[_fast("SNES", 114.50)])
+    body = a["reason"]
+    assert "more fast movers" not in body
+    assert body.count("` net") == 2
+
+
+# --- the batch: flips first ---------------------------------------------------
+def test_post_collections_puts_flips_above_passes(monkeypatch):
+    """The batch is picked by guide value (all the feed page knows). Once
+    measured, the lot worth an email goes on top whatever it is worth."""
+    from flipscout import hunt
+    cols = _cols()
+    # Two fresh lots: bigone (higher value) is all slow stock; n66 flips.
+    # Sized to each lot's guide total so neither reads as thin.
+    monkeypatch.setattr(
+        cf, "items_of",
+        lambda c, session=None: [_slow("HardBall III", c.total_value)]
+        if c.seller == "bigone" else [_fast("N64 bundle", c.total_value)])
+    monkeypatch.setattr(cf, "measure", lambda i, s=None, cap=0: 0)
+    got = {}
+
+    def notifier(alerts, content=""):
+        got["alerts"], got["header"] = alerts, content
+        return ["webhook"]
+
+    hunt.post_collections({"collections": True}, notifier, set(),
+                          feed=cols, today=TODAY)
+    titles = [a["title"] for a in got["alerts"]]
+    assert titles[0].startswith("FLIP") and titles[-1].startswith("PASS")
+    assert "(1 worth an offer)" in got["header"]
+
+
+def test_header_says_when_nothing_is_worth_an_offer(monkeypatch):
+    from flipscout import hunt
+    monkeypatch.setattr(cf, "items_of", lambda c, session=None: [])
+    monkeypatch.setattr(cf, "measure", lambda i, s=None, cap=0: 0)
+    got = {}
+
+    def notifier(alerts, content=""):
+        got["header"] = content
+        return ["webhook"]
+
+    hunt.post_collections({"collections": True}, notifier, set(),
+                          feed=_cols(), today=TODAY)
+    assert "(none worth an offer)" in got["header"]
