@@ -251,6 +251,7 @@ _ACTION_TEXT = {
 
 VERDICT_COLORS = {
     "buy": 0x2ECC71,      # green  - clears your bar
+    "hot": 0xE67E22,      # orange - a GREAT flip: clears the bar by a mile
     "watch": 0xF1C40F,    # yellow - close, needs a judgement call
     "pass": 0xE74C3C,     # red    - checked and rejected, with the reason
 }

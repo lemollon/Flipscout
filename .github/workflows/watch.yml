@@ -81,6 +81,7 @@ jobs:
           path: |
             flipscout_seen.json
             flipscout_heartbeat.json
+            flipscout_collections.json
           key: flipscout-seen-${{ github.run_id }}
           restore-keys: flipscout-seen-
       - name: Hunt every source and alert

@@ -765,7 +765,7 @@ def test_the_default_fixture_is_thin_and_therefore_unproven():
     a $1,252.03 lot, and 9% priced is not a lot you write an offer on."""
     _c, _i, s, a = _card()
     assert s.thin and s.verdict == "unproven"
-    assert "Offer up to" not in a["reason"]
+    assert "offer up to" not in a["reason"]
 
 
 def test_slow_stock_never_feeds_the_offer():
@@ -787,7 +787,7 @@ def test_a_lot_with_only_slow_stock_is_a_pass():
     assert s.verdict == "pass" and s.offer == 0.0
     a = cf.to_alert(col, items, s, today=TODAY)
     assert a["title"].startswith("PASS")
-    assert "**Pass**" in a["reason"]
+    assert "**PASS**" in a["reason"]
     assert "nothing we priced sells fast enough" in a["reason"]
     assert a["verdict"] == "pass"
 
@@ -804,7 +804,7 @@ def test_a_tiny_offer_is_a_pass_not_a_number_to_send():
     assert 0 < s.offer < cf.MIN_OFFER
     assert s.verdict == "pass"
     body = cf.to_alert(col, items, s, today=TODAY)["reason"]
-    assert "net only $" in body and "Offer up to" not in body
+    assert "net only $" in body and "offer up to" not in body
 
 
 def test_thin_coverage_is_unproven_however_good_the_slice_looked():
@@ -814,22 +814,25 @@ def test_thin_coverage_is_unproven_however_good_the_slice_looked():
     s = cf.summarize(col, items, 0, today=TODAY)
     assert s.thin and s.verdict == "unproven"
     a = cf.to_alert(col, items, s, today=TODAY)
-    assert "**Unproven**" in a["reason"]
-    assert "Offer up to" not in a["reason"]
+    assert "**UNPROVEN**" in a["reason"]
+    assert "offer up to" not in a["reason"]
     assert a["verdict"] == "watch"
     assert a["title"].startswith("Collection")
 
 
-def test_flip_card_leads_with_the_offer():
+def test_flip_card_says_pay_get_keep_on_one_line():
+    """Leron, 2026-09-04: "what it does is not explicit on the discord card".
+    Offer (pay), fast-mover net (get), profit at the offer (keep)."""
     _c, _i, s, a = _flip_card()
     body = a["reason"]
-    assert "**Offer up to $227.73**" in body
-    assert "net **$341.60** after eBay fees" in body
-    assert "50%+ ROI" in body
+    assert "**FLIP** — offer up to **$227.73** (18% of guide)" in body
+    assert "net **$341.60** on eBay after fees + ~$5 postage each" in body
+    assert "you clear **$113.87** (50% ROI)" in body
+    assert s.profit_at_offer == 113.87
     assert a["title"] == "FLIP · 64 items · $1,252.03 · offer up to $228"
     assert a["verdict"] == "buy"
     # The offer sits above the liquidity line, not under it.
-    assert body.index("Offer up to") < body.index("moves quarterly")
+    assert body.index("offer up to") < body.index("moves quarterly")
 
 
 def test_an_offer_far_under_the_sellers_band_says_so():
@@ -900,7 +903,7 @@ def test_the_offer_never_reads_as_an_arming_number():
     its first line AND its title: the real parser must still arm nothing."""
     from flipscout.discordarm import parse_card
     _c, _i, _s, a = _flip_card()
-    assert "Offer up to" in a["reason"]
+    assert "offer up to" in a["reason"]
     embed = build_embed(a)
     _src, _lot, ceiling = parse_card({"embeds": [embed], "content": ""})
     assert ceiling is None, f"collection card would arm ${ceiling}"
@@ -955,7 +958,7 @@ def test_post_collections_puts_flips_above_passes(monkeypatch):
                           feed=cols, today=TODAY)
     titles = [a["title"] for a in got["alerts"]]
     assert titles[0].startswith("FLIP") and titles[-1].startswith("PASS")
-    assert "(1 worth an offer)" in got["header"]
+    assert "1 worth an offer" in got["header"]
 
 
 def test_header_says_when_nothing_is_worth_an_offer(monkeypatch):
@@ -970,4 +973,273 @@ def test_header_says_when_nothing_is_worth_an_offer(monkeypatch):
 
     hunt.post_collections({"collections": True}, notifier, set(),
                           feed=_cols(), today=TODAY)
-    assert "(none worth an offer)" in got["header"]
+    assert "none worth an offer" in got["header"]
+
+
+# --- the great-flip tier ------------------------------------------------------
+# Leron, 2026-09-04: "tell me when a lot is a great flip based on the criteria
+# maybe coloring the card". GREAT = the offer is inside the 40-60% of guide
+# sellers take (so it lands) AND clears $100+ at that offer (so it matters).
+
+def _great_card():
+    """$1,000 fast mover in a $1,252.03 lot: nets $862.10, offer $574.73 =
+    46% of guide, profit $287.37. Both bars cleared."""
+    return _flip_card.__wrapped__() if hasattr(_flip_card, "__wrapped__") else (
+        lambda: (lambda col, items: (col, items,
+                 cf.summarize(col, items, 0, today=TODAY),
+                 cf.to_alert(col, items, cf.summarize(col, items, 0, today=TODAY),
+                             today=TODAY)))(cf.parse_feed(FEED_HTML)[0],
+                                            [_fast("Sealed PS2 lot", 1000.0)]))()
+
+
+def test_a_great_flip_needs_both_a_takeable_offer_and_real_profit():
+    _c, _i, s, a = _great_card()
+    assert s.verdict == "flip" and s.great
+    assert s.offer == 574.73 and s.share == pytest.approx(0.459, abs=0.001)
+    assert s.profit_at_offer == 287.37
+    assert a["title"].startswith("\N{WHITE MEDIUM STAR} GREAT FLIP")
+    assert "**GREAT FLIP** — offer up to **$574.73** (46% of guide)" in a["reason"]
+    assert a["verdict"] == "hot"
+    assert "expect a no" not in a["reason"]          # inside the band
+
+
+def test_a_flip_under_the_band_is_not_great_however_much_it_clears():
+    """18% of guide clears $113 - a good flip the seller will still refuse."""
+    _c, _i, s, a = _flip_card()
+    assert s.verdict == "flip" and not s.great
+    assert s.profit_at_offer > cf.GREAT_PROFIT
+    assert a["verdict"] == "buy" and "GREAT" not in a["title"]
+
+
+def test_a_flip_inside_the_band_with_thin_profit_is_not_great():
+    """46% of guide on a small lot: takeable, but $50 is not worth the email."""
+    col = cf.Collection(seller="tiny", url="u", total_value=320.0,
+                        item_count=20, location="x", age="2 days")
+    items = [_fast("PS2 lot", 256.0)]           # nets ~$216, offer ~$144 = 45%
+    s = cf.summarize(col, items, 0, today=TODAY)
+    assert s.verdict == "flip" and s.share >= cf.SELLER_BAND[0]
+    assert s.profit_at_offer < cf.GREAT_PROFIT and not s.great
+
+
+def test_great_flips_get_their_own_colour():
+    from flipscout.notify import VERDICT_COLORS
+    assert VERDICT_COLORS["hot"] not in (VERDICT_COLORS["buy"],
+                                         VERDICT_COLORS["watch"],
+                                         VERDICT_COLORS["pass"])
+    _c, _i, _s, a = _great_card()
+    assert build_embed(a)["color"] == VERDICT_COLORS["hot"]
+
+
+def test_the_star_is_not_the_stretch_arm_chip():
+    """discordarm's 🔥 means "arm past the ceiling"; a great flip must never
+    borrow it, or a collection card looks like it carries an arm chip."""
+    _c, _i, _s, a = _great_card()
+    assert "\N{FIRE}" not in a["title"] and "\N{FIRE}" not in a["reason"]
+
+
+def test_great_flips_post_first_and_the_header_counts_them(monkeypatch):
+    from flipscout import hunt
+    cols = _cols()
+    monkeypatch.setattr(
+        cf, "items_of",
+        lambda c, session=None: [_fast("N64 bundle", c.total_value * 0.4)]
+        if c.seller == "bigone" else [_fast("Sealed PS2 lot", 1000.0)])
+    monkeypatch.setattr(cf, "measure", lambda i, s=None, cap=0: 0)
+    got = {}
+
+    def notifier(alerts, content=""):
+        got["alerts"], got["header"] = alerts, content
+        return ["webhook"]
+
+    hunt.post_collections({"collections": True}, notifier, set(),
+                          feed=cols, today=TODAY)
+    titles = [a["title"] for a in got["alerts"]]
+    assert titles[0].startswith("\N{WHITE MEDIUM STAR} GREAT FLIP")
+    assert ":star: 1 great flip" in got["header"]
+    assert "1 worth an offer" in got["header"]
+    # The legend rides on the batch, not on each 1000-char card.
+    assert "8+ eBay sales in 90 days" in got["header"]
+    assert "50% ROI" in got["header"]
+
+
+# --- re-alerts: what changed since you saw it ---------------------------------
+# A collection has no asking price to drop. What can change: items vanish
+# (cherry-picked), the lot sits unsold for 30 days, or it disappears.
+
+def _state_with(col, **over):
+    rec = {"item_count": col.item_count, "total_value": col.total_value,
+           "offer": 100.0, "verdict": "flip", "posted": "2026-08-01",
+           "realerted": False}
+    rec.update(over)
+    return {col.seller: rec}
+
+
+def test_cherry_picked_lot_is_due_when_items_vanish():
+    col = cf.parse_feed(FEED_HTML)[0]                      # 64 items
+    state = _state_with(col, item_count=70)                # we saw 70
+    assert cf.due(state, [col], TODAY) == [(col, "cherry")]
+
+
+def test_a_lot_still_listed_at_30_days_is_due_once():
+    col = cf.parse_feed(FEED_HTML)[1]                      # "8 days" -> not yet
+    assert cf.due(_state_with(col), [col], TODAY) == []
+    old = cf.Collection(seller=col.seller, url=col.url,
+                        total_value=col.total_value, item_count=col.item_count,
+                        location=col.location, age="1 month")
+    assert cf.due(_state_with(old), [old], TODAY) == [(old, "stale")]
+    assert cf.due(_state_with(old, realerted=True), [old], TODAY) == []
+
+
+def test_cherry_picking_beats_age():
+    old = cf.Collection(seller="s", url="u", total_value=500.0, item_count=40,
+                        location="x", age="2 months")
+    assert cf.due(_state_with(old, item_count=50), [old], TODAY) == [(old, "cherry")]
+
+
+def test_a_lot_we_never_posted_is_never_re_alerted():
+    col = cf.parse_feed(FEED_HTML)[0]
+    assert cf.due({}, [col], TODAY) == []
+
+
+def test_gone_lots_are_the_ones_we_posted_that_left_the_page():
+    cols = cf.parse_feed(FEED_HTML)
+    state = {cols[0].seller: {"item_count": 64}, "vanished-seller": {"item_count": 9}}
+    assert cf.gone(state, cols) == ["vanished-seller"]
+
+
+def test_banners_name_the_change_and_carry_no_arming_words():
+    col = cf.parse_feed(FEED_HTML)[0]
+    for kind in ("cherry", "stale"):
+        b = cf.banner(kind, col, {"item_count": 70}).lower()
+        for trigger in ("max bid", "ceiling", "don't pay over"):
+            assert trigger not in b
+    assert "70 → 64 items" in cf.banner("cherry", col, {"item_count": 70})
+    assert "30 days" in cf.banner("stale", col, {})
+
+
+def test_a_re_alert_card_leads_with_its_banner():
+    _c, items, s, _a = _flip_card()
+    col = cf.parse_feed(FEED_HTML)[0]
+    a = cf.to_alert(col, items, s, today=TODAY,
+                    banner=cf.banner("stale", col, {}))
+    assert a["reason"].startswith(":hourglass: **Still unsold after 30 days**")
+    assert "offer up to **$227.73**" in a["reason"]
+
+
+def test_state_round_trips_and_reads_missing_as_empty(tmp_path):
+    path = str(tmp_path / "c.json")
+    assert cf.load_state(path) == {}
+    assert cf.load_state(None) == {}
+    cf.save_state(path, {"s": {"item_count": 3}})
+    assert cf.load_state(path) == {"s": {"item_count": 3}}
+    (tmp_path / "c.json").write_text("not json")
+    assert cf.load_state(path) == {}
+
+
+def test_post_collections_records_a_snapshot_and_re_alerts_from_it(
+        monkeypatch, tmp_path):
+    """Run 1 posts the lot. Run 2 sees it with fewer items -> a cherry-picked
+    re-alert, re-measured, with the banner on top. Run 3, nothing new."""
+    from flipscout import hunt
+    path = str(tmp_path / "collections.json")
+    cfg = {"collections": True, "collections_state_file": path}
+    monkeypatch.setattr(cf, "items_of",
+                        lambda c, session=None: [_fast("N64 bundle", 400.0)])
+    monkeypatch.setattr(cf, "measure", lambda i, s=None, cap=0: 0)
+    posts = []
+
+    def notifier(alerts, content=""):
+        posts.append((alerts, content))
+        return ["webhook"]
+
+    first = cf.parse_feed(FEED_HTML)[0]
+    seen = hunt.post_collections(cfg, notifier, set(), feed=[first], today=TODAY)
+    assert cf.load_state(path)[first.seller]["item_count"] == 64
+    assert cf.load_state(path)[first.seller]["offer"] == 227.73
+
+    picked = cf.Collection(seller=first.seller, url=first.url,
+                           total_value=first.total_value, item_count=51,
+                           location=first.location, age="9 days")
+    assert hunt.post_collections(cfg, notifier, seen, feed=[picked],
+                                 today=TODAY) == set()   # nothing NEW to mark seen
+    alerts, header = posts[-1]
+    assert len(alerts) == 1
+    assert alerts[0]["reason"].startswith(":scissors: **Cherry-picked** — 64 → 51")
+    assert "1 re-alert" in header and "new" not in header
+    assert cf.load_state(path)[first.seller]["item_count"] == 51
+
+    n = len(posts)
+    hunt.post_collections(cfg, notifier, seen, feed=[picked], today=TODAY)
+    assert len(posts) == n                                # quiet: no change
+
+
+def test_the_stale_re_alert_fires_once_and_gone_lots_leave_the_state(
+        monkeypatch, tmp_path):
+    from flipscout import hunt
+    path = str(tmp_path / "collections.json")
+    cfg = {"collections": True, "collections_state_file": path}
+    monkeypatch.setattr(cf, "items_of",
+                        lambda c, session=None: [_fast("N64 bundle", 400.0)])
+    monkeypatch.setattr(cf, "measure", lambda i, s=None, cap=0: 0)
+    posts = []
+
+    def notifier(alerts, content=""):
+        posts.append((alerts, content))
+        return ["webhook"]
+
+    first = cf.parse_feed(FEED_HTML)[0]
+    seen = hunt.post_collections(cfg, notifier, set(), feed=[first], today=TODAY)
+    aged = cf.Collection(seller=first.seller, url=first.url,
+                         total_value=first.total_value, item_count=64,
+                         location=first.location, age="1 month")
+    hunt.post_collections(cfg, notifier, seen, feed=[aged], today=TODAY)
+    assert posts[-1][0][0]["reason"].startswith(":hourglass: **Still unsold")
+    assert cf.load_state(path)[first.seller]["realerted"] is True
+    n = len(posts)
+    hunt.post_collections(cfg, notifier, seen, feed=[aged], today=TODAY)
+    assert len(posts) == n                                # never twice
+    # Then it sells: one header line, no card, and the state forgets it.
+    other = cf.parse_feed(FEED_HTML)[1]
+    monkeypatch.setattr(cf, "items_of", lambda c, session=None: [])
+    hunt.post_collections(cfg, notifier, seen | {cf.key(other)}, feed=[other],
+                          today=TODAY)
+    alerts, header = posts[-1]
+    assert alerts == [] and "1 gone (sold or pulled)" in header
+    assert first.seller not in cf.load_state(path)
+
+
+def test_new_lots_take_the_budget_before_re_alerts(monkeypatch, tmp_path):
+    """POST_PER_RUN is shared; a re-alert waits a run rather than bumping a
+    lot nobody has seen yet, and its state is untouched so it comes back."""
+    from flipscout import hunt
+    path = str(tmp_path / "collections.json")
+    cfg = {"collections": True, "collections_state_file": path}
+    monkeypatch.setattr(cf, "items_of",
+                        lambda c, session=None: [_fast("N64 bundle", 400.0)])
+    monkeypatch.setattr(cf, "measure", lambda i, s=None, cap=0: 0)
+    monkeypatch.setattr(cf, "POST_PER_RUN", 1)
+    posts = []
+
+    def notifier(alerts, content=""):
+        posts.append((alerts, content))
+        return ["webhook"]
+
+    first, second, _ = cf.parse_feed(FEED_HTML)
+    seen = hunt.post_collections(cfg, notifier, set(), feed=[first], today=TODAY)
+    picked = cf.Collection(seller=first.seller, url=first.url,
+                           total_value=first.total_value, item_count=51,
+                           location=first.location, age="9 days")
+    hunt.post_collections(cfg, notifier, seen, feed=[picked, second], today=TODAY)
+    alerts, header = posts[-1]
+    assert len(alerts) == 1 and "re-alert" not in header      # the new one won
+    assert cf.load_state(path)[first.seller]["item_count"] == 64  # still due
+
+
+def test_the_workflow_caches_the_collections_state():
+    """Same trap as the seen-list: a state file the cache does not carry is
+    rebuilt empty every run, and every re-alert silently never fires."""
+    import pathlib as _p
+    wf = (_p.Path(__file__).resolve().parent.parent
+          / ".github" / "workflows" / "watch.yml").read_text(encoding="utf-8")
+    from flipscout import hunt
+    assert hunt.load_config({})["collections_state_file"] in wf

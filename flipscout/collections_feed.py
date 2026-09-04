@@ -152,6 +152,19 @@ SHIP_PER_UNIT = 5.0
 # under $100, and a seller who put 20+ items up is not taking a $20 offer -
 # so an offer under this floor is rendered as PASS, not as a number to send.
 MIN_OFFER = 50.0
+# A GREAT flip (Leron, 2026-09-04: "tell me when a lot is a great flip ...
+# maybe coloring the card") is a FLIP whose offer sits inside the 40-60% of
+# guide PriceCharting's sellers usually take - so it will likely be accepted -
+# AND that clears this much profit at that offer. Both, not either: a $30
+# profit at 45% is not worth the email, and a $500 profit at 12% of guide
+# is a fantasy the seller will laugh at.
+GREAT_PROFIT = 100.0
+# Re-alert a lot you already saw when it is STILL listed this long after
+# posting. A seller who has turned down a month of offers takes less - it is
+# the closest thing to a price drop this feed has, because a collection
+# carries no asking price to drop (buyers email offers; the FAQ's 40-60% is
+# the seller's expectation, not a number they set).
+REALERT_DAYS = 30
 
 # What is worth a card at all. Measured against the live feed 2026-08-23: of 50
 # open collections, 17 are under a fortnight old and 16 of those clear $300.
@@ -526,6 +539,12 @@ def measure(items: list, session=None, cap: int = ITEM_FETCH_CAP) -> int:
     return max(0, len(ranked) - cap)
 
 
+# What PriceCharting's own FAQ says their sellers "generally get". Quoted so
+# an offer far under it is called out as a long shot, and as the floor for a
+# GREAT flip - NOT used to price anything (see the module docstring).
+SELLER_BAND = (0.40, 0.60)
+
+
 def bucket(item: Item, today: _dt.date) -> Optional[str]:
     """"fast" | "slow" | "mid" | None (no history). One rule, used by the
     summary AND the card, so the lines and the totals can never disagree.
@@ -574,6 +593,27 @@ class Summary:
     unreachable: int            # items whose product page would not load
     liquid_net: float = 0.0     # what the fast movers NET on eBay, all in
     offer: float = 0.0          # most to offer so the fast movers pay it back
+
+    @property
+    def profit_at_offer(self) -> float:
+        """What you clear if the seller takes the offer and only the fast
+        movers sell: the number the card leads with, after the offer."""
+        return round(max(0.0, self.liquid_net - self.offer), 2)
+
+    @property
+    def roi_at_offer(self) -> float:
+        return self.profit_at_offer / self.offer if self.offer else 0.0
+
+    @property
+    def share(self) -> float:
+        """The offer as a share of the guide total - what the seller sees."""
+        return self.offer / self.total_value if self.total_value else 0.0
+
+    @property
+    def great(self) -> bool:
+        """A flip the seller will likely take AND that is worth the effort."""
+        return (self.verdict == "flip" and self.share >= SELLER_BAND[0]
+                and self.profit_at_offer >= GREAT_PROFIT)
 
     @property
     def verdict(self) -> str:
@@ -650,12 +690,6 @@ FIELD_CAP = 1000
 # Discord embed colour, via notify.VERDICT_COLORS: green for the one worth an
 # email, red for the one that is not, grey for the one we could not price.
 _VERDICT_COLOUR = {"flip": "buy", "pass": "pass", "unproven": "watch"}
-# What PriceCharting's own FAQ says their sellers "generally get". Quoted so
-# an offer far under it is called out as a long shot - NOT used to price
-# anything (see the module docstring).
-SELLER_BAND = (0.40, 0.60)
-
-
 def _line(item: Item, today: _dt.date, fees: FeeModel = FeeModel(),
           ship: float = SHIP_PER_UNIT) -> str:
     n = item.per_90(today)
@@ -689,13 +723,15 @@ def _slow_line(slow: list, shown: int = 3) -> str:
 def to_alert(collection: Collection, items: list, summary: Summary,
              today: Optional[_dt.date] = None, top: int = 8,
              fees: FeeModel = FeeModel(), ship: float = SHIP_PER_UNIT,
-             thresholds: Thresholds = Thresholds()) -> dict:
+             thresholds: Thresholds = Thresholds(),
+             banner: Optional[str] = None) -> dict:
     """One collection -> the Discord embed payload.
 
-    In the order they change the decision: what to offer (or why not), what
-    the lot is worth and how much of that moves, the items carrying the
-    money at what they NET, the slow stock named so it is never counted,
-    and what would stop you.
+    Three numbers, in the order they decide the email: what to offer, what
+    you would clear, and how much of the lot that reading actually covers.
+    Then the items carrying the money at what they NET, the slow stock named
+    so it is never counted, and what would stop you. `banner` is the one
+    line a re-alert puts above all of it.
     """
     today = today or _dt.date.today()
     verdict = summary.verdict
@@ -705,22 +741,27 @@ def to_alert(collection: Collection, items: list, summary: Summary,
     slow = sorted([i for i in items if bucket(i, today) == "slow"],
                   key=lambda i: -i.value)
 
-    bits = [f"**${collection.total_value:,.2f}** across "
-            f"**{collection.item_count}** items · _{collection.location}_ · "
-            f"listed {collection.age}"]
+    bits = [banner] if banner else []
+    bits.append(f"**${collection.total_value:,.2f}** across "
+                f"**{collection.item_count}** items · _{collection.location}_ · "
+                f"listed {collection.age}")
 
     if summary.measured_value:
         nf = summary.liquid_items
         movers = f"{nf} fast mover{'s' if nf != 1 else ''}"
         if verdict == "flip":
-            share = summary.offer / summary.total_value
+            # 🚨 PAY / GET / KEEP, in that order, on one line. Leron,
+            # 2026-09-04: "what it does is not explicit on the discord card".
+            word = (":star: **GREAT FLIP**" if summary.great
+                    else ":moneybag: **FLIP**")
             bits.append(
-                f":moneybag: **Offer up to ${summary.offer:,.2f}** "
-                f"({share:.0%} of guide) — {movers} net "
-                f"**${summary.liquid_net:,.2f}** after eBay fees + ~${ship:.0f} "
-                f"postage each; that pays the offer back at "
-                f"{thresholds.min_roi:.0%}+ ROI. Slow stock is free upside.")
-            if share < SELLER_BAND[0]:
+                f"{word} — offer up to **${summary.offer:,.2f}** "
+                f"({summary.share:.0%} of guide) · {movers} net "
+                f"**${summary.liquid_net:,.2f}** on eBay after fees + "
+                f"~${ship:.0f} postage each · you clear "
+                f"**${summary.profit_at_offer:,.2f}** "
+                f"({summary.roi_at_offer:.0%} ROI)")
+            if summary.share < SELLER_BAND[0]:
                 bits.append(
                     f"_Under the {SELLER_BAND[0]:.0%}-{SELLER_BAND[1]:.0%} of "
                     f"guide sellers here usually take - expect a no or a "
@@ -729,10 +770,10 @@ def to_alert(collection: Collection, items: list, summary: Summary,
             why = (f"{movers} net only ${summary.liquid_net:,.2f} after eBay "
                    f"fees" if nf else
                    "nothing we priced sells fast enough to pay an offer back")
-            bits.append(f":no_entry_sign: **Pass** — {why}. No offer worth "
-                        f"emailing; the guide total is mostly slow stock.")
+            bits.append(f":no_entry_sign: **PASS** — {why}; the guide total "
+                        f"is mostly slow stock.")
         else:   # unproven, i.e. thin: the coverage warning below carries it
-            bits.append(f":grey_question: **Unproven** — only "
+            bits.append(f":grey_question: **UNPROVEN** — only "
                         f"{summary.coverage:.0%} of the value is priced, so "
                         f"no offer from this card.")
         # 🚨 THE DENOMINATOR IS THE COLLECTION, NOT OUR SAMPLE. The first cut
@@ -791,8 +832,8 @@ def to_alert(collection: Collection, items: list, summary: Summary,
     if collection.heavy:
         warn.append("**Big lot** - likely a pickup, not a shipment")
     if warn:
-        bits.append("")
-        bits.append(":warning: " + " · ".join(warn))
+        tail.append("")
+        tail.append(":warning: " + " · ".join(warn))
     # 🚨 STANDING LINE, EVERY CARD. PriceCharting's own page says to verify
     # ownership before paying, and their flow has the SELLER ship first - which
     # is the half of the risk that lands on them, not on you.
@@ -812,7 +853,10 @@ def to_alert(collection: Collection, items: list, summary: Summary,
     while k > 0 and len(_body(k)) > FIELD_CAP:
         k -= 1
 
-    title = (f"{_VERDICT_WORD[verdict]} · {collection.item_count} items · "
+    word = _VERDICT_WORD[verdict]
+    if summary.great:
+        word = "\N{WHITE MEDIUM STAR} GREAT FLIP"
+    title = (f"{word} · {collection.item_count} items · "
              f"${collection.total_value:,.2f}")
     if verdict == "flip":
         # The offer in the title too: on a phone the title is what you see
@@ -822,18 +866,93 @@ def to_alert(collection: Collection, items: list, summary: Summary,
         "title": title,
         "url": collection.url,
         "image": collection.photo,
-        "verdict": _VERDICT_COLOUR[verdict],
+        "verdict": "hot" if summary.great else _VERDICT_COLOUR[verdict],
         "source": "pricecharting",
         "buy_url": collection.url,
         "category": "collections",
         # 🚨 DELIBERATELY NO max_bid / open_bid / ends. There is no lot and no
         # clock, and `build_embed` would render an arming grid for a listing
         # that cannot be armed. The prose avoids the trigger words for the same
-        # reason - see the module docstring. "Offer up to" is not one of them
+        # reason - see the module docstring. "offer up to" is not one of them
         # and the guard test runs the real parser over the rendered embed.
         "listing_type": "offer",
         "reason": _body(k),
     }
+
+
+# --- what changed since you saw it ------------------------------------------
+# A collection has no asking price, so "price drop" cannot mean what it means
+# on an auction. What CAN change on a listing, and what each means:
+#   * item count falls   -> someone bought pieces out of it, usually the good
+#                           ones. The lot just got worse: re-measure and say so.
+#   * still listed at 30 -> a seller who has turned down a month of offers
+#                           takes less. Re-measure and say the offer may land.
+#   * listing vanishes   -> sold or pulled. Stop thinking about it.
+# Guide value drifting on its own is not news. State is one JSON file next to
+# the seen-cache, restored by the same Actions cache (watch.yml `path`).
+
+def load_state(path: Optional[str]) -> dict:
+    """{seller -> snapshot}. Missing or corrupt reads as empty, never raises."""
+    if not path:
+        return {}
+    try:
+        import json
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_state(path: Optional[str], state: dict) -> None:
+    if not path:
+        return
+    try:
+        import json
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(state, f)
+    except Exception as e:                  # never let bookkeeping kill a run
+        print(f"[hunt] couldn't save collections state: {e}")
+
+
+def snapshot(collection: Collection, summary: Summary,
+             today: _dt.date) -> dict:
+    return {"item_count": collection.item_count,
+            "total_value": collection.total_value,
+            "offer": summary.offer, "verdict": summary.verdict,
+            "posted": today.isoformat(), "realerted": False}
+
+
+def due(state: dict, cols: list, today: _dt.date) -> list:
+    """[(collection, "cherry" | "stale")] for lots we posted before that
+    deserve a second card. Cherry-picking beats age: a lot that lost items
+    AND hit 30 days is re-measured for the loss, and that card says both."""
+    out = []
+    for col in cols:
+        rec = state.get(col.seller)
+        if not rec:
+            continue
+        if col.item_count < rec.get("item_count", col.item_count):
+            out.append((col, "cherry"))
+        elif age_days(col.age) >= REALERT_DAYS and not rec.get("realerted"):
+            out.append((col, "stale"))
+    return out
+
+
+def gone(state: dict, cols: list) -> list:
+    """Sellers we posted whose lot is no longer on the page: sold or pulled."""
+    listed = {c.seller for c in cols}
+    return [s for s in state if s not in listed]
+
+
+def banner(kind: str, collection: Collection, rec: dict) -> str:
+    if kind == "cherry":
+        return (f":scissors: **Cherry-picked** — {rec.get('item_count')} → "
+                f"{collection.item_count} items since you saw it. Fresh "
+                f"numbers below are what is left.")
+    return (f":hourglass: **Still unsold after {REALERT_DAYS} days** — a "
+            f"seller who has turned down a month of offers takes less. Fresh "
+            f"numbers below; your offer may land now.")
 
 
 def key(collection: Collection) -> str:

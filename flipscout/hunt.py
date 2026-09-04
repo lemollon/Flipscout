@@ -159,6 +159,11 @@ def load_config(env=None) -> dict:
         # set correctly and inert for a full run. Only an explicit word is off.
         "collections": ((env.get("FLIPSCOUT_COLLECTIONS") or "1").strip().lower()
                         not in ("0", "false", "no", "off")),
+        # What each posted collection looked like, so a later run can say
+        # "items gone since you saw it" / "still unsold at 30 days" / "gone".
+        # Cached by watch.yml next to the seen-list; lose it and you lose the
+        # re-alerts, never a first alert.
+        "collections_state_file": "flipscout_collections.json",
     }
 
 
@@ -249,65 +254,126 @@ def _collections_pass(config: dict, notifier, seen: set) -> set:
 
 def post_collections(config: dict, notifier, seen: set, feed=None,
                      today=None) -> set:
-    """Whole collections listed for sale on PriceCharting -> the collections
-    channel. Returns the seen-keys to persist.
+    """Whole collections listed for sale on PriceCharting -> #collections.
+    Returns the seen-keys to persist.
 
     Not a digest and not a deal alert. A collection has no lot, no clock and no
     ceiling - the action is an email to the seller - so it gets its own channel
     and its own seen-namespace, and it NEVER carries an arming number.
     See collections_feed.py for why this reads the page and not the mail.
+
+    Three kinds of card share one budget (POST_PER_RUN), new lots first:
+      * NEW      - never posted, fresh and worth a look.
+      * RE-ALERT - posted before, and either lost items since (cherry-picked)
+                   or still unsold at REALERT_DAYS. Re-measured, banner on top.
+      * (gone)   - posted before, no longer listed. One line in the header,
+                   no card: there is nothing left to act on.
     """
+    import datetime as _d
     from . import collections_feed as _cf
+    today = today or _d.date.today()
     cols = feed if feed is not None else _cf.feed()
     if not cols:
         return set()
+    state_path = config.get("collections_state_file")
+    state = _cf.load_state(state_path)
+
     fresh = [c for c in cols
              if _cf.key(c) not in seen
              and c.total_value >= _cf.MIN_VALUE
              and _cf.age_days(c.age) <= _cf.MAX_AGE_DAYS]
-    if not fresh:
-        return set()
     fresh.sort(key=lambda c: -c.total_value)
     queued = max(0, len(fresh) - _cf.POST_PER_RUN)
     batch = fresh[:_cf.POST_PER_RUN]
+    # Re-alerts fill whatever budget the new lots leave; the rest wait a run
+    # (their state is untouched, so `due` finds them again).
+    realerts = _cf.due(state, [c for c in cols if _cf.key(c) in seen], today)
+    re_batch = realerts[:max(0, _cf.POST_PER_RUN - len(batch))]
+    vanished = _cf.gone(state, cols)
+    if not batch and not re_batch and not vanished:
+        return set()
+
+    def _card(col, banner=None):
+        items = _cf.items_of(col)
+        unmeasured = _cf.measure(items)
+        summary = _cf.summarize(col, items, unmeasured, today=today)
+        return summary, _cf.to_alert(col, items, summary, today=today,
+                                     banner=banner)
 
     scored, posted = [], set()
     for col in batch:
         try:
-            items = _cf.items_of(col)
-            unmeasured = _cf.measure(items)
-            summary = _cf.summarize(col, items, unmeasured, today=today)
-            scored.append((summary, _cf.to_alert(col, items, summary,
-                                                 today=today)))
+            summary, alert = _card(col)
+            scored.append((summary, alert))
             posted.add(_cf.key(col))
+            state[col.seller] = _cf.snapshot(col, summary, today)
         except Exception as e:                # one bad page never kills the run
             print(f"[hunt] collection {col.seller} failed (non-fatal): {e}")
-    if not scored:
-        return set()
     # 🚨 FLIPS FIRST, BIGGEST OFFER FIRST. The batch was picked by guide
     # value because that is all the feed page knows; now that each lot has
     # been measured, the one worth an email goes on top and a PASS never
     # sits above it. Leron, 2026-09-03: "hard to see what I can truly make
     # money off".
     rank = {"flip": 0, "unproven": 1, "pass": 2}
-    scored.sort(key=lambda sa: (rank[sa[0].verdict], -sa[0].offer,
-                                -sa[0].total_value))
+    scored.sort(key=lambda sa: (0 if sa[0].great else 1, rank[sa[0].verdict],
+                                -sa[0].offer, -sa[0].total_value))
     alerts = [a for _s, a in scored]
-    flips = sum(1 for s, _a in scored if s.verdict == "flip")
+    great = sum(1 for s, _a in scored if s.great)
+    flips = sum(1 for s, _a in scored if s.verdict == "flip" and not s.great)
 
-    header = (f":package: **Collections for sale** - {len(alerts)} new"
-              + (f" ({flips} worth an offer)" if flips else
-                 " (none worth an offer)")
+    re_alerts = []
+    for col, kind in re_batch:
+        rec = state[col.seller]
+        try:
+            summary, alert = _card(col, banner=_cf.banner(kind, col, rec))
+            re_alerts.append(alert)
+            rec.update(item_count=col.item_count, offer=summary.offer,
+                       verdict=summary.verdict)
+            if _cf.age_days(col.age) >= _cf.REALERT_DAYS:
+                rec["realerted"] = True     # one age card per lot, ever
+        except Exception as e:
+            print(f"[hunt] collection re-alert {col.seller} failed "
+                  f"(non-fatal): {e}")
+    for seller in vanished:
+        state.pop(seller, None)
+
+    alerts += re_alerts
+    if not alerts and not vanished:
+        return set()
+
+    counts = []
+    if alerts and scored:
+        counts.append(f"{len(scored)} new")
+        if great:
+            counts.append(f":star: {great} great flip{'s' if great != 1 else ''}")
+        if flips:
+            counts.append(f"{flips} worth an offer")
+        if not great and not flips:
+            counts.append("none worth an offer")
+    if re_alerts:
+        counts.append(f"{len(re_alerts)} re-alert{'s' if len(re_alerts) != 1 else ''}")
+    if vanished:
+        counts.append(f"{len(vanished)} gone (sold or pulled)")
+    header = (":package: **Collections for sale** - " + " · ".join(counts)
               # 🚨 SAY WHAT IS STILL QUEUED. Three a run drains a backlog over
               # a few hours; without this line the other thirteen look like
               # they were never found.
               + (f", {queued} more queued" if queued else "")
+              # 🚨 THE LEGEND, ONCE PER BATCH, NOT PER CARD. Leron, 2026-09-04:
+              # "what it does is not explicit on the discord card". Each card
+              # has 1000 characters; the method fits here instead.
+              + "\n_Offer = what the fast movers (8+ eBay sales in 90 days) "
+                "net after fees, discounted to 50% ROI. Slow stock counts for "
+                "$0. :star: = offer inside the 40-60% sellers take AND clears "
+                "$100+._"
               + "\n_No bidding here - you email the seller an offer._")
     sent = notifier(alerts, content=header)
     if not sent:
         print(f"[hunt] COLLECTIONS NOT DELIVERED - {len(alerts)} went nowhere.")
         return set()
-    print(f"[hunt] COLLECTIONS: {len(alerts)} posted via {', '.join(sent)}.")
+    _cf.save_state(state_path, state)
+    print(f"[hunt] COLLECTIONS: {len(alerts)} posted via {', '.join(sent)}"
+          + (f", {len(vanished)} gone." if vanished else "."))
     return posted
 
 
