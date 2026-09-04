@@ -946,7 +946,7 @@ def test_post_collections_puts_flips_above_passes(monkeypatch):
     monkeypatch.setattr(
         cf, "items_of",
         lambda c, session=None: [_slow("HardBall III", c.total_value)]
-        if c.seller == "bigone" else [_fast("N64 bundle", c.total_value)])
+        if c.seller == "bigone" else [_fast("N64 bundle", c.total_value * 0.4)])
     monkeypatch.setattr(cf, "measure", lambda i, s=None, cap=0: 0)
     got = {}
 
@@ -958,6 +958,8 @@ def test_post_collections_puts_flips_above_passes(monkeypatch):
                           feed=cols, today=TODAY)
     titles = [a["title"] for a in got["alerts"]]
     assert titles[0].startswith("FLIP") and titles[-1].startswith("PASS")
+    # 40% of guide in fast stock is a plain FLIP: the offer lands at ~22% of
+    # guide, under the band, so it is not GREAT (see the great-flip tests).
     assert "1 worth an offer" in got["header"]
 
 
