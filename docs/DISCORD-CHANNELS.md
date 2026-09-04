@@ -1,6 +1,6 @@
 # Discord channels — one per subject
 
-Alerts route by SUBJECT. Six named channels plus the default deals channel.
+Alerts route by SUBJECT. Seven named channels plus the default deals channel.
 
 🚨 **Every channel is optional, and an unset one is INVISIBLE — not an error.**
 A routing rule may never make an alert vanish, so an unset channel falls back
@@ -29,9 +29,10 @@ before believing anything about where alerts go:
 | `#camcorders` | camcorders (Handycam / MiniDV / Hi8) | `FLIPSCOUT_CAMCORDERS_WEBHOOK` | `FLIPSCOUT_CAMCORDERS_CHANNEL_ID` | `cameras + a camcorder title` |
 | `#ipods` | iPods + portable audio (Walkman, headphones) | `FLIPSCOUT_IPODS_WEBHOOK` | `FLIPSCOUT_IPODS_CHANNEL_ID` | `headphones, ipods, walkman` |
 | `#games` | video games + consoles + Pokemon carts | `FLIPSCOUT_GAMES_WEBHOOK` | `FLIPSCOUT_GAMES_CHANNEL_ID` | `pokemon, videogames` |
+| `#collections` | whole collections for sale on PriceCharting (offer cards) | `FLIPSCOUT_COLLECTIONS_WEBHOOK` | *(not needed - see below)* | `collections` (set by the feed, not the book) |
 
-Everything else — calculators, medical, sewing, collections, and any category
-added to the price book later — goes to the default channel
+Everything else — calculators, medical, sewing, and any category added to
+the price book later — goes to the default channel
 (`FLIPSCOUT_ALERT_WEBHOOK` / `FLIPSCOUT_DISCORD_CHANNEL_ID`). A new category is
 never silently swallowed by an existing channel.
 
@@ -45,6 +46,10 @@ Set the webhook and skip the id and the cards arrive **un-armable** — the
 seeding call 404s against the wrong channel, silently. The run log says so:
 `no FLIPSCOUT_WATCHES_CHANNEL_ID - these post but arrive with no tap-to-arm
 chips.`
+
+**`#collections` is the one exception:** its cards carry no arming number
+(there is no lot and no clock — you email the seller an offer), so the
+webhook alone is the whole setup and the run log does not nag about the id.
 
 ## Setup, per channel
 

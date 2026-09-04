@@ -67,6 +67,12 @@ CHANNELS = {
     "collections": ("FLIPSCOUT_COLLECTIONS_WEBHOOK", "FLIPSCOUT_COLLECTIONS_CHANNEL_ID"),
 }
 
+# Channels whose cards carry NO tap-to-arm chips, so the channel-id half of
+# the pair is genuinely optional. A collection has no lot and no clock - the
+# action is an email - and a "no CHANNEL_ID, chips missing" warning about it
+# would be a false alarm that trains the reader to ignore the real one.
+NO_CHIPS = {"collections"}
+
 # A channel that is a SUBSET of another falls back to its parent before the
 # default. A camcorder is priced as a camera (category "cameras" - there is one
 # camcorder model in the book, sony_handycam), so with #camcorders unset the
@@ -245,6 +251,7 @@ _ACTION_TEXT = {
 
 VERDICT_COLORS = {
     "buy": 0x2ECC71,      # green  - clears your bar
+    "hot": 0xE67E22,      # orange - a GREAT flip: clears the bar by a mile
     "watch": 0xF1C40F,    # yellow - close, needs a judgement call
     "pass": 0xE74C3C,     # red    - checked and rejected, with the reason
 }

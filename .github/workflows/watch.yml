@@ -81,6 +81,7 @@ jobs:
           path: |
             flipscout_seen.json
             flipscout_heartbeat.json
+            flipscout_collections.json
           key: flipscout-seen-${{ github.run_id }}
           restore-keys: flipscout-seen-
       - name: Hunt every source and alert
@@ -113,6 +114,8 @@ jobs:
           FLIPSCOUT_GAMES_WEBHOOK: ${{ secrets.FLIPSCOUT_GAMES_WEBHOOK }}
           # #collections, added 2026-09-03 (secret set the same day). Whole
           # collections from the PriceCharting feed; unset -> deals channel.
+          # Webhook is enough: these cards carry no tap-to-arm chips, so the
+          # channel id below is mapped for uniformity and does nothing yet.
           FLIPSCOUT_COLLECTIONS_WEBHOOK: ${{ secrets.FLIPSCOUT_COLLECTIONS_WEBHOOK }}
           # PriceCharting collections-for-sale. ON by default and needs no key
           # (the feed is public), so this maps ONLY the off switch - mapped NOW
