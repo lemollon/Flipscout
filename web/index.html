@@ -140,6 +140,15 @@
   .ceiling .n{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:2.7rem; font-weight:800; letter-spacing:-.02em; margin:2px 0; line-height:1.05}
   .ceiling .sub{font-size:.85rem; color:var(--muted)}
   .ceiling.walk .n{color:var(--skip-line)}
+  .ceiling .velosub{margin-top:14px; padding-top:12px; border-top:1px dashed var(--border); font-size:.82rem; color:var(--muted); line-height:1.5}
+  .ceiling .velosub b{color:var(--fg)}
+  /* Capital velocity: profit per dollar per DAY. The number that ranks deals
+     once you have more of them than money. */
+  .velo{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 10px; padding:12px 14px; border-top:1px solid var(--border); background:var(--surface)}
+  .velo .vpill{font-weight:800; font-size:.68rem; letter-spacing:.06em; padding:3px 9px; border-radius:999px; color:#fff; background:var(--vline)}
+  .velo .vnum{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:1.15rem; font-weight:700; color:var(--vfg)}
+  .velo .vk{font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)}
+  .velo .vsub{flex:1 1 100%; font-size:.78rem; color:var(--muted)}
 
   .book-tag{display:inline-flex; align-items:center; gap:6px; font-size:.72rem; color:var(--accent); background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:3px 9px; margin-top:10px}
 
@@ -229,7 +238,7 @@
       </div>
 
       <details class="more">
-        <summary>More detail (sell-through, buyer shipping, extras)</summary>
+        <summary>More detail (sell-through, buyer shipping, extras, days to sell)</summary>
         <div>
           <div class="grid">
             <div class="field">
@@ -250,6 +259,10 @@
               <label for="s-extra">Extras (supplies, gas)</label>
               <div class="money-in"><input class="num" type="number" id="s-extra" inputmode="decimal" min="0" step="1" placeholder="0"></div>
             </div>
+          </div>
+          <div class="field">
+            <label for="s-days">Days to sell <span class="hint">— your own estimate; blank = worked out from the counts above</span></label>
+            <input class="num" type="number" id="s-days" inputmode="numeric" min="0" step="1" placeholder="—">
           </div>
         </div>
       </details>
@@ -279,6 +292,10 @@
           <label for="m-extra">Extras</label>
           <div class="money-in"><input class="num" type="number" id="m-extra" inputmode="decimal" min="0" step="1" placeholder="0"></div>
         </div>
+      </div>
+      <div class="field">
+        <label for="m-days">Days to sell <span class="hint">— optional; adds the velocity ceiling</span></label>
+        <input class="num" type="number" id="m-days" inputmode="numeric" min="0" step="1" placeholder="—">
       </div>
     </div>
     <div class="card" id="m-result"></div>
@@ -336,6 +353,17 @@
         <div class="field"><label for="set-minp">Min profit $</label><input class="num" type="number" id="set-minp" inputmode="decimal" step="1"></div>
         <div class="field"><label for="set-minroi">Min ROI %</label><input class="num" type="number" id="set-minroi" inputmode="decimal" step="5"></div>
         <div class="field" style="grid-column:1/-1">
+          <p style="font-size:.82rem;color:var(--muted);margin:.6em 0 .2em"><b>Capital velocity</b> — how long your cash is really dead, and what an evening of your time is worth. Days-to-sell is only part of the hold: prep, transit and eBay's payout hold are the rest.</p>
+        </div>
+        <div class="field"><label for="set-prep">Prep days</label><input class="num" type="number" id="set-prep" inputmode="decimal" step="0.5"></div>
+        <div class="field"><label for="set-shipd">Transit days</label><input class="num" type="number" id="set-shipd" inputmode="decimal" step="0.5"></div>
+        <div class="field"><label for="set-payout">Payout days</label><input class="num" type="number" id="set-payout" inputmode="decimal" step="0.5"></div>
+        <div class="field"><label for="set-assume">Assume days to sell</label><input class="num" type="number" id="set-assume" inputmode="decimal" step="5"></div>
+        <div class="field"><label for="set-handle">Handling min/flip</label><input class="num" type="number" id="set-handle" inputmode="decimal" step="5"></div>
+        <div class="field"><label for="set-hourly">Min $/hour</label><input class="num" type="number" id="set-hourly" inputmode="decimal" step="1"></div>
+        <div class="field"><label for="set-hot">HOT $/$100/day</label><input class="num" type="number" id="set-hot" inputmode="decimal" step="0.25"></div>
+        <div class="field"><label for="set-good">GOOD $/$100/day</label><input class="num" type="number" id="set-good" inputmode="decimal" step="0.25"></div>
+        <div class="field" style="grid-column:1/-1">
           <label for="set-api">eBay lookup server <span class="hint">— optional; blank = same site this page is served from</span></label>
           <input type="text" id="set-api" placeholder="http://localhost:8000" autocomplete="off">
         </div>
@@ -359,6 +387,9 @@ const FACTORY = {
   fvf:0.1325, perOrder:0.40, perOrderSmall:0.30, smallThreshold:10.0,
   intl:0.0, promoted:0.0, taxPct:0.0,
   minProfit:10, minRoi:0.50, goodProfit:20, goodRoi:1.00, minSellThrough:0.30,
+  /* capital velocity — see flipscout/velocity.py, same numbers */
+  prepDays:2, shipDays:3, payoutDays:2, assumeDays:45, handleMin:25,
+  velHot:2.00, velGood:0.75, velSlow:0.25, minHourly:20,
   apiBase:"",
 };
 let SET = load(LS_SET, {...FACTORY});
@@ -415,6 +446,72 @@ function maxPay(o, f){
   return { maxPrice, binding, profit, roi: total>0?profit/total:0 };
 }
 
+/* ---- capital velocity: profit per dollar per DAY (mirrors velocity.py) ----
+   Margin ranks deals wrong once you have more deals than money. A $200 profit
+   held eight months is a worse use of the same dollar than $25 held three
+   weeks. Everything below is that one division, plus the two floors (dollars,
+   hours) that stop "fast" from meaning "good". */
+function estDaysToSell(sc, ac, windowDays=90){
+  if(!sc || ac==null) return null;
+  const perDay = sc/windowDays;
+  return perDay>0 ? ac/perDay : null;
+}
+function holdDays(daysToSell, f){
+  const dts = daysToSell==null ? f.assumeDays : Math.max(0, daysToSell);
+  return f.prepDays + f.shipDays + f.payoutDays + dts;   // dead cash, not just listing time
+}
+function velocityOf(a, o, f){
+  if(a.verdict==="NEEDS_COMP" || a.profit==null) return null;
+  let dts = o.daysToSell;
+  if(dts==null) dts = estDaysToSell(o.soldCount, o.activeCount);
+  const assumed = dts==null;
+  const hold = Math.max(holdDays(dts, f), 0.25);
+  const cost = (o.buy||0) + (o.shipCost||0) + (o.extra||0);
+  const per100 = cost>0 ? a.profit/cost/hold*100 : (a.profit>0 ? Infinity : 0);
+  const turns = 365/hold;
+  const hourly = f.handleMin>0 ? a.profit/(f.handleMin/60) : null;
+  const notes = [];
+  let tier;
+  if(a.profit<=0){ tier="DEAD"; }
+  else if(per100 < f.velSlow){
+    tier="DEAD";
+    notes.push(`Only ${$money(per100)} per $100 per day — this dollar is asleep. Cheaper, faster stock beats it.`);
+  } else {
+    tier = per100>=f.velHot ? "HOT" : (per100>=f.velGood ? "GOOD" : "SLOW");
+    if(a.profit < f.minProfit){
+      tier="SLOW";
+      notes.push(`Turns fast but only clears ${$money(a.profit)} — under your ${$money(f.minProfit)} floor, the handling eats it.`);
+    }
+    if(hourly!=null && hourly < f.minHourly){
+      tier="SLOW";
+      notes.push(`${$money(hourly)}/hour of your time (floor ${$money(f.minHourly)}) — same ${f.handleMin} minutes as a bigger flip.`);
+    }
+  }
+  if(assumed) notes.push(`No sell-speed data — assumed ${f.assumeDays} days to sell. Fill in “days to sell”, or the sold/active counts, to replace the guess.`);
+  return { hold, daysToSell:dts, assumed, per100, turns, hourly, tier, notes };
+}
+function maxPayVelocity(o, f, daysToSell, target){
+  /* Requiring v per $100 per day over d days held IS requiring an ROI of v*d —
+     velocity is ROI with the clock finally attached. */
+  const hold = Math.max(holdDays(daysToSell, f), 0.25);
+  const r = (target/100) * hold;
+  const np = netProceeds(o.sold, f, o.shipCost||0, o.shipCharged||0);
+  const n = np.net, extra = o.extra||0, ship = o.shipCost||0;
+  const capVel = (n - extra - r*(ship+extra))/(1+r);
+  const capProfit = n - extra - f.minProfit;
+  let binding, maxPrice;
+  if(capProfit<=capVel){ binding="profit"; maxPrice=capProfit; } else { binding="velocity"; maxPrice=capVel; }
+  maxPrice = Math.max(0, maxPrice);
+  if(maxPrice<=0) binding="none";
+  return { maxPrice, binding, hold, requiredRoi:r };
+}
+const VSTYLE = {
+  HOT:{fg:"var(--buy-fg)",line:"var(--buy-line)"},
+  GOOD:{fg:"var(--buy-fg)",line:"var(--buy-line)"},
+  SLOW:{fg:"var(--maybe-fg)",line:"var(--maybe-line)"},
+  DEAD:{fg:"var(--skip-fg)",line:"var(--skip-line)"},
+};
+
 const STYLE = {
   BUY:{fg:"var(--buy-fg)",bg:"var(--buy-bg)",line:"var(--buy-line)"},
   MAYBE:{fg:"var(--maybe-fg)",bg:"var(--maybe-bg)",line:"var(--maybe-line)"},
@@ -429,6 +526,7 @@ function renderScore(){
     buy:num($("#s-buy")), sold:num($("#s-sold")), shipCost:num($("#s-ship")),
     shipCharged:num($("#s-shipc")), extra:num($("#s-extra")),
     soldCount:num($("#s-soldc")), activeCount:num($("#s-activec")),
+    daysToSell:num($("#s-days")),
   };
   const box = $("#s-result");
   if(o.buy==null && o.sold==null){ box.innerHTML=""; return; }
@@ -443,7 +541,18 @@ function renderScore(){
     return;
   }
   const stTxt = a.sellThrough==null ? "—" : $pct(a.sellThrough);
-  const notes = (a.notes||[]).map(n=>`<p>${n}</p>`).join("");
+  const v = velocityOf(a, o, SET);
+  const notes = (a.notes||[]).concat(v ? v.notes : []).map(n=>`<p>${n}</p>`).join("");
+  let velo = "";
+  if(v){
+    const vs = VSTYLE[v.tier];
+    const per = v.per100===Infinity ? "$∞" : $money(v.per100);
+    velo = `<div class="velo" style="--vline:${vs.line};--vfg:${vs.fg}">
+      <span class="vpill">${v.tier}</span>
+      <span class="vnum">${per}</span><span class="vk">per $100 per day</span>
+      <span class="vsub">${Math.round(v.hold)} days of dead cash${v.assumed?" (assumed)":""} · ${v.turns.toFixed(1)} turns a year · ${v.hourly==null?"—":$money(v.hourly)} an hour of your time</span>
+    </div>`;
+  }
   box.innerHTML = `<div class="result" style="--line:${st.line};--tint:${st.bg};--fg:${st.fg}">
     <div class="head">
       <span class="pill">${LABEL[a.verdict]}</span>
@@ -454,6 +563,7 @@ function renderScore(){
       <div class="stat"><div class="k">Sell-through</div><div class="v">${stTxt}</div></div>
       <div class="stat"><div class="k">Sells for</div><div class="v">${$money(a.sale)}</div></div>
     </div>
+    ${velo}
     ${notes?`<div class="notes">${notes}</div>`:""}
   </div>`;
 }
@@ -463,16 +573,42 @@ function renderMax(){
   const sold = num($("#m-sold"));
   const box = $("#m-result");
   if(sold==null || sold<=0){ box.innerHTML = `<div class="ceiling"><div class="k">Max price</div><div class="n" style="color:var(--muted)">$—</div><div class="sub">Enter the eBay sold price above.</div></div>`; return; }
-  const m = maxPay({ sold, shipCost:num($("#m-ship")), extra:num($("#m-extra")) }, SET);
+  const o = { sold, shipCost:num($("#m-ship")), extra:num($("#m-extra")) };
+  const m = maxPay(o, SET);
+  const days = num($("#m-days"));
   if(m.maxPrice<=0){
     box.innerHTML = `<div class="ceiling walk"><div class="k">Verdict</div><div class="n">Walk away</div>
       <div class="sub">Fees and shipping eat it — you can't hit your goal at any price.</div></div>`;
     return;
   }
+  const mv = maxPayVelocity(o, SET, days, SET.velGood);
+  // Two ceilings, and the LOWER one is your actual walk-away price: a price
+  // that clears your profit goal can still be a bad price if the item sits.
+  const velocityBinds = mv.maxPrice < m.maxPrice;
+  const tighter = Math.min(m.maxPrice, mv.maxPrice);
+  if(tighter<=0){
+    box.innerHTML = `<div class="ceiling walk"><div class="k">Verdict</div><div class="n">Walk away</div>
+      <div class="sub">Held ~${Math.round(mv.hold)} days, no price leaves this dollar working.</div></div>`;
+    return;
+  }
+  const ship = o.shipCost||0, extra = o.extra||0;
+  const np = netProceeds(sold, SET, ship, 0);
+  const tProfit = np.net - tighter - extra, tTotal = tighter + ship + extra;
+  const tRoi = tTotal>0 ? tProfit/tTotal : 0;
+  const limit = velocityBinds ? "how long your cash is stuck"
+                              : `your ${m.binding==="roi"?"ROI":"profit"} goal`;
+  const velosub = `<div class="velosub">
+    Held <b>~${Math.round(mv.hold)} days</b>${days==null?" (assumed — fill in days to sell)":""},
+    <b>${$money(mv.maxPrice)}</b> is the most you can pay and still earn ${$money(SET.velGood)} per $100 per day.
+    ${velocityBinds
+      ? `That is <b>tighter</b> than your profit/ROI ceiling of ${$money(m.maxPrice)} — at this speed, it is the real number.`
+      : `Your profit/ROI ceiling is tighter, so ${$money(m.maxPrice)} stands.`}
+  </div>`;
   box.innerHTML = `<div class="ceiling">
     <div class="k">Pay no more than</div>
-    <div class="n">${$money(m.maxPrice)}</div>
-    <div class="sub">to net ~${$money(m.profit)} at ${$pct(m.roi)} ROI · limited by your ${m.binding==="roi"?"ROI":"profit"} goal</div>
+    <div class="n">${$money(tighter)}</div>
+    <div class="sub">to net ~${$money(tProfit)} at ${$pct(tRoi)} ROI · limited by ${limit}</div>
+    ${velosub}
   </div>`;
 }
 
@@ -630,7 +766,10 @@ $("#d-shippable").addEventListener("change", loadBoard);
 
 /* ---- settings ---- */
 const SET_FIELDS = [["set-fvf","fvf",100],["set-order","perOrder",1],["set-promo","promoted",100],
-  ["set-intl","intl",100],["set-minp","minProfit",1],["set-minroi","minRoi",100]];
+  ["set-intl","intl",100],["set-minp","minProfit",1],["set-minroi","minRoi",100],
+  ["set-prep","prepDays",1],["set-shipd","shipDays",1],["set-payout","payoutDays",1],
+  ["set-assume","assumeDays",1],["set-handle","handleMin",1],["set-hourly","minHourly",1],
+  ["set-hot","velHot",1],["set-good","velGood",1]];
 function fillSettings(){
   SET_FIELDS.forEach(([id,key,mul])=> $("#"+id).value = +(SET[key]*mul).toFixed(2) );
   $("#set-api").value = SET.apiBase || "";
@@ -833,8 +972,8 @@ $("#gold-body").innerHTML = `<p style="font-size:.82rem;color:var(--muted);margi
   }).join("");
 
 /* ---- wire live recompute ---- */
-["s-buy","s-sold","s-ship","s-shipc","s-extra","s-soldc","s-activec"].forEach(id=> $("#"+id).addEventListener("input", renderScore));
-["m-sold","m-ship","m-extra"].forEach(id=> $("#"+id).addEventListener("input", renderMax));
+["s-buy","s-sold","s-ship","s-shipc","s-extra","s-soldc","s-activec","s-days"].forEach(id=> $("#"+id).addEventListener("input", renderScore));
+["m-sold","m-ship","m-extra","m-days"].forEach(id=> $("#"+id).addEventListener("input", renderMax));
 
 fillSettings(); refreshBookList(); renderScore(); renderMax(); applyHash();
 window.addEventListener("hashchange", applyHash);

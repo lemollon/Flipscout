@@ -65,6 +65,9 @@ class Candidate:
     shipping_charged— postage you'll charge the buyer (0 = free shipping, common).
     extra_cost      — supplies, gas, refurb, cleaning — anything else per item.
     sold_count/active_count — from eBay's sold vs active filters, for sell-through.
+    days_to_sell    — YOUR estimate of how long it takes to sell, in days. Beats
+                      the sold/active estimate when you know the item (e.g. the
+                      last three sold in a week). Feeds flipscout.velocity.
     """
 
     title: str
@@ -75,6 +78,7 @@ class Candidate:
     extra_cost: float = 0.0
     sold_count: Optional[int] = None
     active_count: Optional[int] = None
+    days_to_sell: Optional[float] = None
 
 
 @dataclass(frozen=True)
@@ -147,7 +151,11 @@ def analyze(
     roi = net_profit / total_cost if total_cost > 0 else float("inf")
     margin = net_profit / sale_price if sale_price > 0 else 0.0
     sell_through = comp.sell_through
-    days = est_days_to_sell(comp.sold_count, comp.active_count)
+    # Your own read on how fast it moves beats the supply/demand estimate: the
+    # counts estimate ignores price and condition, you don't.
+    days = candidate.days_to_sell
+    if days is None:
+        days = est_days_to_sell(comp.sold_count, comp.active_count)
 
     verdict = _decide(net_profit, roi, sell_through, thresholds, notes)
     if days is not None and days > 60 and verdict is Verdict.BUY:
@@ -253,6 +261,7 @@ def max_pay(
 _CSV_FIELDS = {
     "title", "source_price", "observed_price", "shipping_cost",
     "shipping_charged", "extra_cost", "sold_count", "active_count",
+    "days_to_sell",
 }
 
 
@@ -266,7 +275,7 @@ def _num(row: dict, key: str, cast=float) -> Optional[float]:
 def candidates_from_csv(path: str) -> list[Candidate]:
     """Read candidates from a CSV. Required column: title, source_price. Optional:
     observed_price, shipping_cost, shipping_charged, extra_cost, sold_count,
-    active_count. Blank cells are treated as unknown."""
+    active_count, days_to_sell. Blank cells are treated as unknown."""
     out: list[Candidate] = []
     with open(path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -282,6 +291,7 @@ def candidates_from_csv(path: str) -> list[Candidate]:
                 extra_cost=_num(row, "extra_cost") or 0.0,
                 sold_count=_num(row, "sold_count", int),
                 active_count=_num(row, "active_count", int),
+                days_to_sell=_num(row, "days_to_sell"),
             ))
     return out
 
