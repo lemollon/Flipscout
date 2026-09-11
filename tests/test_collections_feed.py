@@ -1245,3 +1245,56 @@ def test_the_workflow_caches_the_collections_state():
           / ".github" / "workflows" / "watch.yml").read_text(encoding="utf-8")
     from flipscout import hunt
     assert hunt.load_config({})["collections_state_file"] in wf
+
+
+# --- every verdict names the number ---------------------------------------
+# Leron, 2026-09-04: "can share on the card what I should offer for the
+# collection". Flips always did; a pass or an unproven lot now says what the
+# fast movers justify too - without the flip's "offer up to", which the tests
+# above pin as the wording a pass must never borrow.
+
+
+def test_a_tiny_pass_still_names_what_it_is_worth():
+    col = cf.parse_feed(FEED_HTML)[0]
+    items = [_fast("game", 40.0), _slow("HardBall III", 900.0)]
+    s = cf.summarize(col, items, 0, today=TODAY)
+    assert 0 < s.offer < cf.MIN_OFFER
+    body = cf.to_alert(col, items, s, today=TODAY)["reason"]
+    assert f"Worth at most **${s.offer:,.2f}** to you" in body
+    assert f"under our ${cf.MIN_OFFER:,.0f} floor" in body
+    assert "offer up to" not in body
+
+
+def test_a_slow_only_pass_adds_no_number_line():
+    """No fast movers: the PASS line already says there is nothing to offer
+    on, so no worth line and no 'fast movers net under' line follow it."""
+    col = cf.parse_feed(FEED_HTML)[0]
+    items = [_slow("HardBall III", 800.0)]
+    s = cf.summarize(col, items, 0, today=TODAY)
+    assert s.offer == 0.0 and s.liquid_items == 0
+    body = cf.to_alert(col, items, s, today=TODAY)["reason"]
+    assert "Worth at most" not in body and "No price works" not in body
+
+
+def test_fast_movers_under_the_profit_goal_say_no_price_works():
+    """A fast mover that nets less than the profit goal: an offer of $0 is
+    still a pass, and the card says why no number can be sent."""
+    col = cf.parse_feed(FEED_HTML)[0]
+    items = [_fast("loose manual", 12.0), _slow("HardBall III", 900.0)]
+    s = cf.summarize(col, items, 0, today=TODAY)
+    assert s.liquid_items == 1 and s.offer == 0.0 and s.verdict == "pass"
+    body = cf.to_alert(col, items, s, today=TODAY)["reason"]
+    assert "No price works" in body and "profit goal" in body
+    assert "Worth at most" not in body
+
+
+def test_an_unproven_lot_names_what_the_priced_slice_justifies():
+    """The default fixture: a $114.50 SNES in a $1,252.03 lot. Thin, so no
+    offer - but the SNES alone justifies a number, and the card says which."""
+    _c, _i, s, a = _card()
+    assert s.verdict == "unproven" and s.offer > 0
+    body = a["reason"]
+    assert f"The priced items alone justify **${s.offer:,.2f}**" in body
+    assert f"the other {1 - s.coverage:.0%} is unpriced" in body
+    assert "offer up to" not in body
+    assert body.index("**UNPROVEN**") < body.index("priced items alone")
