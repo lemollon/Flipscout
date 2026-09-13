@@ -22,6 +22,10 @@ from .cards import explain as explain_card, read as read_card
 from .categories import format_goldmines
 from .comps import Comp, load_memory, save_comp
 from .fees import CONSERVATIVE, FeeModel
+from .velocity import (
+    FAST, CycleModel, Tier, VelocityThresholds, allocate, max_pay_for_velocity,
+    realized_velocity, score_candidate,
+)
 
 DEFAULT_MEMORY = "flipscout/comps_memory.json"
 
@@ -47,6 +51,28 @@ def _print_detail(a) -> None:
     print(a.summary())
     for n in a.notes:
         print(f"             - {n}")
+
+
+def _cycle(args) -> CycleModel:
+    """The dead-cash timeline the velocity math runs on."""
+    if getattr(args, "fast", False):
+        return FAST
+    return CycleModel(
+        prep_days=args.prep_days,
+        ship_days=args.ship_days,
+        payout_days=args.payout_days,
+        default_days_to_sell=args.assume_days,
+        handle_minutes=args.handle_min,
+    )
+
+
+def _vel_thresholds(args) -> VelocityThresholds:
+    return VelocityThresholds(
+        hot=args.hot,
+        good=args.good,
+        min_profit=args.min_profit,
+        min_hourly=args.min_hourly,
+    )
 
 
 def _provider(args):
@@ -89,7 +115,87 @@ def cmd_maxpay(args) -> int:
         extra_cost=args.extra,
     )
     print(m.summary())
+    if args.velocity is not None:
+        # The same ceiling with the clock attached: a price that clears your
+        # profit goal can still be a bad price if the item sits for a season.
+        mv = max_pay_for_velocity(
+            sale_price=args.sold, days_to_sell=args.days_to_sell,
+            target_per_100_per_day=args.velocity, fees=_fee_model(args),
+            thresholds=VelocityThresholds(min_profit=args.min_profit),
+            shipping_cost=args.ship_cost, shipping_charged=args.ship_charge,
+            extra_cost=args.extra,
+        )
+        print(mv.summary())
+        return 0 if (m.max_price > 0 and mv.max_price > 0) else 2
     return 0 if m.max_price > 0 else 2
+
+
+def cmd_velocity(args) -> int:
+    """Score one item on capital velocity: profit per dollar per DAY.
+
+    Exit codes are meant for scripting: 0 = worth the slot (HOT/GOOD),
+    1 = SLOW or DEAD money, 2 = needs a sold comp first.
+    """
+    cand = Candidate(
+        title=args.title,
+        source_price=args.buy,
+        observed_price=args.sold,
+        shipping_cost=args.ship_cost,
+        shipping_charged=args.ship_charge,
+        extra_cost=args.extra,
+        sold_count=args.sold_count,
+        active_count=args.active_count,
+        days_to_sell=args.days_to_sell,
+    )
+    cycle = _cycle(args)
+    vt = _vel_thresholds(args)
+    a = score_candidate(
+        cand, provider=_provider(args), fees=_fee_model(args),
+        thresholds=_thresholds(args), cycle=cycle, velocity_thresholds=vt,
+    )
+    print(a.detail())
+    if a.tier is Tier.NEEDS_COMP:
+        return 2
+
+    # The ceiling that matters in the aisle: what could you have paid and still
+    # kept this dollar working at the GOOD bar?
+    ceiling = max_pay_for_velocity(
+        sale_price=a.deal.sale_price, days_to_sell=a.days_to_sell,
+        target_per_100_per_day=vt.good, fees=_fee_model(args), cycle=cycle,
+        thresholds=vt, shipping_cost=args.ship_cost,
+        shipping_charged=args.ship_charge, extra_cost=args.extra,
+    )
+    print("  " + ceiling.summary())
+    return 0 if a.tier in (Tier.HOT, Tier.GOOD) else 1
+
+
+def cmd_portfolio(args) -> int:
+    """Spend a bankroll: which of these candidates actually earn their slot?"""
+    from .analyzer import candidates_from_csv
+
+    cycle = _cycle(args)
+    vt = _vel_thresholds(args)
+    provider = _provider(args)
+    fees = _fee_model(args)
+    thr = _thresholds(args)
+    scored = [
+        score_candidate(c, provider=provider, fees=fees, thresholds=thr,
+                        cycle=cycle, velocity_thresholds=vt)
+        for c in candidates_from_csv(args.path)
+    ]
+    if not scored:
+        print(f"no candidates in {args.path}")
+        return 2
+    plan = allocate(scored, bankroll=args.bankroll, hours=args.hours,
+                    min_tier=Tier(args.min_tier))
+    print(plan.summary())
+    return 0 if plan.bought else 1
+
+
+def cmd_turns(args) -> int:
+    """Realized velocity: what your capital ACTUALLY earned per day."""
+    print(realized_velocity(stale_days=args.stale_days).report())
+    return 0
 
 
 def cmd_watch(args) -> int:
@@ -418,6 +524,28 @@ def build_parser() -> argparse.ArgumentParser:
     common.add_argument("--min-roi", type=float, default=0.50,
                         help="minimum ROI to call it a BUY (default 0.50)")
 
+    # Velocity knobs: the operating model your capital actually runs on. Shared
+    # by `velocity` and `portfolio` so one set of assumptions scores both.
+    vel = argparse.ArgumentParser(add_help=False)
+    vel.add_argument("--prep-days", type=float, default=2.0,
+                     help="buy -> listed: clean/photo/write-up (default 2)")
+    vel.add_argument("--ship-days", type=float, default=3.0,
+                     help="sold -> delivered (default 3)")
+    vel.add_argument("--payout-days", type=float, default=2.0,
+                     help="delivered -> money spendable (default 2)")
+    vel.add_argument("--assume-days", type=float, default=45.0,
+                     help="days-to-sell assumed when nothing tells us (default 45)")
+    vel.add_argument("--handle-min", type=float, default=25.0,
+                     help="your hands-on minutes per flip (default 25)")
+    vel.add_argument("--fast", action="store_true",
+                     help="optimistic cycle (same-day listing, quick payout)")
+    vel.add_argument("--hot", type=float, default=2.0,
+                     help="$ per $100 per day for a HOT tier (default 2.00)")
+    vel.add_argument("--good", type=float, default=0.75,
+                     help="$ per $100 per day for a GOOD tier (default 0.75)")
+    vel.add_argument("--min-hourly", type=float, default=20.0,
+                     help="floor on profit per hour of YOUR time (default 20)")
+
     sub = p.add_subparsers(dest="cmd", required=True)
 
     pi = sub.add_parser("item", parents=[common], help="analyze one item")
@@ -444,7 +572,52 @@ def build_parser() -> argparse.ArgumentParser:
     pm.add_argument("--ship-cost", type=float, default=0.0, help="postage YOU pay")
     pm.add_argument("--ship-charge", type=float, default=0.0, help="postage buyer pays you")
     pm.add_argument("--extra", type=float, default=0.0, help="supplies/refurb/gas per item")
+    pm.add_argument("--velocity", type=float, default=None, metavar="PER100PERDAY",
+                    help="also solve the ceiling that hits this velocity target "
+                         "(e.g. 0.75) over --days-to-sell days")
+    pm.add_argument("--days-to-sell", type=float, default=None,
+                    help="days to sell, for --velocity (default: assume 45)")
     pm.set_defaults(func=cmd_maxpay)
+
+    pv = sub.add_parser("velocity", parents=[common, vel],
+                        help="score one item on profit per DOLLAR per DAY")
+    pv.add_argument("title")
+    pv.add_argument("--buy", type=float, required=True, help="local/source price you'd pay")
+    pv.add_argument("--sold", type=float, default=None,
+                    help="median eBay SOLD price (from the Sold items filter)")
+    pv.add_argument("--days-to-sell", type=float, default=None,
+                    help="your estimate of days to sell; beats the counts estimate")
+    pv.add_argument("--ship-cost", type=float, default=0.0, help="postage YOU pay")
+    pv.add_argument("--ship-charge", type=float, default=0.0, help="postage buyer pays you")
+    pv.add_argument("--extra", type=float, default=0.0, help="supplies/refurb/gas per item")
+    pv.add_argument("--sold-count", type=int, default=None, help="# sold in lookback")
+    pv.add_argument("--active-count", type=int, default=None, help="# active listings")
+    pv.add_argument("--memory", nargs="?", const=DEFAULT_MEMORY, default=None,
+                    help="price-book file to auto-fill sold prices")
+    pv.add_argument("--ebay", action="store_true",
+                    help="fetch sold price + counts live from the eBay API")
+    pv.set_defaults(func=cmd_velocity)
+
+    pp = sub.add_parser("portfolio", parents=[common, vel],
+                        help="spend a bankroll on the best-velocity candidates in a CSV")
+    pp.add_argument("path", help="candidates CSV (same columns as `csv`, plus days_to_sell)")
+    pp.add_argument("--bankroll", type=float, required=True,
+                    help="cash you have to deploy right now")
+    pp.add_argument("--hours", type=float, default=8.0,
+                    help="hands-on hours you have this week (default 8)")
+    pp.add_argument("--min-tier", default="GOOD", choices=["HOT", "GOOD", "SLOW"],
+                    help="worst velocity tier you'll buy (default GOOD)")
+    pp.add_argument("--memory", nargs="?", const=DEFAULT_MEMORY, default=None,
+                    help="price-book file to auto-fill missing sold prices")
+    pp.add_argument("--ebay", action="store_true",
+                    help="fetch sold prices live from the eBay API")
+    pp.set_defaults(func=cmd_portfolio)
+
+    pt = sub.add_parser("turns",
+                        help="realized velocity + parked capital from your ledger")
+    pt.add_argument("--stale-days", type=int, default=60,
+                    help="flag unsold positions older than this (default 60)")
+    pt.set_defaults(func=cmd_turns)
 
     sub.add_parser("goldmines", help="print the goldmine-category buy-box cheat-sheet") \
        .set_defaults(func=cmd_goldmines)

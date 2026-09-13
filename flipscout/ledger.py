@@ -45,6 +45,12 @@ def _save(entries, path=None) -> None:
         json.dump(entries, f, indent=1)
 
 
+def entries(path=None) -> list:
+    """Every ledger row, oldest first. The public read side — `flipscout.velocity`
+    measures realized hold times off these, so it needs a supported way in."""
+    return _load(path)
+
+
 def record_buy(title: str, paid: float, source: str = "", url: str = "",
                note: str = "", path=None,
                today: Optional[str] = None) -> dict:
