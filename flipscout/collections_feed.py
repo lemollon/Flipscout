@@ -772,10 +772,38 @@ def to_alert(collection: Collection, items: list, summary: Summary,
                    "nothing we priced sells fast enough to pay an offer back")
             bits.append(f":no_entry_sign: **PASS** — {why}; the guide total "
                         f"is mostly slow stock.")
+            # 🚨 A PASS STILL ANSWERS "WHAT DO I OFFER". Leron, 2026-09-04:
+            # "can share on the card what I should offer for the collection".
+            # So the number is here - but never as "offer up to", which is
+            # the flip's wording: a $20 figure dressed as an offer invites
+            # the email a pass exists to stop.
+            if summary.offer > 0:
+                bits.append(
+                    f"_Worth at most **${summary.offer:,.2f}** to you "
+                    f"({summary.share:.0%} of guide) - under our "
+                    f"${MIN_OFFER:,.0f} floor, so only if it is nearly "
+                    f"free._")
+            elif nf:
+                # Fast movers exist but net under the profit goal, so no
+                # price pays back. With no fast movers at all the PASS line
+                # above already said it: nothing to offer on.
+                bits.append(
+                    f"_No price works: the fast movers net under the "
+                    f"${thresholds.min_profit:,.0f} profit goal before you "
+                    f"pay a cent._")
         else:   # unproven, i.e. thin: the coverage warning below carries it
             bits.append(f":grey_question: **UNPROVEN** — only "
                         f"{summary.coverage:.0%} of the value is priced, so "
                         f"no offer from this card.")
+            # Same ask as the pass: name the number anyway. What we priced
+            # justifies this much ON ITS OWN - the unpriced rest is upside
+            # you did not pay for, or nothing, and the card cannot tell.
+            if summary.offer > 0:
+                bits.append(
+                    f"_The priced items alone justify "
+                    f"**${summary.offer:,.2f}**; the other "
+                    f"{1 - summary.coverage:.0%} is unpriced, so get the "
+                    f"full list before naming a number._")
         # 🚨 THE DENOMINATOR IS THE COLLECTION, NOT OUR SAMPLE. The first cut
         # said "71% of what we measured", which sounds like coverage and is
         # not. Caught on the live sweep: a $4,533.18 collection whose thirty
