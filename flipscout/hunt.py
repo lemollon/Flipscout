@@ -149,6 +149,11 @@ def load_config(env=None) -> dict:
         "state_file": env.get("FLIPSCOUT_STATE_FILE", "flipscout_seen.json"),
         # Every qualifying item, published for the web app's deals board.
         "board_file": env.get("FLIPSCOUT_BOARD_FILE", "docs/deals.json"),
+        # The whole price book on the FB basis (comp + never-exceed per
+        # model), exported next to the board so a negotiator reads CURRENT
+        # ceilings instead of numbers copied out of pricebook.py by hand.
+        "pricebook_file": env.get("FLIPSCOUT_PRICEBOOK_FILE",
+                                  "docs/pricebook.json"),
         # Whole collections listed for sale on PriceCharting. On by default:
         # it costs one page fetch per run when nothing is new, and the feed is
         # public - no key to forget to set. FLIPSCOUT_COLLECTIONS=0 turns it off.
@@ -1704,6 +1709,20 @@ def run(config: Optional[dict] = None, hunters=None, notifier=notify_rich) -> di
     board_file = config.get("board_file")
     if board_file and _board.write(cands, board_file):
         print(f"[hunt] deals board: {len(cands)} item(s) -> {board_file}")
+
+    # Same commit, same cadence: the price book snapshot rides along with
+    # the board so the two can never disagree about how current they are.
+    # Non-fatal like the digests below - a failed export must not cost the
+    # run its alerts, and the last good snapshot stays in place.
+    try:
+        from . import pricebook_export as _pbx
+        pb_file = config.get("pricebook_file")
+        if pb_file and _pbx.write(pb_file,
+                                  target_profit=config["target_profit"]):
+            print(f"[hunt] price book: {len(_pbx.MODELS)} model(s) "
+                  f"-> {pb_file}")
+    except Exception as e:
+        print(f"[hunt] price book export failed (non-fatal): {e}")
 
     # Independent of whether any deal qualified: the estate-sale calendar is
     # its own thing, and a quiet deal-day is exactly when it's most useful.
