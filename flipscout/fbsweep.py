@@ -43,11 +43,13 @@ to re-login periodically.
 
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import os
 import pathlib
 import random
 import re
+import subprocess
 import sys
 import time
 from typing import Optional
@@ -59,6 +61,15 @@ from .pricebook import BY_KEY, match
 REPO = pathlib.Path(__file__).resolve().parent.parent
 PROFILE_DIR = REPO / ".fbprofile"
 SEEN_PATH = REPO / "fb_sweep_seen.json"
+
+# Where a finished sweep publishes for machine readers (Muse's Marketplace
+# hunt): the run's qualifying finds in the deals board's envelope, and a
+# heartbeat proving the sweep ran. Both live in docs/ next to deals.json and
+# are committed by _publish() below. Until now an FB find existed only as a
+# Discord message - nothing could re-read it an hour later, and the
+# seen-cache on this machine was the only proof the sweep had ever run.
+FB_DEALS_PATH = REPO / "docs" / "fb_deals.json"
+FB_STATUS_PATH = REPO / "docs" / "fb_sweep_status.json"
 
 SEARCH = "https://www.facebook.com/marketplace/{city}/search?query={q}"
 
@@ -323,6 +334,13 @@ def sweep(headless: bool = True, limit_terms: Optional[int] = None,
                     if hit:
                         hit["id"] = mid.group(1)
                         hit["url"] = f"https://www.facebook.com/marketplace/item/{mid.group(1)}/"
+                        # The board calls the location `where`; the card
+                        # text in this loop is the only place it exists, so
+                        # capture it (and when the find happened) here or
+                        # both are gone by the time anything reads the find.
+                        hit["where"] = location
+                        hit["found_at"] = _dt.datetime.now(
+                            _dt.timezone.utc).isoformat(timespec="seconds")
                         finds.append(hit)
                 if verbose:
                     print(f"  [{i+1}/{len(terms)}] {term:22s} scanned={scanned} finds={len(finds)}")
@@ -340,10 +358,124 @@ def sweep(headless: bool = True, limit_terms: Optional[int] = None,
             "scanned": scanned, "terms": len(terms)}
 
 
+def _fb_board(finds: list, now: Optional[_dt.datetime] = None) -> dict:
+    """One run's qualifying finds in the deals board's envelope, so a reader
+    handles fb_deals.json exactly like docs/deals.json. Best profit first,
+    like the board. Carries the run's WHOLE qualifying set, not just the
+    never-alerted ones - the board is inventory, not news (board.py's rule).
+    """
+    items = sorted(finds, key=lambda f: -(f.get("profit_at_open") or 0))
+    return {
+        "generated": (now or _dt.datetime.now(_dt.timezone.utc)
+                      ).isoformat(timespec="seconds"),
+        "count": len(items),
+        "nearby_count": len(items),   # every FB find is local by construction
+        "sources": ["facebook"],
+        "items": items,
+    }
+
+
+def _status(outcome: str, res: Optional[dict] = None,
+            new: Optional[int] = None, error: str = "") -> dict:
+    """The heartbeat record. Written on EVERY run - ok, logged_out or dead -
+    because the August outage was invisible precisely because a dead sweep
+    wrote nothing anywhere anyone looked. A reader checks `last_run`
+    freshness plus `outcome` and knows which of the three states this is.
+    """
+    st = {
+        "last_run": _dt.datetime.now(_dt.timezone.utc
+                                     ).isoformat(timespec="seconds"),
+        "outcome": outcome,
+        "city": _city(),
+        "terms": (res or {}).get("terms", 0),
+        "scanned": (res or {}).get("scanned", 0),
+        "deals_found": len((res or {}).get("finds") or []),
+    }
+    if new is not None:
+        st["new"] = new
+    if error:
+        st["error"] = error
+    return st
+
+
+def _git(*args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "-C", str(REPO), *args],
+                          capture_output=True, text=True, timeout=120)
+
+
+def _publish(status: dict, finds: Optional[list] = None) -> None:
+    """Write the heartbeat (and, on a completed sweep, the finds) into docs/
+    and try to commit + push them from this checkout.
+
+    A logged-out or crashed sweep publishes the heartbeat ONLY - its finds
+    are partial or absent, and overwriting the last good deals file with
+    them would blank the inventory exactly when the sweep is broken (the
+    same reason hunt leaves the last good board in place on a WAF block).
+
+    FAILURE-TOLERANT BY DESIGN. This runs on Leron's machine, in his
+    working tree, next to whatever he is doing. A publish that fails - no
+    network, a push race with the board bot, a dirty tree - logs one line
+    and leaves the Discord alerts exactly as they were. It must NEVER
+    raise: a sweep that found a deal and then crashed on git plumbing
+    would be worse than a sweep whose finds only reached Discord.
+
+    One race guard, borrowed from watch.yml's publish step: pull --rebase
+    --autostash before the retry push, because the board bot commits
+    every ~30 minutes and a plain push from a stale checkout is a
+    non-fast-forward. If even that fails, stop at the local commit - the
+    next sweep's publish retries the push.
+    """
+    try:
+        FB_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        FB_STATUS_PATH.write_text(json.dumps(status, indent=1),
+                                  encoding="utf-8")
+        paths = [FB_STATUS_PATH]
+        if finds is not None:
+            FB_DEALS_PATH.write_text(
+                json.dumps(_fb_board(finds), indent=1), encoding="utf-8")
+            paths.append(FB_DEALS_PATH)
+        rel = [str(p.relative_to(REPO)) for p in paths]
+        _git("add", "--", *rel)
+        if _git("diff", "--cached", "--quiet").returncode == 0:
+            return                      # nothing new to publish
+        _git("-c", "user.name=flipscout-bot",
+             "-c", "user.email=flipscout-bot@users.noreply.github.com",
+             "commit", "-m", "fbsweep: publish finds + heartbeat [skip ci]",
+             "--", *rel)
+        # `push origin HEAD`, not a bare `push`: a checkout whose branch has
+        # no upstream configured (a plain clone where he only ever pulls)
+        # makes bare `git push` fail with a usage error, which would turn
+        # this whole publish into a silent no-op. HEAD names the branch
+        # explicitly and needs no upstream.
+        push = _git("push", "origin", "HEAD")
+        if push.returncode != 0:
+            if _git("pull", "--rebase", "--autostash", "origin",
+                    "main").returncode == 0:
+                push = _git("push", "origin", "HEAD")
+        if push.returncode != 0:
+            print("[fbsweep] publish: committed locally, push failed - "
+                  "the next sweep retries")
+        elif _git("status", "--porcelain", "--", *rel).stdout.strip():
+            print("[fbsweep] publish: files still uncommitted - "
+                  "see git status")
+    except Exception as e:
+        print(f"[fbsweep] publish failed (non-fatal): "
+              f"{type(e).__name__}: {e}")
+
+
 def run(headless: bool = True, dry_run: bool = False) -> int:
     from .notify import notify, notify_rich
 
-    res = sweep(headless=headless)
+    try:
+        res = sweep(headless=headless)
+    except Exception as e:
+        # Even a sweep that DIES writes its heartbeat before it goes - the
+        # status file is how a dead sweep stops looking like a quiet one.
+        # The exception still propagates: the scheduled task's exit code is
+        # a signal too, and swallowing it would hide the failure twice.
+        if not dry_run:
+            _publish(_status("error", error=f"{type(e).__name__}: {e}"))
+        raise
 
     # 🚨 A broken sweep and a quiet sweep must NOT look the same. This is the
     # exact failure that hid a two-day outage.
@@ -353,6 +485,7 @@ def run(headless: bool = True, dry_run: bool = False) -> int:
                "`python -m flipscout.fbsweep login` and sign in once.")
         print(msg)
         if not dry_run:
+            _publish(_status("logged_out", res))
             notify(msg, subject="Flipscout FB sweep logged out")
         return 2
 
@@ -368,6 +501,10 @@ def run(headless: bool = True, dry_run: bool = False) -> int:
 
     if dry_run:
         return 0
+    # Publish BEFORE alerting, and on quiet runs too: the repo copies are
+    # the durable record other tools read, and the heartbeat is the point,
+    # not a side effect of having found something.
+    _publish(_status("ok", res, new=len(fresh)), finds=res["finds"])
     if fresh:
         notify_rich(fresh, content=f"**Flipscout - Facebook Marketplace ({_city()})** "
                                    f"- {len(fresh)} new local find(s)")
