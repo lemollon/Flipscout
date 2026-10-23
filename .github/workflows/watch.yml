@@ -171,6 +171,7 @@ jobs:
           FLIPSCOUT_ESTATE_AREA: ${{ vars.FLIPSCOUT_ESTATE_AREA }}
           FLIPSCOUT_GSALR_CITIES: ${{ vars.FLIPSCOUT_GSALR_CITIES || 'fulshear-tx,katy-tx' }}
           FLIPSCOUT_BOARD_FILE: docs/deals.json
+          FLIPSCOUT_PRICEBOOK_FILE: docs/pricebook.json
           FLIPSCOUT_HEARTBEAT_FILE: flipscout_heartbeat.json
 
       # Publish the qualifying items so the web app's deals board shows real
@@ -181,6 +182,7 @@ jobs:
           git config user.name  "flipscout-bot"
           git config user.email "flipscout-bot@users.noreply.github.com"
           git add docs/deals.json docs/BOARD.md
+          if [ -f docs/pricebook.json ]; then git add docs/pricebook.json; fi
           git diff --cached --quiet || git commit -m "board: refresh deals [skip ci]"
           # Rebase before pushing. The runner checked main out ~6 minutes ago,
           # so ANY merge during the hunt makes this push a non-fast-forward and
