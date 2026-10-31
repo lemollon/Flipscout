@@ -1,5 +1,5 @@
-# Flipscout board - 498 buyable now
-_Generated 2026-10-31T21:41:13+00:00 - best profit first. 'Open' is what it costs to enter; never bid past 'Max'._
+# Flipscout board - 496 buyable now
+_Generated 2026-10-31T21:59:27+00:00 - best profit first. 'Open' is what it costs to enter; never bid past 'Max'._
 
 | # | Item | Model | Open | Max bid | Clears | Source | Where | Ends |
 |---|------|-------|-----:|--------:|-------:|--------|-------|------|
@@ -118,14 +118,14 @@ _Generated 2026-10-31T21:41:13+00:00 - best profit first. 'Open' is what it cost
 | 113 | [Vintage Canon Elph Silver Digital Camera (Untested)](https://shopgoodwill.com/item/282027756) | Canon PowerShot ELPH / IXUS (digital) | $29.99 | $65.71 | $55.72 | goodwill |  | 2026-11-01T18:36 |
 | 114 | [Canon AE-1 Program Camera 200mm 50mm Lenses Kit](https://hibid.com/lot/328597404) | Canon AE-1 / AE-1 Program (35mm SLR) | $3.00 | $33.75 | $55.36 | hibid | Batavia, NY | 2026-11-04T13:00 |
 | 115 | [Canon AE-1 35MM Camera w/ Accessories](https://hibid.com/lot/328468747) | Canon AE-1 / AE-1 Program (35mm SLR) | $3.00 | $31.00 | $55.05 | hibid | Bushnell, IL | 2026-11-30T23:45 |
-| 116 | [Sony Handycam Sports Pack SPK-FX1 Waterproof Protective Hous](https://shopgoodwill.com/item/282237182) | Sony Handycam camcorder | $29.99 | $64.70 | $54.71 | goodwill |  | 2026-11-02T17:41 |
-| 117 | [Apple 13" MacBook, Apple iPod Classic & More, See;](https://hibid.com/lot/327612402) | iPod Classic/Video (capacity unknown) | $3.00 | $30.98 | $54.62 | hibid | Albuquerque, NM | 2026-11-03T22:16 |
-| 118 | [Sony Handycam Vision CCD-TRV25 Video 8 XR Camera Recorder 16](https://shopgoodwill.com/item/281847470) | Sony Handycam camcorder | $29.00 | $62.70 | $53.70 | goodwill |  | 2026-10-31T18:53 |
-| 119 | [Nintendo Switch Mixed Accessories Lot Controllers Cases Dock](https://shopgoodwill.com/item/282280732) | Nintendo Switch console (v1/v2, non-OLED) | $15.99 | $49.69 | $53.70 | goodwill |  | 2026-11-03T18:24 |
-| 120 | [Citizen Eco-drive Chronograph White 42mm Watch](https://hibid.com/lot/328742833) | Citizen Eco-Drive chronograph | $11.00 | $36.92 | $53.66 | hibid 📍 | Houston, TX | 2026-11-04T20:36 |
-| 121 | [Mens Citizen Eco Drive Chronograph Watch](https://hibid.com/lot/329142952) | Citizen Eco-Drive chronograph | $5.00 | $33.11 | $53.06 | hibid | Calgary, AB | 2026-11-07T14:02 |
-| 122 | [Mens Citizen Eco Drive Chronograph Watch](https://hibid.com/lot/329142949) | Citizen Eco-Drive chronograph | $5.00 | $33.11 | $53.06 | hibid | Calgary, AB | 2026-11-07T14:01 |
-| 123 | [Pentax K1000 24x36 Wall Art](https://hibid.com/lot/328337211) | Pentax K1000 (35mm SLR) | $2.50 | $30.97 | $52.88 | hibid | Pearcy, AR | 2026-11-04T03:13 |
+| 116 | [Apple 13" MacBook, Apple iPod Classic & More, See;](https://hibid.com/lot/327612402) | iPod Classic/Video (capacity unknown) | $3.00 | $30.98 | $54.62 | hibid | Albuquerque, NM | 2026-11-03T22:16 |
+| 117 | [Sony Handycam Vision CCD-TRV25 Video 8 XR Camera Recorder 16](https://shopgoodwill.com/item/281847470) | Sony Handycam camcorder | $29.00 | $62.70 | $53.70 | goodwill |  | 2026-10-31T18:53 |
+| 118 | [Nintendo Switch Mixed Accessories Lot Controllers Cases Dock](https://shopgoodwill.com/item/282280732) | Nintendo Switch console (v1/v2, non-OLED) | $15.99 | $49.69 | $53.70 | goodwill |  | 2026-11-03T18:24 |
+| 119 | [Citizen Eco-drive Chronograph White 42mm Watch](https://hibid.com/lot/328742833) | Citizen Eco-Drive chronograph | $11.00 | $36.92 | $53.66 | hibid 📍 | Houston, TX | 2026-11-04T20:36 |
+| 120 | [Mens Citizen Eco Drive Chronograph Watch](https://hibid.com/lot/329142952) | Citizen Eco-Drive chronograph | $5.00 | $33.11 | $53.06 | hibid | Calgary, AB | 2026-11-07T14:02 |
+| 121 | [Mens Citizen Eco Drive Chronograph Watch](https://hibid.com/lot/329142949) | Citizen Eco-Drive chronograph | $5.00 | $33.11 | $53.06 | hibid | Calgary, AB | 2026-11-07T14:01 |
+| 122 | [Pentax K1000 24x36 Wall Art](https://hibid.com/lot/328337211) | Pentax K1000 (35mm SLR) | $2.50 | $30.97 | $52.88 | hibid | Pearcy, AR | 2026-11-04T03:13 |
+| 123 | [Sony Handycam Sports Pack SPK-FX1 Waterproof Protective Hous](https://shopgoodwill.com/item/282237182) | Sony Handycam camcorder | $29.99 | $62.70 | $52.71 | goodwill |  | 2026-11-02T17:41 |
 | 124 | [Vintage Sony Handycam CCD-FX411 Video Camera Recorder 10x Zo](https://shopgoodwill.com/item/282522117) | Sony Handycam camcorder | $29.99 | $62.70 | $52.71 | goodwill |  | 2026-11-04T17:42 |
 | 125 | [Canon AE-1 35mm Single-Lens Reflex Camera](https://hibid.com/lot/328770816) | Canon AE-1 / AE-1 Program (35mm SLR) | $5.00 | $31.19 | $52.59 | hibid | Cheyenne, WY | 2026-11-13T03:17 |
 | 126 | [Pentax K1000 35 MM SLR Camera And Lens-Extras](https://hibid.com/lot/327105368) | Pentax K1000 (35mm SLR) | $3.00 | $30.84 | $52.29 | hibid | Council Bluffs, IA | 2026-11-09T00:39 |
@@ -175,44 +175,44 @@ _Generated 2026-10-31T21:41:13+00:00 - best profit first. 'Open' is what it cost
 | 170 | [Canon AE-1 35mm SLR Film Camera with Canon FD 50mm 1:1.8 Len](https://shopgoodwill.com/item/281878229) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $35.81 | $45.82 | goodwill |  | 2026-11-02T20:37 |
 | 171 | [Canon AE-1 Program 35mm SLR Camera with 24-45mm Lens Unteste](https://shopgoodwill.com/item/282025530) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $35.81 | $45.82 | goodwill |  | 2026-11-03T19:45 |
 | 172 | [Canon AE-1 35mm SLR Camera with FD 50mm f/1.8 Lens Untested](https://shopgoodwill.com/item/282028630) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $35.81 | $45.82 | goodwill |  | 2026-11-03T20:11 |
-| 173 | [Sony DCR-TRV520 Digital8 Handycam Video Camera Recorder Silv](https://shopgoodwill.com/item/282038242) | Sony Handycam camcorder | $39.00 | $64.70 | $45.70 | goodwill |  | 2026-11-01T16:01 |
-| 174 | [Sony Handycam HDR-PJ200 Digital HD Video Camera Recorder - P](https://shopgoodwill.com/item/282008854) | Sony Handycam camcorder | $37.00 | $62.70 | $45.70 | goodwill |  | 2026-11-01T18:27 |
-| 175 | [Vintage 1976-84 Canon AE-1 35mm SLR Camera, 50mm f/1.8 Lens](https://shopgoodwill.com/item/281883699) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $34.86 | $44.87 | goodwill |  | 2026-11-02T18:46 |
-| 176 | [Nintendo DSi XL Handheld Burgundy Dual Screens Gaming Consol](https://shopgoodwill.com/item/281892184) | Nintendo DSi XL / LL | $14.99 | $39.81 | $44.82 | goodwill |  | 2026-11-02T18:55 |
-| 177 | [Pentax K1000 35mm Film SLR Camera With Pentax 50mm Lens - Sh](https://shopgoodwill.com/item/282260216) | Pentax K1000 (35mm SLR) | $7.99 | $32.77 | $44.78 | goodwill |  | 2026-11-05T18:27 |
-| 178 | [Canon PowerShot SD1400 IS Digital ELPH Camera Black PC1472 w](https://shopgoodwill.com/item/282043568) | Canon PowerShot ELPH / IXUS (digital) | $42.00 | $66.70 | $44.70 | goodwill |  | 2026-11-01T18:07 |
-| 179 | [Sony Handycam Model HDR-CX360V Video Camera with Bag and Acc](https://shopgoodwill.com/item/282018585) | Sony Handycam camcorder | $38.00 | $62.70 | $44.70 | goodwill |  | 2026-11-01T18:04 |
-| 180 | [Sony Handycam DCR-SX45 Digital Camcorder Blue Carl Zeiss 70x](https://shopgoodwill.com/item/281361309) | Sony Handycam camcorder | $37.76 | $62.45 | $44.69 | goodwill |  | 2026-10-31T19:12 |
-| 181 | [Canon AE-1 Film Camera, Accessories & Lenses](https://shopgoodwill.com/item/281989937) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $36.56 | $44.57 | goodwill |  | 2026-11-04T19:07 |
-| 182 | [Canon AE-1 35MM Camera + Midland Weather Radio](https://hibid.com/lot/326365697) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.00 | $32.38 | $44.43 | hibid | Washington, IN | 2026-11-02T23:18 |
-| 183 | [Vintage Sony DCR-TRV27 MiniDV Handycam Camcorder With Bag & ](https://shopgoodwill.com/item/282033223) | Sony Handycam camcorder | $37.00 | $61.20 | $44.20 | goodwill |  | 2026-10-31T16:42 |
-| 184 | [Sony Cyber-Shot DSC-F707 Digital Camera -Powers On](https://hibid.com/lot/328583682) | Sony Cyber-shot compact (non-RX) | $5.00 | $25.79 | $43.91 | hibid | Richmond, VA | 2026-11-05T23:01 |
-| 185 | [Apple iPod Classic 160GB Reset](https://shopgoodwill.com/item/282155106) | iPod Classic 160GB | $23.51 | $47.36 | $43.85 | goodwill |  | 2026-11-04T20:32 |
-| 186 | [Vintage Canon AE-1 35mm SLR Camera Kit w/ FD 75-200mm f/4.5 ](https://shopgoodwill.com/item/281841861) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.99 | $36.82 | $43.83 | goodwill |  | 2026-11-02T20:02 |
-| 187 | [Vintage Canon AE-1 35mm SLR Camera with Canon FD 135mm f2.8 ](https://shopgoodwill.com/item/281805503) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.99 | $36.81 | $43.82 | goodwill |  | 2026-11-02T17:50 |
-| 188 | [Canon AE-1 Camera AS IS](https://shopgoodwill.com/item/282251939) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $35.81 | $43.82 | goodwill |  | 2026-11-03T03:38 |
-| 189 | [Vintage Canon Ae-1 Program 35mm Slr Film Camera W/ Quantaray](https://shopgoodwill.com/item/282039128) | Canon AE-1 / AE-1 Program (35mm SLR) | $14.99 | $38.81 | $43.82 | goodwill |  | 2026-11-03T18:17 |
-| 190 | [Vintage Canon AE-1 35mm SLR Camera Bundle with Lenses & Flas](https://shopgoodwill.com/item/282030410) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.99 | $36.81 | $43.82 | goodwill |  | 2026-11-03T18:51 |
-| 191 | [Pentax K1000 Vintage Film Camera Untested](https://shopgoodwill.com/item/282302525) | Pentax K1000 (35mm SLR) | $8.99 | $32.78 | $43.79 | goodwill |  | 2026-11-03T18:22 |
-| 192 | [Vintage Asahi Pentax K1000 SE 35mm Film Camera w Pentax Lens](https://shopgoodwill.com/item/282127645) | Pentax K1000 (35mm SLR) | $9.99 | $33.77 | $43.78 | goodwill |  | 2026-11-04T18:16 |
-| 193 | [Vintage Asahi Pentax K1000 35mm SLR Camera with SMC Pentax-M](https://shopgoodwill.com/item/282437990) | Pentax K1000 (35mm SLR) | $7.99 | $31.77 | $43.78 | goodwill |  | 2026-11-06T19:48 |
-| 194 | [Sony Cyber-shot DSC-W150 Digital Camera](https://hibid.com/lot/329001560) | Sony Cyber-shot compact (non-RX) | $5.00 | $23.71 | $43.41 | hibid | Clinton Twp, MI | 2026-11-11T23:47 |
-| 195 | [2 Vntg Sony Walkmans & Aiwa Portable Stereo Player](https://hibid.com/lot/328516430) | Sony Walkman | $5.00 | $23.79 | $43.38 | hibid | Cheyenne, WY | 2026-11-13T01:15 |
-| 196 | [Y2K Era Citizen Eco Drive Chronograph Watch GN-4-S 0870-H169](https://shopgoodwill.com/item/281922366) | Citizen Eco-Drive chronograph | $15.99 | $38.94 | $42.95 | goodwill |  | 2026-11-01T16:15 |
-| 197 | [Vintage Ricoh Kr-30sp Program & Canon Ae-1 Program Film Came](https://shopgoodwill.com/item/282167186) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $34.82 | $42.83 | goodwill |  | 2026-11-02T18:37 |
-| 198 | [Canon Film Camera Ae-1 Program Silver Black 50mm Fd Lens Cap](https://shopgoodwill.com/item/282471983) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $34.82 | $42.83 | goodwill |  | 2026-11-04T20:41 |
-| 199 | [Vintage Pentax K1000 35mm SLR Camera, 50mm f/2 Lens](https://shopgoodwill.com/item/282028794) | Pentax K1000 (35mm SLR) | $8.99 | $31.82 | $42.83 | goodwill |  | 2026-11-03T18:51 |
-| 200 | [Vintage Canon AE-1 Program 35mm SLR Film Camera FD 50mm 1:1.](https://shopgoodwill.com/item/282167008) | Canon AE-1 / AE-1 Program (35mm SLR) | $14.00 | $36.81 | $42.81 | goodwill |  | 2026-11-01T19:28 |
-| 201 | [Vintage Asahi Pentax K1000 35mm SLR Camera with 50mm f/2 Len](https://shopgoodwill.com/item/281892567) | Pentax K1000 (35mm SLR) | $10.99 | $33.77 | $42.78 | goodwill |  | 2026-11-02T18:27 |
-| 202 | [Vintage Asahi Pentax K1000 35mm Film SLR Camera with Zoom Le](https://shopgoodwill.com/item/281939291) | Pentax K1000 (35mm SLR) | $10.99 | $33.77 | $42.78 | goodwill |  | 2026-11-03T17:52 |
-| 203 | [Canon PowerShot SD1200 IS Digital Elph Camera 10MP](https://shopgoodwill.com/item/281899760) | Canon PowerShot ELPH / IXUS (digital) | $42.00 | $64.71 | $42.71 | goodwill |  | 2026-10-31T18:20 |
-| 204 | [Canon Powershot Sd500 Digital Elph 7.1mp Camera With Vintage](https://shopgoodwill.com/item/281902721) | Canon PowerShot ELPH / IXUS (digital) | $46.00 | $68.70 | $42.70 | goodwill |  | 2026-10-31T18:30 |
-| 205 | [Nintendo Switch Lite Yellow Handheld Console w/Charger-Teste](https://shopgoodwill.com/item/282269078) | Nintendo Switch Lite | $14.99 | $37.68 | $42.69 | goodwill |  | 2026-11-05T17:06 |
-| 206 | [Nintendo Gamecube dol-001](https://hibid.com/lot/326480846) | Nintendo GameCube console | $19.00 | $39.27 | $42.37 | hibid 📍 | Lexington, TX | 2026-11-05T00:50 |
-| 207 | [Apple iPod Classic 80GB Silver Digital Media Player Tested](https://shopgoodwill.com/item/282415054) | iPod Classic/Video 80GB | $11.99 | $34.35 | $42.36 | goodwill |  | 2026-11-03T17:52 |
-| 208 | [Nintendo Game Boy Advance SP AGS-001 Platinum Handheld Conso](https://shopgoodwill.com/item/282401842) | Game Boy Advance SP (AGS-001/unspecified) | $10.99 | $33.00 | $42.01 | goodwill |  | 2026-11-06T18:35 |
-| 209 | [Apple Ipod Classic 80gb A1238](https://shopgoodwill.com/item/282429980) | iPod Classic/Video 80GB | $11.99 | $33.86 | $41.87 | goodwill |  | 2026-11-04T19:21 |
-| 210 | [Vintage Asahi Pentax K1000 35mm SLR Camera with SMC Pentax-M](https://shopgoodwill.com/item/282208778) | Pentax K1000 (35mm SLR) | $9.99 | $31.78 | $41.79 | goodwill |  | 2026-11-05T18:08 |
+| 173 | [Vintage Asahi Pentax K1000 35mm SLR Camera with SMC Pentax-M](https://shopgoodwill.com/item/282208778) | Pentax K1000 (35mm SLR) | $9.99 | $35.77 | $45.78 | goodwill |  | 2026-11-05T18:08 |
+| 174 | [Sony DCR-TRV520 Digital8 Handycam Video Camera Recorder Silv](https://shopgoodwill.com/item/282038242) | Sony Handycam camcorder | $39.00 | $64.70 | $45.70 | goodwill |  | 2026-11-01T16:01 |
+| 175 | [Sony Handycam HDR-PJ200 Digital HD Video Camera Recorder - P](https://shopgoodwill.com/item/282008854) | Sony Handycam camcorder | $37.00 | $62.70 | $45.70 | goodwill |  | 2026-11-01T18:27 |
+| 176 | [Vintage 1976-84 Canon AE-1 35mm SLR Camera, 50mm f/1.8 Lens](https://shopgoodwill.com/item/281883699) | Canon AE-1 / AE-1 Program (35mm SLR) | $9.99 | $34.86 | $44.87 | goodwill |  | 2026-11-02T18:46 |
+| 177 | [Nintendo DSi XL Handheld Burgundy Dual Screens Gaming Consol](https://shopgoodwill.com/item/281892184) | Nintendo DSi XL / LL | $14.99 | $39.81 | $44.82 | goodwill |  | 2026-11-02T18:55 |
+| 178 | [Pentax K1000 35mm Film SLR Camera With Pentax 50mm Lens - Sh](https://shopgoodwill.com/item/282260216) | Pentax K1000 (35mm SLR) | $7.99 | $32.77 | $44.78 | goodwill |  | 2026-11-05T18:27 |
+| 179 | [Canon PowerShot SD1400 IS Digital ELPH Camera Black PC1472 w](https://shopgoodwill.com/item/282043568) | Canon PowerShot ELPH / IXUS (digital) | $42.00 | $66.70 | $44.70 | goodwill |  | 2026-11-01T18:07 |
+| 180 | [Sony Handycam Model HDR-CX360V Video Camera with Bag and Acc](https://shopgoodwill.com/item/282018585) | Sony Handycam camcorder | $38.00 | $62.70 | $44.70 | goodwill |  | 2026-11-01T18:04 |
+| 181 | [Sony Handycam DCR-SX45 Digital Camcorder Blue Carl Zeiss 70x](https://shopgoodwill.com/item/281361309) | Sony Handycam camcorder | $37.76 | $62.45 | $44.69 | goodwill |  | 2026-10-31T19:12 |
+| 182 | [Canon AE-1 Film Camera, Accessories & Lenses](https://shopgoodwill.com/item/281989937) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $36.56 | $44.57 | goodwill |  | 2026-11-04T19:07 |
+| 183 | [Canon AE-1 35MM Camera + Midland Weather Radio](https://hibid.com/lot/326365697) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.00 | $32.38 | $44.43 | hibid | Washington, IN | 2026-11-02T23:18 |
+| 184 | [Vintage Sony DCR-TRV27 MiniDV Handycam Camcorder With Bag & ](https://shopgoodwill.com/item/282033223) | Sony Handycam camcorder | $37.00 | $61.20 | $44.20 | goodwill |  | 2026-10-31T16:42 |
+| 185 | [Sony Cyber-Shot DSC-F707 Digital Camera -Powers On](https://hibid.com/lot/328583682) | Sony Cyber-shot compact (non-RX) | $5.00 | $25.79 | $43.91 | hibid | Richmond, VA | 2026-11-05T23:01 |
+| 186 | [Apple iPod Classic 160GB Reset](https://shopgoodwill.com/item/282155106) | iPod Classic 160GB | $23.51 | $47.36 | $43.85 | goodwill |  | 2026-11-04T20:32 |
+| 187 | [Vintage Canon AE-1 35mm SLR Camera Kit w/ FD 75-200mm f/4.5 ](https://shopgoodwill.com/item/281841861) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.99 | $36.82 | $43.83 | goodwill |  | 2026-11-02T20:02 |
+| 188 | [Vintage Canon AE-1 35mm SLR Camera with Canon FD 135mm f2.8 ](https://shopgoodwill.com/item/281805503) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.99 | $36.81 | $43.82 | goodwill |  | 2026-11-02T17:50 |
+| 189 | [Canon AE-1 Camera AS IS](https://shopgoodwill.com/item/282251939) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $35.81 | $43.82 | goodwill |  | 2026-11-03T03:38 |
+| 190 | [Vintage Canon Ae-1 Program 35mm Slr Film Camera W/ Quantaray](https://shopgoodwill.com/item/282039128) | Canon AE-1 / AE-1 Program (35mm SLR) | $14.99 | $38.81 | $43.82 | goodwill |  | 2026-11-03T18:17 |
+| 191 | [Vintage Canon AE-1 35mm SLR Camera Bundle with Lenses & Flas](https://shopgoodwill.com/item/282030410) | Canon AE-1 / AE-1 Program (35mm SLR) | $12.99 | $36.81 | $43.82 | goodwill |  | 2026-11-03T18:51 |
+| 192 | [Pentax K1000 Vintage Film Camera Untested](https://shopgoodwill.com/item/282302525) | Pentax K1000 (35mm SLR) | $8.99 | $32.78 | $43.79 | goodwill |  | 2026-11-03T18:22 |
+| 193 | [Vintage Asahi Pentax K1000 SE 35mm Film Camera w Pentax Lens](https://shopgoodwill.com/item/282127645) | Pentax K1000 (35mm SLR) | $9.99 | $33.77 | $43.78 | goodwill |  | 2026-11-04T18:16 |
+| 194 | [Vintage Asahi Pentax K1000 35mm SLR Camera with SMC Pentax-M](https://shopgoodwill.com/item/282437990) | Pentax K1000 (35mm SLR) | $7.99 | $31.77 | $43.78 | goodwill |  | 2026-11-06T19:48 |
+| 195 | [Sony Cyber-shot DSC-W150 Digital Camera](https://hibid.com/lot/329001560) | Sony Cyber-shot compact (non-RX) | $5.00 | $23.71 | $43.41 | hibid | Clinton Twp, MI | 2026-11-11T23:47 |
+| 196 | [2 Vntg Sony Walkmans & Aiwa Portable Stereo Player](https://hibid.com/lot/328516430) | Sony Walkman | $5.00 | $23.79 | $43.38 | hibid | Cheyenne, WY | 2026-11-13T01:15 |
+| 197 | [Y2K Era Citizen Eco Drive Chronograph Watch GN-4-S 0870-H169](https://shopgoodwill.com/item/281922366) | Citizen Eco-Drive chronograph | $15.99 | $38.94 | $42.95 | goodwill |  | 2026-11-01T16:15 |
+| 198 | [Vintage Ricoh Kr-30sp Program & Canon Ae-1 Program Film Came](https://shopgoodwill.com/item/282167186) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $34.82 | $42.83 | goodwill |  | 2026-11-02T18:37 |
+| 199 | [Canon Film Camera Ae-1 Program Silver Black 50mm Fd Lens Cap](https://shopgoodwill.com/item/282471983) | Canon AE-1 / AE-1 Program (35mm SLR) | $11.99 | $34.82 | $42.83 | goodwill |  | 2026-11-04T20:41 |
+| 200 | [Vintage Pentax K1000 35mm SLR Camera, 50mm f/2 Lens](https://shopgoodwill.com/item/282028794) | Pentax K1000 (35mm SLR) | $8.99 | $31.82 | $42.83 | goodwill |  | 2026-11-03T18:51 |
+| 201 | [Vintage Canon AE-1 Program 35mm SLR Film Camera FD 50mm 1:1.](https://shopgoodwill.com/item/282167008) | Canon AE-1 / AE-1 Program (35mm SLR) | $14.00 | $36.81 | $42.81 | goodwill |  | 2026-11-01T19:28 |
+| 202 | [Vintage Asahi Pentax K1000 35mm SLR Camera with 50mm f/2 Len](https://shopgoodwill.com/item/281892567) | Pentax K1000 (35mm SLR) | $10.99 | $33.77 | $42.78 | goodwill |  | 2026-11-02T18:27 |
+| 203 | [Vintage Asahi Pentax K1000 35mm Film SLR Camera with Zoom Le](https://shopgoodwill.com/item/281939291) | Pentax K1000 (35mm SLR) | $10.99 | $33.77 | $42.78 | goodwill |  | 2026-11-03T17:52 |
+| 204 | [Canon PowerShot SD1200 IS Digital Elph Camera 10MP](https://shopgoodwill.com/item/281899760) | Canon PowerShot ELPH / IXUS (digital) | $42.00 | $64.71 | $42.71 | goodwill |  | 2026-10-31T18:20 |
+| 205 | [Canon Powershot Sd500 Digital Elph 7.1mp Camera With Vintage](https://shopgoodwill.com/item/281902721) | Canon PowerShot ELPH / IXUS (digital) | $46.00 | $68.70 | $42.70 | goodwill |  | 2026-10-31T18:30 |
+| 206 | [Nintendo Switch Lite Yellow Handheld Console w/Charger-Teste](https://shopgoodwill.com/item/282269078) | Nintendo Switch Lite | $14.99 | $37.68 | $42.69 | goodwill |  | 2026-11-05T17:06 |
+| 207 | [Nintendo Gamecube dol-001](https://hibid.com/lot/326480846) | Nintendo GameCube console | $19.00 | $39.27 | $42.37 | hibid 📍 | Lexington, TX | 2026-11-05T00:50 |
+| 208 | [Apple iPod Classic 80GB Silver Digital Media Player Tested](https://shopgoodwill.com/item/282415054) | iPod Classic/Video 80GB | $11.99 | $34.35 | $42.36 | goodwill |  | 2026-11-03T17:52 |
+| 209 | [Nintendo Game Boy Advance SP AGS-001 Platinum Handheld Conso](https://shopgoodwill.com/item/282401842) | Game Boy Advance SP (AGS-001/unspecified) | $10.99 | $33.00 | $42.01 | goodwill |  | 2026-11-06T18:35 |
+| 210 | [Apple Ipod Classic 80gb A1238](https://shopgoodwill.com/item/282429980) | iPod Classic/Video 80GB | $11.99 | $33.86 | $41.87 | goodwill |  | 2026-11-04T19:21 |
 | 211 | [Pentax Asahi K1000 35mm Film Camera](https://shopgoodwill.com/item/282447463) | Pentax K1000 (35mm SLR) | $9.99 | $31.77 | $41.78 | goodwill |  | 2026-11-02T20:12 |
 | 212 | [Vintage Asahi Pentax K1000 35mm SLR Film Camera With Vivitar](https://shopgoodwill.com/item/282279245) | Pentax K1000 (35mm SLR) | $10.99 | $32.77 | $41.78 | goodwill |  | 2026-11-05T18:22 |
 | 213 | [Nintendo Switch Lite Blue Handheld Console w/Charger-Tested](https://shopgoodwill.com/item/282129949) | Nintendo Switch Lite | $15.99 | $37.68 | $41.69 | goodwill |  | 2026-11-04T19:23 |
@@ -265,8 +265,8 @@ _Generated 2026-10-31T21:41:13+00:00 - best profit first. 'Open' is what it cost
 | 260 | [Camera Bundle Canon PowerShot Sanyo Pentax Optio Sony Cyber-](https://shopgoodwill.com/item/282082723) | Sony Cyber-shot compact (non-RX) | $9.99 | $27.66 | $37.67 | goodwill |  | 2026-11-01T17:59 |
 | 261 | [Sony Cybershot DSC-W35 Digital Camera With Battery Charger](https://shopgoodwill.com/item/282017906) | Sony Cyber-shot compact (non-RX) | $9.99 | $27.66 | $37.67 | goodwill |  | 2026-11-03T20:33 |
 | 262 | [Complete Vintage Canon AE-1 35mm Film SLR Kit.](https://hibid.com/lot/327299791) | Canon AE-1 / AE-1 Program (35mm SLR) | $17.00 | $31.09 | $37.59 | hibid | Midlothian, VA | 2026-11-05T23:11 |
-| 263 | [Singer Featherweight Sewing Machine & Case](https://hibid.com/lot/327142619) | Singer Featherweight 221/222 | $90.00 | $104.01 | $37.53 | hibid | Westminister, MD | 2026-11-02T14:03 |
-| 264 | [Singer Featherweight Sewing Machine & Case](https://hibid.com/lot/327142613) | Singer Featherweight 221/222 | $90.00 | $104.01 | $37.53 | hibid | Westminister, MD | 2026-11-02T14:03 |
+| 263 | [Singer Featherweight Sewing Machine & Case](https://hibid.com/lot/327142613) | Singer Featherweight 221/222 | $90.00 | $104.01 | $37.53 | hibid | Westminister, MD | 2026-11-02T14:03 |
+| 264 | [Singer Featherweight Sewing Machine & Case](https://hibid.com/lot/327142619) | Singer Featherweight 221/222 | $90.00 | $104.01 | $37.53 | hibid | Westminister, MD | 2026-11-02T14:03 |
 | 265 | [Apple iPod Classic 6th Gen 80GB Black A1238 MP3 Player With ](https://shopgoodwill.com/item/282280993) | iPod Classic/Video (capacity unknown) | $16.99 | $34.35 | $37.36 | goodwill |  | 2026-11-05T19:40 |
 | 266 | [Nintendo GameCube Console DOL-001 Indigo Bundle 2 Controller](https://shopgoodwill.com/item/282255735) | Nintendo GameCube console | $14.99 | $32.34 | $37.35 | goodwill |  | 2026-11-03T18:15 |
 | 267 | [Nintendo 64 Console With HDMI Output](https://hibid.com/lot/327978625) | Nintendo 64 console | $12.00 | $25.62 | $37.33 | hibid | Leslie, MI | - |
@@ -362,8 +362,8 @@ _Generated 2026-10-31T21:41:13+00:00 - best profit first. 'Open' is what it cost
 | 357 | [Sony Playstation 4 Ps4 Video Game Console Used Untested](https://shopgoodwill.com/item/282025762) | Sony PlayStation 4 console | $9.99 | $19.80 | $29.82 | goodwill |  | 2026-11-01T18:36 |
 | 358 | [Sony Playstation 4 Ps4 Video Game Console Used Powers On](https://shopgoodwill.com/item/282025586) | Sony PlayStation 4 console | $9.99 | $19.80 | $29.82 | goodwill |  | 2026-11-01T20:40 |
 | 359 | [Sony Playstation 4 Ps4 Video Game Console Untested](https://shopgoodwill.com/item/282144267) | Sony PlayStation 4 console | $9.99 | $19.80 | $29.82 | goodwill |  | 2026-11-02T20:20 |
-| 360 | [PS4 Console Powers on Not Reading Discs - no](https://hibid.com/lot/329043099) | Sony PlayStation 4 console | $10.00 | $17.55 | $29.81 | hibid | Las Vegas, NV | 2026-11-08T17:55 |
-| 361 | [PS4 Console - Powers on Not Reading Discs - no](https://hibid.com/lot/329043079) | Sony PlayStation 4 console | $10.00 | $17.55 | $29.81 | hibid | Las Vegas, NV | 2026-11-08T17:52 |
+| 360 | [PS4 Console - Powers on Not Reading Discs - no](https://hibid.com/lot/329043079) | Sony PlayStation 4 console | $10.00 | $17.55 | $29.81 | hibid | Las Vegas, NV | 2026-11-08T17:52 |
+| 361 | [PS4 Console Powers on Not Reading Discs - no](https://hibid.com/lot/329043099) | Sony PlayStation 4 console | $10.00 | $17.55 | $29.81 | hibid | Las Vegas, NV | 2026-11-08T17:55 |
 | 362 | [Vintage NIKON Coolpix 4600 with soft case](https://hibid.com/lot/328966149) | Nikon Coolpix compact | $2.00 | $9.70 | $29.77 | hibid | King George, VA | 2026-11-20T23:32 |
 | 363 | [Casio G-Shock GD-400 Digital Watch (Hallway)](https://hibid.com/lot/328324037) | Casio G-Shock | $3.00 | $11.28 | $29.77 | hibid | Burlington, WA | 2026-11-07T01:34 |
 | 364 | [Nikon CoolPix Digital Camera, Jewelry](https://hibid.com/lot/327860063) | Nikon Coolpix compact | $2.00 | $9.59 | $29.74 | hibid | Mattoon, IL | 2026-11-09T00:50 |
@@ -382,124 +382,122 @@ _Generated 2026-10-31T21:41:13+00:00 - best profit first. 'Open' is what it cost
 | 377 | [Nintendo 3DS Handheld Console](https://hibid.com/lot/327978780) | Nintendo 3DS (non-XL) | $40.00 | $47.19 | $29.15 | hibid | Leslie, MI | - |
 | 378 | [Wii U system](https://hibid.com/lot/329012934) | Nintendo Wii U console | $6.00 | $13.43 | $29.10 | hibid | Hedgesville, WV | 2026-11-07T00:44 |
 | 379 | [Sony Cyber-shot DSC-F828 Digital Camera](https://hibid.com/lot/328182029) | Sony Cyber-shot compact (non-RX) | $16.00 | $22.83 | $28.87 | hibid | Oshawa, ON | 2026-11-04T00:52 |
-| 380 | [PlayStation 4 500GB Console](https://shopgoodwill.com/item/281726584) | Sony PlayStation 4 console | $10.99 | $19.80 | $28.80 | goodwill |  | 2026-10-31T18:49 |
-| 381 | [Sony Playstation 4 Ps4 Video Game Console Used Untested](https://shopgoodwill.com/item/282031080) | Sony PlayStation 4 console | $11.00 | $19.80 | $28.80 | goodwill |  | 2026-11-01T19:29 |
-| 382 | [1980's Vintage Men's Seiko 17 Jewel Automatic Watch 6309-801](https://shopgoodwill.com/item/282187420) | Seiko Automatic watch | $14.99 | $23.72 | $28.73 | goodwill |  | 2026-11-04T16:09 |
-| 383 | [Turquoise Nintendo Switch Lite HDH-001 with NBA 2K18 & Plant](https://shopgoodwill.com/item/282155141) | Nintendo Switch Lite | $30.00 | $38.67 | $28.67 | goodwill |  | 2026-11-04T19:00 |
-| 384 | [nikon coolpix](https://hibid.com/lot/328455027) | Nikon Coolpix compact | $3.00 | $10.10 | $28.66 | hibid | Thurmont, MD | 2026-11-09T00:27 |
-| 385 | [NIKON DIGITAL CAMERA COOLPIX800](https://hibid.com/lot/327884638) | Nikon Coolpix compact | $3.00 | $9.77 | $28.53 | hibid | Knoxville, TN | 2026-11-05T23:37 |
-| 386 | [Citizen Eco-drive Chandler Men’s Watch 42mm](https://hibid.com/lot/328742610) | Citizen Eco-Drive (men's, no complication) | $13.00 | $19.55 | $28.51 | hibid 📍 | Houston, TX | 2026-11-04T20:14 |
-| 387 | [Citizen Ar Eco-drive  Blue Dial Men's Watch 45mm](https://hibid.com/lot/328742748) | Citizen Eco-Drive (men's, no complication) | $13.00 | $19.55 | $28.51 | hibid 📍 | Houston, TX | 2026-11-04T20:28 |
-| 388 | [Charm bracelet and G-Shock Watch](https://hibid.com/lot/328031892) | Casio G-Shock | $4.00 | $10.91 | $28.43 | hibid | Fairburn, SD | 2026-10-31T22:31 |
-| 389 | [Apple iPod Classic 5th Gen A1136 30GB Portable Media Player ](https://shopgoodwill.com/item/282233143) | iPod Classic/Video (capacity unknown) | $29.99 | $38.34 | $28.35 | goodwill |  | 2026-11-04T18:01 |
-| 390 | [PS2 Console & Video Game Accessory Lot](https://hibid.com/lot/328833997) | Sony PlayStation 2 console | $2.00 | $9.17 | $28.32 | hibid | Rhinelander, WI | 2026-11-02T00:00 |
-| 391 | [PlayStation 2 lot-PS2 console, dvd player, ps2](https://hibid.com/lot/328867735) | Sony PlayStation 2 console | $2.00 | $8.65 | $28.18 | hibid | Parker City, IN | 2026-11-09T23:24 |
-| 392 | [S1 - SEIKO AUTOMATIC WATCH (34)](https://hibid.com/lot/328792404) | Seiko Automatic watch | $12.50 | $19.06 | $28.16 | hibid | Las Vegas, NV | 2026-11-06T01:16 |
-| 393 | [G-shock Mens Classic Flash Alert & World Time 50mm](https://hibid.com/lot/327868222) | Casio G-Shock | $11.00 | $17.18 | $28.03 | hibid 📍 | Houston, TX | 2026-11-06T16:15 |
-| 394 | [Nintendo Game Boy Advance SP AGS-001 Red Console with Charge](https://shopgoodwill.com/item/282259402) | Game Boy Advance SP (AGS-001/unspecified) | $26.99 | $35.00 | $28.01 | goodwill |  | 2026-11-05T20:05 |
-| 395 | [Sony Cyber-shot DSC-S90 4.1MP Digital Camera Silver Carl Zei](https://shopgoodwill.com/item/281914225) | Sony Cyber-shot compact (non-RX) | $19.99 | $27.66 | $27.67 | goodwill |  | 2026-10-31T18:28 |
-| 396 | [Sony Cyber-shot Model DSC-T70 Silver 8.1 MP 3" Screen Digita](https://shopgoodwill.com/item/282220021) | Sony Cyber-shot compact (non-RX) | $16.99 | $24.66 | $27.67 | goodwill |  | 2026-10-31T20:18 |
-| 397 | [Sony Cyber-shot DSC-T100 Digital Camera 8.1MP Black 5x Optic](https://shopgoodwill.com/item/282006963) | Sony Cyber-shot compact (non-RX) | $19.99 | $27.66 | $27.67 | goodwill |  | 2026-11-01T18:29 |
-| 398 | [Nintendo Switch Lite Handheld Console With The Legend of Zel](https://shopgoodwill.com/item/281891393) | Nintendo Switch Lite | $30.00 | $37.67 | $27.67 | goodwill |  | 2026-11-01T18:53 |
-| 399 | [Nintendo 64 Console w/ 1 Controller + 2 Games & Controller P](https://shopgoodwill.com/item/281880469) | Nintendo 64 console | $20.99 | $28.60 | $27.61 | goodwill |  | 2026-11-02T20:22 |
-| 400 | [NIKON COOLPIX CAMERA W/CASE & CAMERA BATTERIES](https://hibid.com/lot/328951084) | Nikon Coolpix compact | $4.00 | $10.28 | $27.52 | hibid | Louisville, KY | 2026-11-04T22:22 |
-| 401 | [Nikon Coolpix S8200 Digital Camera](https://hibid.com/lot/328332103) | Nikon Coolpix compact | $12.00 | $18.53 | $27.51 | hibid 📍 | Bacliff, TX | 2026-11-03T02:58 |
-| 402 | [Nikon Coolpix L18 Digital Camera With Case](https://hibid.com/lot/328332120) | Nikon Coolpix compact | $12.00 | $18.53 | $27.51 | hibid 📍 | Bacliff, TX | 2026-11-03T03:05 |
-| 403 | [MCM Polaroid SX-70 Land Camera](https://hibid.com/lot/325575432) | Polaroid SX-70 (folding) | $5.00 | $10.79 | $27.32 | hibid | Sandford, ON | 2026-11-12T14:21 |
-| 404 | [Nikon COOLPIX Digital Camera "Sticky"](https://hibid.com/lot/328512774) | Nikon Coolpix compact | $4.00 | $9.75 | $27.26 | hibid | Fayetteville, NC | 2026-11-08T20:06 |
-| 405 | [Sony PlayStation 2 PS2 Fat Console Model](https://hibid.com/lot/329073736) | Sony PlayStation 2 console | $3.00 | $8.84 | $27.03 | hibid | Conway, AR | 2026-11-12T00:35 |
-| 406 | [Nintendo Game Boy Advance SP Hamtaro Ham-Ham Heartbreak 1 Ga](https://shopgoodwill.com/item/282126821) | Game Boy Advance SP (AGS-001/unspecified) | $25.99 | $33.00 | $27.01 | goodwill |  | 2026-11-04T20:31 |
-| 407 | [Vintage Canon AE-1 Camera with Accessories and Bag](https://hibid.com/lot/325083381) | Canon AE-1 / AE-1 Program (35mm SLR) | $26.00 | $31.54 | $26.81 | hibid | Evansville, IN | 2026-11-08T00:34 |
-| 408 | [Sony PlayStation 4 PS4 Slim Console Jet Black Video Game Sys](https://shopgoodwill.com/item/281890254) | Sony PlayStation 4 console | $12.99 | $19.80 | $26.80 | goodwill |  | 2026-11-02T21:36 |
-| 409 | [Casio Mens G-shock Classic Alert & World Time 50mm](https://hibid.com/lot/327868246) | Casio G-Shock | $12.00 | $17.18 | $26.73 | hibid 📍 | Houston, TX | 2026-11-06T16:18 |
-| 410 | [Nintendo Wii U Console & Gamepad Controller](https://hibid.com/lot/329091359) | Nintendo Wii U console | $7.50 | $12.66 | $26.71 | hibid | Parkhill, ON | 2026-11-17T22:46 |
-| 411 | [Sony Cyber-shot DSC-W170 Digital Camera 5x Optical Zoom Preo](https://shopgoodwill.com/item/282017404) | Sony Cyber-shot compact (non-RX) | $19.99 | $26.66 | $26.67 | goodwill |  | 2026-11-01T18:07 |
-| 412 | [Sony Cyber-shot DSC-W230 Digital Camera 12.1MP Carl Zeiss Le](https://shopgoodwill.com/item/282043147) | Sony Cyber-shot compact (non-RX) | $20.99 | $27.66 | $26.67 | goodwill |  | 2026-11-01T18:29 |
-| 413 | [Sony Cyber-shot DSC-W90 8.1MP Digital Camera Silver with Cha](https://shopgoodwill.com/item/282005776) | Sony Cyber-shot compact (non-RX) | $20.99 | $27.66 | $26.67 | goodwill |  | 2026-11-01T18:59 |
-| 414 | [Nintendo 64 N64 Console NUS-001 Charcoal OEM Power Supply Me](https://shopgoodwill.com/item/282018842) | Nintendo 64 console | $22.00 | $28.60 | $26.60 | goodwill |  | 2026-11-03T20:27 |
-| 415 | [Sony PS4 Gaming Console](https://hibid.com/lot/329091358) | Sony PlayStation 4 console | $12.50 | $17.54 | $26.55 | hibid | Parkhill, ON | 2026-11-17T22:46 |
-| 416 | [Sony Cyber-shot DSC-S70 Digital Camera](https://hibid.com/lot/327286649) | Sony Cyber-shot compact (non-RX) | $19.00 | $24.08 | $26.25 | hibid | Winnipeg, MB | 2026-11-01T01:53 |
-| 417 | [Sony PlayStation 3 Slim Gaming Console Model CECH-2501B - Te](https://shopgoodwill.com/item/282289295) | Sony PlayStation 3 console | $15.99 | $22.13 | $26.14 | goodwill |  | 2026-10-31T18:47 |
-| 418 | [PlayStation 3 Super Slim 500GB Console](https://shopgoodwill.com/item/281736623) | Sony PlayStation 3 console | $16.00 | $22.13 | $26.13 | goodwill |  | 2026-10-31T18:40 |
-| 419 | [Nikon Coolpix P90 digital camera w/ accessories](https://hibid.com/lot/328459381) | Nikon Coolpix compact | $5.00 | $9.88 | $26.08 | hibid | St Charles, MO | 2026-11-16T00:49 |
-| 420 | [Sony sports Walkman](https://hibid.com/lot/326480777) | Sony Walkman | $3.00 | $8.43 | $25.99 | hibid 📍 | Lexington, TX | 2026-11-05T00:21 |
-| 421 | [Vintage Canon AE-1 Silver & Black Film Camera Body (Untested](https://shopgoodwill.com/item/282220611) | Canon AE-1 / AE-1 Program (35mm SLR) | $29.99 | $35.82 | $25.83 | goodwill |  | 2026-11-04T18:20 |
-| 422 | [Silver And Black Canon Ae 1 35mm Single Lens Reflex (Slr) Fi](https://shopgoodwill.com/item/281873008) | Canon AE-1 / AE-1 Program (35mm SLR) | $33.00 | $38.81 | $25.81 | goodwill |  | 2026-10-31T19:16 |
-| 423 | [Sony PlayStation 4 PS4 Console CUH-1215A Matte Black with Po](https://shopgoodwill.com/item/281897843) | Sony PlayStation 4 console | $14.99 | $20.80 | $25.80 | goodwill |  | 2026-11-02T19:21 |
-| 424 | [Sony Cybershot DSC W510 12.1 Megapixel Digital Camera in Red](https://shopgoodwill.com/item/282432291) | Sony Cyber-shot compact (non-RX) | $23.99 | $29.66 | $25.67 | goodwill |  | 2026-11-06T20:18 |
-| 425 | [Bose QuietComfort 35 (QC35) wireless headphones...](https://hibid.com/lot/327587885) | Bose QuietComfort 35 | $10.00 | $14.44 | $25.42 | hibid | Salisbury, MD | 2026-11-04T23:32 |
-| 426 | [Apple Ipod Classic White 20gb A1099](https://shopgoodwill.com/item/281907824) | iPod Classic/Video (capacity unknown) | $29.00 | $34.35 | $25.35 | goodwill |  | 2026-10-31T19:26 |
-| 427 | [Sony PlayStation 3 PS3 Slim CECH-3001A All-Stars Reckoning 2](https://shopgoodwill.com/item/281912829) | Sony PlayStation 3 console | $19.99 | $25.13 | $25.14 | goodwill |  | 2026-11-02T18:12 |
-| 428 | [Microsoft Xbox One Console & Games](https://hibid.com/lot/329008773) | Xbox One / One S / One X console | $6.00 | $10.21 | $24.97 | hibid | Madison Heights, MI | 2026-11-10T00:16 |
-| 429 | [Sony Cyber-shot DSC-H50 Digital Camera Kit with Carl Zeiss L](https://shopgoodwill.com/item/281943144) | Sony Cyber-shot compact (non-RX) | $24.97 | $29.66 | $24.69 | goodwill |  | 2026-11-02T17:37 |
-| 430 | [Bose QuietComfort 35 Wireless Noise Cancelling Over-Ear Head](https://shopgoodwill.com/item/282006230) | Bose QuietComfort 35 | $10.99 | $15.61 | $24.62 | goodwill |  | 2026-11-03T18:53 |
-| 431 | [Lot of 2 Sony Walkman MDR-101 Vintage Headphones Earphones T](https://www.ebay.com/itm/257820456712?_skw=walkman+lot&hash=item3c074bf708:g:76kAAeSwqaZq4MBP) | Sony Walkman | $24.99 | $29.60 | $24.61 | ebay |  | - |
-| 432 | [Lot of 2 Vintage Sony Headphones SRF-H3 Radio Walkman & MDR-](https://www.ebay.com/itm/820293207754?_skw=walkman+lot&hash=itembefd4906ca:g:waIAAeSwJ~tq2uBF) | Sony Walkman | $25.00 | $29.60 | $24.60 | ebay |  | - |
-| 433 | [Deux caméras numériques pour pièces Nikon Coolpix](https://hibid.com/lot/328611627) | Nikon Coolpix compact | $6.00 | $9.31 | $24.38 | hibid | Montreal, QC | 2026-11-05T01:03 |
-| 434 | [Texas Instruments TI-84 Plus CE Python Graphing Calculator B](https://shopgoodwill.com/item/282276621) | TI-84 Plus CE Python | $19.99 | $24.33 | $24.34 | goodwill |  | 2026-11-03T18:40 |
-| 435 | [Vintage Sony Cyber-shot DSC-F717 5.0MP Digital Camera Carl Z](https://shopgoodwill.com/item/281920428) | Sony Cyber-shot compact (non-RX) | $22.00 | $26.31 | $24.31 | goodwill |  | 2026-10-31T18:16 |
-| 436 | [Vintage Men's Seiko Automatic Date Watch](https://shopgoodwill.com/item/282303125) | Seiko Automatic watch | $15.99 | $20.22 | $24.23 | goodwill |  | 2026-11-05T18:04 |
-| 437 | [Sony PlayStation 2 Slim Console Lot with...](https://hibid.com/lot/328828874) | Sony PlayStation 2 console | $5.00 | $8.28 | $24.22 | hibid | Youngtown, AZ | 2026-11-09T23:24 |
-| 438 | [Nintendo 3DS Aqua Blue Handheld Console](https://hibid.com/lot/327978433) | Nintendo 3DS (non-XL) | $44.00 | $47.19 | $24.06 | hibid | Leslie, MI | - |
-| 439 | [Nintendo Gameboy Advance SP / Model: AGS-001 / Red](https://shopgoodwill.com/item/282198807) | Game Boy Advance SP (AGS-001/unspecified) | $28.00 | $32.00 | $24.00 | goodwill |  | 2026-11-04T19:28 |
-| 440 | [Sony PSP-2001 PlayStation Portable Black Console + UMD Games](https://shopgoodwill.com/item/282398836) | Sony PSP handheld | $14.99 | $18.85 | $23.86 | goodwill |  | 2026-11-01T18:25 |
-| 441 | [HIDEit Mounts Sony PlayStation 4 PS4 Original Console Wall M](https://shopgoodwill.com/item/282350416) | Sony PlayStation 4 console | $14.99 | $18.80 | $23.82 | goodwill |  | 2026-11-05T19:02 |
-| 442 | [Sony PlayStation 4 Gaming Console Console Model CUH-1215A - ](https://shopgoodwill.com/item/282289851) | Sony PlayStation 4 console | $15.99 | $19.80 | $23.80 | goodwill |  | 2026-10-31T18:53 |
-| 443 | [Seiko Men's Gold Tone Automatic Watch](https://shopgoodwill.com/item/282462923) | Seiko Automatic watch | $14.99 | $18.72 | $23.73 | goodwill |  | 2026-11-02T18:03 |
-| 444 | [Seiko Quartz Watch Lot of 6 205.8g](https://shopgoodwill.com/item/282135175) | Seiko Automatic watch | $19.99 | $23.72 | $23.73 | goodwill |  | 2026-11-01T20:30 |
-| 445 | [Nikon Coolpix L830 Camera & Case](https://hibid.com/lot/327424292) | Nikon Coolpix compact | $7.50 | $10.71 | $23.69 | hibid | Siler City, NC | 2026-11-02T23:48 |
-| 446 | [Sony Cybershot DSC S75 Digital Camera with Case and Accessor](https://shopgoodwill.com/item/282437103) | Sony Cyber-shot compact (non-RX) | $25.99 | $29.66 | $23.67 | goodwill |  | 2026-11-06T20:27 |
-| 447 | [Casio Men's 700UC Series G-Shock Quartz](https://hibid.com/lot/329126415) | Casio G-Shock | $7.50 | $10.24 | $23.57 | hibid | St Catharines, ON | 2026-11-05T00:52 |
-| 448 | [Citizen Eco-Drive Rose Gold-Tone Chronograph Watch](https://hibid.com/lot/327470137) | Citizen Eco-Drive chronograph | $37.00 | $39.95 | $23.54 | hibid 📍 | Kingsbury, TX | 2026-11-02T00:01 |
-| 449 | [Nikon Coolpix E7600 Digital Camera](https://hibid.com/lot/328062030) | Nikon Coolpix compact | $7.00 | $9.71 | $23.44 | hibid | Flora, IN | 2026-11-02T01:20 |
-| 450 | [Citizen Eco Drive Two Tone Calendar Watch 59.6g](https://shopgoodwill.com/item/281791124) | Citizen Eco-Drive (men's, no complication) | $9.99 | $13.38 | $23.39 | goodwill |  | 2026-11-01T19:26 |
-| 451 | [Citizen Eco-Drive Abalone Dial Stainless Steel Watch 77.6g](https://shopgoodwill.com/item/281780397) | Citizen Eco-Drive (men's, no complication) | $9.99 | $13.38 | $23.39 | goodwill |  | 2026-11-01T20:10 |
-| 452 | [VTG NIKON Coolpix 995 Digital Camera](https://hibid.com/lot/327855610) | Nikon Coolpix compact | $7.00 | $9.63 | $23.36 | hibid | Tucson, AZ | 2026-11-01T23:50 |
-| 453 | [G-Shock Watch GW500A -Untested](https://shopgoodwill.com/item/282399766) | Casio G-Shock | $9.96 | $13.31 | $23.35 | goodwill |  | 2026-11-06T19:02 |
-| 454 | [Texas Instruments TI-84 Plus CE Python Graphing Calculator W](https://shopgoodwill.com/item/281914260) | TI-84 Plus CE Python | $20.99 | $24.33 | $23.34 | goodwill |  | 2026-10-31T18:35 |
-| 455 | [Sony PlayStation 2 Console](https://hibid.com/lot/329011672) | Sony PlayStation 2 console | $6.00 | $8.65 | $23.26 | hibid | Hayden, ID | 2026-11-01T19:00 |
-| 456 | [Microsoft Xbox One Model 1540 Console](https://hibid.com/lot/327979167) | Xbox One / One S / One X console | $7.00 | $9.47 | $23.15 | hibid | Leslie, MI | - |
-| 457 | [XBOX One S Video Game Consoles](https://hibid.com/lot/327677501) | Xbox One / One S / One X console | $7.00 | $9.44 | $23.12 | hibid | Lansdale, PA | 2026-11-04T23:51 |
-| 458 | [Sony PSP-3001 Black Handheld Gaming Console PlayStation Port](https://shopgoodwill.com/item/282437356) | Sony PSP handheld | $15.99 | $18.85 | $22.86 | goodwill |  | 2026-11-01T18:53 |
-| 459 | [CITIZEN Eco-Drive Man's Watch - Working](https://hibid.com/lot/328373947) | Citizen Eco-Drive (men's, no complication) | $10.00 | $12.08 | $22.82 | hibid | Markham, ON | 2026-11-01T23:00 |
-| 460 | [Polaroid The Button SX-70 Land Instant Film Camera Not Teste](https://shopgoodwill.com/item/282516697) | Polaroid SX-70 (folding) | $5.99 | $8.65 | $22.66 | goodwill |  | 2027-04-28T20:08 |
-| 461 | [Nikon Coolpix 775 Digital Camera - Untested](https://shopgoodwill.com/item/282402930) | Nikon Coolpix compact | $9.96 | $12.31 | $22.35 | goodwill |  | 2026-11-06T19:08 |
-| 462 | [iPod Classic A1238 Gen 6 80GB Boxed Reset](https://shopgoodwill.com/item/281868388) | iPod Classic/Video (capacity unknown) | $33.00 | $35.34 | $22.34 | goodwill |  | 2026-11-02T20:24 |
-| 463 | [Nikon Coolpix L110 12.1 Megapixel Digital Bridge Camera](https://shopgoodwill.com/item/282077903) | Nikon Coolpix compact | $9.99 | $12.31 | $22.32 | goodwill |  | 2026-11-01T20:01 |
-| 464 | [G Shock Casio Armitron Lacoste Watch Lot](https://shopgoodwill.com/item/282169548) | Casio G-Shock | $7.99 | $10.31 | $22.32 | goodwill |  | 2026-11-01T18:50 |
-| 465 | [Watch Grab Bag Assorted Brands w/ Casio G-SHOCK Bill Blass 3](https://shopgoodwill.com/item/282308070) | Casio G-Shock | $7.99 | $10.31 | $22.32 | goodwill |  | 2026-11-02T17:25 |
-| 466 | [Sony Playstation Psp-1001 Black Handheld Console Video Gamin](https://shopgoodwill.com/item/282031758) | Sony PSP handheld | $16.74 | $18.86 | $22.12 | goodwill |  | 2026-11-01T19:52 |
-| 467 | [Designer Stamped Citizen Men's Sport Casual Chronograph Eco-](https://shopgoodwill.com/item/281808049) | Citizen Eco-Drive chronograph | $34.00 | $35.95 | $21.95 | goodwill |  | 2026-11-01T18:06 |
-| 468 | [Canon AE-1 Camera with Case](https://hibid.com/lot/327007632) | Canon AE-1 / AE-1 Program (35mm SLR) | $30.00 | $31.55 | $21.90 | hibid | Kaneville, IL | 2026-11-08T22:12 |
-| 469 | [Sony Cyber-shot DSC-W800 Black Digital Camera - 20.1MP 5x Op](https://shopgoodwill.com/item/282007050) | Sony Cyber-shot compact (non-RX) | $26.00 | $27.66 | $21.66 | goodwill |  | 2026-11-01T18:31 |
-| 470 | [Vintage Seiko Automatic 7009-8559 Men's Watch -](https://hibid.com/lot/327655943) | Seiko Automatic watch | $18.00 | $19.35 | $21.65 | hibid | La Crosse, WI | 2026-11-02T23:01 |
-| 471 | [CASIO GA-700UC-8ACR G-SHOCK ANALOG-DIGITAL WAT](https://hibid.com/lot/328314867) | Casio G-Shock | $9.00 | $10.24 | $21.62 | hibid | London, ON | 2026-11-02T00:58 |
-| 472 | [Texas Instruments TI-84 Plus CE Black Graphing Calculator 8x](https://shopgoodwill.com/item/281892396) | TI-84 Plus CE | $10.99 | $12.51 | $21.52 | goodwill |  | 2026-11-02T18:58 |
-| 473 | [Texas Instruments TI-84 Plus CE Graphing Calculator (Unteste](https://shopgoodwill.com/item/281873583) | TI-84 Plus CE | $9.99 | $11.50 | $21.51 | goodwill |  | 2026-11-02T19:43 |
-| 474 | [Texas Instruments TI-84 Plus CE Graphing Calculator White Wi](https://shopgoodwill.com/item/282535076) | TI-84 Plus CE | $9.99 | $11.50 | $21.51 | goodwill |  | 2026-11-07T18:54 |
-| 475 | [Citizen Eco-Drive Quartz Watch B023-S033802 HST](https://shopgoodwill.com/item/282055275) | Citizen Eco-Drive (men's, no complication) | $14.99 | $16.38 | $21.39 | goodwill |  | 2026-11-01T16:32 |
-| 476 | [Citizen Eco Drive Corso Watch ES2294](https://shopgoodwill.com/item/282148927) | Citizen Eco-Drive (men's, no complication) | $14.99 | $16.38 | $21.39 | goodwill |  | 2026-11-02T17:08 |
-| 477 | [Citizen Eco-Drive Silver-Tone Day/Date Watch](https://shopgoodwill.com/item/282163872) | Citizen Eco-Drive (men's, no complication) | $14.99 | $16.38 | $21.39 | goodwill |  | 2026-11-02T17:18 |
-| 478 | [Casio G-Shock Digital Sport Watch 3232 DW-9052](https://shopgoodwill.com/item/282310001) | Casio G-Shock | $9.99 | $11.31 | $21.32 | goodwill |  | 2026-11-01T20:03 |
-| 479 | [Texas Instruments Ti-84 Plus Ce Graphing Calculator White Wi](https://shopgoodwill.com/item/281993661) | TI-84 Plus CE | $9.99 | $11.25 | $21.26 | goodwill |  | 2026-11-03T20:45 |
-| 480 | [Nintendo GameBoy Advance SP Silver Handheld Console Bundle, ](https://shopgoodwill.com/item/282454269) | Game Boy Advance SP (AGS-001/unspecified) | $30.00 | $31.25 | $21.25 | goodwill |  | 2026-11-04T20:28 |
-| 481 | [Nintendo Wii U 8GB Console Set](https://hibid.com/lot/327978524) | Nintendo Wii U console | $12.00 | $12.94 | $21.19 | hibid | Leslie, MI | - |
-| 482 | [Nintendo Game Boy Advance SP AGS-001 Metallic Blue](https://shopgoodwill.com/item/282039674) | Game Boy Advance SP (AGS-001/unspecified) | $32.00 | $33.00 | $21.00 | goodwill |  | 2026-11-01T18:15 |
-| 483 | [Sony PlayStation 4 CUH-1115A Black Video Gaming Home Console](https://shopgoodwill.com/item/282241473) | Sony PlayStation 4 console | $16.99 | $17.80 | $20.81 | goodwill |  | 2026-10-31T18:15 |
-| 484 | [Sony PlayStation 4 Slim Black Video Game Console PS4 Slim Mo](https://shopgoodwill.com/item/282030281) | Sony PlayStation 4 console | $19.99 | $20.80 | $20.81 | goodwill |  | 2026-11-01T18:25 |
-| 485 | [Sony PlayStation 4 PS4 Slim Black Gaming Console MC729339139](https://shopgoodwill.com/item/282012252) | Sony PlayStation 4 console | $19.99 | $20.80 | $20.81 | goodwill |  | 2026-11-01T18:48 |
-| 486 | [SONY CYBER-SHOT DIGITAL CAMERA](https://hibid.com/lot/327884640) | Sony Cyber-shot compact (non-RX) | $23.00 | $23.54 | $20.69 | hibid | Knoxville, TN | 2026-11-05T23:37 |
-| 487 | [Polaroid Pronto B SX-70 Instant Film Camera Untested](https://shopgoodwill.com/item/282027264) | Polaroid SX-70 (folding) | $9.99 | $10.65 | $20.66 | goodwill |  | 2026-11-03T18:59 |
-| 488 | [Vintage Polaroid SX-70 Land Camera Chrome Metal Body Tan Lea](https://shopgoodwill.com/item/282423309) | Polaroid SX-70 (folding) | $8.99 | $9.65 | $20.66 | goodwill |  | 2026-11-06T19:15 |
-| 489 | [Vtg Polaroid SX-70 Instant Camera, HP Photosmart](https://hibid.com/lot/328304367) | Polaroid SX-70 (folding) | $10.00 | $10.51 | $20.66 | hibid | Las Vegas, NV | 2026-11-01T19:21 |
-| 490 | [Bose QuietComfort 35 II Wireless Noise Cancelling Over-Ear H](https://shopgoodwill.com/item/282255180) | Bose QuietComfort 35 | $14.99 | $15.61 | $20.62 | goodwill |  | 2026-11-03T18:16 |
-| 491 | [Citizen Eco Drive and Anne Klein Gold Tone Watch](https://shopgoodwill.com/item/282007552) | Citizen Eco-Drive (men's, no complication) | $12.80 | $13.39 | $20.59 | goodwill |  | 2026-10-31T19:26 |
-| 492 | [Casio Calculator Al-8s Vintage Texas Instruments Ti-84 Plus ](https://shopgoodwill.com/item/282320310) | TI-84 Plus CE | $9.99 | $10.51 | $20.52 | goodwill |  | 2026-11-03T20:40 |
-| 493 | [Sony PlayStation 2 Slim Console & Accessories](https://hibid.com/lot/327979303) | Sony PlayStation 2 console | $8.00 | $8.37 | $20.47 | hibid | Leslie, MI | - |
-| 494 | [Citizen Eco-Drive Brown Leather Gold-Tone Day/Date Watch](https://shopgoodwill.com/item/282176700) | Citizen Eco-Drive (men's, no complication) | $15.99 | $16.38 | $20.39 | goodwill |  | 2026-11-02T17:08 |
-| 495 | [Casio G-Shock DW-9052 Digital Watch 3232 Module Black](https://shopgoodwill.com/item/282051712) | Casio G-Shock | $12.99 | $13.31 | $20.32 | goodwill |  | 2026-11-01T19:11 |
-| 496 | [Canon AE-1 Program 35mm SLR Camera & Lens](https://hibid.com/lot/327704189) | Canon AE-1 / AE-1 Program (35mm SLR) | $30.00 | $30.22 | $20.29 | hibid | Clearwater, FL | 2026-11-04T22:34 |
-| 497 | [Seiko Automatic Sports Day Date Men's Watch 42mm](https://hibid.com/lot/328743032) | Seiko Automatic watch | $25.00 | $25.20 | $20.26 | hibid 📍 | Houston, TX | 2026-11-04T20:56 |
-| 498 | [Nintendo Game Boy Advance AGB-001 Console](https://hibid.com/lot/327979484) | Game Boy Advance (original AGB-001) | $9.00 | $9.14 | $20.18 | hibid | Leslie, MI | - |
+| 380 | [Sony Playstation 4 Ps4 Video Game Console Used Untested](https://shopgoodwill.com/item/282031080) | Sony PlayStation 4 console | $11.00 | $19.80 | $28.80 | goodwill |  | 2026-11-01T19:29 |
+| 381 | [1980's Vintage Men's Seiko 17 Jewel Automatic Watch 6309-801](https://shopgoodwill.com/item/282187420) | Seiko Automatic watch | $14.99 | $23.72 | $28.73 | goodwill |  | 2026-11-04T16:09 |
+| 382 | [Turquoise Nintendo Switch Lite HDH-001 with NBA 2K18 & Plant](https://shopgoodwill.com/item/282155141) | Nintendo Switch Lite | $30.00 | $38.67 | $28.67 | goodwill |  | 2026-11-04T19:00 |
+| 383 | [nikon coolpix](https://hibid.com/lot/328455027) | Nikon Coolpix compact | $3.00 | $10.10 | $28.66 | hibid | Thurmont, MD | 2026-11-09T00:27 |
+| 384 | [NIKON DIGITAL CAMERA COOLPIX800](https://hibid.com/lot/327884638) | Nikon Coolpix compact | $3.00 | $9.77 | $28.53 | hibid | Knoxville, TN | 2026-11-05T23:37 |
+| 385 | [Citizen Eco-drive Chandler Men’s Watch 42mm](https://hibid.com/lot/328742610) | Citizen Eco-Drive (men's, no complication) | $13.00 | $19.55 | $28.51 | hibid 📍 | Houston, TX | 2026-11-04T20:14 |
+| 386 | [Citizen Ar Eco-drive  Blue Dial Men's Watch 45mm](https://hibid.com/lot/328742748) | Citizen Eco-Drive (men's, no complication) | $13.00 | $19.55 | $28.51 | hibid 📍 | Houston, TX | 2026-11-04T20:28 |
+| 387 | [Charm bracelet and G-Shock Watch](https://hibid.com/lot/328031892) | Casio G-Shock | $4.00 | $10.91 | $28.43 | hibid | Fairburn, SD | 2026-10-31T22:31 |
+| 388 | [Apple iPod Classic 5th Gen A1136 30GB Portable Media Player ](https://shopgoodwill.com/item/282233143) | iPod Classic/Video (capacity unknown) | $29.99 | $38.34 | $28.35 | goodwill |  | 2026-11-04T18:01 |
+| 389 | [PS2 Console & Video Game Accessory Lot](https://hibid.com/lot/328833997) | Sony PlayStation 2 console | $2.00 | $9.17 | $28.32 | hibid | Rhinelander, WI | 2026-11-02T00:00 |
+| 390 | [PlayStation 2 lot-PS2 console, dvd player, ps2](https://hibid.com/lot/328867735) | Sony PlayStation 2 console | $2.00 | $8.65 | $28.18 | hibid | Parker City, IN | 2026-11-09T23:24 |
+| 391 | [S1 - SEIKO AUTOMATIC WATCH (34)](https://hibid.com/lot/328792404) | Seiko Automatic watch | $12.50 | $19.06 | $28.16 | hibid | Las Vegas, NV | 2026-11-06T01:16 |
+| 392 | [G-shock Mens Classic Flash Alert & World Time 50mm](https://hibid.com/lot/327868222) | Casio G-Shock | $11.00 | $17.18 | $28.03 | hibid 📍 | Houston, TX | 2026-11-06T16:15 |
+| 393 | [Nintendo Game Boy Advance SP AGS-001 Red Console with Charge](https://shopgoodwill.com/item/282259402) | Game Boy Advance SP (AGS-001/unspecified) | $26.99 | $35.00 | $28.01 | goodwill |  | 2026-11-05T20:05 |
+| 394 | [Sony Cyber-shot DSC-S90 4.1MP Digital Camera Silver Carl Zei](https://shopgoodwill.com/item/281914225) | Sony Cyber-shot compact (non-RX) | $19.99 | $27.66 | $27.67 | goodwill |  | 2026-10-31T18:28 |
+| 395 | [Sony Cyber-shot Model DSC-T70 Silver 8.1 MP 3" Screen Digita](https://shopgoodwill.com/item/282220021) | Sony Cyber-shot compact (non-RX) | $16.99 | $24.66 | $27.67 | goodwill |  | 2026-10-31T20:18 |
+| 396 | [Sony Cyber-shot DSC-T100 Digital Camera 8.1MP Black 5x Optic](https://shopgoodwill.com/item/282006963) | Sony Cyber-shot compact (non-RX) | $19.99 | $27.66 | $27.67 | goodwill |  | 2026-11-01T18:29 |
+| 397 | [Nintendo Switch Lite Handheld Console With The Legend of Zel](https://shopgoodwill.com/item/281891393) | Nintendo Switch Lite | $30.00 | $37.67 | $27.67 | goodwill |  | 2026-11-01T18:53 |
+| 398 | [Nintendo 64 Console w/ 1 Controller + 2 Games & Controller P](https://shopgoodwill.com/item/281880469) | Nintendo 64 console | $20.99 | $28.60 | $27.61 | goodwill |  | 2026-11-02T20:22 |
+| 399 | [NIKON COOLPIX CAMERA W/CASE & CAMERA BATTERIES](https://hibid.com/lot/328951084) | Nikon Coolpix compact | $4.00 | $10.28 | $27.52 | hibid | Louisville, KY | 2026-11-04T22:22 |
+| 400 | [Nikon Coolpix S8200 Digital Camera](https://hibid.com/lot/328332103) | Nikon Coolpix compact | $12.00 | $18.53 | $27.51 | hibid 📍 | Bacliff, TX | 2026-11-03T02:58 |
+| 401 | [Nikon Coolpix L18 Digital Camera With Case](https://hibid.com/lot/328332120) | Nikon Coolpix compact | $12.00 | $18.53 | $27.51 | hibid 📍 | Bacliff, TX | 2026-11-03T03:05 |
+| 402 | [MCM Polaroid SX-70 Land Camera](https://hibid.com/lot/325575432) | Polaroid SX-70 (folding) | $5.00 | $10.79 | $27.32 | hibid | Sandford, ON | 2026-11-12T14:21 |
+| 403 | [Nikon COOLPIX Digital Camera "Sticky"](https://hibid.com/lot/328512774) | Nikon Coolpix compact | $4.00 | $9.75 | $27.26 | hibid | Fayetteville, NC | 2026-11-08T20:06 |
+| 404 | [Sony PlayStation 2 PS2 Fat Console Model](https://hibid.com/lot/329073736) | Sony PlayStation 2 console | $3.00 | $8.84 | $27.03 | hibid | Conway, AR | 2026-11-12T00:35 |
+| 405 | [Nintendo Game Boy Advance SP Hamtaro Ham-Ham Heartbreak 1 Ga](https://shopgoodwill.com/item/282126821) | Game Boy Advance SP (AGS-001/unspecified) | $25.99 | $33.00 | $27.01 | goodwill |  | 2026-11-04T20:31 |
+| 406 | [Vintage Canon AE-1 Camera with Accessories and Bag](https://hibid.com/lot/325083381) | Canon AE-1 / AE-1 Program (35mm SLR) | $26.00 | $31.54 | $26.81 | hibid | Evansville, IN | 2026-11-08T00:34 |
+| 407 | [Sony PlayStation 4 PS4 Slim Console Jet Black Video Game Sys](https://shopgoodwill.com/item/281890254) | Sony PlayStation 4 console | $12.99 | $19.80 | $26.80 | goodwill |  | 2026-11-02T21:36 |
+| 408 | [Casio Mens G-shock Classic Alert & World Time 50mm](https://hibid.com/lot/327868246) | Casio G-Shock | $12.00 | $17.18 | $26.73 | hibid 📍 | Houston, TX | 2026-11-06T16:18 |
+| 409 | [Nintendo Wii U Console & Gamepad Controller](https://hibid.com/lot/329091359) | Nintendo Wii U console | $7.50 | $12.66 | $26.71 | hibid | Parkhill, ON | 2026-11-17T22:46 |
+| 410 | [Sony Cyber-shot DSC-W170 Digital Camera 5x Optical Zoom Preo](https://shopgoodwill.com/item/282017404) | Sony Cyber-shot compact (non-RX) | $19.99 | $26.66 | $26.67 | goodwill |  | 2026-11-01T18:07 |
+| 411 | [Sony Cyber-shot DSC-W230 Digital Camera 12.1MP Carl Zeiss Le](https://shopgoodwill.com/item/282043147) | Sony Cyber-shot compact (non-RX) | $20.99 | $27.66 | $26.67 | goodwill |  | 2026-11-01T18:29 |
+| 412 | [Sony Cyber-shot DSC-W90 8.1MP Digital Camera Silver with Cha](https://shopgoodwill.com/item/282005776) | Sony Cyber-shot compact (non-RX) | $20.99 | $27.66 | $26.67 | goodwill |  | 2026-11-01T18:59 |
+| 413 | [Nintendo 64 N64 Console NUS-001 Charcoal OEM Power Supply Me](https://shopgoodwill.com/item/282018842) | Nintendo 64 console | $22.00 | $28.60 | $26.60 | goodwill |  | 2026-11-03T20:27 |
+| 414 | [Sony PS4 Gaming Console](https://hibid.com/lot/329091358) | Sony PlayStation 4 console | $12.50 | $17.54 | $26.55 | hibid | Parkhill, ON | 2026-11-17T22:46 |
+| 415 | [Sony Cyber-shot DSC-S70 Digital Camera](https://hibid.com/lot/327286649) | Sony Cyber-shot compact (non-RX) | $19.00 | $24.08 | $26.25 | hibid | Winnipeg, MB | 2026-11-01T01:53 |
+| 416 | [Sony PlayStation 3 Slim Gaming Console Model CECH-2501B - Te](https://shopgoodwill.com/item/282289295) | Sony PlayStation 3 console | $15.99 | $22.13 | $26.14 | goodwill |  | 2026-10-31T18:47 |
+| 417 | [PlayStation 3 Super Slim 500GB Console](https://shopgoodwill.com/item/281736623) | Sony PlayStation 3 console | $16.00 | $22.13 | $26.13 | goodwill |  | 2026-10-31T18:40 |
+| 418 | [Nikon Coolpix P90 digital camera w/ accessories](https://hibid.com/lot/328459381) | Nikon Coolpix compact | $5.00 | $9.88 | $26.08 | hibid | St Charles, MO | 2026-11-16T00:49 |
+| 419 | [Sony sports Walkman](https://hibid.com/lot/326480777) | Sony Walkman | $3.00 | $8.43 | $25.99 | hibid 📍 | Lexington, TX | 2026-11-05T00:21 |
+| 420 | [Vintage Canon AE-1 Silver & Black Film Camera Body (Untested](https://shopgoodwill.com/item/282220611) | Canon AE-1 / AE-1 Program (35mm SLR) | $29.99 | $35.82 | $25.83 | goodwill |  | 2026-11-04T18:20 |
+| 421 | [Silver And Black Canon Ae 1 35mm Single Lens Reflex (Slr) Fi](https://shopgoodwill.com/item/281873008) | Canon AE-1 / AE-1 Program (35mm SLR) | $33.00 | $38.81 | $25.81 | goodwill |  | 2026-10-31T19:16 |
+| 422 | [Sony PlayStation 4 PS4 Console CUH-1215A Matte Black with Po](https://shopgoodwill.com/item/281897843) | Sony PlayStation 4 console | $14.99 | $20.80 | $25.80 | goodwill |  | 2026-11-02T19:21 |
+| 423 | [Sony Cybershot DSC W510 12.1 Megapixel Digital Camera in Red](https://shopgoodwill.com/item/282432291) | Sony Cyber-shot compact (non-RX) | $23.99 | $29.66 | $25.67 | goodwill |  | 2026-11-06T20:18 |
+| 424 | [Bose QuietComfort 35 (QC35) wireless headphones...](https://hibid.com/lot/327587885) | Bose QuietComfort 35 | $10.00 | $14.44 | $25.42 | hibid | Salisbury, MD | 2026-11-04T23:32 |
+| 425 | [Apple Ipod Classic White 20gb A1099](https://shopgoodwill.com/item/281907824) | iPod Classic/Video (capacity unknown) | $29.00 | $34.35 | $25.35 | goodwill |  | 2026-10-31T19:26 |
+| 426 | [Sony PlayStation 3 PS3 Slim CECH-3001A All-Stars Reckoning 2](https://shopgoodwill.com/item/281912829) | Sony PlayStation 3 console | $19.99 | $25.13 | $25.14 | goodwill |  | 2026-11-02T18:12 |
+| 427 | [Microsoft Xbox One Console & Games](https://hibid.com/lot/329008773) | Xbox One / One S / One X console | $6.00 | $10.21 | $24.97 | hibid | Madison Heights, MI | 2026-11-10T00:16 |
+| 428 | [Sony Cyber-shot DSC-H50 Digital Camera Kit with Carl Zeiss L](https://shopgoodwill.com/item/281943144) | Sony Cyber-shot compact (non-RX) | $24.97 | $29.66 | $24.69 | goodwill |  | 2026-11-02T17:37 |
+| 429 | [Bose QuietComfort 35 Wireless Noise Cancelling Over-Ear Head](https://shopgoodwill.com/item/282006230) | Bose QuietComfort 35 | $10.99 | $15.61 | $24.62 | goodwill |  | 2026-11-03T18:53 |
+| 430 | [Lot of 2 Sony Walkman MDR-101 Vintage Headphones Earphones T](https://www.ebay.com/itm/257820456712?_skw=walkman+lot&hash=item3c074bf708:g:76kAAeSwqaZq4MBP) | Sony Walkman | $24.99 | $29.60 | $24.61 | ebay |  | - |
+| 431 | [Lot of 2 Vintage Sony Headphones SRF-H3 Radio Walkman & MDR-](https://www.ebay.com/itm/820293207754?_skw=walkman+lot&hash=itembefd4906ca:g:waIAAeSwJ~tq2uBF) | Sony Walkman | $25.00 | $29.60 | $24.60 | ebay |  | - |
+| 432 | [Deux caméras numériques pour pièces Nikon Coolpix](https://hibid.com/lot/328611627) | Nikon Coolpix compact | $6.00 | $9.31 | $24.38 | hibid | Montreal, QC | 2026-11-05T01:03 |
+| 433 | [Texas Instruments TI-84 Plus CE Python Graphing Calculator B](https://shopgoodwill.com/item/282276621) | TI-84 Plus CE Python | $19.99 | $24.33 | $24.34 | goodwill |  | 2026-11-03T18:40 |
+| 434 | [Vintage Men's Seiko Automatic Date Watch](https://shopgoodwill.com/item/282303125) | Seiko Automatic watch | $15.99 | $20.22 | $24.23 | goodwill |  | 2026-11-05T18:04 |
+| 435 | [Sony PlayStation 2 Slim Console Lot with...](https://hibid.com/lot/328828874) | Sony PlayStation 2 console | $5.00 | $8.28 | $24.22 | hibid | Youngtown, AZ | 2026-11-09T23:24 |
+| 436 | [Nintendo 3DS Aqua Blue Handheld Console](https://hibid.com/lot/327978433) | Nintendo 3DS (non-XL) | $44.00 | $47.19 | $24.06 | hibid | Leslie, MI | - |
+| 437 | [Nintendo Gameboy Advance SP / Model: AGS-001 / Red](https://shopgoodwill.com/item/282198807) | Game Boy Advance SP (AGS-001/unspecified) | $28.00 | $32.00 | $24.00 | goodwill |  | 2026-11-04T19:28 |
+| 438 | [Sony PSP-2001 PlayStation Portable Black Console + UMD Games](https://shopgoodwill.com/item/282398836) | Sony PSP handheld | $14.99 | $18.85 | $23.86 | goodwill |  | 2026-11-01T18:25 |
+| 439 | [HIDEit Mounts Sony PlayStation 4 PS4 Original Console Wall M](https://shopgoodwill.com/item/282350416) | Sony PlayStation 4 console | $14.99 | $18.80 | $23.82 | goodwill |  | 2026-11-05T19:02 |
+| 440 | [Sony PlayStation 4 Gaming Console Console Model CUH-1215A - ](https://shopgoodwill.com/item/282289851) | Sony PlayStation 4 console | $15.99 | $19.80 | $23.80 | goodwill |  | 2026-10-31T18:53 |
+| 441 | [Seiko Men's Gold Tone Automatic Watch](https://shopgoodwill.com/item/282462923) | Seiko Automatic watch | $14.99 | $18.72 | $23.73 | goodwill |  | 2026-11-02T18:03 |
+| 442 | [Seiko Quartz Watch Lot of 6 205.8g](https://shopgoodwill.com/item/282135175) | Seiko Automatic watch | $19.99 | $23.72 | $23.73 | goodwill |  | 2026-11-01T20:30 |
+| 443 | [Nikon Coolpix L830 Camera & Case](https://hibid.com/lot/327424292) | Nikon Coolpix compact | $7.50 | $10.71 | $23.69 | hibid | Siler City, NC | 2026-11-02T23:48 |
+| 444 | [Sony Cybershot DSC S75 Digital Camera with Case and Accessor](https://shopgoodwill.com/item/282437103) | Sony Cyber-shot compact (non-RX) | $25.99 | $29.66 | $23.67 | goodwill |  | 2026-11-06T20:27 |
+| 445 | [Casio Men's 700UC Series G-Shock Quartz](https://hibid.com/lot/329126415) | Casio G-Shock | $7.50 | $10.24 | $23.57 | hibid | St Catharines, ON | 2026-11-05T00:52 |
+| 446 | [Citizen Eco-Drive Rose Gold-Tone Chronograph Watch](https://hibid.com/lot/327470137) | Citizen Eco-Drive chronograph | $37.00 | $39.95 | $23.54 | hibid 📍 | Kingsbury, TX | 2026-11-02T00:01 |
+| 447 | [Nikon Coolpix E7600 Digital Camera](https://hibid.com/lot/328062030) | Nikon Coolpix compact | $7.00 | $9.71 | $23.44 | hibid | Flora, IN | 2026-11-02T01:20 |
+| 448 | [Citizen Eco Drive Two Tone Calendar Watch 59.6g](https://shopgoodwill.com/item/281791124) | Citizen Eco-Drive (men's, no complication) | $9.99 | $13.38 | $23.39 | goodwill |  | 2026-11-01T19:26 |
+| 449 | [Citizen Eco-Drive Abalone Dial Stainless Steel Watch 77.6g](https://shopgoodwill.com/item/281780397) | Citizen Eco-Drive (men's, no complication) | $9.99 | $13.38 | $23.39 | goodwill |  | 2026-11-01T20:10 |
+| 450 | [VTG NIKON Coolpix 995 Digital Camera](https://hibid.com/lot/327855610) | Nikon Coolpix compact | $7.00 | $9.63 | $23.36 | hibid | Tucson, AZ | 2026-11-01T23:50 |
+| 451 | [G-Shock Watch GW500A -Untested](https://shopgoodwill.com/item/282399766) | Casio G-Shock | $9.96 | $13.31 | $23.35 | goodwill |  | 2026-11-06T19:02 |
+| 452 | [Texas Instruments TI-84 Plus CE Python Graphing Calculator W](https://shopgoodwill.com/item/281914260) | TI-84 Plus CE Python | $20.99 | $24.33 | $23.34 | goodwill |  | 2026-10-31T18:35 |
+| 453 | [Sony PlayStation 2 Console](https://hibid.com/lot/329011672) | Sony PlayStation 2 console | $6.00 | $8.65 | $23.26 | hibid | Hayden, ID | 2026-11-01T19:00 |
+| 454 | [Microsoft Xbox One Model 1540 Console](https://hibid.com/lot/327979167) | Xbox One / One S / One X console | $7.00 | $9.47 | $23.15 | hibid | Leslie, MI | - |
+| 455 | [XBOX One S Video Game Consoles](https://hibid.com/lot/327677501) | Xbox One / One S / One X console | $7.00 | $9.44 | $23.12 | hibid | Lansdale, PA | 2026-11-04T23:51 |
+| 456 | [Sony PSP-3001 Black Handheld Gaming Console PlayStation Port](https://shopgoodwill.com/item/282437356) | Sony PSP handheld | $15.99 | $18.85 | $22.86 | goodwill |  | 2026-11-01T18:53 |
+| 457 | [CITIZEN Eco-Drive Man's Watch - Working](https://hibid.com/lot/328373947) | Citizen Eco-Drive (men's, no complication) | $10.00 | $12.08 | $22.82 | hibid | Markham, ON | 2026-11-01T23:00 |
+| 458 | [Polaroid The Button SX-70 Land Instant Film Camera Not Teste](https://shopgoodwill.com/item/282516697) | Polaroid SX-70 (folding) | $5.99 | $8.65 | $22.66 | goodwill |  | 2027-04-28T20:08 |
+| 459 | [Nikon Coolpix 775 Digital Camera - Untested](https://shopgoodwill.com/item/282402930) | Nikon Coolpix compact | $9.96 | $12.31 | $22.35 | goodwill |  | 2026-11-06T19:08 |
+| 460 | [iPod Classic A1238 Gen 6 80GB Boxed Reset](https://shopgoodwill.com/item/281868388) | iPod Classic/Video (capacity unknown) | $33.00 | $35.34 | $22.34 | goodwill |  | 2026-11-02T20:24 |
+| 461 | [Nikon Coolpix L110 12.1 Megapixel Digital Bridge Camera](https://shopgoodwill.com/item/282077903) | Nikon Coolpix compact | $9.99 | $12.31 | $22.32 | goodwill |  | 2026-11-01T20:01 |
+| 462 | [G Shock Casio Armitron Lacoste Watch Lot](https://shopgoodwill.com/item/282169548) | Casio G-Shock | $7.99 | $10.31 | $22.32 | goodwill |  | 2026-11-01T18:50 |
+| 463 | [Watch Grab Bag Assorted Brands w/ Casio G-SHOCK Bill Blass 3](https://shopgoodwill.com/item/282308070) | Casio G-Shock | $7.99 | $10.31 | $22.32 | goodwill |  | 2026-11-02T17:25 |
+| 464 | [Sony Playstation Psp-1001 Black Handheld Console Video Gamin](https://shopgoodwill.com/item/282031758) | Sony PSP handheld | $16.74 | $18.86 | $22.12 | goodwill |  | 2026-11-01T19:52 |
+| 465 | [Designer Stamped Citizen Men's Sport Casual Chronograph Eco-](https://shopgoodwill.com/item/281808049) | Citizen Eco-Drive chronograph | $34.00 | $35.95 | $21.95 | goodwill |  | 2026-11-01T18:06 |
+| 466 | [Canon AE-1 Camera with Case](https://hibid.com/lot/327007632) | Canon AE-1 / AE-1 Program (35mm SLR) | $30.00 | $31.55 | $21.90 | hibid | Kaneville, IL | 2026-11-08T22:12 |
+| 467 | [Sony Cyber-shot DSC-W800 Black Digital Camera - 20.1MP 5x Op](https://shopgoodwill.com/item/282007050) | Sony Cyber-shot compact (non-RX) | $26.00 | $27.66 | $21.66 | goodwill |  | 2026-11-01T18:31 |
+| 468 | [Vintage Seiko Automatic 7009-8559 Men's Watch -](https://hibid.com/lot/327655943) | Seiko Automatic watch | $18.00 | $19.35 | $21.65 | hibid | La Crosse, WI | 2026-11-02T23:01 |
+| 469 | [CASIO GA-700UC-8ACR G-SHOCK ANALOG-DIGITAL WAT](https://hibid.com/lot/328314867) | Casio G-Shock | $9.00 | $10.24 | $21.62 | hibid | London, ON | 2026-11-02T00:58 |
+| 470 | [Texas Instruments TI-84 Plus CE Black Graphing Calculator 8x](https://shopgoodwill.com/item/281892396) | TI-84 Plus CE | $10.99 | $12.51 | $21.52 | goodwill |  | 2026-11-02T18:58 |
+| 471 | [Texas Instruments TI-84 Plus CE Graphing Calculator (Unteste](https://shopgoodwill.com/item/281873583) | TI-84 Plus CE | $9.99 | $11.50 | $21.51 | goodwill |  | 2026-11-02T19:43 |
+| 472 | [Texas Instruments TI-84 Plus CE Graphing Calculator White Wi](https://shopgoodwill.com/item/282535076) | TI-84 Plus CE | $9.99 | $11.50 | $21.51 | goodwill |  | 2026-11-07T18:54 |
+| 473 | [Citizen Eco-Drive Quartz Watch B023-S033802 HST](https://shopgoodwill.com/item/282055275) | Citizen Eco-Drive (men's, no complication) | $14.99 | $16.38 | $21.39 | goodwill |  | 2026-11-01T16:32 |
+| 474 | [Citizen Eco Drive Corso Watch ES2294](https://shopgoodwill.com/item/282148927) | Citizen Eco-Drive (men's, no complication) | $14.99 | $16.38 | $21.39 | goodwill |  | 2026-11-02T17:08 |
+| 475 | [Citizen Eco-Drive Silver-Tone Day/Date Watch](https://shopgoodwill.com/item/282163872) | Citizen Eco-Drive (men's, no complication) | $14.99 | $16.38 | $21.39 | goodwill |  | 2026-11-02T17:18 |
+| 476 | [Casio G-Shock Digital Sport Watch 3232 DW-9052](https://shopgoodwill.com/item/282310001) | Casio G-Shock | $9.99 | $11.31 | $21.32 | goodwill |  | 2026-11-01T20:03 |
+| 477 | [Vintage Sony Cyber-shot DSC-F717 5.0MP Digital Camera Carl Z](https://shopgoodwill.com/item/281920428) | Sony Cyber-shot compact (non-RX) | $25.00 | $26.31 | $21.31 | goodwill |  | 2026-10-31T18:16 |
+| 478 | [Texas Instruments Ti-84 Plus Ce Graphing Calculator White Wi](https://shopgoodwill.com/item/281993661) | TI-84 Plus CE | $9.99 | $11.25 | $21.26 | goodwill |  | 2026-11-03T20:45 |
+| 479 | [Nintendo GameBoy Advance SP Silver Handheld Console Bundle, ](https://shopgoodwill.com/item/282454269) | Game Boy Advance SP (AGS-001/unspecified) | $30.00 | $31.25 | $21.25 | goodwill |  | 2026-11-04T20:28 |
+| 480 | [Nintendo Wii U 8GB Console Set](https://hibid.com/lot/327978524) | Nintendo Wii U console | $12.00 | $12.94 | $21.19 | hibid | Leslie, MI | - |
+| 481 | [Nintendo Game Boy Advance SP AGS-001 Metallic Blue](https://shopgoodwill.com/item/282039674) | Game Boy Advance SP (AGS-001/unspecified) | $32.00 | $33.00 | $21.00 | goodwill |  | 2026-11-01T18:15 |
+| 482 | [Sony PlayStation 4 CUH-1115A Black Video Gaming Home Console](https://shopgoodwill.com/item/282241473) | Sony PlayStation 4 console | $16.99 | $17.80 | $20.81 | goodwill |  | 2026-10-31T18:15 |
+| 483 | [Sony PlayStation 4 Slim Black Video Game Console PS4 Slim Mo](https://shopgoodwill.com/item/282030281) | Sony PlayStation 4 console | $19.99 | $20.80 | $20.81 | goodwill |  | 2026-11-01T18:25 |
+| 484 | [SONY CYBER-SHOT DIGITAL CAMERA](https://hibid.com/lot/327884640) | Sony Cyber-shot compact (non-RX) | $23.00 | $23.54 | $20.69 | hibid | Knoxville, TN | 2026-11-05T23:37 |
+| 485 | [Polaroid Pronto B SX-70 Instant Film Camera Untested](https://shopgoodwill.com/item/282027264) | Polaroid SX-70 (folding) | $9.99 | $10.65 | $20.66 | goodwill |  | 2026-11-03T18:59 |
+| 486 | [Vintage Polaroid SX-70 Land Camera Chrome Metal Body Tan Lea](https://shopgoodwill.com/item/282423309) | Polaroid SX-70 (folding) | $8.99 | $9.65 | $20.66 | goodwill |  | 2026-11-06T19:15 |
+| 487 | [Vtg Polaroid SX-70 Instant Camera, HP Photosmart](https://hibid.com/lot/328304367) | Polaroid SX-70 (folding) | $10.00 | $10.51 | $20.66 | hibid | Las Vegas, NV | 2026-11-01T19:21 |
+| 488 | [Bose QuietComfort 35 II Wireless Noise Cancelling Over-Ear H](https://shopgoodwill.com/item/282255180) | Bose QuietComfort 35 | $14.99 | $15.61 | $20.62 | goodwill |  | 2026-11-03T18:16 |
+| 489 | [Citizen Eco Drive and Anne Klein Gold Tone Watch](https://shopgoodwill.com/item/282007552) | Citizen Eco-Drive (men's, no complication) | $12.80 | $13.39 | $20.59 | goodwill |  | 2026-10-31T19:26 |
+| 490 | [Casio Calculator Al-8s Vintage Texas Instruments Ti-84 Plus ](https://shopgoodwill.com/item/282320310) | TI-84 Plus CE | $9.99 | $10.51 | $20.52 | goodwill |  | 2026-11-03T20:40 |
+| 491 | [Sony PlayStation 2 Slim Console & Accessories](https://hibid.com/lot/327979303) | Sony PlayStation 2 console | $8.00 | $8.37 | $20.47 | hibid | Leslie, MI | - |
+| 492 | [Citizen Eco-Drive Brown Leather Gold-Tone Day/Date Watch](https://shopgoodwill.com/item/282176700) | Citizen Eco-Drive (men's, no complication) | $15.99 | $16.38 | $20.39 | goodwill |  | 2026-11-02T17:08 |
+| 493 | [Casio G-Shock DW-9052 Digital Watch 3232 Module Black](https://shopgoodwill.com/item/282051712) | Casio G-Shock | $12.99 | $13.31 | $20.32 | goodwill |  | 2026-11-01T19:11 |
+| 494 | [Canon AE-1 Program 35mm SLR Camera & Lens](https://hibid.com/lot/327704189) | Canon AE-1 / AE-1 Program (35mm SLR) | $30.00 | $30.22 | $20.29 | hibid | Clearwater, FL | 2026-11-04T22:34 |
+| 495 | [Seiko Automatic Sports Day Date Men's Watch 42mm](https://hibid.com/lot/328743032) | Seiko Automatic watch | $25.00 | $25.20 | $20.26 | hibid 📍 | Houston, TX | 2026-11-04T20:56 |
+| 496 | [Nintendo Game Boy Advance AGB-001 Console](https://hibid.com/lot/327979484) | Game Boy Advance (original AGB-001) | $9.00 | $9.14 | $20.18 | hibid | Leslie, MI | - |
 
 _Regenerated every run; sold/expired lots simply disappear._
